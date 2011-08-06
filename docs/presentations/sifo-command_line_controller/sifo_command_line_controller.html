@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" content-t>
+
+	<head>
+		<title>Seoframework (SIFO) CommandLine Controller</title>
+		<!-- metadata -->
+		<meta name="generator" content="S5" />
+		<meta name="version" content="S5 1.1" />
+		<meta name="presdate" content="20100709" />
+		<meta name="author" content="Sergi Ambel" />
+		<meta name="company" content="SIFO" />
+		<!-- configuration parameters -->
+		<meta name="defaultView" content="slideshow" />
+		<meta name="controlVis" content="hidden" />
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+			<!-- style sheet links -->
+			<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+			<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+			<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+			<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+			<!-- embedded styles -->
+			<style type="text/css" media="all">
+				.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+				#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+				#anim img {position: absolute; top: 42px; left: 24px;}
+				img#me01 {top: 0; left: 0;}
+				img#me02 {left: 23px;}
+				img#me04 {top: 44px;}
+				img#me05 {top: 43px;left: 36px;}
+			</style>
+			<!-- S5 JS -->
+			<script src="ui/default/slides.js" type="text/javascript"></script>
+	</head>
+	<body>
+
+		<div class="layout">
+			<div id="controls"><!-- DO NOT EDIT --></div>
+			<div id="currentSlide"><!-- DO NOT EDIT --></div>
+			<div id="header"></div>
+			<div id="footer">
+				<h1>Command line controller using SIFO</h1>
+				<h2>Sergi Ambel &#8226; sergi.ambel@gmail.com</h2>
+			</div>
+
+		</div>
+		<div class="presentation">
+
+			<div class="slide">
+				<h1>Command line controller using SIFO</h1>
+				<h3>Sergi Ambel</h3>
+				<h4><a href="http://sifo.eu/">Altar boy in the SIFO Church</a></h4>
+				<h5><em>Twitter:</em> <a href="http://twitter.com/sergiambel">@sergiambel</a></h5>
+			</div>
+
+			<div class="slide">
+				<h1>When use command line</h1>
+				<h2>Imagine a cron scheduled process launched by a script with SIFO data access. </h2><br/>
+				<h2>Examples:</h2>
+				<ul>
+					<li>Cache handler script.</li>
+					<li>Mail queue handler.</li>
+					<li>Mail bounces parser.</li>
+					<li>Log report generator</li>
+				</ul>
+			</div>
+
+			<div class="slide">
+				<h1>Common behaviours</h1>
+				<h2>The major part of this kind of scripts have the same requirements.</h2>
+				<ul>
+					<li>Help menu</li>
+					<li>Test mode flag</li>
+					<li>Verbose mode flag</li>
+					<li>Sending mail result report</li>
+					<li>Multi execution advice</li>
+					<li>Customized params</li>
+					<li>Access to the SIFO God power</li>
+				</ul>
+			</div>
+
+			<div class="slide">
+				<h1>Structure</h1>
+				<center><img src="pix/structure.jpg" /></center>
+			</div>
+
+			<div class="slide">
+				<h1>An example: sendLog Script - Specs</h1>
+				<h2>We have a big log file in every instance. This file is heavy to read one time and to much heavy to read everyday.</h2>
+				<h2>We need an script like a helper to read this file. The script should complain the following specs:</h2>
+				<ul>
+					<li>Complain the previous "common" behaviours.</li>
+					<li>We need define the time from our report. (86400 for the last 24h).</li>
+					<li>Html and nonHtml report.</li>
+				</ul>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog script</h1>
+				<pre>
+// DON'T TOUCH THIS LINES:
+define( 'ROOT_PATH', realpath( dirname( __FILE__ ) . '/../../..' ) );
+require ROOT_PATH . '/instances/CLBootstrap.php';
+
+// The controller to run customization.
+// Customize only this line:
+<strong>CLBootstrap::$script_controller = 'scripts/send/log';</strong>
+
+// DON'T TOUCH THIS LINE:
+CLBootstrap::execute();
+				</pre>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<h2>Abstracted methods:</h2>
+				<pre>
+<strong>public function init()</strong>
+{
+	$this->help_str = 'This script show the last messages in the SIFO log. Use <br/>the time option to set the time ago option. '.PHP_EOL;
+	$this->help_str .= 'If you want receive the report to your mailbox you can <br/>use the --recipient option. '.PHP_EOL;
+
+	$this->setNewParam( 'T', 'time', 'Define, in seconds, the time from which <br/>you want receive the log messages.', true, true );
+	$this->setNewParam( 'H', 'html', 'Use this option for dump the info in html <br/>format.', false, false );
+}
+				</pre>
+				<h2>setNewParam definition:</h2>
+				<center><img src="pix/setNewParam.jpg" /></center>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<center><img src="pix/sendlogexec.jpg" /></center>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<center><img src="pix/sendlogexec-1.jpg" /></center>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<center><img src="pix/sendlogexec-2.jpg" /></center>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<center><img src="pix/sendlogexec-3.jpg" /></center>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - sendLog Controller</h1>
+				<pre>
+<strong>protected function showMessage( $message, $in_mode = self::ALL, $tag = true )</strong>
+/*
+self::TEST:
+self::VERBOSE:
+self::ALL:
+*/				</pre>
+
+				<h2>Note: Don't forget give +x permission to your script.</h2>
+			</div>
+		<div class="slide">
+				<h1>An example: sendLog Script - Execution example</h1>
+				<center><img src="pix/running_sendlog-1.jpg" /></center>
+			</div>
+			<div class="slide">
+				<h1>An example: sendLog Script - Execution example</h1>
+				<pre>
+php send-log.php seoframework.local --help
+</pre>
+				<center><img src="pix/running_sendlog-2.jpg" /></center>
+			</div>
+			<div class="slide">
+				<h1>An example: sendLog Script - Execution example</h1>
+				<pre>
+php send-log.php obolog.local -T 345600 -H
+</pre>
+[INFO] Script  in  started at:06-Jul-2010 00:27:58
+<table>
+<tr>
+<td>1</td><td>02-Jul-2010 22:19:54</td><td>02-Jul-2010 22:19:54</td><td>Notice:  A request labeled as 'search|megamanager' returned an unexpected status code:  (http://www.softonic.com/s/megamanager/xml) in /mnt/Shared/seoframework/instances/progbuenos/classes/SoftonicApi.php on line </td>
+</tr>
+<tr>
+<td>1</td><td>02-Jul-2010 22:20:29</td><td>02-Jul-2010 22:20:29</td><td>Notice:  Array to string conversion in /mnt/Shared/seoframework/libs/Predis-0.5.1-PHP5.2/lib/Predis.php on line </td>
+</tr>
+</table>
+[INFO] Finished at: 06-Jul-2010 00:27:59
+			</div>
+			<div class="slide">
+				<h1>Special thanks to:</h1>
+				<ul>
+					<li>Rasmus Lerdorf for create PHP</li>
+					<li>Softonic for my knowledge</li>
+					<li>Basi Vera for pushing me into this world</li>
+					<li>Albert Lombarte for his initative and this slides design ;)</li>
+					<li>Jessica for everything else</li>
+				</ul><br/>
+				Note: When I prepared this presentation Spain had not won, yet, to Germany. Good luck guys! (I'm sorry for our friend Jens)
+			</div>
+
+
+		</div>
+
+	</body>
+</html>

@@ -1,0 +1,18 @@
+.header, .footer, .main-content, .sidebar { -moz-border-radius:5px; -webkit-border-radius:5px; }
+.main-content, .sidebar { padding:1px 18px; background:#efefef }
+.header, .footer { padding:1px 18px; background:#ccc; }
+.footer { margin-top:18px; padding:18px; text-align: center; }
+.pagination { text-align:center; }
+.pagination ul { margin-left:1em; }
+.pagination li { display:inline; }
+
+/* @group Application message boxes */
+.msg_info, .msg_ok, .msg_ko, .msg_warning, .msg_thumb { margin:15px 0; -moz-border-radius:5px; -webkit-border-radius:5px; color:#333 !important; }
+.msg_info a, .msg_ok a, .msg_ko a, .msg_warning a, .msg_thumb a { color:#2E79D0 !important; }
+.msg_info a.button, .msg_ok a.button, .msg_ko a.button, .msg_warning a.button, .msg_thumb a.button { color:#fff !important; }
+.msg_info { background:url(/img/icons/information.png) 15px 10px no-repeat #eaf5fc; border:1px solid #afcaea; }
+.msg_ok { background:url(/img/icons/tick.png) 15px 10px no-repeat #ecfcea; border:1px solid #b6eaaf; }
+.msg_ko { background:url(/img/icons/exclamation-red.png) 15px 10px no-repeat #fceaea; border:1px solid #eaafaf; }
+.msg_warning { background:url(/img/icons/exclamation.png) 15px 10px no-repeat #fefbe4; border:1px solid #eadaaf; }
+.msg_thumb { background:url(/img/icons/thumb-up.png) 15px 10px no-repeat #fefbe4; border:1px solid #eadaaf; }
+/* @end */

@@ -1,0 +1,143 @@
+<?php
+/**
+ * LICENSE
+ * 
+ * Copyright 2010 Manuel Fernández
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+class Session
+{
+
+	static private $instance;
+
+	private function __construct()
+	{
+		// Init session cookie domain to allow sharing session
+		// across multiple subdomains.
+		ini_set( 'session.cookie_domain', '.' . Domains::getInstance()->getDomain() );
+
+		if ( !isset( $_SESSION ) )
+		{
+			if ( headers_sent ( ) )
+			{
+				trigger_error( "Session: The session was not started before the sending of the headers." );
+				return false;
+			}
+			else
+			{
+				// Session init.
+				session_start();
+			}
+		}
+	}
+
+	public static function getInstance()
+	{
+		if ( !isset( self::$instance ) )
+		{
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Use it to set a single var like $ses->set( 'name', 'val' ); or an array of pairs key-value like $ses->set( array( 'key' => 'val' ) );
+	 *
+	 * @param string|array $name
+	 * @param string|null $value
+	 * @return boolean
+	 */
+	public function set( $name, $value = null )
+	{
+		if ( is_array( $name ) && null === $value )
+		{
+			foreach ( $name as $key => $val )
+			{
+				$_SESSION[$key] = $val;
+			}
+		}
+		elseif ( !isset( $name ) || !isset( $value ) )
+		{
+			trigger_error( "Session: Missing parameter or parameters." );
+			return false;
+		}
+		else
+		{
+			$_SESSION[$name] = $value;
+		}
+
+		return true;
+	}
+
+	public function get( $name )
+	{
+		if ( !isset( $_SESSION[$name] ) )
+		{
+			return null;
+		}
+
+		return $_SESSION[$name];
+	}
+
+	public function getId()
+	{
+		if ( !isset( $_SESSION ) )
+		{
+			return null;
+		}
+
+		return session_id();
+	}
+
+	public function delete( $name )
+	{
+		if ( !isset( $_SESSION[$name] ) )
+		{
+			trigger_error( "Session: Session variable does not exist." );
+			return false;
+		}
+		else
+		{
+			unset( $_SESSION[$name] );
+			return true;
+		}
+	}
+
+	public function destroy()
+	{
+		if ( isset( $_SESSION ) )
+		{
+			unset( $_SESSION );
+			$_SESSION = array( );
+			session_destroy();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ends the current session and store session data.
+	 */
+	public function writeClose()
+	{
+		session_write_close();
+	}
+
+	public static function setExpirationTime( $time )
+	{
+		ini_set( 'session.cache_expire', $time );
+	}
+}

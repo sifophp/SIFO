@@ -1,0 +1,8 @@
+#Rename this file to .htaccess if you want to use it in your instance. But you'd better place all this in your Apache configuration file.
+RewriteEngine On
+RewriteBase /
+
+# All URLs (except real files & folders) redirect to index.php script as dispatcher
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
