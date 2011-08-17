@@ -1,1 +1,1 @@
-{$content}
+{if isset($content)}{$content}{/if}

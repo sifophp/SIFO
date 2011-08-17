@@ -58,6 +58,41 @@ class Images
 		
 		return true;
 	}
+
+	/**
+	 * Crop an image using specific points where the crop have to begin.
+	 *
+	 * @param $from Origin file name
+	 * @param $to Final file name
+	 * @param $startX X point where the crop have to begin.
+	 * @param $startY Y point where the crop have to begin.
+	 * @param $width Final width.
+	 * @param $height Final height
+	 * @param bool $resizeUp
+	 * @param bool $transparency
+	 * @param int $quality
+	 * @return bool
+	 */
+	static public function cropAndSave( $from, $to, $startX, $startY, $width, $height, $resizeUp = false, $transparency = false, $quality = 100 )
+	{
+		include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
+
+		$fileinfo = pathinfo( $to );
+
+		$thumb = PhpThumbFactory::create( $from );
+		$thumb = PhpThumbFactory::create( $from, array(
+					'resizeUp' => $resizeUp,
+					'preserveAlpha' => $transparency,
+					'preserveTransparency' => $transparency,
+					'jpegQuality'	=> $quality,
+						) );
+
+		$thumb->crop( $startX, $startY, $width, $height );
+
+		$thumb->save( $to, $fileinfo['extension'] );
+
+		return true;
+	}
 	
 	/**
 	 * Upload and resize an image.
