@@ -65,13 +65,14 @@ $config['seoframework.local'] = array(
 	'static_host' => 'http://static.seoframework.local',
 	'media_host' => 'http://static.seoframework.local', // Alternative static content (media). Comment to disable.
 	'database' => array(
-		// 'profile' => 'PRODUCTION' // Use this option for MASTER/SLAVE configurations and fill db_profiles.config.php with credentials.
-		'db_driver' => 'mysql', // For use transactions you must use mysqli driver.
+		// If you need a master/slave schema enable the 'profile' line below:
+		// 'profile' => 'PRODUCTION', // Use this option for MASTER/SLAVE configurations and fill db_profiles.config.php with credentials.
+		'db_driver' => 'mysql', // To use transactions you must use mysqli driver.
 		'db_host' => '127.0.0.1',
 		'db_user' => 'root',
 		'db_password' => 'root',
-		'db_name' => 'splitweet',
-		'db_init_commands' => array( 'SET NAMES utf8' )
+		'db_name' => 'yourdatabase',
+		'db_init_commands' => array( 'SET NAMES utf8' ) // Commands launched before the queries.
 	),
 	/* REDIS syntax:
 	'database' => array(
@@ -81,15 +82,15 @@ $config['seoframework.local'] = array(
 		'database' => 0
 	),
 	 */
-	'php_ini_sets' => array( // Empty array if don't want changes.
+	'php_ini_sets' => array( // Empty array if you don't want any php.ini overriden.
 		// Log errors to 'logs' folder:
 		'log_errors' => 'On',
-		'error_log' => ROOT_PATH . '/logs/errors.log',
+		'error_log' => ROOT_PATH . '/logs/errors_' . date( 'Y-m' ) . '.log', // Store a different error file per month. For the lazy rotator :)
 
 		// Allow short tags <? (instead of <?php) for more flexible view scripts.
-		'short_open_tag' => '1'
+		// 'short_open_tag' => '1'
 	),
-	//'libraries_profile' => 'bleeding_edge'
+	//'libraries_profile' => 'bleeding_edge' // What profile of libraries should be used.
 );
 
 $config['unit.test'] = $config['seoframework.local'];
