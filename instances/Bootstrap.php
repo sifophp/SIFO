@@ -23,9 +23,6 @@
  */
 require_once ROOT_PATH . '/libs/SEOframework/Config.php';
 
-// Some stuff needed by ADODb:
-$ADODB_CACHE_DIR = ROOT_PATH . '/cache';
-
 class Bootstrap
 {
 
@@ -77,7 +74,7 @@ class Bootstrap
 	);
 
 	/**
-	 * Include the necessary files to run SIFO. (and someone more...)
+	 * Include the minimum necessary files to run SIFO.
 	 */
 	public static function includeRequiredFiles()
 	{
@@ -134,16 +131,17 @@ class Bootstrap
 	}
 
 	/**
-	 * To launch a include_once without instance class.
+	 * Includes (include_once) the file corresponding to the passed passed classname.
+	 * It does not instantiate any object.
 	 *
-	 * @param string $class
-	 * @return classname
+	 * @param string $classname
+	 * @return string The classname you asked for.
 	 */
-	protected static function includeFile( $class )
+	protected static function includeFile( $classname )
 	{
 		try
 		{
-			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $class );
+			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $classname );
 		}
 		catch ( Exception_Configuration $e )
 		{
@@ -159,10 +157,12 @@ class Bootstrap
 	}
 
 	/**
-	 * Returns an instance of the requested class.
+	 * Returns an instance of the requested class. The second parameter controls
+	 * if an instance of the object is returned. If you are getting a class with
+	 * a private constructor (e.g: singleton) set it to false.
 	 *
 	 * @param string $class Class name you want to get
-	 * @param boolean $call_constructor It is always assumed to create a new object. Set to false to only include the class.
+	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
 	 * @return Object|void
 	 */
 	public static function getClass( $class, $call_constructor = true )
@@ -178,7 +178,7 @@ class Bootstrap
 		}
 		else
 		{
-			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared." );
+			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
 		}
 	}
 
@@ -189,9 +189,6 @@ class Bootstrap
 	 */
 	public static function dispatch( $controller = null )
 	{
-		// Set Timezone as required by php 5.1+
-		date_default_timezone_set( 'Europe/Madrid' );
-
 		try
 		{
 			$config = Config::getInstance( self::$instance );
@@ -225,7 +222,12 @@ class Bootstrap
 			}
 
 			self::$language = $domain->getLanguage();
-			self::_overWritePHPini( $domain->getPHPInis() );
+			$php_inis = $domain->getPHPInis();
+			
+			if ( $php_inis )
+			{
+				self::_overWritePHPini( $php_inis );
+			}
 
 			$url = UrlParser::getInstance( self::$instance );
 			$path_parts = $url->getPathParts();
@@ -277,23 +279,21 @@ class Bootstrap
 		{
 			self::_dispatchErrorController( $e );
 		}
+		// The exception should be catched by the application. Throw a 500 header by default.
 		catch ( Exception $e )
 		{
-			// TODO: Decide what to do when another exception is captured.
 			header( 'HTTP/1.0 500 Internal Server Error' );
-			trigger_error( "FATAL, UNCATCHED EXCEPTION. " . $e->getMessage() . "\n" . $e->getTraceAsString() );
+			trigger_error( "FATAL ERROR. An uncatched exception has been raised:\n" . $e->getMessage() . "\n" . $e->getTraceAsString() );
 			die;
 		}
 	}
 
-	private static function _overWritePHPini( $php_inis )
-	{
-		foreach ( $php_inis as $varname => $newvalue )
-		{
-			ini_set( $varname, $newvalue );
-		}
-	}
-
+	/**
+	 * Dispatches an error after an exception.
+	 * 
+	 * @param Exception $e
+	 * @return output buffer 
+	 */
 	private static function _dispatchErrorController( $e )
 	{
 		header( 'HTTP/1.0 ' . $e->http_code . ' ' . $e->http_code_msg );
@@ -309,6 +309,7 @@ class Bootstrap
 			'trace' => $e->getTraceAsString(),
 				) );
 
+		// All the SEO_Exceptions with need of redirection have this attribute:
 		if ( $e->redirect )
 		{
 			// Path is passed via message:
@@ -347,11 +348,25 @@ class Bootstrap
 		}
 
 		$result = $ctrl2->dispatch();
-		// Load debug in case you have enable devel flag.
+		// Load the debug in case you have enabled the devel flag.
 		if ( $ctrl2->hasDebug() )
 		{
 			self::invokeController( 'debug/index' )->dispatch();
 		}
+		
 		return $result;
+	}
+	
+	/**
+	 * Sets all the PHP ini configurations stored in the configuration.
+	 * 
+	 * @param array $php_inis 
+	 */
+	private static function _overWritePHPini( Array $php_inis )
+	{
+		foreach ( $php_inis as $varname => $newvalue )
+		{
+			ini_set( $varname, $newvalue );
+		}
 	}
 }
