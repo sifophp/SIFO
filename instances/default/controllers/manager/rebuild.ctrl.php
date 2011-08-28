@@ -96,7 +96,7 @@ MESG;
 
 	}
 
-	private function cleanStartingSlash( $path )
+	protected function cleanStartingSlash( $path )
 	{
 		if ( 0 === strpos( $path, "/" ) )
 		{
@@ -113,7 +113,7 @@ MESG;
 	 * @param string $path
 	 * @return string
 	 */
-	private function getClassStandardized( $path )
+	protected function getClassStandardized( $path )
 	{
 		$class = '';
 
