@@ -1,7 +1,7 @@
 <?php
 {foreach from=$config item=c key=k}
 {if is_array($c) }
-$config['{$k}'] = array( {foreach from=$c item=v}'{$v}',{/foreach} );
+$config['{$k}'] = {$c|var_export} );
 {else}
 $config['{$k}'] = '{$c}';
 {/if}
