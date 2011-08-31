@@ -23,6 +23,7 @@
  *
  * TODO: Migrate to SPL when PHP 5.3 is found easily on shared hostings.
  * Directory interaction for those not being able to use RecursiveDirectoryIterator
+ * @deprecated Use Directory.php for new implementations.
  */
 class Dir
 {
