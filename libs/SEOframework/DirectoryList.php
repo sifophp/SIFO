@@ -78,10 +78,20 @@ class DirectoryList
 	 * @param string $path Directory where you want to start parsing.
 	 * @return IteratorIterator 
 	 */
-	public function getList( $path )
+	public function getList( $path, $valid_extensions = array() )
 	{
-		// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
-		return new IteratorIterator( new RecursiveDirectoryIterator( $path ) );
+		if ( !empty ( $valid_extensions ) )
+		{
+				return new FilterFilesByExtensionIterator(
+						new IteratorIterator( new RecursiveDirectoryIterator( $path ) ),
+						$valid_extensions );
+		}
+		else
+		{
+			// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
+			return new IteratorIterator( new RecursiveDirectoryIterator( $path ) );
+		}
+		
 	}
 
 	/**
