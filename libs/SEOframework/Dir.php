@@ -23,6 +23,7 @@
  *
  * TODO: Migrate to SPL when PHP 5.3 is found easily on shared hostings.
  * Directory interaction for those not being able to use RecursiveDirectoryIterator
+ * @deprecated Use Directory.php for new implementations.
  */
 class Dir
 {
@@ -31,7 +32,7 @@ class Dir
 	 *
 	 * @var array
 	 */
-	protected $ignored_files = array( '.', '..', '.svn', '.DS_Store', 'Thumbs.db', '_smarty' );
+	protected $ignored_files = array( '.', '..', '.svn', '.git', '.DS_Store', 'Thumbs.db', '_smarty' );
 
 	/**
 	 * Returns an array containing a list of files found recursively for a given path.
@@ -126,6 +127,11 @@ class Dir
 		sort( $list );
 
 		return $list;
+	}
+	
+	public function setIgnore( Array $ignored_files )
+	{
+		$this->ignored_files = $ignored_files;
 	}
 
 }

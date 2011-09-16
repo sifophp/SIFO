@@ -19,6 +19,9 @@
  */
 include_once 'LoadBalancer.php';
 
+// Some stuff needed by ADODb:
+$ADODB_CACHE_DIR = ROOT_PATH . '/cache';
+
 /**
  * Handles the interaction with a database using ADODB, and adds load balancing. Many drivers are supported, see ADODB.
  */

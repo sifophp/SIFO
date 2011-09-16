@@ -30,7 +30,7 @@ class Domains
 	protected $dev_mode = false;
 	protected $instance;
 	protected $domain_configuration = array();
-	protected $php_inis = array();
+	protected $php_inis = false;
 	protected $redirect;
 	protected $auth_data = array();
     protected $http_host;
@@ -207,11 +207,7 @@ class Domains
 					}
 				}
 
-				if ( !( isset( $settings['php_ini_sets'] ) && is_array( $settings['php_ini_sets'] ) ) )
-				{
-					trigger_error( "SIFO: Please define the 'php_ini_sets' array in your domains.config file. You can take a look to the default instance",  E_USER_NOTICE );
-				}
-				else
+				if ( ( isset( $settings['php_ini_sets'] ) && !empty( $settings['php_ini_sets'] ) ) )
 				{
 					$this->php_inis = $settings['php_ini_sets'];
 				}

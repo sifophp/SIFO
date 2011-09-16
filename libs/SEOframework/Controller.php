@@ -130,7 +130,7 @@ abstract class Controller
 	 *
 	 * @var string
 	 */
-	private $layout;
+	protected $layout;
 
 	abstract function build();
 

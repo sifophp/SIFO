@@ -2,7 +2,6 @@
 
 abstract class CommandLineController extends Controller
 {
-
 	const TEST		= 'TEST';
 	const VERBOSE	= 'VERBOSE';
 	const ALL		= 'INFO';
@@ -13,26 +12,54 @@ abstract class CommandLineController extends Controller
 	 */
 	const MAX_LINES_WITHOUT_SEND_MAIL = 2; // Thes start and end time.
 
-	private $_verbose = false;
+	private $_verbose			= false;
 	private $_recipient;
-	private $_stdout = '';
+	private $_stdout			= '';
 	private $_script_name;
 	private $_domain_name;
-
-	public $debug_mode = false;
-	public $test = false;
+	public $debug_mode			= false;
+	public $test				= false;
 	public $command_options;
-	public $help_str = "Use 'php script-name domain.ext <options>' (SIFO default help string. Redefine this property for customize this message.)";
-	public $force = false;
+	public $help_str			= "Use 'php script-name domain.ext <options>' (SIFO default help string. Redefine this property for customize this message.)";
+	public $force				= false;
 
-	abstract function init();
-	abstract function exec();
+	/**
+	 * Foreground colors for shell messages.
+	 *
+	 * @var array
+	 */
+	public $_foreground_colors = array(
+		'black'		=> '0;30',
+		'blue'		=> '0;34',
+		'green'		=> '0;32',
+		'cyan'		=> '0;36',
+		'red'		=> '0;31',
+		'purple'	=> '0;35',
+		'brown'		=> '0;33',
+		'yellow'	=> '1;33',
+		'white'		=> '1;37'
+	);
+
+	/**
+	 * Background colors for shell messages.
+	 *
+	 * @var array
+	 */
+	public $_background_colors = array(
+		'black'		=> '40',
+		'red'		=> '41',
+		'green'		=> '42',
+		'yellow'	=> '43',
+		'blue'		=> '44',
+		'magenta'	=> '45',
+		'cyan'		=> '46',
+		'gray'		=> '47'
+	);
 
 	/**
 	 * Shell params array.
 	 *
-	 *
-	 * @var <type>
+	 * @var array
 	 */
 	public $_shell_common_params = array(
 		array(
@@ -56,7 +83,6 @@ abstract class CommandLineController extends Controller
 			'need_second_param'	=> false,
 			'is_required'		=> false,
 		),
-
 		array(
 			'short_param_name'	=> 'r',
 			'long_param_name'	=> 'recipient',
@@ -64,7 +90,6 @@ abstract class CommandLineController extends Controller
 			'need_second_param'	=> true,
 			'is_required'		=> false,
 		),
-
 		array(
 			'short_param_name'	=> 'f',
 			'long_param_name'	=> 'force',
@@ -72,8 +97,11 @@ abstract class CommandLineController extends Controller
 			'need_second_param'	=> false,
 			'is_required'		=> false,
 		),
-
 	);
+	
+	abstract function init();
+
+	abstract function exec();	
 
 	public function __construct()
 	{
@@ -93,34 +121,76 @@ abstract class CommandLineController extends Controller
 		$this->i18n = I18N::getInstance( Domains::getInstance()->getLanguageDomain(), $this->language );
 	}
 
-	protected function showMessage( $message, $in_mode = self::ALL, $tag = true )
+	/**
+	 * Print a message on the console.
+	 * 
+	 * Usage example:
+	 * 
+	 * $this->showMessage( 'Example message', self::VERBOSE, array( 'background' => 'red', 'indent' => 4 ) );
+	 *
+	 * @param string $message
+	 * @param object $in_mode (by default: self::ALL)
+	 * @param array $params (optional array keys: indent, foreground and background)
+	 */
+	protected function showMessage( $message, $in_mode = self::ALL, $params = NULL )
 	{
-		if ( $tag )
+		if ( isset( $params ) && is_array( $params ) )
 		{
-			$message = "[".$in_mode."] ".$message;
+			$color_codes = '';
+			$tabs = '';
+
+			foreach ( $params as $key => $value )
+			{
+				switch ( $key )
+				{
+					case 'foreground':
+						{
+							$color_codes .= "\033[" . $this->_foreground_colors[$value] . "m";
+						}break;
+
+					case 'background':
+						{
+							$color_codes .= "\033[" . $this->_background_colors[$value] . "m";
+						}break;
+
+					case 'indent':
+						{
+							for ( $i = 0; $i < $value; $i++ )
+							{
+								$tabs = "\t" . $tabs;
+							}
+						}break;
+				}
+			}
+			$message = $color_codes . "[" . $in_mode . "] " . $tabs . $message . "\033[0m";
 		}
+		else
+		{
+			$message = "[" . $in_mode . "] " . $message;
+		}
+
 		switch ( $in_mode )
 		{
 			case self::TEST:
 				if ( $this->test )
 				{
-					$this->_stdout .= $message.PHP_EOL;
-					echo $message.PHP_EOL;
+					$this->_stdout .= $message . PHP_EOL;
+					echo $message . PHP_EOL;
 				}
 				break;
 			case self::VERBOSE:
 				if ( $this->_verbose )
 				{
-					$this->_stdout .= $message.PHP_EOL;
-					echo $message.PHP_EOL;
+					$this->_stdout .= $message . PHP_EOL;
+					echo $message . PHP_EOL;
 				}
 				break;
 			case self::ALL:
-				$this->_stdout .= $message.PHP_EOL;
-				echo $message.PHP_EOL;
+				$this->_stdout .= $message . PHP_EOL;
+				echo $message . PHP_EOL;
 				break;
 			default:
-				throw new OutOfBoundsException( 'Undefined in_mode selected.');
+				throw new OutOfBoundsException( 'Undefined in_mode selected.' );
 		}
 	}
 
@@ -159,14 +229,14 @@ abstract class CommandLineController extends Controller
 		foreach ( $this->_shell_common_params as $param )
 		{
 			echo '--' . $param['long_param_name'] . "(-" . $param['short_param_name'] . ")\t:";
-			if ( $param['is_required'])
+			if ( $param['is_required'] )
 			{
 				echo "(REQUIRED) ";
 			}
 			echo $param['help_string'];
 			if ( $param['need_second_param'] )
 			{
-				echo " (use with a value like '--".$param['long_param_name']." value')";
+				echo " (use with a value like '--" . $param['long_param_name'] . " value')";
 			}
 			echo PHP_EOL . PHP_EOL;
 		}
@@ -175,24 +245,24 @@ abstract class CommandLineController extends Controller
 	private function _getParams()
 	{
 		$i = -1;
-		$params = array();
+		$params = array( );
 		if ( $argv = FilterServer::getInstance()->getArray( 'argv' ) )
 		{
 			foreach ( $argv as $option )
 			{
-				if ( preg_match("/^--(\w+)/", $option, $matchs) )
+				if ( preg_match( "/^--(\w+)/", $option, $matchs ) )
 				{
 					$params[++$i][0] = $matchs[1];
 				}
 				else
 				{
-					if ( preg_match("/^-(\w+)/", $option, $matchs) )
+					if ( preg_match( "/^-(\w+)/", $option, $matchs ) )
 					{
 						$params[++$i][0] = $matchs[1];
 					}
 					else
 					{
-						if ( $i>-1 )
+						if ( $i > -1 )
 						{
 							$params[$i++][1] = $option;
 						}
@@ -257,16 +327,16 @@ abstract class CommandLineController extends Controller
 		}
 
 		$argv = FilterServer::getInstance()->getArray( 'argv' );
-		preg_match("/([^\/]+)$/", $argv[0], $matchs);
+		preg_match( "/([^\/]+)$/", $argv[0], $matchs );
 		$this->_script_name = $matchs[0];
 		$this->_domain_name = $argv[1];
 
 		return true;
 	}
-	
+
 	private function _validateCommandCall()
 	{
-		if ( !( $this instanceof  CommandLineController ) )
+		if ( !( $this instanceof CommandLineController ) )
 		{
 			$this->showMessage( 'For make a script runnable controller, these must be instance of CommandLineController' );
 			return false;
@@ -309,20 +379,54 @@ abstract class CommandLineController extends Controller
 	 */
 	protected function getSubject()
 	{
-		return 'STDOUT '.$this->_script_name.' in '. $this->_domain_name. ' at ' . date( 'Y-m-d' );
+		return 'STDOUT ' . $this->_script_name . ' in ' . $this->_domain_name . ' at ' . date( 'Y-m-d' );
+	}
+
+	private function _reformatToEmail( $content )
+	{
+		// Find color codes into $content and change it for css style
+		$foreground_color = 'black';
+		$backround_color = 'white';
+
+		$content_lines = explode( "\n", $content );
+		$reformated_content = '';
+
+		foreach ( $content_lines as $line )
+		{
+			foreach ( $this->_foreground_colors as $key => $value )
+			{
+				$line = str_replace( "[" . $value . "m", "<span style='color:$key'>", $line );
+			}
+
+			foreach ( $this->_background_colors as $key => $value )
+			{
+				$line = str_replace( "[" . $value . "m", "<span style='background-color:$key'>", $line );
+			}
+
+			// Replace [back&fore]ground colors close tags
+			$line = str_replace( "[0m", '', $line );   // We don't want any command line color close tag
+			$spans_to_close = substr_count( $line, "<span" ); // We have to know how many spans we've opened
+			for ( $i = 0; $i < $spans_to_close; $i++ )   // For each of those opened spans...
+			{
+				$line .= "</span>";
+			}
+
+			$reformated_content .= $line . "<br />\n";   // Implode each line with a line break at the end
+		}
+		return str_replace( "\t", "&nbsp;&nbsp;&nbsp;&nbsp;", $reformated_content ); //indent and return it
 	}
 
 	private function _sendMail()
 	{
 		if ( isset( $this->_recipient ) )
 		{
-			if ( self::MAX_LINES_WITHOUT_SEND_MAIL < ( count( explode( PHP_EOL, $this->_stdout ) ) -1 ) )
+			if ( self::MAX_LINES_WITHOUT_SEND_MAIL < ( count( explode( PHP_EOL, $this->_stdout ) ) - 1 ) )
 			{
-				$this->showMessage( "Now I would try send an email with subject: '" . $this->getSubject() . "' to '".$this->_recipient ."'", self::TEST );
+				$this->showMessage( "Now I would try send an email with subject: '" . $this->getSubject() . "' to '" . $this->_recipient . "'", self::TEST );
 				if ( !$this->test )
 				{
-					$mail = $this->getClass('Mail');
-					$mail->send( $this->_recipient, $this->getSubject(), nl2br( $this->_stdout ) );
+					$mail = $this->getClass( 'Mail' );
+					$mail->send( $this->_recipient, $this->getSubject(), $this->_reformatToEmail( $this->_stdout ) );
 				}
 			}
 			else
@@ -334,12 +438,12 @@ abstract class CommandLineController extends Controller
 
 	private function _startScript()
 	{
-		$this->showMessage( 'Script '.$this->_script_name.' in '. $this->_domain_name.' started at:'. date( 'd-M-Y H:i:s' ) );
+		$this->showMessage( 'Script ' . $this->_script_name . ' in ' . $this->_domain_name . ' started at:' . date( 'd-M-Y H:i:s' ) );
 	}
 
 	private function _stopScript()
 	{
-		$this->showMessage( 'Finished at: '. date( 'd-M-Y H:i:s' ) );
+		$this->showMessage( 'Finished at: ' . date( 'd-M-Y H:i:s' ) );
 	}
 
 	private function _validateScriptRunning()
@@ -350,7 +454,7 @@ abstract class CommandLineController extends Controller
 			return true;
 		}
 		$my_pid = getmypid();
-		$pids = array();
+		$pids = array( );
 		//$command = "ps -eo pid,args| grep \"$this->_script_name $this->_domain_name\" | grep -v grep| grep -v $my_pid | cut -f2 -d\" \"";
 		$command = "ps -eo pid,args| grep \"$this->_script_name $this->_domain_name\" | grep -v grep| grep -v /sh| grep -v $my_pid | cut -f2 -d\" \"";
 		exec( $command, $pids, $err );
@@ -361,7 +465,7 @@ abstract class CommandLineController extends Controller
 		}
 		if ( count( $pids ) > 0 )
 		{
-			$this->showMessage( "Is running another instance of '$this->_script_name $this->_domain_name'. Wait until finish, use -f for force or run 'kill -9 " . implode (' ', $pids) . "' for assassinate it." );
+			$this->showMessage( "Is running another instance of '$this->_script_name $this->_domain_name'. Wait until finish, use -f for force or run 'kill -9 " . implode( ' ', $pids ) . "' for assassinate it." );
 			return false;
 		}
 		$this->showMessage( "There are not other running instances", self::VERBOSE );
