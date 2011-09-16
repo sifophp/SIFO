@@ -337,7 +337,14 @@ abstract class Controller
 		if ( $this->is_json )
 		{
 			// Set headers before cache:
-			header( 'Content-type: application/json' );
+			if ( $json_callback = FilterGet::getInstance()->getString( 'json_callback' ) )
+			{
+				header( 'Content-type: text/javascript' );
+			}
+			else
+			{
+				header( 'Content-type: application/json' );
+			}
 		}
 
 		$benchmark_key = 'controller_execution_time_parent';
