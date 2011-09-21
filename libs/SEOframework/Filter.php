@@ -615,6 +615,19 @@ class FilterCustom extends Filter
 	static protected $instance;
 
 	/**
+	 * Allow creation of different objects, the FilterCustom is not based on
+	 * global values like $_GET or $_POST and might be used for different purposes
+	 * in the same execution thread.
+	 *
+	 * @param array $request
+	 * @return FilterCustom
+	 */
+	public function __construct( $request )
+	{
+		return parent::__construct( $request );
+	}
+
+	/**
 	 * Filters variables passed in the array and empties original input.
 	 *
 	 * @param array $array Array with filtration purposes.
