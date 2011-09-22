@@ -274,6 +274,7 @@ function LoadjQueryUI()
 					$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').slideDown();
 					$(this).html('&uarr;');
 				}
+				return false;
 			});
 
 			$('#debug a.debug_toggle_view').unbind('click').click( function() {
