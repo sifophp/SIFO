@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Carlos Soriano
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -194,7 +194,7 @@ class MediaGenerator
 		{
 			$media[$media_config['group']][$media_config['priority']] = $media_name;
 		}
-		
+
 		foreach( $media as $group => $media_name )
 		{
 			if ( $group !== 'none' )
@@ -237,7 +237,8 @@ class MediaGenerator
 
 		$file = $this->media_type . '/generated/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
 		$path = $this->static_path . $file;
-		$generated_file = $this->instance_language . '/' . $this->media_type . '/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
+		//$generated_file = $this->instance_language . '/' . $this->media_type . '/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
+		$generated_file = $this->media_type . '/generated/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
 
 		$this->generateMedia( $path, $media_list, $preffix_code );
 
@@ -268,6 +269,7 @@ class MediaGenerator
 				{
 					$filename = $this->getStaticPath( $instance_name, $instance_config[$media]['filename'] );
 				}
+
 
 				if ( is_file( $filename ) )
 				{

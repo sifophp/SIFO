@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -884,55 +884,6 @@ abstract class Controller
 		{
 			$this->modules[$key] = $val;
 		}
-	}
-
-	/**
-	 * Add JS to the stack.
-	 *
-	 * @param string $media_name Name of the JS file.
-	 */
-	protected function addJs( $media_name )
-	{
-		$this->addMedia( 'js', $media_name );
-	}
-
-	/**
-	 * Add CSS to the stack.
-	 *
-	 * @param string $media_name Name of the CSS file.
-	 */
-	protected function addCss( $media_name )
-	{
-		$this->addMedia( 'css', $media_name );
-	}
-
-	/**
-	 * Add some kind of media to the stack to be loaded in the head.
-	 *
-	 * @param string $media_type Media type [js|css].
-	 * @param string $media_name Name of the media file.
-	 */
-	protected function addMedia( $media_type, $media_name )
-	{
-		$media = $this->getParam( 'media' );
-		$media_config = $this->getConfig( $media_type );
-
-		if ( !isset( $media[$media_type] ) || !in_array( $media_name, $media[$media_type] ) )
-		{
-			if ( isset( $media_config[$media_name] ) )
-			{
-				$media_data = $media_config[$media_name];
-				$media[$media_type][$media_data['group']][$media_data['priority']] = $media_name;
-
-				ksort( $media[$media_type][$media_data['group']] );
-			}
-			else
-			{
-				trigger_error( 'The specified media name "' . $media_name . '" does not exists in config file', E_USER_WARNING );
-			}
-		}
-
-		$this->addParams( array( 'media' => $media ) );
 	}
 
 	/**

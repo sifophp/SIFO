@@ -1,13 +1,11 @@
-{if !empty( $css_generated )}
-	{foreach from=$css_generated item=css_file key=css_type}
-		<link rel="stylesheet" type="text/css" media="{$css_type}" href="{$url.static}/{$css_file}" />
-	{/foreach}
+{if !empty( $css_groups )}
+{	foreach from=$css_groups item=css_group}
+		<link rel="stylesheet" type="text/css" media="{$media.$css_group.media}" href="{$url.static}/css/generated/{$css_group}.css?rev={$static_rev|default:'unset'}" />
+{	/foreach}
 {/if}
 
-<!--[if lt IE 9]>
-<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
-
-{if !empty( $js_generated ) && !empty($js_generated.none) }
-	<script type="text/javascript" src="{$url.static}/{$js_generated.none}"></script>
+{if !empty( $js_groups ) }
+{	foreach from=$js_groups item=group}
+		<script type="text/javascript" src="{$url.static}/js/generated/{$group}.js?rev={$static_rev|default:'unset'}"></script>
+{	/foreach}
 {/if}

@@ -1,0 +1,7 @@
+div.editable { background-color:#EDEDED;  }
+
+form.editable { display:block; overflow:hidden; width:auto; }
+form.editable input {min-height:20px; }
+form.editable button { padding:5px; margin:5px 5px 0 0; }
+form.editable button.submit { background:green; color:#FFF; }
+form.editable button.cancel { background:#FF0000; color:#FFF; }

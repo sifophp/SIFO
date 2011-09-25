@@ -1,9 +1,16 @@
 <?php
 
-$config['main_default'] = array(
-	'filename' => 'main.css',
-	'group' => 'screen',
-	'priority' => 6
+$config['default'] = array(
+	'media' => 'screen',
+	'files' => array(
+		'instances/obolog/public/static/css/main.css'
+	)
 );
 
-?>
+$config['print'] = array(
+	'media' => 'print',
+	'files' => array(
+		'instances/obolog/public/static/css/print.css'
+	)
+);
+

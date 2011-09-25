@@ -2,8 +2,9 @@
 
 class SharedHeadController extends Controller
 {
-	protected $common_css = array();
-	protected $common_js = array();
+
+	protected $css_groups = array( 'default', 'print' );
+	protected $js_groups = array( 'default' );
 
 	public function build()
 	{
@@ -24,38 +25,40 @@ class SharedHeadController extends Controller
 	}
 
 	/**
+	 * Sets the static revision. This method gives a different hash every hour.
+	 *
+	 * ONLY FOR DEMONSTRATION PURPOSES.
+	 */
+	static public function getStaticRevision()
+	{
+		return md5( date( 'd-m-Y-H' ) );
+	}
+
+	/**
+	 * Assign a variable to the tpl with the HTML code to load the JS and CSS files.
+	 */
+		/**
 	 * Assign a variable to the tpl with the HTML code to load the JS and CSS files.
 	 */
 	protected function assignMedia()
 	{
-		foreach ( $this->common_css as $key => $val )
+
+		// On development create all the packed files on the fly:
+		if ( Domains::getInstance()->getDevMode() )
 		{
-			$this->addCss( $val );
+			$this->getClass( 'MediaPacker', false );
+			$packer = new JsPacker();
+			$packer->packMedia();
+			$packer = new CssPacker();
+			$packer->packMedia();
 		}
 
-		foreach ( $this->common_js as $key => $val )
-		{
-			$this->addJs( $val );
-		}
+		$this->assign( 'media', Config::getInstance()->getConfig( 'css' ) );
+		$this->assign( 'css_groups', $this->css_groups );
+		$this->assign( 'js_groups', $this->js_groups );
 
-		$media = $this->getParam( 'media' );
-
-		$this->getClass( 'MediaGenerator', false );
-		
-		$css_generated = array();
-		if ( !empty( $media['css'] ) )
-		{
-			$css_generated = CssGenerator::getInstance()->getGenerated( $media['css'] );
-		}
-
-		$js_generated = array();
-		if ( !empty( $media['js'] ) )
-		{
-			$js_generated = JsGenerator::getInstance()->getGenerated( $media['js'] );
-		}
-
-		$this->assign( 'css_generated', $css_generated );
-		$this->assign( 'js_generated', $js_generated );
+		$this->assign( 'static_rev', $this->getStaticRevision() );
 		$this->assign( 'media_module', $this->fetch( 'shared/media.tpl' ) );
+
 	}
 }

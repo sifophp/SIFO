@@ -618,7 +618,7 @@ class FilterCustom extends Filter
 	 * Allow creation of different objects, the FilterCustom is not based on
 	 * global values like $_GET or $_POST and might be used for different purposes
 	 * in the same execution thread.
-	 *
+	 * 
 	 * @param array $request
 	 * @return FilterCustom
 	 */
