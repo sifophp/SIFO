@@ -141,6 +141,10 @@ class JsPacker extends MediaPacker
 				$content .= file_get_contents( $filename ) . chr( 13 );
 				$content .= "\n\n/* END {$media['name']} */" . chr( 13 );
 			}
+			else
+			{
+				$content .= "alert( 'File {$media['name']} not found' );";
+			}
 		}
 
 		file_put_contents( $pack_filename, $content );
