@@ -516,11 +516,11 @@ LoadjQueryUI();
 		<a class="debug_toggle_view" href="#" rel="queries_content_{$smarty.foreach.queries.index}">
 		{$smarty.foreach.queries.index+1}. {if $query.type=='read'}[R]{else}[W]{/if} {$query.tag}</a> <small>({$query.time|time_format} - rows:{$query.rows_num})</small></h2>
 	<div id="queries_content_{$smarty.foreach.queries.index}" class="debug_contents">
-		<pre>{$query.sql}</pre>
+		<pre>{$query.sql|escape}</pre>
 {		if false !== $query.error}
 		<pre style="color:red">
 --
-{$query.error}
+{$query.error|escape}
 		</pre>
 {		/if}
 		<table>
