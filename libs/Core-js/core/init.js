@@ -14,6 +14,6 @@ $(document).ready(function() {
 	{
 		CP[document.body.id]();
 	} else {
-		CP.default();
+		CP.unset();
 	}
 });
