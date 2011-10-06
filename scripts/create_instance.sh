@@ -17,7 +17,7 @@ echo ""
 echo "--> Creating tree..."
 mkdir $1
 cd $1
-mkdir -p classes config controllers public/root public/static locale scripts models templates/_smarty/cache templates/_smarty/compile templates/_smarty/configs tests
+mkdir -p classes config controllers public/root public/static/js/generated public/static/css/generated locale scripts models templates/_smarty/cache templates/_smarty/compile templates/_smarty/configs tests
 
 echo "--> Creating test structure..."
 absolute_dir=`pwd`
