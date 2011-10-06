@@ -52,6 +52,8 @@ chmod -R 777 templates/_smarty
 chmod 777 config/configuration_files.config.php
 chmod 777 config/templates.config.php
 chmod 777 config/classes.config.php
+chmod 777 public/static/js/generated
+chmod 777 public/static/css/generated
 
 cd ../..
 echo ""
