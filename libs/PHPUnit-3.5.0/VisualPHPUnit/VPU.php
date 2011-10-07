@@ -109,9 +109,9 @@ class VPU {
     *  @access protected
     *  @return string
     */
-    protected function _build_suite($suite) {
-        $suite['expand'] = ( $suite['status'] == 'failure' ) ? '-' : '+';
-        $suite['display'] = ( $suite['status'] == 'failure' ) ? 'show' : 'hide';
+    protected function _build_suite( $suite, $collected = false ) {
+        $suite['expand'] = ( $suite['status'] == 'failure' || false !== $collected ) ? '-' : '+';
+        $suite['display'] = ( $suite['status'] == 'failure' || false !== $collected ) ? 'show' : 'hide';
 
         ob_start(); 
         include 'ui/suite.html';
@@ -598,12 +598,22 @@ class VPU {
             'test' => array()
         );
         $suite = $test = array();
-        
+
+		$collected = false;
+		foreach ( $results as $key => $event )
+		{
+			if ( $event['event'] == 'test' && !empty( $event['collected'] ) )
+			{
+				$collected = true;
+				break;
+			}
+		}
+
         foreach ( $results as $key=>$event ) {
             if ( $event['event'] === 'suiteStart' ) {
                 if ( isset($suite['tests']) ) {
                     $stats['suite'][] = $suite['status'];
-                    $final .= $this->_build_suite($suite);
+                    $final .= $this->_build_suite($suite,$collected);
                     $suite = $test = array();
                 }
 
@@ -630,6 +640,12 @@ class VPU {
                 $test['message'] .= 'Executed in ' . $event['time'] . ' seconds.';
                 $suite['time'] += $event['time'];
 
+				if ( !empty( $event['collected'] ) )
+				{
+					$test['expand'] = '-';
+					$test['display'] = 'show';
+				}
+
                 $test['variables_message'] = ( isset($event['collected']) ) ? trim($event['collected']) : '';
                 $test['variables_display'] = ( $test['variables_message'] ) ? 'show' : 'hide';
 
@@ -645,7 +661,7 @@ class VPU {
 
         if ( isset($suite['tests']) ) {
             $stats['suite'][] = $suite['status'];
-            $final .= $this->_build_suite($suite);
+            $final .= $this->_build_suite($suite,$collected);
             $final .= $this->_build_stats($stats);
         }
 
@@ -655,6 +671,54 @@ class VPU {
 
         return $final;
     }
+
+	public function coverageReport( $results )
+	{
+		$buffer = '';
+		
+		$coverage_files = CoverageAnalysis::getFiles();
+		foreach ( $coverage_files as $file )
+		{
+			$file_contents = file( $file );
+
+			$lines_executed = array();
+			$lines_executable = array();
+			foreach( $results['coverage'][$file] as $key => $val )
+			{
+				if ( $val > 0 )
+				{
+					$lines_executed[] = $key;
+				}
+				else
+				{
+					$lines_executable[] = $key;
+				}
+			}
+
+			$line_number = 1;
+			foreach ( $file_contents as $line_number => $line )
+			{
+				$used = '';
+				if ( in_array( $line_number + 1, $lines_executable ) )
+				{
+					$used = '0';
+				}
+				elseif ( in_array( $line_number + 1, $lines_executed ) )
+				{
+					$used = '1';
+				}
+				$buffer .= $line;
+
+				$line_number++;
+			}
+		}
+
+        ob_start();
+        include 'ui/coverage.html';
+        $coverage_report = ob_get_contents();
+        ob_end_clean();
+        return $coverage_report;
+	}
 
    /**
     *  Writes data to a file.

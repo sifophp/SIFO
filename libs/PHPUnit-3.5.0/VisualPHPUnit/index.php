@@ -82,7 +82,7 @@
 	require_once ROOT_PATH . '/libs/SEOframework/Benchmark.php';
 	require_once ROOT_PATH . '/libs/SEOframework/Client.php';
 	
-    if ( empty($_POST) ) {
+    if ( empty($_POST) && !isset( $_GET['file'] ) ) {
         $results = array();
         $handler = opendir(SNAPSHOT_DIRECTORY);
         while ( $file = readdir($handler) ) {
@@ -96,6 +96,17 @@
         include 'ui/index.html';
         exit; 
     }
+
+	if ( !empty( $_GET['file'] ) )
+	{
+		$_POST['view_snapshot'] = 0;
+		$_POST['view_snapshot'] = 0;
+		$_POST['create_snapshots'] = 0;
+		$_POST['snapshot_directory'] = '';
+		$_POST['sandbox_errors'] = 0;
+		$_POST['sandbox_filename'] = '';
+		$_POST['test_files'] = $_GET['file'];
+	}
 
     if ( $_POST['view_snapshot'] == 1 ) {
         $dir = realpath(SNAPSHOT_DIRECTORY) . '/';
@@ -118,6 +129,7 @@
     } else {
         $sandbox_ignore = '';
     }
+	
     $test_files = trim(strval(filter_var($_POST['test_files'], FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES)));
     $tests = explode('|', $test_files); 
 
@@ -136,41 +148,8 @@
 
     include 'ui/header.html';
     echo $vpu->to_HTML($results['tests'], $sandbox_errors);
+	echo $vpu->coverageReport( $results );
 
-	$coverage_files = CoverageAnalysis::getFiles();
-	foreach ( $coverage_files as $file )
-	{
-		$file_contents = file( $file );
-
-		$lines_executed = array();
-		$lines_executable = array();
-		foreach( $results['coverage'][$file] as $key => $val )
-		{
-			if ( $val > 0 )
-			{
-				$lines_executed[] = $key;
-			}
-			else
-			{
-				$lines_executable[] = $key;
-			}
-		}
-
-		foreach ( $file_contents as $line_number => $line )
-		{
-			$used = '';
-			if ( in_array( $line_number + 1, $lines_executable ) )
-			{
-				$used = '0';
-			}
-			elseif ( in_array( $line_number + 1, $lines_executed ) )
-			{
-				$used = '1';
-			}
-			echo $used . highlight_string( $line, true );
-		}
-	}
-	
     include 'ui/footer.html';
 
     if ( $create_snapshots ) {

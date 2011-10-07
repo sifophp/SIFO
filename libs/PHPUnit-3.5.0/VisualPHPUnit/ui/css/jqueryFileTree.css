@@ -21,7 +21,7 @@ UL.jqueryFileTree LI.selected_file {
 UL.jqueryFileTree A {
 	color: #333;
 	text-decoration: none;
-	display: block;
+	/*display: block;*/
 	padding: 0px 2px;
 }
 

@@ -82,5 +82,25 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 
 		fclose( $black_hole );
 	}
+
+	/**
+	 * Test timingCurrentToRegistry().
+	 */
+	public function testtimingCurrentToRegistry()
+	{
+		$this->object->timingStart( 'test' );
+
+		$black_hole = fopen( '/dev/null', 'w' );
+		for ( $i = 0; $i < 50000; $i++ )
+		{
+			fputs( $black_hole, $i );
+		}
+
+		$this->object->timingStop( 'test' );
+
+		$current = $this->object->timingCurrentToRegistry( 'test' );
+		$this->assertInternalType( 'float', $current );
+		$this->assertTrue( $current > 0 );
+	}
 }
 ?>
