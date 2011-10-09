@@ -679,6 +679,7 @@ class VPU {
 		$coverage_files = CoverageAnalysis::getFiles();
 		foreach ( $coverage_files as $file )
 		{
+			$coverage_report = '';
 			$file_contents = file( $file );
 
 			$lines_executed = array();
@@ -695,7 +696,7 @@ class VPU {
 				}
 			}
 
-			$line_number = 1;
+			$source_code = '';
 			foreach ( $file_contents as $line_number => $line )
 			{
 				$used = '';
@@ -707,17 +708,19 @@ class VPU {
 				{
 					$used = '1';
 				}
-				$buffer .= $line;
-
-				$line_number++;
+				$source_code .= $line;
 			}
+
+			ob_start();
+			include 'ui/coverage.html';
+			$coverage_report = ob_get_contents();
+			ob_end_clean();
+
+			$buffer .= $coverage_report;
 		}
 
-        ob_start();
-        include 'ui/coverage.html';
-        $coverage_report = ob_get_contents();
-        ob_end_clean();
-        return $coverage_report;
+
+        return $buffer;
 	}
 
    /**
