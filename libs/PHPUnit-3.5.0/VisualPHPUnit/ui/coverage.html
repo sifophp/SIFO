@@ -1,0 +1,41 @@
+<div class="box rounded">
+	<div class="testsuite <?php echo $stats['status']; ?>">
+		<div class="light rounded"></div>
+		<div class="name">Coverage Report</div>
+		<div class="stats"><?php echo $file; ?></div>
+		<div class="expand button">+</div>
+		<div class="info">
+			<ul>
+				<li>
+					<div>
+						<span class='percent_success' title='Executed' data-percent='<?php echo ceil( $stats["coverage"] ); ?>'></span>
+						<span class='percent_failure' title='Not executed' data-percent='<?php echo ceil( $stats["percentage_not_executed"] ); ?>'></span>
+					</div>
+				</li>
+				<li>
+					<span class='category'>Coverage </span><?php echo $stats['lines_executed']; ?> / <?php echo $stats['lines_used']; ?> <strong>(<?php echo $stats['coverage']; ?>%)</strong>
+				</li>
+				<hr class = "big" />
+				<li>
+					<span class='category'>Executed </span><?php echo $stats['lines_executed']; ?>
+				</li>
+				<li>
+					<span class='category'>Not executed </span><?php echo $stats['lines_not_executed']; ?>
+				</li>
+				<li>
+					<span class='category'>Not used </span><?php echo $stats['lines_not_used']; ?>
+				</li>
+				<li>
+					<span class='category'>Total lines</span><?php echo $stats['lines_total']; ?>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="more hide">
+		<hr class = "big" />
+		<pre class="class-name: 'coverage_source'; brush: php; highlight: [<?php echo implode( ',', $lines_executed ); ?>];">
+			<?php echo $source_code; ?>
+		</pre>
+	</div>
+</div>
+<script type="text/javascript">SyntaxHighlighter.all();</script>
