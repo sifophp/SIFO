@@ -3,6 +3,7 @@
 class CoverageAnalysis
 {
 	static protected $files;
+	static protected $coverage_started = false;
 
 	static public function add( $file )
 	{
@@ -35,6 +36,43 @@ class CoverageAnalysis
 	static public function getFiles()
 	{
 		return self::$files;
+	}
+
+	static public function start()
+	{
+		if ( count( self::$files ) <= 0 || !self::isEnabled() )
+		{
+			return null;
+		}
+
+		xdebug_start_code_coverage( XDEBUG_CC_UNUSED );
+		self::$coverage_started = true;
+	}
+
+	static public function getStop()
+	{
+		$coverage = array();
+
+		if ( ( false !== self::$coverage_started ) && ( false !== self::isEnabled() ) )
+		{
+			$coverage = xdebug_get_code_coverage();
+			xdebug_stop_code_coverage();
+		}
+
+		return $coverage;
+	}
+
+	static public function stop()
+	{
+		if ( ( false !== self::$coverage_started ) && ( false !== self::isEnabled() ) )
+		{
+			xdebug_stop_code_coverage();
+		}
+	}
+
+	static public function isEnabled()
+	{
+		return defined( 'XDEBUG_CC_UNUSED' );
 	}
 }
 

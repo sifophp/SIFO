@@ -565,16 +565,15 @@ class VPU {
 
         $result->addListener(new PHPUnit_Util_Log_JSON);
 
-		xdebug_start_code_coverage( XDEBUG_CC_UNUSED );
+		CoverageAnalysis::start();
 
         ob_start();
         $suite->run($result);
         $results['tests'] = ob_get_contents();
         ob_end_clean();
 
-		$results['coverage'] = xdebug_get_code_coverage();
-		xdebug_stop_code_coverage();
-        
+		$results['coverage'] = CoverageAnalysis::getStop();
+
         return $results;
     }
 
@@ -672,9 +671,26 @@ class VPU {
         return $final;
     }
 
+	/**
+	 * Render the code coverage report if enabled.
+	 *
+	 * @uses CoverageAnalysis
+	 * @access public
+	 * @param array $results Test suite results.
+	 * @return string
+	 */
 	public function coverageReport( $results )
 	{
 		$buffer = '';
+		if ( !CoverageAnalysis::isEnabled() )
+		{
+			ob_start();
+			include 'ui/coverage_disabled.html';
+			$buffer = ob_get_contents();
+			ob_end_clean();
+
+			return $buffer;
+		}
 		
 		$coverage_files = CoverageAnalysis::getFiles();
 		foreach ( $coverage_files as $file )
@@ -692,24 +708,30 @@ class VPU {
 				}
 				else
 				{
-					$lines_executable[] = $key;
+					$lines_not_executed[] = $key;
 				}
 			}
 
 			$source_code = '';
 			foreach ( $file_contents as $line_number => $line )
 			{
-				$used = '';
-				if ( in_array( $line_number + 1, $lines_executable ) )
-				{
-					$used = '0';
-				}
-				elseif ( in_array( $line_number + 1, $lines_executed ) )
-				{
-					$used = '1';
-				}
 				$source_code .= $line;
 			}
+
+			$stats = array(
+				'lines_total' => count( $file_contents ),
+				'lines_executed' => count( $lines_executed ),
+				'lines_not_executed' => count( $lines_not_executed )
+			);
+
+			$stats['lines_used'] = ( $stats['lines_executed'] + $stats['lines_not_executed'] );
+			$stats['lines_not_used'] = $stats['lines_total'] - $stats['lines_used'];
+			$stats['coverage'] = round( ( ( $stats['lines_executed'] / $stats['lines_used'] ) * 100 ), 2 );
+
+			$stats['percentage_executed'] = round( ( ( $stats['lines_executed'] / $stats['lines_used'] ) * 100 ), 2 );
+			$stats['percentage_not_executed'] = ( 100 - ceil( $stats['coverage'] ) );
+
+			$stats['status'] = $this->getCoverageStatus( $stats['coverage'] );
 
 			ob_start();
 			include 'ui/coverage.html';
@@ -722,6 +744,22 @@ class VPU {
 
         return $buffer;
 	}
+
+	protected function getCoverageStatus( $percentage )
+	{
+		$status = 'failure';
+		if ( $percentage >= 60 )
+		{
+			$status = 'success';
+		}
+		elseif ( $percentage >= 30 )
+		{
+			$status = 'skipped';
+		}
+
+		return $status;
+	}
+
 
    /**
     *  Writes data to a file.

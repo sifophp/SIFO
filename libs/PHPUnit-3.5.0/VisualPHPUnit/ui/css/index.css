@@ -324,6 +324,10 @@ input[type='submit'] {
 	height: 5px;
 }
 
+.coverage_source {
+	border: 2px solid #BBB;
+}
+
 .success .light {
 	background-color: #40C43C;
 	border: 1px solid #21881D;
