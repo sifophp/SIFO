@@ -745,6 +745,13 @@ class VPU {
         return $buffer;
 	}
 
+	/**
+	 * Check the percentage of code covered and return a status class to apply to the template.
+	 *
+	 * @access protected
+	 * @param float $percentage Coverage percentage.
+	 * @return string
+	 */
 	protected function getCoverageStatus( $percentage )
 	{
 		$status = 'failure';
