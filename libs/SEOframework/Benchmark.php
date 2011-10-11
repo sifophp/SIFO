@@ -23,7 +23,7 @@
  */
 class Benchmark
 {
-	static private $instance;
+	private static $instance;
 	public static $start_times;
 	public static $stop_times;
 	public static $delta_points;
@@ -43,7 +43,10 @@ class Benchmark
 		return self::$instance;
 	}
 
-	private function __construct()
+	/**
+	 * Class constructor.
+	 */
+	public function __construct()
 	{
 		self::$start_times = array();
 		self::$stop_times = array();
@@ -51,28 +54,28 @@ class Benchmark
 	}
 
 	/**
-		* Starts the timer for the given group name.
-		*
-		* @param string $name
-		*/
+	 * Starts the timer for the given group name.
+	 *
+	 * @param string $name
+	 */
 	public function timingStart ($name = 'default') {
 		self::$start_times[$name] = explode(' ', microtime());
 	}
 
 	/**
-		* Stops the timer for the given group name.
-		*
-		* @param string $name
-		*/
+	 * Stops the timer for the given group name.
+	 *
+	 * @param string $name
+	 */
 	public function timingStop ($name = 'default') {
 		self::$stop_times[$name] = explode(' ', microtime());
 	}
 
 	/**
-		* Returns the current time for the given group name.
-		*
-		* @param string $name
-		*/
+	 * Returns the current time for the given group name.
+	 *
+	 * @param string $name
+	 */
 	public function timingCurrent ($name = 'default') {
 		if (!isset(self::$start_times[$name])) {
 			return 0;
