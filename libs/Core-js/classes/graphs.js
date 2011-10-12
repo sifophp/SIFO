@@ -1,4 +1,4 @@
-Core.classes.graph = {
+CORE.classes.graph = {
 	oDefault : {
 		from: 'data',
 		width: null,
@@ -17,7 +17,7 @@ Core.classes.graph = {
 	}
 };
 
-Core.classes.graph.createTarget = function (type,element,target,width,height,position)
+CORE.classes.graph.createTarget = function (type,element,target,width,height,position)
 {
 	var t = document.createElement(type);
 	t.setAttribute('id', element);
@@ -30,7 +30,7 @@ Core.classes.graph.createTarget = function (type,element,target,width,height,pos
 	}
 };
     
-Core.classes.graph.showTooltip = function (x, y, contents, oSettings) {
+CORE.classes.graph.showTooltip = function (x, y, contents, oSettings) {
 	$('<div id="'+ oSettings.tooltip.id + '">' + contents + '</div>').css( {
 		position: oSettings.tooltip.position,
 		display: oSettings.tooltip.display,
@@ -43,7 +43,7 @@ Core.classes.graph.showTooltip = function (x, y, contents, oSettings) {
 	}).appendTo("body").fadeIn(200);
 };
 
-Core.classes.graph.showLocalDate = function (timestamp)
+CORE.classes.graph.showLocalDate = function (timestamp)
 {
 
 	var nDate = Math.round(timestamp);
@@ -53,12 +53,12 @@ Core.classes.graph.showLocalDate = function (timestamp)
 	return dt.getDate() + "/" + mm + "/" + dt.getFullYear();
 };
 
-Core.classes.graph.init = function (oOptions){
+CORE.classes.graph.init = function (oOptions){
 
 	var self = this;
-	var Cm = Core.modules;
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules;
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 	var oSettings = self.oDefault;
 	var key = '';
 

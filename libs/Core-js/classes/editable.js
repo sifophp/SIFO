@@ -1,4 +1,4 @@
-Core.classes.editable = {
+CORE.classes.editable = {
     oDefault : {
 		target	  : '.editable',
 		url	  : function(value,settings) { return(value); },
@@ -27,12 +27,12 @@ Core.classes.editable = {
 };
 
 
-Core.classes.editable.init = function (oOptions){
+CORE.classes.editable.init = function (oOptions){
 
     var self = this;
-    var Cm = Core.modules;
-    var Cc = Core.classes;
-    var Cg = Core.globals;
+    var Cm = CORE.modules;
+    var Cc = CORE.classes;
+    var Cg = CORE.globals;
     var oSettings = self.oDefault;
     var key = '';
 
@@ -47,11 +47,11 @@ Core.classes.editable.init = function (oOptions){
 		$(document.body).append('<link rel="stylesheet" type="text/css" href="'+ oSettings.pathCss +'" />');
     }
 
-    Core.classes.editable.load(oSettings);
+    CORE.classes.editable.load(oSettings);
 
 };
 
-Core.classes.editable.load = function (oSettings){
+CORE.classes.editable.load = function (oSettings){
 
     $(oSettings.target).editable(oSettings.url, {
 	type      : oSettings.type,

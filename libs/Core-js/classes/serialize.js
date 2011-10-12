@@ -1,4 +1,4 @@
-Core.classes.serialize = {
+CORE.classes.serialize = {
 	oDefault : {
 		target: '#serialize',
 		attribute : 'id',
@@ -6,11 +6,11 @@ Core.classes.serialize = {
 	}
 };
 
-Core.classes.serialize.init = function (oOptions){
+CORE.classes.serialize.init = function (oOptions){
 
-	var Cm = Core.modules; 
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules; 
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 
 	var oSettings = this.oDefault;
 	var key = '';
@@ -21,11 +21,11 @@ Core.classes.serialize.init = function (oOptions){
             }
 	}
 
-	Core.classes.sortable.load(oSettings);
+	CORE.classes.sortable.load(oSettings);
 	
 };
 
-Core.classes.serialize.load = function (oSettings){
+CORE.classes.serialize.load = function (oSettings){
 	var oSerialize = $(oSettings.target).serializeTree(oSettings.attribute,oSettings.itemClass);
 	return oSerialize;
 };

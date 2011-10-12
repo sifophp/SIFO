@@ -1,9 +1,9 @@
 // GLOBAL VARIABLES
-Core.globals.isIE6 = false /*@cc_on || @_jscript_version < 5.7 @*/;
-Core.globals.isMSIE = /*@cc_on!@*/false;
+CORE.globals.isIE6 = false /*@cc_on || @_jscript_version < 5.7 @*/;
+CORE.globals.isMSIE = /*@cc_on!@*/false;
 
 // COMMON FUNCTIONS
-Core.utilities.example = function()
+CORE.utilities.example = function()
 {
 	
 };
@@ -13,7 +13,7 @@ Core.utilities.example = function()
  * @return The time since
  * @type String
  */
-Core.utilities.getTimeSince = function (sDate) {
+CORE.utilities.getTimeSince = function (sDate) {
 
 	var nParsedDate = Date.parse(sDate.replace(/-/g, " "));
 	var nSeconds = -1;

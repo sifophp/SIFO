@@ -9,7 +9,7 @@ $LAB.setOptions(
 	BasePath: ""
 });
 $(document).ready(function() {
-	var CP = Core.behaviour.page;
+	var CP = CORE.behaviour.page;
 	if (typeof CP[document.body.id] != "undefined")
 	{
 		CP[document.body.id]();

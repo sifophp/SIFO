@@ -1,4 +1,4 @@
-Core.classes.sortable = {
+CORE.classes.sortable = {
 	oDefault : {
 		target: '.sortable',
 		pathCss : '',
@@ -9,11 +9,11 @@ Core.classes.sortable = {
 	}
 };
 
-Core.classes.sortable.init = function (oOptions){
+CORE.classes.sortable.init = function (oOptions){
 
-	var Cm = Core.modules; 
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules; 
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 
 	var oSettings = this.oDefault;
 	var key = '';
@@ -29,11 +29,11 @@ Core.classes.sortable.init = function (oOptions){
 		$(document.body).append('<link rel="stylesheet" type="text/css" href="'+ oSettings.pathCss +'" />');
 	}
 
-	Core.classes.sortable.load(oSettings);
+	CORE.classes.sortable.load(oSettings);
 	
 };
 
-Core.classes.sortable.load = function (oSettings){
+CORE.classes.sortable.load = function (oSettings){
 	
 		$(oSettings.target).sortable();
 		$(oSettings.target).disableSelection();	

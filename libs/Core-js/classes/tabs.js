@@ -1,4 +1,4 @@
-Core.classes.tabs = {
+CORE.classes.tabs = {
 	oDefault : {
 		targetClass: 'tabber',
 		classLive : 'tabberlive', // Rename classMain to classMainLive after tabifying  (so a different style can be applied)
@@ -15,11 +15,11 @@ Core.classes.tabs = {
 	}
 };
 
-Core.classes.tabs.init = function (oOptions){
+CORE.classes.tabs.init = function (oOptions){
 
-	var Cm = Core.modules; 
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules; 
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 
 	var oSettings = this.oDefault;
 	var key = '';
@@ -36,11 +36,11 @@ Core.classes.tabs.init = function (oOptions){
 		$(document.body).append('<link rel="stylesheet" type="text/css" href="'+ oSettings.pathCss +'" />');	
 	}
 
-	Core.classes.tabs.load(oSettings);
+	CORE.classes.tabs.load(oSettings);
 	
 };
 
-Core.classes.tabs.load = function (oSettings){
+CORE.classes.tabs.load = function (oSettings){
 
 
 	tabberAutomatic({

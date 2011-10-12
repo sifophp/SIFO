@@ -1,4 +1,4 @@
-Core.classes.tags = {
+CORE.classes.tags = {
 	oDefault : {
 		targetId: 'tags',
 		addButton: true,
@@ -26,11 +26,11 @@ Core.classes.tags = {
 	}
 };
 
-Core.classes.tags.init = function (oOptions){
+CORE.classes.tags.init = function (oOptions){
 
-	var Cm = Core.modules; 
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules; 
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 
 	var oSettings = this.oDefault;
 	var key = '';
@@ -50,7 +50,7 @@ Core.classes.tags.init = function (oOptions){
 	
 };
 
-Core.classes.tags.load = function (oSettings){
+CORE.classes.tags.load = function (oSettings){
 
 	var $Target = $(document.getElementById(oSettings.targetId));
 	
@@ -103,14 +103,14 @@ Core.classes.tags.load = function (oSettings){
 		});
 	}
 	if (oSettings.autocomplete ) {
-		if (Core.classes.autocomplete.init) {
-			Core.classes.autocomplete.init(oSettings);
+		if (CORE.classes.autocomplete.init) {
+			CORE.classes.autocomplete.init(oSettings);
 		}
 		else {
-			$LAB.script(Core.modules.autocomplete).wait(function(){
-				Core.classes.autocomplete.init(oSettings);
+			$LAB.script(CORE.modules.autocomplete).wait(function(){
+				CORE.classes.autocomplete.init(oSettings);
 			});
-			Core.classes.autocomplete.init(oSettings);
+			CORE.classes.autocomplete.init(oSettings);
 		}
 	}
 

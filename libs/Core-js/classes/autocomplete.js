@@ -1,4 +1,4 @@
-Core.classes.autocomplete = {
+CORE.classes.autocomplete = {
 	oDefault : {
 		targetId: 'autocomplete',
 		data : [],
@@ -14,11 +14,11 @@ Core.classes.autocomplete = {
 	}
 };
 
-Core.classes.autocomplete.init = function (oOptions){
+CORE.classes.autocomplete.init = function (oOptions){
 
-	var Cm = Core.modules; 
-	var Cc = Core.classes;
-	var Cg = Core.globals;
+	var Cm = CORE.modules; 
+	var Cc = CORE.classes;
+	var Cg = CORE.globals;
 
 	var oSettings = this.oDefault;
 	var key = '';
@@ -38,7 +38,7 @@ Core.classes.autocomplete.init = function (oOptions){
 	
 };
 
-Core.classes.autocomplete.load = function (oSettings){
+CORE.classes.autocomplete.load = function (oSettings){
 
 	var $Target = $(document.getElementById(oSettings.targetId));
 	
