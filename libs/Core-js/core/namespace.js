@@ -1,4 +1,4 @@
-﻿var CORE = {
+var CORE = {
 	utilities : {},
 	globals : {}, 
 	instance : {},
