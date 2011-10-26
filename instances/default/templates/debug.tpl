@@ -318,8 +318,8 @@ LoadjQueryUI();
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_queries format="%.0f"}%</span>{$debug.times.db_queries|time_format}</dd>
 {/if}
 {if $debug.queries_errors}
-			<dt>{t}DB errors{/t}</dt>
-			<dd>{$debug.queries_errors|@count}</dd>
+			<dt class="query_error">{t}DB errors{/t}</dt>
+			<dd class="query_error"><strong>{$debug.queries_errors|@count}</strong></dd>
 {/if}
 {if $debug.times.search}
 			<dt>{t}Searches{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.search}%1 searches{/t}</a>)</small></dt>

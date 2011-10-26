@@ -2,10 +2,10 @@
 <head>
 	<title>I18N finder and extractor</title>
 	<meta http-equiv="Content-Type" content="text/html; charset={$charset}" />
-	
-	<link rel="stylesheet" type="text/css" href="http://static.seoframework.local/css/main.css?id=" /></head>	
+
+	<link rel="stylesheet" type="text/css" href="http://static.seoframework.local/css/main.css?id=" /></head>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
-	<script type="text/javascript" src="{$url.static}/js/jquery.translate-core.min.js"></script>	
+	<script type="text/javascript" src="{$url.static}/js/jquery.translate-core.min.js"></script>
 	{literal}
 	<script type="text/javascript">
 	$(document).ready( function(){
@@ -13,7 +13,7 @@
 			selected_instance = $(this).val();
 			$('#locale').html( $('#locale_' + selected_instance).html() );
 		});
-		
+
 		$('a.toggle').unbind('click').click( function() {
 			dest_el = $(this).attr('rel');
 			if ( $('#'+dest_el).is(':visible') )
@@ -22,20 +22,20 @@
 				$('#'+dest_el).slideDown();
 			return false;
 		});
-		
+
 		$('#translations p').each( function() {
 			var original_container = $('span.original',this);
 			var destination_containter = $('span.translated',this);
-			
+
 			var original_text = original_container.html();
 			original_text = original_text.replace('%1','111');
 			original_text = original_text.replace('%2','222');
 			original_text = original_text.replace('%3','333');
 			original_text = original_text.replace('%4','333');
-			original_text = original_text.replace(/(<([^>]+)>)/ig,""); 
-			
+			original_text = original_text.replace(/(<([^>]+)>)/ig,"");
+
 			var destination_language = '{/literal}{$language}{literal}';
-			
+
 			$.translate( original_text, destination_language, {
 				complete: function(translation){
 					translation = translation.replace('111','%1');
@@ -47,7 +47,7 @@
 					destination_containter.html(translation);
 				}
 			});
-		});		
+		});
 	});
 	</script>
 	<style>
@@ -74,16 +74,16 @@
 		<option value="{$i}"{if $instance == $i} selected="selected"{/if}>{$i}</option>
 {	/foreach}
 	</select>
-	
+
 	<label for="locale">Compare against:</label>
 {	foreach from=$locales key=loc_instance item=loc_files}
 	<select id="locale_{$loc_instance}" style="display:none">
 {		foreach from=$loc_files item=i}
 		<option value="{$i}"{if $locale == $i} selected="selected"{/if}>{$i}</option>
-{		/foreach}	
+{		/foreach}
 	</select>
 {	/foreach}
-	
+
 	<select id="locale" name="locale">
 {	foreach from=$locales.$instance item=i}
 		<option value="{$i}"{if $locale == $i} selected="selected"{/if}>{$i}</option>
@@ -94,9 +94,9 @@
 		<option value="utf-8"{if $charset == 'utf-8'} selected="selected"{/if}>utf-8</option>
 		<option value="iso-8859-1"{if $charset == 'iso-8859-1'} selected="selected"{/if}>iso-8859-1</option>
 	</select>
-	
+
 	<input type="submit" />
-	</p>	
+	</p>
 	</form>
 
 {	if isset($literals)}
@@ -117,16 +117,16 @@ INSERT IGNORE INTO i18n_messages SET message='{$literal|replace:"'":"\'"|escape:
 INSERT INTO i18n_messages values ( null, '{$literal|replace:"'":"\'"|escape:'html'}', '{$path}' );
 {	/foreach}
 	</pre>
-	
-	<h3>Suggested (automatic) translations for missing strings in "messages" (Total {$missing|@count})</h3>	
+
+	<h3>Suggested (automatic) translations for missing strings in "messages" (Total {$missing|@count})</h3>
 	<div id="translations">
 {   foreach key=literal item=path from=$missing}
 		<p>
 			<span class="original">{$literal|replace:"__":""|replace:"'":"\'"}</span>
-			$translations["<span class="original_visible">{$literal|replace:"__":""|replace:"'":"\'"|escape:'html'}</span>"] = 
+			$translations["<span class="original_visible">{$literal|replace:"__":""|replace:"'":"\'"|escape:'html'}</span>"] =
 			"<span class="translated">...</span>";
 		</p>
-{	/foreach}		
+{	/foreach}
 	</div>
 {	/if}
 </body>

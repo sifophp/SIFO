@@ -57,7 +57,7 @@ function smarty_function_pagelink( $params, &$smarty )
 	}
 
 	$_actual_url = implode( $_delimiter, array_reverse( $_actual_url ) );
-	
+
 	if ( isset( $params['absolute'] ) )
 	{
 		$_actual_url = $_actual_host . $_actual_url;
@@ -69,7 +69,7 @@ function smarty_function_pagelink( $params, &$smarty )
 	}
 	else
 	{
-		if ( $params['page'] > 1 )
+		if ( $params['page'] > 1 || ( isset( $params['force_first_page'] ) && $params['force_first_page'] == true ) )
 		{
 			return $_actual_url . $_delimiter . $params['page'];
 		}

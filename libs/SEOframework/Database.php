@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -194,40 +194,13 @@ class Database
 		else
 			$resultset = $answer;
 
-		$query = self::$adodb[self::$destination_type]->_querySQL;
-		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
-		$debug_query = array(
-			"tag" => $tag,
-			"sql" => in_array( $method, array( 'Affected_Rows', 'Insert_ID' ) ) ? $method : $query,
-			"type" => ( $read_operation ? 'read' : 'write' ),
-			"destination" => self::$destination_type,
-			"host" => self::$adodb[self::$destination_type]->host,
-			"database" => self::$adodb[self::$destination_type]->database,
-			"user" => self::$adodb[self::$destination_type]->user,
-			"controller" => get_class( $this ),
-			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
-			"resultset" => is_integer( $resultset ) ? array( array( $method => $resultset ) ): $resultset,
-			"time" => $query_time,
-			"error" => ( isset( $error ) ? $error : false )
-		);
-
-		if ( $debug_query['type'] == 'read' )
-		{
-			$debug_query['rows_num'] = count( $resultset );
-		}
-		else
-		{
-			$debug_query['rows_num'] = self::$adodb[self::$destination_type]->Affected_Rows();
-		}
-
+		// Log mysql_errors to disk:
 		if ( isset( $error ) )
 		{
-			// Log mysql_errors to disk:
-			file_put_contents( ROOT_PATH . '/logs/errors_database.log', "================================\nDate: " . date( 'd-m-Y H:i:s') . "\nError:\n". $error . "\n ", FILE_APPEND );
-			Registry::push( 'queries_errors', $error );
+			$this->writeDiskLog( $error );
 		}
 
-		Registry::push( 'queries', $debug_query );
+		$this->queryDebug( $resultset, $tag, $method, $read_operation, isset( $error ) ? $error : null );
 
 		// Reset queries in master flag:
 		self::$launch_in_master = false;
@@ -272,6 +245,94 @@ class Database
 		return self::$launch_in_master = true;
 	}
 
+	/**
+	 * Close database connection.
+	 * @return void
+	 */
+	protected function closeConnectionDatabase()
+	{
+		$this->close();
+		// Unset current connection. In the next query execution it will reconnect automatically.
+		unset( self::$adodb[self::$destination_type] );
+	}
+
+	/**
+	 * Set Query Debug. Used in '__call' method. It checks if dev mode is enabled and then stores debug data in registry.
+	 * @param $resultset
+	 * @param $tag
+	 * @param $method
+	 * @param $read_operation
+	 * @param $error
+	 * @return void
+	 */
+	protected function queryDebug( $resultset, $tag, $method, $read_operation, $error )
+	{
+		if( !Domains::getInstance()->getDevMode() )
+		{
+			return false;
+		}
+
+		$query 		= self::$adodb[self::$destination_type]->_querySQL;
+		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
+
+		$debug_query = array(
+			"tag" => $tag,
+			"sql" => in_array( $method, array( 'Affected_Rows', 'Insert_ID' ) ) ? $method : $query,
+			"type" => ( $read_operation ? 'read' : 'write' ),
+			"destination" => self::$destination_type,
+			"host" => self::$adodb[self::$destination_type]->host,
+			"database" => self::$adodb[self::$destination_type]->database,
+			"user" => self::$adodb[self::$destination_type]->user,
+			"controller" => get_class( $this ),
+			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
+			"resultset" => is_integer( $resultset ) ? array( array( $method => $resultset ) ): $resultset,
+			"time" => $query_time,
+			"error" => ( isset( $error ) ? $error : false )
+		);
+
+		if ( $debug_query['type'] == 'read' )
+		{
+			$debug_query['rows_num'] = count( $resultset );
+		}
+		else
+		{
+			$debug_query['rows_num'] = 0;
+			if ( $method != 'close' )
+			{
+				$debug_query['rows_num'] = self::$adodb[self::$destination_type]->Affected_Rows();
+			}
+		}
+
+		Registry::push( 'queries', $debug_query );
+		if( isset( $error ) )
+		{
+			Registry::push( 'queries_errors', $error );
+		}
+	}
+
+	/**
+	 * Log mysql_errors to disk:
+	 * @param $error
+	 * @return void
+	 */
+	protected function writeDiskLog( $error )
+	{
+		$date 			= date( 'd-m-Y H:i:s');
+		$referer 		= FilterServer::getInstance()->getString( 'HTTP_REFERER' );
+		$current_url	= FilterServer::getInstance()->getString( 'SCRIPT_URI' );
+
+		// Log mysql_errors to disk:
+		$message = <<<MESSAGE
+================================
+Date: $date
+URL: $current_url
+Referer: $referer
+
+Error: $error
+MESSAGE;
+
+		file_put_contents( ROOT_PATH . '/logs/errors_database.log', $message, FILE_APPEND );
+	}
 }
 
 class LoadBalancer_ADODB extends LoadBalancer

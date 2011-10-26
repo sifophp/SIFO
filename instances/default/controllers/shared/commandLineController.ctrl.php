@@ -97,11 +97,18 @@ abstract class CommandLineController extends Controller
 			'need_second_param'	=> false,
 			'is_required'		=> false,
 		),
+		array(
+			'short_param_name'	=> 'nd',
+			'long_param_name'	=> 'nodebug',
+			'help_string'		=> 'Deactivate the debug mode even if it is active in domains.config.',
+			'need_second_param'	=> false,
+			'is_required'		=> false,
+		),
 	);
-	
+
 	abstract function init();
 
-	abstract function exec();	
+	abstract function exec();
 
 	public function __construct()
 	{
@@ -123,9 +130,9 @@ abstract class CommandLineController extends Controller
 
 	/**
 	 * Print a message on the console.
-	 * 
+	 *
 	 * Usage example:
-	 * 
+	 *
 	 * $this->showMessage( 'Example message', self::VERBOSE, array( 'background' => 'red', 'indent' => 4 ) );
 	 *
 	 * @param string $message
@@ -369,6 +376,11 @@ abstract class CommandLineController extends Controller
 				case "f":
 				case "force":
 					$this->force = true;
+					break;
+				case "nd":
+				case "nodebug":
+					$this->params['has_debug'] = false;
+					Domains::getInstance()->setDevModeOff();
 					break;
 			}
 		}
