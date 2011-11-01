@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-abstract class CommandLineController extends Controller
+namespace Common;
+
+abstract class CommandLineController extends \Sifo\Controller
 {
 	const TEST		= 'TEST';
 	const VERBOSE	= 'VERBOSE';
@@ -112,20 +115,20 @@ abstract class CommandLineController extends Controller
 
 	public function __construct()
 	{
-		$this->instance = CLBootstrap::$instance;
-		$this->language = Domains::getInstance()->getLanguage();
+		$this->instance = CL\Sifo\Bootstrap::$instance;
+		$this->language = \Sifo\Domains::getInstance()->getLanguage();
 
 		$this->params = array(
-			'instance' => Bootstrap::$instance,
+			'instance' => \Sifo\Bootstrap::$instance,
 			'controller' => get_class( $this ),
-			'has_debug' => Domains::getInstance()->getDevMode(),
+			'has_debug' => \Sifo\Domains::getInstance()->getDevMode(),
 			'lang' => $this->language,
 		);
 
-		$this->debug_mode = Domains::getInstance()->getDevMode();
+		$this->debug_mode = \Sifo\Domains::getInstance()->getDevMode();
 
 		// Init i18n configuration.
-		$this->i18n = I18N::getInstance( Domains::getInstance()->getLanguageDomain(), $this->language );
+		$this->i18n = \Sifo\\Sifo\\Sifo\I18N::getInstance( \Sifo\Domains::getInstance()->getLanguageDomain(), $this->language );
 	}
 
 	/**
@@ -253,7 +256,7 @@ abstract class CommandLineController extends Controller
 	{
 		$i = -1;
 		$params = array( );
-		if ( $argv = FilterServer::getInstance()->getArray( 'argv' ) )
+		if ( $argv = \Sifo\FilterServer::getInstance()->getArray( 'argv' ) )
 		{
 			foreach ( $argv as $option )
 			{
@@ -333,7 +336,7 @@ abstract class CommandLineController extends Controller
 			}
 		}
 
-		$argv = FilterServer::getInstance()->getArray( 'argv' );
+		$argv = \Sifo\FilterServer::getInstance()->getArray( 'argv' );
 		preg_match( "/([^\/]+)$/", $argv[0], $matchs );
 		$this->_script_name = $matchs[0];
 		$this->_domain_name = $argv[1];
@@ -380,7 +383,7 @@ abstract class CommandLineController extends Controller
 				case "nd":
 				case "nodebug":
 					$this->params['has_debug'] = false;
-					Domains::getInstance()->setDevModeOff();
+					\Sifo\Domains::getInstance()->setDevModeOff();
 					break;
 			}
 		}
@@ -437,7 +440,7 @@ abstract class CommandLineController extends Controller
 				$this->showMessage( "Now I would try send an email with subject: '" . $this->getSubject() . "' to '" . $this->_recipient . "'", self::TEST );
 				if ( !$this->test )
 				{
-					$mail = $this->getClass( 'Mail' );
+					$mail = new Sifo\Mail();
 					$mail->send( $this->_recipient, $this->getSubject(), $this->_reformatToEmail( $this->_stdout ) );
 				}
 			}

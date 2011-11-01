@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,9 @@
  *
  */
 
+namespace Sifo;
+
 /**
- * CAUTION: Ensure this class keeps being backwards compatible with PHP 5.2.
- *
  * Configuration file parser.
  */
 class Config
@@ -154,16 +154,42 @@ class Config
 	public function getClassInfo( $class_type )
 	{
 		$classes = $this->getConfig( 'classes' );
-		if ( !isset( $classes[$class_type] ) )
+		$class_type = explode( '\\', $class_type );
+		if ( isset( $class_type[1] ) && $class_type[0] == '\\' . $class_type[1] )
 		{
-			// Error handling.
-			throw new Exception_Configuration( "The variable '$class_type' was not found in the classes file. ", E_USER_ERROR );
+			unset( $class_type[1] );
 		}
 
-		$classInfo =  explode( '::', $classes[$class_type] );
+		// Append the Namespace on an existing classes.config class.
+		if ( isset( $classes[$class_type[0]] ) && !isset( $class_type[1] ) )
+		{
+			$instances = array_keys( $classes[$class_type[0]] );
+			$last_instance = array_pop( $instances );
+			array_push( $class_type, $last_instance );
+			$path = array_pop( $classes[$class_type[0]] );
+		}
+		elseif( isset( $class_type[1] ) )
+		{
+			$class_type = array_reverse( $class_type );
+			$path = $classes[$class_type[0]][$class_type[1]];
+		}
+
+		if ( isset( $classes[$class_type[0]] ) && !isset( $path ) )
+		{
+			$path = array_pop( $classes[$class_type[0]] );
+		}
+
+		if ( !isset( $classes[$class_type[0]] ) )
+		{
+			// Error handling.
+			throw new Exception_Configuration( "The variable '{$class_type[0]}' was not found in the classes file. ", E_USER_ERROR );
+		}
+
 		// The var is OK,  we return the requested array element.
-		return array( 'name' => $classInfo[0], 'path' => $classInfo[1] );
+		$classname = "\\{$class_type[1]}\\$class_type[0]";
+		return array( 'name' => $classname, 'path' => $path );
 	}
+
 
 	/**
 	 * Instance name.
@@ -208,7 +234,7 @@ class Config
 /**
  * Exception for the process.
  */
-class Exception_Configuration extends Exception
+class Exception_Configuration extends \Exception
 {
 }
 

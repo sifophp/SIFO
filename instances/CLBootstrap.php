@@ -1,4 +1,7 @@
 <?php
+
+namespace Sifo;
+
 /**
  *
  * Class CLBootstrap
@@ -55,7 +58,7 @@ class CLBootstrap extends Bootstrap
 	{
 		// Set Timezone as required by php 5.1+
 		date_default_timezone_set('Europe/Madrid');
-			
+
 		try
 		{
 			$config = Config::getInstance( self::$instance );

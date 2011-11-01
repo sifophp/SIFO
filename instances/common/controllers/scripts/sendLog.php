@@ -1,5 +1,8 @@
 <?php
-include_once ROOT_PATH . '/instances/default/controllers/shared/commandLineController.ctrl.php';
+namespace Common;
+
+namespace Common;
+include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 
 class ScriptsSendLogController extends CommandLineController
 {

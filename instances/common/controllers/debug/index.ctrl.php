@@ -1,5 +1,8 @@
 <?php
-class FilterCookieDebug extends FilterCookie
+namespace Common;
+
+namespace Common;
+class FilterCookieDebug extends \Sifo\FilterCookie
 {
 
 	public static function getCookiesArray()
@@ -19,25 +22,25 @@ class FilterCookieDebug extends FilterCookie
 	}
 }
 
-class DebugIndexController extends Controller
+class DebugIndexController extends \Sifo\Controller
 {
 	public function build()
 	{
 		$this->setLayout( 'debug.tpl' );
-		$debug['traces']			= Registry::getInstance()->get( 'trace_messages' );
-		$debug['controllers']		= Registry::getInstance()->get( 'debug' );
-		$debug['benchmarks']		= Registry::getInstance()->get( 'benchmarks' );
-		$debug['elements']			= Registry::getInstance()->get( 'elements' );
-		$debug['times']				= Registry::getInstance()->get( 'times' );
-		$debug['queries']			= Registry::getInstance()->get( 'queries' );
-		$debug['queries_errors']	= Registry::getInstance()->get( 'queries_errors' );
-		$debug['searches']			= Registry::getInstance()->get( 'searches' );
+		$debug['traces']			= \Sifo\Registry::getInstance()->get( 'trace_messages' );
+		$debug['controllers']		= \Sifo\Registry::getInstance()->get( 'debug' );
+		$debug['benchmarks']		= \Sifo\Registry::getInstance()->get( 'benchmarks' );
+		$debug['elements']			= \Sifo\Registry::getInstance()->get( 'elements' );
+		$debug['times']				= \Sifo\Registry::getInstance()->get( 'times' );
+		$debug['queries']			= \Sifo\Registry::getInstance()->get( 'queries' );
+		$debug['queries_errors']	= \Sifo\Registry::getInstance()->get( 'queries_errors' );
+		$debug['searches']			= \Sifo\Registry::getInstance()->get( 'searches' );
 		$debug['session']			= $this->getSessionData();
 		$debug['cookies']			= FilterCookieDebug::getCookiesArray();
 
 		$debug['rebuild_all']		= $this->isRebuildAllActive();
 
-		$debug['times']['total']	= Benchmark::getInstance()->timingCurrent();
+		$debug['times']['total']	= \Sifo\Benchmark::getInstance()->timingCurrent();
 		if ( !isset( $debug['times']['cache'] ) ) $debug['times']['cache'] = 0;
 		if ( !isset( $debug['times']['external'] ) ) $debug['times']['external'] = 0;
 		if ( !isset( $debug['times']['db_connections'] ) ) $debug['times']['db_connections'] = 0;
@@ -58,7 +61,7 @@ class DebugIndexController extends Controller
 
 	private function isRebuildAllActive()
 	{
-		return FilterCookie::getInstance()->getInteger( 'rebuild_all' );
+		return \Sifo\FilterCookie::getInstance()->getInteger( 'rebuild_all' );
 	}
 
 	private function getMemoryUsage()

@@ -1,15 +1,18 @@
 <?php
+namespace Common;
 
-class I18nSaveController extends Controller
+namespace Common;
+
+class I18nSaveController extends \Sifo\Controller
 {
 	public $is_json = true;
 
 	public function build()
 	{
 
-		$translator = $this->getClass( 'I18nTranslatorModel' );
+		$translator = new I18nTranslatorModel();
 
-		$filter = Filter::getInstance();
+		$filter = \Sifo\Filter::getInstance();
 
 		$lang = $filter->getString('lang');
 		$given_translation = $filter->getUnfiltered( 'translation' );
@@ -23,7 +26,7 @@ class I18nSaveController extends Controller
 
 			$query = 'REPLACE i18n_translations (id_message, lang, translation,author) VALUES(?,?,?,?);';
 
-			$result = Database::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
+			$result = Sifo\Database::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
 
 			if ( $result )
 			{

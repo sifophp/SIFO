@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,8 @@
  * limitations under the License.
  *
  */
+
+namespace Sifo;
 
 /**
  * Filters the request array checking that the values accomplish the given filters.
@@ -310,7 +312,7 @@ class Filter
 	 *
 	 * @param string $var_name
 	 * @param string $filter_function Is the function to use with each array field.
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function getArrayFromSerialized( $var_name, $filter_function = null )
 	{
@@ -389,7 +391,7 @@ class Filter
 			return $this->request[$var_name];
 		}
 		// PHP 5.3 function: DateTime::createFromFormat( $format, $this->request[$var_name] )
-		
+
 		return false;
 	}
 
@@ -618,7 +620,7 @@ class FilterCustom extends Filter
 	 * Allow creation of different objects, the FilterCustom is not based on
 	 * global values like $_GET or $_POST and might be used for different purposes
 	 * in the same execution thread.
-	 * 
+	 *
 	 * @param array $request
 	 * @return FilterCustom
 	 */
@@ -649,4 +651,4 @@ class FilterCustom extends Filter
 	}
 }
 
-class FilterException extends Exception {}
+class FilterException extends \Exception {}

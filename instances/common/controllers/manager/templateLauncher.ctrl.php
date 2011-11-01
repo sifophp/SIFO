@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-class ManagerTemplateLauncherController extends Controller
+namespace Common;
+
+class ManagerTemplateLauncherController extends \Sifo\Controller
 {
 
 	private $_available_templates;
@@ -50,16 +53,16 @@ class ManagerTemplateLauncherController extends Controller
 	{
 		if ( true !== $this->hasDebug() )
 		{
-			throw new Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
+			throw new Sifo\Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
 		}
 
-		$get = FilterGet::getInstance();
+		$get = \Sifo\FilterGet::getInstance();
 		if ( $this->_selected_template = $get->getString( 'template') )
 		{
 			$this->assign( 'selected_template', $this->_selected_template );
 		}
 
-		$post = Filter::getInstance();
+		$post = \Sifo\Filter::getInstance();
 		if ( $post_elems = $post->getRawRequest() )
 		{
 			if ( !( $this->_selected_template ) )

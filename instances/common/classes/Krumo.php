@@ -1,4 +1,7 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * Alias of krumo::dump(). Formatted data dump. No output in production.
  * You need to download Krumo into "libs" first and declare it in "libraries.config.php"
@@ -8,9 +11,9 @@
 function d( $var )
 {
 	// Enable Krumo only when debug is present.
-	if ( Domains::getInstance()->getDevMode() )
+	if ( \Sifo\Domains::getInstance()->getDevMode() )
 	{
-		require_once( ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'krumo' ) .'/class.krumo.php' );
+		require_once( ROOT_PATH . '/libs/'.\Sifo\Config::getInstance()->getLibrary( 'krumo' ) .'/class.krumo.php' );
 		krumo( $var );
 	}
 	else
@@ -26,7 +29,7 @@ function d( $var )
  */
 function trace( $message )
 {
-	$registry = Registry::getInstance();
+	$registry = \Sifo\Registry::getInstance();
 	if ( $registry->keyExists( 'trace_messages' ) )
 	{
 		$trace_messages = $registry->get( 'trace_messages' );

@@ -1,14 +1,17 @@
 <?php
+namespace Common;
+
+namespace Common;
 
 /**
  * Example of implementation:
  *
  * // Anywhere:
- * echo '<a href="' . $this->getClass( 'OAuthTwitterModel' )->getAuthenticationUrl() . '">Authorize with Twitter</a>';
+ * echo '<a href="' . new OAuthTwitterModel()->getAuthenticationUrl() . '">Authorize with Twitter</a>';
  *
  * // In the callback controller:
- * $token = $this->getClass( 'OAuthTwitterModel' )->getAuth( $oauth_token );
- * $this->getClass( 'OAuthTwitterModel' )->testGetFriends( $token['oauth_token'], $token['oauth_token_secret'] );
+ * $token = new OAuthTwitterModel()->getAuth( $oauth_token );
+ * new OAuthTwitterModel()->testGetFriends( $token['oauth_token'], $token['oauth_token_secret'] );
  */
 include_once ROOT_PATH . '/libs/OpenInviter/openinviter.php';
 

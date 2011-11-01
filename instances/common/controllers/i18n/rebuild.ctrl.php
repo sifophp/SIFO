@@ -1,14 +1,17 @@
 <?php
+namespace Common;
 
-class I18nRebuildController extends Controller
+namespace Common;
+
+class I18nRebuildController extends \Sifo\Controller
 {
 	public $is_json = true;
 
 	public function build()
 	{
 
-		$translator = $this->getClass( 'I18nTranslatorModel' );
-		$filter = Filter::getInstance();
+		$translator = new I18nTranslatorModel();
+		$filter = \Sifo\Filter::getInstance();
 
 		$given_translation = $filter->getString( 'translation' );
 		$id_message = $filter->getString( 'id_message' );
@@ -66,8 +69,10 @@ class I18nRebuildController extends Controller
 					$buffer .= $item;
 				}
 			}
-			$buffer = "<?php\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
-			$path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/locale/messages_' .$language .'.php';
+			$buffer = "<?php
+
+namespace Common;\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
+			$path = ROOT_PATH . '/instances/' . \Sifo\Bootstrap::$instance . '/locale/messages_' .$language .'.php';
 			$write = @file_put_contents( $path, $buffer );
 
 			if ( !$write )

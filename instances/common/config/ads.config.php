@@ -9,7 +9,7 @@
 $config['google_client'] = 'pub-1420060626565286';
 
 // Link analytics with adsense:
-$config['google_analytics_domain_name'] = Domains::getInstance()->getDomain();
+$config['google_analytics_domain_name'] = \Sifo\Domains::getInstance()->getDomain();
 
 $config['ads_google_skyscrapper'] = array(
 		'google_analytics_domain_name' => $config['google_analytics_domain_name'],

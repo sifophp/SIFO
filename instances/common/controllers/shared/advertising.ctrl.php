@@ -1,4 +1,7 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * Displays and advertisement block from the ads.config.php depending on how this controller was called.
  *
@@ -19,7 +22,7 @@
  * @version 1.0
  *
  */
-class SharedAdvertisingController extends Controller
+class SharedAdvertisingController extends \Sifo\Controller
 {
 	public function build()
 	{
@@ -28,7 +31,7 @@ class SharedAdvertisingController extends Controller
 
 		try
 		{
-			$ads_config = Config::getInstance()->getConfig( 'ads', $module );
+			$ads_config = \Sifo\Config::getInstance()->getConfig( 'ads', $module );
 			$this->setLayout( $ads_config['layout'] );
 			$this->assign( 'ad', $ads_config );
 			

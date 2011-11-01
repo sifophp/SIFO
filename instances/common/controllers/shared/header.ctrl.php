@@ -1,5 +1,8 @@
 <?php
-class SharedHeaderController extends Controller
+namespace Common;
+
+namespace Common;
+class SharedHeaderController extends \Sifo\Controller
 {
 	public function build()
 	{

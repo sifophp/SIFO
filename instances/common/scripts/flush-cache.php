@@ -4,8 +4,8 @@ define( 'ROOT_PATH', realpath( dirname( __FILE__ ) . '/../../..' ) );
 require ROOT_PATH . '/instances/CLBootstrap.php';
 
 // The controller to run customization.
-CLBootstrap::$script_controller = 'scripts/flush/cache'; // <-- Should customize only this line.
+CL\Sifo\Bootstrap::$script_controller = 'scripts/flush/cache'; // <-- Should customize only this line.
 
 // DON'T TOUCH THIS LINE:
-CLBootstrap::execute();
+CL\Sifo\Bootstrap::execute();
 ?>

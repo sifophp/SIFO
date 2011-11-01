@@ -1,6 +1,9 @@
 <?php
+namespace Common;
+
+namespace Common;
 // Use this class only for send mails from web (no scripts). (With debug pause).
-class MailExt extends Mail
+class MailExt extends \Sifo\Mail
 {
 	/**
 	 * Send an email whith debug interruption.
@@ -13,7 +16,7 @@ class MailExt extends Mail
 	public function send( $to, $subject, $body )
 	{
 		// Debug advice:
-		if ( Domains::getInstance()->getDevMode() )
+		if ( \Sifo\Domains::getInstance()->getDevMode() )
 		{
 			$this->_dispatchMailController( $to, $subject, $body );
 		}
@@ -22,7 +25,7 @@ class MailExt extends Mail
 
 	private static function _dispatchMailController( $to, $subject, $body )
 	{
-		$ctrl = Bootstrap::invokeController( 'debug/mail' );
+		$ctrl = \Sifo\Bootstrap::invokeController( 'debug/mail' );
 		$mail_data = array(
 			'to' 	=> $to,
 			'subject' => $subject,

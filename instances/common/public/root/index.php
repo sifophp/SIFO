@@ -9,7 +9,7 @@
 $root = realpath( dirname( __FILE__ ) . '/../../../..' );
 
 // Instance name (folder under instances):
-$instance = 'default';
+$instance = 'common';
 
 // Define the root path:
 define( 'ROOT_PATH', $root );
@@ -17,4 +17,4 @@ define( 'ROOT_PATH', $root );
 require ROOT_PATH . '/instances/Bootstrap.php';
 
 // Execute your instance:
-Bootstrap::execute( $instance );
+\Sifo\Bootstrap::execute( $instance );

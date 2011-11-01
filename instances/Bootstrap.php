@@ -1,15 +1,16 @@
 <?php
+
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,10 +19,12 @@
  *
  */
 
+namespace Sifo;
+
 /**
  * Class Bootstrap
  */
-require_once ROOT_PATH . '/libs/SEOframework/Config.php';
+require_once ROOT_PATH . '/libs/Sifo/Config.php';
 
 class Bootstrap
 {
@@ -32,24 +35,28 @@ class Bootstrap
 	 * @var string
 	 */
 	public static $root;
+
 	/**
 	 * Application path.
 	 *
 	 * @var string
 	 */
 	public static $application;
+
 	/**
 	 * Instance name, this is the folder under 'instances'.
 	 *
 	 * @var string
 	 */
 	public static $instance;
+
 	/**
 	 * Language of this instance.
 	 *
 	 * @var string
 	 */
 	public static $language;
+
 	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
 	 * to parse code. This array can be replaced in your libraries.config under
@@ -59,18 +66,11 @@ class Bootstrap
 	 */
 	public static $required_classes = array(
 		'Exceptions',
-		'Registry',
 		'Filter',
 		'Domains',
 		'Urls',
 		'Router',
-		'Database',
-		'Controller',
-		'Model',
-		'View',
-		'I18N',
-		'Benchmark',
-		'Cache'
+		'Controller'
 	);
 
 	/**
@@ -91,6 +91,7 @@ class Bootstrap
 		{
 			self::includeFile( $class );
 		}
+
 	}
 
 	/**
@@ -108,11 +109,16 @@ class Bootstrap
 
 		// Include files:
 		self::includeRequiredFiles();
+
+		// Register autoloader:
+		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
+
 		Benchmark::getInstance()->timingStart();
 
 		self::dispatch( $controller_name );
 
 		Benchmark::getInstance()->timingStop();
+
 	}
 
 	public static function invokeController( $controller )
@@ -128,6 +134,7 @@ class Bootstrap
 		$class .= 'Controller';
 
 		return self::getClass( $class );
+
 	}
 
 	/**
@@ -154,6 +161,7 @@ class Bootstrap
 		}
 
 		return $classInfo['name'];
+
 	}
 
 	/**
@@ -180,6 +188,7 @@ class Bootstrap
 		{
 			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
 		}
+
 	}
 
 	/**
@@ -223,13 +232,13 @@ class Bootstrap
 
 			self::$language = $domain->getLanguage();
 			$php_inis = $domain->getPHPInis();
-			
+
 			if ( $php_inis )
 			{
 				self::_overWritePHPini( $php_inis );
 			}
 
-			$url = UrlParser::getInstance( self::$instance );
+			$url = Urls::getInstance( self::$instance );
 			$path_parts = $url->getPathParts();
 
 			if ( !$domain->valid_domain )
@@ -251,7 +260,7 @@ class Bootstrap
 			// Save in params for future references:
 			$ctrl->addParams( array(
 				'controller_route' => $controller,
-					) );
+			) );
 
 
 			// Active/deactive auto-rebuild option:
@@ -268,7 +277,7 @@ class Bootstrap
 				}
 			}
 
-			$response = $ctrl->dispatch();
+			$ctrl->dispatch();
 
 			if ( false === $ctrl->is_json && true === $ctrl->debug_enable && $ctrl->hasDebug() )
 			{
@@ -286,13 +295,14 @@ class Bootstrap
 			trigger_error( "FATAL ERROR. An uncatched exception has been raised:\n" . $e->getMessage() . "\n" . $e->getTraceAsString() );
 			die;
 		}
+
 	}
 
 	/**
 	 * Dispatches an error after an exception.
-	 * 
+	 *
 	 * @param Exception $e
-	 * @return output buffer 
+	 * @return output buffer
 	 */
 	private static function _dispatchErrorController( $e )
 	{
@@ -307,7 +317,7 @@ class Bootstrap
 			'code_msg' => $e->http_code_msg,
 			'msg' => $e->getMessage(),
 			'trace' => $e->getTraceAsString(),
-				) );
+		) );
 
 		// All the SEO_Exceptions with need of redirection have this attribute:
 		if ( $e->redirect )
@@ -324,7 +334,7 @@ class Bootstrap
 			else
 			{
 				// Relative path passed, use path as the key in url.config.php file:
-				$new_location = UrlParser::getUrl( $path );
+				$new_location = Urls::getUrl( $path );
 			}
 
 			if ( empty( $new_location ) || false == $new_location )
@@ -353,14 +363,15 @@ class Bootstrap
 		{
 			self::invokeController( 'debug/index' )->dispatch();
 		}
-		
+
 		return $result;
+
 	}
-	
+
 	/**
 	 * Sets all the PHP ini configurations stored in the configuration.
-	 * 
-	 * @param array $php_inis 
+	 *
+	 * @param array $php_inis
 	 */
 	private static function _overWritePHPini( Array $php_inis )
 	{
@@ -368,5 +379,7 @@ class Bootstrap
 		{
 			ini_set( $varname, $newvalue );
 		}
+
 	}
+
 }

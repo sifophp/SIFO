@@ -1,5 +1,7 @@
 <?php
 
+namespace Sifo;
+
 /**
  * DbDebugStatement class that is extended for debugging purposes.
  */
@@ -183,7 +185,7 @@ class MysqlDebug extends Mysql
 			$error = $this->pdo->errorInfo();
 			$resultset_array = 0;
 		}
-		
+
 		$debug_query = array(
 			"tag" => $context,
 			"sql" => $statement,

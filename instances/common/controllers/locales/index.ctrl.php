@@ -1,10 +1,13 @@
 <?php
+namespace Common;
+
+namespace Common;
 
 /**
  * Root locale controller
  * @author edufabra
  */
-class LocalesIndexController extends Controller
+class LocalesIndexController extends \Sifo\Controller
 {
 	protected $include_classes = array( 'FlashMessages' );
 
@@ -20,18 +23,18 @@ class LocalesIndexController extends Controller
 		$this->addModule( 'system_messages', 'SharedSystemMessages' );
 		
 		$params = $this->getParams();
-		$action = Router::getReversalRoute( $params['path_parts'][0] );
+		$action = \Sifo\Router::getReversalRoute( $params['path_parts'][0] );
 
 		$params = $this->getParams();
 
 		
 		if ( $params['params'] !== false && in_array('saved-true', $params["params"]))
 		{
-			FlashMessages::set( 'File Saved OK.', FlashMessages::MSG_OK );
+			\Sifo\FlashMessages::set( 'File Saved OK.', \Sifo\FlashMessages::MSG_OK );
 		}
 		if ( $params['params'] !== false && in_array('created-true', $params["params"]))
 		{
-			FlashMessages::set( 'File Created OK.', FlashMessages::MSG_OK );
+			\Sifo\FlashMessages::set( 'File Created OK.', \Sifo\FlashMessages::MSG_OK );
 		}
 
 

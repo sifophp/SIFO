@@ -7,7 +7,7 @@
  *
  */
 $config['From'] 		= 'noreply@localhost';
-$config['FromName'] 	= 'SEOframework Administrator';
+$config['FromName'] 	= 'Sifo Administrator';
 $config['CharSet'] 		= 'utf-8';
 $config['ContentType']	= 'text/html';
 

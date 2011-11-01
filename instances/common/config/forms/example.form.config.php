@@ -6,7 +6,7 @@
  *
  * $form_elems[] = array(
  *	'name' => 'email',  // Name of the input
- * 	'filter' => 'Email', // Filter rule to apply, e.g: 'Email' for Filter::getEmail function
+ * 	'filter' => 'Email', // Filter rule to apply, e.g: 'Email' for \Sifo\Filter::getEmail function
  * 	'params' => false, // Additional parameters needed by the filtering function.
  * 	'required' => true // The field is required to continue?
  * 	);

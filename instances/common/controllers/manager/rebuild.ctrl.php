@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-class ManagerRebuildController extends Controller
+namespace Common;
+
+class ManagerRebuildController extends \Sifo\Controller
 {
 
 	/**
@@ -15,13 +18,13 @@ class ManagerRebuildController extends Controller
 
 	/**
 	 * Writes all the configurattion files to disk.
-	 * 
+	 *
 	 * Input expected is:
-	 * 
+	 *
 	 * array( 'filename' => array( 'folder_to_parse1', 'folder_to_parse2', '...' ) )
-	 * 
+	 *
 	 * @param array $files
-	 * @return array Array of contents write to each file. 
+	 * @return array Array of contents write to each file.
 	 */
 	protected function rebuildFiles( Array $files )
 	{
@@ -49,16 +52,10 @@ class ManagerRebuildController extends Controller
 
 	public function build()
 	{
-		// Cannot use Iterators yet. PHP too old.
-		$this->getClass( 'Dir' );
-
 		if ( true !== $this->hasDebug() )
 		{
-			throw new Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
+			throw new Sifo\Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
 		}
-
-
-
 
 		// Calculate where the config files are taken from.
 		$files_output = $this->rebuildFiles( array(
@@ -89,7 +86,7 @@ MESG;
 
 	protected function getRunningInstances()
 	{
-		$d = new Dir();
+		$d = new \Sifo\Dir();
 		$instances = $d->getDirs( ROOT_PATH . '/instances' );
 
 		return $instances;
@@ -113,7 +110,7 @@ MESG;
 	 * @param string $path
 	 * @return string
 	 */
-	protected function getClassStandardized( $path )
+	private function getClassTypeStandarized( $path )
 	{
 		$class = '';
 
@@ -125,16 +122,15 @@ MESG;
 		}
 
 		return $class;
-
 	}
 
 	protected function getAvailableFiles( $type )
 	{
-		$d = new Dir();
+		$d = new \Sifo\Dir();
 		$type_files = array( );
 
-		$core_inheritance = Domains::getInstance()->getCoreInheritance();
-		$instance_inheritance = Domains::getInstance()->getInstanceInheritance();
+		$core_inheritance = \Sifo\Domains::getInstance()->getCoreInheritance();
+		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
 		if ( $type == 'core' )
 		{
@@ -143,7 +139,7 @@ MESG;
 				$available_files = $d->getFileListRecursive( ROOT_PATH, '/libs/' . $corelib );
 				if ( count( $available_files ) > 0 )
 				{
-					foreach ( $available_files as $k => $v )
+					foreach ( $available_files as $v )
 					{
 						// Allow only extensions PHP, TPL, CONF
 						$desired_file_pattern = preg_match( "/\.(php|tpl|conf)$/i", $v["relative"] );
@@ -153,11 +149,10 @@ MESG;
 							$rel_path = $this->cleanStartingSlash( $v["relative"] );
 							$path = $rel_path;
 							$rel_path = str_replace( 'libs/' . $corelib . '/', '', $rel_path );
-							$rel_path = str_replace( 'libs/SEOWrappers/', '', $rel_path );
 							$rel_path = str_replace( '.php', '', $rel_path ); // Default
 
-							$class = $this->getClassStandardized( $rel_path );
-							$type_files[$class] = $class . '::' . $path;
+							$class = $this->getClassTypeStandarized( $rel_path );
+							$type_files[$class]['Sifo'] = $path;
 						}
 					}
 				}
@@ -171,7 +166,7 @@ MESG;
 
 				if ( is_array( $available_files ) === true && count( $available_files ) > 0 )
 				{
-					foreach ( $available_files as $k => $v )
+					foreach ( $available_files as $v )
 					{
 						$rel_path = $this->cleanStartingSlash( $v["relative"] );
 						$class = '';
@@ -184,46 +179,37 @@ MESG;
 						$rel_path = str_replace( '.config.php', '', $rel_path );
 						$rel_path = str_replace( '.php', '', $rel_path ); // Default
 
-						$class = $this->getClassStandardized( $rel_path );
-
-						if ( 'default' != $current_instance )
-						{
-							$class_extended = $class . ucfirst( $current_instance );
-						}
-						else
-						{
-							$class_extended = $class;
-						}
-
+						$class = $this->getClassTypeStandarized( $rel_path );
 
 						switch ( $type )
 						{
 							case 'controllers':
 								$class .= 'Controller';
-								$class_extended .= 'Controller';
-								$type_files[$class] = $class_extended . '::' . $path;
+								$type_files[$class][ucfirst( $current_instance )] = $path;
 								break;
 							case 'models':
 								$class .= 'Model';
-								$class_extended .= 'Model';
-								$type_files[$class] = $class_extended . '::' . $path;
+								$type_files[$class][ucfirst( $current_instance )] = $path;
 								break;
 							case 'classes':
-								$type_files[$class] = $class_extended . '::' . $path;
+								$type_files[$class][ucfirst( $current_instance )] = $path;
 								break;
-							case 'templates':
 							case 'config':
+								if ( $rel_path == 'configuration_files' )
+								{
+									continue;
+								}
+							case 'templates':
 							default:
 								$type_files[$rel_path] = $path;
-								}
-							  }
 						}
 					}
 				}
+			}
+		}
 
 
 		ksort( $type_files );
-
 		return $type_files;
 
 	}

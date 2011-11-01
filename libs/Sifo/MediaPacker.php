@@ -19,6 +19,8 @@
  *
  */
 
+namespace Sifo;
+
 /**
  * Generates media files.
  */
@@ -63,119 +65,6 @@ abstract class MediaPacker
 
 			$this->writePackedContent( $file, $media[$group], $prepend_string );
 		}
-	}
-
-}
-
-/**
- * CSS packer.
- */
-class CssPacker extends MediaPacker
-{
-	/**
-	 * Media type of the current packer.
-	 *
-	 * @var string
-	 */
-	protected $media_type = 'css';
-
-	/**
-	 * Write media pack in disk.
-	 *
-	 * @param string $pack_filename File name of the generated media pack.
-	 * @param array $media_list List of media files included in the pack.
-	 * @param string $prepend_string Prepended content.
-	 */
-	protected function writePackedContent( $pack_filename, Array $media_list, $prepend_string = '' )
-	{
-		$content = $prepend_string;
-		foreach ( $media_list['files'] as $media )
-		{
-			$filename = ROOT_PATH . '/' . $media;
-			$path_info = pathinfo( $filename );
-
-			if ( is_file( $filename ) )
-			{
-				$content .= "/* START FILE {$path_info['basename']} */\n\n" . chr( 13 );
-				$content .= file_get_contents( $filename ) . chr( 13 );
-				$content .= "\n\n/* END {$path_info['basename']} */" . chr( 13 );
-			}
-		}
-
-		file_put_contents( $pack_filename, $content );
-
-		return $content;
-
-	}
-}
-
-/**
- * Javascript packer.
- */
-class JsPacker extends MediaPacker
-{
-	/**
-	 * Media type of the current packer.
-	 *
-	 * @var string
-	 */
-	protected $media_type = 'js';
-
-		/**
-	 * Write media pack in disk.
-	 *
-	 * @param string $pack_filename File name of the generated media pack.
-	 * @param array $media_list List of media files included in the pack.
-	 * @param string $prepend_string Prepended content.
-	 */
-	protected function writePackedContent( $pack_filename, Array $media_list, $prepend_string = '' )
-	{
-		$content = $prepend_string;
-		foreach ( $media_list as $media )
-		{
-			$filename = ROOT_PATH . '/' . $media['filename'];
-
-			if ( is_file( $filename ) )
-			{
-				$content .= "/* BEGIN {$media['name']} */\n\n" . chr( 13 );
-				$content .= file_get_contents( $filename ) . chr( 13 );
-				$content .= "\n\n/* END {$media['name']} */" . chr( 13 );
-			}
-			else
-			{
-				$content .= "alert( 'File {$media['name']} not found' );";
-			}
-		}
-
-		file_put_contents( $pack_filename, $content );
-
-		return $content;
-
-	}
-
-	/**
-	 * The Basepath is a Javascript array containing the absolute location of every group.
-	 *
-	 * @param array $media_list The list of media files that has been generated.
-	 * @param array $generated_files The resultant generated files.
-	 * @return string
-	 */
-	protected function getBasePathConfig( Array $media_list )
-	{
-		$base_code = <<<CODE
-sHostStatic = window.sHostStatic ? window.sHostStatic : "{$this->instance_static_host}";
-Hash = window.Hash ? window.Hash : "unset";
-var basePathConfig = {\n
-CODE;
-		foreach ( $media_list as $group => $media_data )
-		{
-			$base_array[] = "\t'$group': sHostStatic + '/js/generated/$group.js?rev=' + Hash";
-		}
-
-		$base_code .= implode( ",\n", $base_array ) . "\n};\n";
-
-		return $base_code;
-
 	}
 
 }

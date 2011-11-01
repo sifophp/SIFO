@@ -1,10 +1,13 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * A rebuild for router when no database is used.
  *
  * Keeps the router_xx_XX files syncronized with the router_en_US or whatever you set your master file.
  */
-class ManagerRebuildRouterController extends Controller
+class ManagerRebuildRouterController extends \Sifo\Controller
 {
 	const MASTER_LANGUAGE = 'en_US';
 
@@ -16,14 +19,14 @@ class ManagerRebuildRouterController extends Controller
 
 		try
 		{
-			$master_routes = Config::getInstance( $this->instance )->getConfig( 'lang/router_' . self::MASTER_LANGUAGE );
+			$master_routes = \Sifo\Config::getInstance( $this->instance )->getConfig( 'lang/router_' . self::MASTER_LANGUAGE );
 		}
 		catch( Exception_Configuration $e )
 		{
 			die( 'The master file does not exist. ' . $e->getMessage() );
 		}
 
-		$findI18N = $this->getClass( 'ManagerFindi18nController' );
+		$findI18N = new ManagerFindi18nController();
 		$files_available = $findI18N->getFilesystemFiles( "instances/{$this->instance}/config/lang" );
 
 		foreach ( $files_available as $key => $filename )
@@ -65,14 +68,16 @@ class ManagerRebuildRouterController extends Controller
 
 	protected function saveConfig( $filename, $values )
 	{
-		$config_file = Bootstrap::$application . "/{$this->instance}/config/lang/$filename";
-		file_put_contents( $config_file, "<?php\n"
+		$config_file = \Sifo\Bootstrap::$application . "/{$this->instance}/config/lang/$filename";
+		file_put_contents( $config_file, "<?php
+
+namespace Common;\n"
 				. '$config = ' . var_export( $values, true ) . ';' );
 	}
 
 	protected function getTranslatedRoutes( $filename )
 	{
-		$path = Bootstrap::$application . "/{$this->instance}/config/lang/$filename";
+		$path = \Sifo\Bootstrap::$application . "/{$this->instance}/config/lang/$filename";
 
 		include "$path";
 		ksort( $config );

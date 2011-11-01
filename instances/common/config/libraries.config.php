@@ -27,7 +27,7 @@ $config['classes_always_preloaded'] = array(
 
 // Contains all the libraries available.
 $config['default'] = array(
-	'smarty' => 'Smarty-2.6.26',
+	'smarty' => 'Smarty-3.0.7',
 	'adodb' => 'adodb5',
 	'googleTranslate' => 'googleTranslate-1.7',
 	'phpthumb' => 'PhpThumb',

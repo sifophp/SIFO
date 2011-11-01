@@ -58,8 +58,8 @@ find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/\$this->getClass(\s*["
 find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i "s/\$this->getClass(\s*[']\(\w*\)[']\(,*\s*\)\(true\)*\s*[)]/new \1()/g" {} \;
 
 CLASSES=(
-'Bootstrap'
 'CLBootstrap'
+'Bootstrap'
 'Benchmark'
 'Cache'
 'CacheDisk'

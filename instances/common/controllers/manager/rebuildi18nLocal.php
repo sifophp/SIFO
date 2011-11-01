@@ -1,11 +1,14 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * A rebuild for languages when no database is used.
  *
  * Parses all the controllers and templates and adds the missing translations to the array. No deletion is done.
  * If you want to delete a string must be deleted from every locale.
  */
-class ManagerRebuildi18nLocalController extends Controller
+class ManagerRebuildi18nLocalController extends \Sifo\Controller
 {
 	const MASTER_LANGUAGE = 'en_US';
 
@@ -13,7 +16,7 @@ class ManagerRebuildi18nLocalController extends Controller
 	{
 		$this->setLayout( 'manager/findi18n.tpl' );
 
-		$findI18N = $this->getClass( 'ManagerFindi18nController' );
+		$findI18N = new ManagerFindi18nController();
 
 
 		$locales_available = $findI18N->getFilesystemFiles( "instances/{$this->instance}/locale" );
@@ -61,15 +64,17 @@ class ManagerRebuildi18nLocalController extends Controller
 
 	protected function saveStrings( $locale, $translations )
 	{
-		$translations_file = Bootstrap::$application . "/{$this->instance}/locale/$locale";
-		file_put_contents( $translations_file, "<?php\n"
+		$translations_file = \Sifo\Bootstrap::$application . "/{$this->instance}/locale/$locale";
+		file_put_contents( $translations_file, "<?php
+
+namespace Common;\n"
 				. '$translations = ' . var_export( $translations, true ) . ';' );
 
 	}
 
 	protected function getTranslationStrings( $locale, $literals )
 	{
-		$path = Bootstrap::$application . "/{$this->instance}";
+		$path = \Sifo\Bootstrap::$application . "/{$this->instance}";
 		$translations_file = "$path/locale/$locale";
 
 		echo "<h1>Rebuild result for $locale</h1>";

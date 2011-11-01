@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-class ManagerFindi18nController extends Controller
+namespace Common;
+
+class ManagerFindi18nController extends \Sifo\Controller
 {
 	public function extractStringsForTranslation( $path, $instance, $in_templates = false )
 	{
@@ -27,11 +30,11 @@ class ManagerFindi18nController extends Controller
 				preg_match_all( "/translate\s*\(\s*\'([^\']+)\'[^\)]*\)/", $tpl_text, $translate_single_quotes );
 				preg_match_all( "/translate\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $translate_double_quotes );
 
-				// I18N::getTranslation functions
+				// \Sifo\\Sifo\\Sifo\I18N::getTranslation functions
 				preg_match_all( "/getTranslation\s*\(\s*\'([^\']+)\'[^\)]*\)/", $tpl_text, $i18n_translate_single_quotes );
 				preg_match_all( "/getTranslation\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $i18n_translate_double_quotes );
 
-				// FlashMessages
+				// \Sifo\FlashMessages
 				preg_match_all( "/FlasMessages::set\s*\(\s*\'([^\']+)\'[^\)]*\)/", $tpl_text, $flash_translate_single_quotes );
 				preg_match_all( "/FlasMessages::set\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $flash_translate_double_quotes );
 
@@ -73,7 +76,7 @@ class ManagerFindi18nController extends Controller
 
 	public function getLiterals( $instance )
 	{
-		$path = Bootstrap::$application . "/$instance";
+		$path = \Sifo\Bootstrap::$application . "/$instance";
 
 		// Parse all templates
 		$literals_groups['tpl'] = $this->extractStringsForTranslation( "$path/templates", $instance, true );
@@ -92,7 +95,7 @@ class ManagerFindi18nController extends Controller
 		$literals_groups['smarty'] = $this->extractStringsForTranslation( $libs_path, 'libs', false );
 
 		$final_literals = array();
-		
+
 		foreach ( $literals_groups as $group )
 		{
 			foreach ( $group as $literal=>$relative_path )
@@ -107,7 +110,7 @@ class ManagerFindi18nController extends Controller
 				}
 			}
 		}
-				
+
 		return $final_literals;
 	}
 
@@ -115,7 +118,7 @@ class ManagerFindi18nController extends Controller
 	{
 		$this->setLayout( 'manager/findi18n.tpl' );
 
-		$post = Filter::getInstance();
+		$post = \Sifo\Filter::getInstance();
 		$available_instances = $this->getFileSystemFiles( 'instances', true );
 		$locales_available = array();
 		foreach ( $available_instances as $inst )
@@ -129,21 +132,21 @@ class ManagerFindi18nController extends Controller
 
 		$charset = $post->getString( 'charset' );
 		$this->assign( 'charset', ( $charset ? $charset : 'utf-8' ) );
-		
-		$this->assign( 'instance', 'default' );
+
+		$this->assign( 'instance', 'common' );
 
 		if ( $post->isSent( 'instance' ) )
 		{
 			$instance = $post->getString( 'instance' );
 			$locale = $post->getString( 'locale' );
-			
+
 			$temp_lang = explode ( '_', $locale );
 			$this->assign( 'language', $temp_lang[1] );
 
 			$literals = $this->getLiterals( $instance );
 			$this->assign( 'literals', $literals );
 
-			$path = Bootstrap::$application . "/$instance";
+			$path = \Sifo\Bootstrap::$application . "/$instance";
 			$translations_file = "$path/locale/$locale";
 			if ( file_exists( $translations_file ) )
 			{

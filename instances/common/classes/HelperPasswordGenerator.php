@@ -1,4 +1,7 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * User functions.
  *

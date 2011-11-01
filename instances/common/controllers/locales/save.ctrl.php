@@ -1,10 +1,13 @@
 <?php
+namespace Common;
+
+namespace Common;
 
 /**
  * Save translations into files.
  * @author edufabra
  */
-class localesSaveController extends Controller
+class localesSaveController extends \Sifo\Controller
 {
 
 	/**
@@ -17,7 +20,7 @@ class localesSaveController extends Controller
 		$this->addModule( 'head', 'SharedHead' );
 		$this->addModule( 'footer', 'SharedFooter' );
 		$params = $this->getParams();
-		$action = Router::getReversalRoute( $params['path_parts'][0] );
+		$action = \Sifo\Router::getReversalRoute( $params['path_parts'][0] );
 		switch ( $action )
 		{
 			case 'locales-save':
@@ -38,7 +41,7 @@ class localesSaveController extends Controller
 	 */
 	public function save()
 	{
-		$post = FilterPost::getInstance();
+		$post = \Sifo\FilterPost::getInstance();
 		if ( $post->isSent( 'save' ) )
 		{
 			$translations = $post->getArray( "translations" );
@@ -57,7 +60,9 @@ class localesSaveController extends Controller
 			{
 				$this->natksort($translated_keys);
 				$file = fopen(ROOT_PATH . '/instances/' . $instance . '/' . 'locale/' . $language_file, 'w+');
-				fwrite($file, '<?php'."\n");
+				fwrite($file, '<?php
+
+namespace Common;'."\n");
 				foreach($translated_keys as $index => $translation)
 				{
 					if ($translation["translation"] != '')
@@ -77,7 +82,7 @@ class localesSaveController extends Controller
 				fclose($file);
 			}
 			$params = $this->getParams();
-			throw new Exception_302( $params['url']['locales'] . ':saved-true:i:'.$instance.':l:'.$language_file );
+			throw new Sifo\Exception_302( $params['url']['locales'] . ':saved-true:i:'.$instance.':l:'.$language_file );
 		}
 		else
 		{
@@ -87,10 +92,12 @@ class localesSaveController extends Controller
 				$file = fopen(ROOT_PATH . '/instances/' . $params["parsed_params"]["instance"] . '/' . 'locale/' . $params["parsed_params"]["new_language"], 'w+');
 				if ($file)
 				{
-					fwrite($file, '<?php'."\n");
+					fwrite($file, '<?php
+
+namespace Common;'."\n");
 					fclose($file);
 				}
-				throw new Exception_302( $params['url']['locales'] . ':created-true:i:'.$params["parsed_params"]["instance"] );
+				throw new Sifo\Exception_302( $params['url']['locales'] . ':created-true:i:'.$params["parsed_params"]["instance"] );
 			}
 		}
 	}

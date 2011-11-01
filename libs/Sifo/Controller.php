@@ -18,6 +18,8 @@
  *
  */
 
+namespace Sifo;
+
 abstract class Controller
 {
 	/**
@@ -141,11 +143,11 @@ abstract class Controller
 		$this->instance = Bootstrap::$instance;
 		$this->language = Domains::getInstance()->getLanguage();
 
-		$this->url_definition = UrlParser::getInstance( $this->instance )->getUrlDefinition();
+		$this->url_definition = Urls::getInstance( $this->instance )->getUrlDefinition();
 		self::$has_debug = Domains::getInstance()->getDevMode();
 
-		$urls = UrlParser::getInstance( $this->instance )->getUrlConfig();
-		$current_url = $this->getUrl( UrlParser::getInstance( Bootstrap::$instance )->getPath(), UrlParser::getInstance( $this->instance )->getParams() );
+		$urls = Urls::getInstance( $this->instance )->getUrlConfig();
+		$current_url = $this->getUrl( Urls::getInstance( Bootstrap::$instance )->getPath(), Urls::getInstance( $this->instance )->getParams() );
 
 		$urls['current_url'] = $current_url;
 		$this->params = array(
@@ -153,9 +155,9 @@ abstract class Controller
 				'current_url' => $current_url,
 				'instance' => Bootstrap::$instance,
 				'controller' => get_class( $this ),
-				'path' => UrlParser::getInstance( $this->instance )->getPath(),
-				'path_parts' => UrlParser::getInstance( $this->instance )->getPathParts(),
-				'params' => UrlParser::getInstance( $this->instance )->getParams(),
+				'path' => Urls::getInstance( $this->instance )->getPath(),
+				'path_parts' => Urls::getInstance( $this->instance )->getPathParts(),
+				'params' => Urls::getInstance( $this->instance )->getParams(),
 				'has_debug' => Domains::getInstance()->getDevMode(),
 				'lang' => $this->language,
 				'url' => $urls,
@@ -189,7 +191,7 @@ abstract class Controller
 
 	public function getUrl( $relative_path, $params = null )
 	{
-		$url = UrlParser::getInstance( $this->instance )->getUrl( $relative_path );
+		$url = Urls::getInstance( $this->instance )->getUrl( $relative_path );
 		if ( ( !$url ) &&  ( '' != $relative_path ) )
 		{
 			/*
@@ -198,15 +200,15 @@ abstract class Controller
 			*/
 			if ( $reversal_route = Router::getReversalRoute( $relative_path ) )
 			{
-				if ( !( $url = UrlParser::getInstance( $this->instance )->getUrl( Router::getReversalRoute( $relative_path ) ) ) )
+				if ( !( $url = Urls::getInstance( $this->instance )->getUrl( Router::getReversalRoute( $relative_path ) ) ) )
 				{
 					// Fixed the current_url in url like word1_word2 for url word1-word2
-					$url = UrlParser::getInstance( $this->instance )->getUrl( Router::getReversalRoute( str_replace( '-','_', $relative_path ) ) );
+					$url = Urls::getInstance( $this->instance )->getUrl( Router::getReversalRoute( str_replace( '-','_', $relative_path ) ) );
 				}
 			}
 			else
 			{
-				$url = UrlParser::$base_url . '/' . $relative_path;
+				$url = Urls::$base_url . '/' . $relative_path;
 			}
 		}
 

@@ -1,4 +1,7 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * Class Pagination.
  *
@@ -23,7 +26,7 @@
  * <code>
  *
  * // New object Pagination:
- * $pagination = new Pagination(); ( Equivalent to $this->getClass( 'Pagination' ) in a controller ).
+ * $pagination = new Pagination(); ( Equivalent to new Pagination() in a controller ).
  *
  * // Set total number of items
  * $pagination->setNumTotalResults(150);
@@ -162,7 +165,7 @@ class Pagination
 	/**
 	 * Config object.
 	 *
-	 * @var Config
+	 * @var \Sifo\Config
 	 */
 	protected $config;
 
@@ -188,7 +191,7 @@ class Pagination
 		$this->params_template 		= array();
 		$this->layout_template		= null;
 		$this->setDisplayItemsPerPage( null );
-		$this->config = Config::getInstance();
+		$this->config = \Sifo\Config::getInstance();
 	}
 
 	/**
@@ -235,7 +238,7 @@ class Pagination
 		// Throw exception when page is higher than current page.
 		if ( $this->current_page_number > $this->num_pages )
 		{
-			throw new Exception_404( 'Pagination error: trying to retrieve an unexisting page' );
+			throw new Sifo\Exception_404( 'Pagination error: trying to retrieve an unexisting page' );
 		}
 
 		return $this->getPaginationData();

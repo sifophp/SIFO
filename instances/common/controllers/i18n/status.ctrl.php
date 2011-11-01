@@ -1,12 +1,15 @@
 <?php
+namespace Common;
 
-class I18nStatusController extends Controller
+namespace Common;
+
+class I18nStatusController extends \Sifo\Controller
 {
 	public function build()
 	{
 		if ( !$this->hasDebug() )
 		{
-			throw new Exception_404( 'Translation only available while debugging' );
+			throw new Sifo\Exception_404( 'Translation only available while debugging' );
 		}
 
 		$this->addModule( 'head', 'SharedHead' );
@@ -15,7 +18,7 @@ class I18nStatusController extends Controller
 		$this->addModule( 'system_messages', 'SharedSystemMessages' );
 
 		$this->setLayout( 'i18n/status.tpl' );
-		$translator = $this->getClass( 'I18nTranslatorModel' );
+		$translator = new I18nTranslatorModel();
 
 		$different_languages = $translator->getStats();
 

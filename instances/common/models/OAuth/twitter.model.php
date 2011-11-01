@@ -1,11 +1,14 @@
 <?php
+namespace Common;
+
+namespace Common;
 /**
  * Example of implementation:
  * // Anywhere:
- * echo '<a href="' . $this->getClass( 'OAuthTwitterModel' )->getAuthenticationUrl() . '">Authorize with Twitter</a>';
+ * echo '<a href="' . new OAuthTwitterModel()->getAuthenticationUrl() . '">Authorize with Twitter</a>';
  * // In the callback controller:
- * $token = $this->getClass( 'OAuthTwitterModel' )->getAuth( $oauth_token );
- * $this->getClass( 'OAuthTwitterModel' )->testGetFriends( $token['oauth_token'], $token['oauth_token_secret'] );
+ * $token = new OAuthTwitterModel()->getAuth( $oauth_token );
+ * new OAuthTwitterModel()->testGetFriends( $token['oauth_token'], $token['oauth_token_secret'] );
  *
  * This classes is used in all Splitweet operations when using OAuth.
  */
@@ -33,14 +36,14 @@ class OAuthTwitterModel extends EpiTwitter
 	{
 		try
 		{
-			$this->credentials = Config::getInstance()->getConfig( 'twitter_oauth', Domains::getInstance()->getDomain() );
+			$this->credentials = \Sifo\Config::getInstance()->getConfig( 'twitter_oauth', \Sifo\Domains::getInstance()->getDomain() );
 			parent::__construct( $this->credentials['consumer_key'], $this->credentials['consumer_secret'] );
 			$this->useAsynchronous( true );
 			$this->setTimeout( $this->credentials['request_timeout'], $this->credentials['connection_timeout'] );
 		}
 		catch( Exception $e )
 		{
-			throw new Exception_500( $e->getMessage() );
+			throw new Sifo\Exception_500( $e->getMessage() );
 		}
 
 	}
@@ -53,7 +56,7 @@ class OAuthTwitterModel extends EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new Exception_500( $e->getMessage() );
+			throw new Sifo\Exception_500( $e->getMessage() );
 		}
 		
 	}
@@ -81,7 +84,7 @@ class OAuthTwitterModel extends EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new Exception_500( $e->getMessage() );
+			throw new Sifo\Exception_500( $e->getMessage() );
 		}
 
 		

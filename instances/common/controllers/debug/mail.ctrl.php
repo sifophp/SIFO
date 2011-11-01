@@ -1,5 +1,8 @@
 <?php
-class DebugMailController extends Controller
+namespace Common;
+
+namespace Common;
+class DebugMailController extends \Sifo\Controller
 {
 	private $mail_data;
 	
@@ -12,12 +15,12 @@ class DebugMailController extends Controller
 
 	private function continueMail()
 	{
-		if( !($this->mail_data = Session::get( 'mail_data' ) ) )
+		if( !($this->mail_data = \Sifo\Session::get( 'mail_data' ) ) )
 		{
-			throw new Exception_500( 'No exists mail data to send the mail' );
+			throw new Sifo\Exception_500( 'No exists mail data to send the mail' );
 		}
-		Session::delete( 'mail_data' );
-		$mail = $this->getClass( 'Mail' );
+		\Sifo\Session::delete( 'mail_data' );
+		$mail = new Sifo\Mail();
 		return $mail->send( $this->mail_data['to'], $this->mail_data['subject'], $this->mail_data['body'] );
 	}
 
@@ -25,10 +28,10 @@ class DebugMailController extends Controller
 	{
 		if ( !$this->hasDebug() )
 		{
-			throw Exception_404( 'Only in debug mode' );
+			throw Sifo\Exception_404( 'Only in debug mode' );
 		}
 		$this->setLayout( 'debug/mail.tpl' );
-		Session::getInstance();
+		\Sifo\Session::getInstance();
 		if ( $this->getParam( 'current_url' ) == $this->getUrl( 'mail-continue' ) )
 		{
 			$this->assign( 'mail_sent', true );
@@ -42,12 +45,12 @@ class DebugMailController extends Controller
 		else
 		{
 			$new_mail_data = $this->getParam( 'mail_data' );
-			if ( FilterServer::getInstance()->getString( 'HTTP_REFERER' ) )
+			if ( \Sifo\FilterServer::getInstance()->getString( 'HTTP_REFERER' ) )
 			{
-				$new_mail_data['return_page'] = FilterServer::getInstance()->getString( 'HTTP_REFERER' );
+				$new_mail_data['return_page'] = \Sifo\FilterServer::getInstance()->getString( 'HTTP_REFERER' );
 			}
 			// For can cotinue clicking the link:
-			Session::set( 'mail_data', $new_mail_data );
+			\Sifo\Session::set( 'mail_data', $new_mail_data );
 			$this->assign( 'mail_data', $new_mail_data );
 			$this->assign( 'continue_sending', $this->getUrl( 'mail-continue' ) );
 		}

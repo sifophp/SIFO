@@ -73,7 +73,7 @@ function smarty_block_t($params, $text, &$smarty)
 	// use plural if required parameters are set
 	//$text = gettext($text);
 
-	$text = I18N::getTranslation( $text );
+	$text = Sifo\I18N::getTranslation( $text );
 
 	// run strarg if there are parameters
 	if (count($params)) {

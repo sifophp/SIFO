@@ -1,5 +1,8 @@
 <?php
-include_once ROOT_PATH . '/instances/default/controllers/shared/commandLineController.ctrl.php';
+namespace Common;
+
+namespace Common;
+include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 
 class ScriptsLoadAvgAutoswitchController extends CommandLineController
 {
@@ -8,7 +11,9 @@ class ScriptsLoadAvgAutoswitchController extends CommandLineController
 	 *
 	 * @var string
 	 */
-	const PHP_OPEN_TAG = '<?php';
+	const PHP_OPEN_TAG = '<?php
+
+namespace Common;';
 
 	/**
 	 * Text used to indicates the original file customization.

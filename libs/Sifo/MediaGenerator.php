@@ -18,6 +18,8 @@
  *
  */
 
+namespace Sifo;
+
 /**
  * Generates media files.
  */

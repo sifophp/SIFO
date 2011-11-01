@@ -17,6 +17,9 @@
  * limitations under the License.
  *
  */
+
+namespace Sifo;
+
 include_once 'LoadBalancer.php';
 
 // Some stuff needed by ADODb:

@@ -1,5 +1,7 @@
 <?php
 
+namespace Sifo;
+
 /**
  * Filters the request array checking that the values accomplish the given filters.
  *
@@ -292,7 +294,7 @@ class Filter
 	 *
 	 * @param string $var_name
 	 * @param string $filter_function Is the function to use with each array field.
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function getArrayFromSerialized( $var_name, $filter_function = null )
 	{
@@ -368,7 +370,7 @@ class Filter
 		{
 			return $date->format( $format );
 		}
-		
+
 		return false;
 	}
 

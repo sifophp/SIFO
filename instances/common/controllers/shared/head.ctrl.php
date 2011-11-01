@@ -1,6 +1,11 @@
 <?php
+namespace Common;
 
-class SharedHeadController extends Controller
+use \Sifo\Controller;
+use \Sifo\JsPacker;
+use \Sifo\CssPacker;
+
+class SharedHeadController extends \Sifo\Controller
 {
 
 	protected $css_groups = array( 'default', 'print' );
@@ -14,12 +19,12 @@ class SharedHeadController extends Controller
 		$this->assign( 'path', $params['path'] );
 		$this->getClass( 'Metadata', false );
 
-		if ( null == Metadata::get() )
+		if ( null == \Sifo\Metadata::get() )
 		{
-			Metadata::setKey( 'default' );
+			\Sifo\Metadata::setKey( 'default' );
 		}
 
-		$this->assign( 'metadata', Metadata::get() );
+		$this->assign( 'metadata', \Sifo\Metadata::get() );
 
 		$this->assignMedia();
 	}
@@ -44,16 +49,15 @@ class SharedHeadController extends Controller
 	{
 
 		// On development create all the packed files on the fly:
-		if ( Domains::getInstance()->getDevMode() )
+		if ( \Sifo\Domains::getInstance()->getDevMode() )
 		{
-			$this->getClass( 'MediaPacker', false );
-			$packer = new JsPacker();
+			$packer = new \Sifo\JsPacker();
 			$packer->packMedia();
-			$packer = new CssPacker();
+			$packer = new \Sifo\CssPacker();
 			$packer->packMedia();
 		}
 
-		$this->assign( 'media', Config::getInstance()->getConfig( 'css' ) );
+		$this->assign( 'media', \Sifo\Config::getInstance()->getConfig( 'css' ) );
 		$this->assign( 'css_groups', $this->css_groups );
 		$this->assign( 'js_groups', $this->js_groups );
 

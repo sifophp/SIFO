@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-include_once ROOT_PATH . '/instances/default/controllers/shared/firstLevel.ctrl.php';
+namespace Common;
+
+include_once ROOT_PATH . '/instances/common/controllers/shared/firstLevel.ctrl.php';
 
 class StaticIndexController extends SharedFirstLevelController
 {
@@ -9,7 +12,7 @@ class StaticIndexController extends SharedFirstLevelController
 		$params = $this->getParams();
 		$this->setLayout( 'static/common.tpl' );
 
-		$english_path = Router::getReversalRoute( $params['path'] );
+		$english_path = \Sifo\Router::getReversalRoute( $params['path'] );
 		$template = 'static/' . $english_path . '_' . $this->language .'.tpl';
 
 		if ( $static = $this->fetch( $template ) )
@@ -18,7 +21,7 @@ class StaticIndexController extends SharedFirstLevelController
 		}
 		else
 		{
-			throw new Exception_404( 'Page ' . $params['path'] . ' not found.' );
+			throw new Sifo\Exception_404( 'Page ' . $params['path'] . ' not found.' );
 		}
 
 	}

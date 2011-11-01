@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-class I18nListModel extends Model
+namespace Common;
+
+class I18nListModel extends \Sifo\Model
 {
 	public function getAvailableLangs()
 	{
@@ -11,7 +14,7 @@ class I18nListModel extends Model
 		}
 
 		// In debug all languages are shown:
-		if ( Domains::getInstance()->getDevMode() )
+		if ( \Sifo\Domains::getInstance()->getDevMode() )
 		{
 				$sql = <<<TRANSLATIONS
 SELECT

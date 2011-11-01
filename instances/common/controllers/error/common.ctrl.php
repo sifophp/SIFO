@@ -1,6 +1,9 @@
 <?php
+namespace Common;
 
-class ErrorCommonController extends Controller
+namespace Common;
+
+class ErrorCommonController extends \Sifo\Controller
 {
 
 	public function build()
@@ -56,11 +59,11 @@ class ErrorCommonController extends Controller
 	{
 		try
 		{
-			$metadata = Config::getInstance()->getConfig( 'lang/metadata_' . $this->getParam( 'lang' ) );
+			$metadata = \Sifo\Config::getInstance()->getConfig( 'lang/metadata_' . $this->getParam( 'lang' ) );
 		}
 		catch ( Exception_Configuration $e )
 		{
-			$metadata = Config::getInstance()->getConfig( 'lang/metadata_en_US' );
+			$metadata = \Sifo\Config::getInstance()->getConfig( 'lang/metadata_en_US' );
 		}
 
 		$error_code = $this->getParam( 'code' );

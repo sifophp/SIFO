@@ -1,15 +1,15 @@
 <?php
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Garcia
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,8 @@
  * limitations under the License.
  *
  */
+
+namespace Sifo;
 
 class Images
 {
@@ -36,7 +38,7 @@ class Images
 		include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
 
 		$fileinfo = pathinfo( $to );
-	
+
 		$thumb = PhpThumbFactory::create( $from );
 		$thumb = PhpThumbFactory::create( $from, array(
 					'resizeUp' => $resizeUp,
@@ -44,18 +46,18 @@ class Images
 					'preserveTransparency' => $transparency,
 					'jpegQuality'	=> $quality,
 						) );
-		
+
 		if ( false === $crop )
 		{
-			$thumb->resize( $width, $height );		
+			$thumb->resize( $width, $height );
 		}
 		else
 		{
 			$thumb->adaptiveResize( $width, $height );
 		}
-		
+
 		$thumb->save( $to, $fileinfo['extension'] );
-		
+
 		return true;
 	}
 
@@ -93,7 +95,7 @@ class Images
 
 		return true;
 	}
-	
+
 	/**
 	 * Upload and resize an image.
 	 *
@@ -103,17 +105,17 @@ class Images
 	 * @param integer $height
 	 * @param boolean $crop
 	 * @return boolean
-	 */	
+	 */
 	static public function uploadResizeAndSave( $post_file, $destination, $width, $height, $crop = false, $resizeUp = false, $transparency = false )
 	{
 		$old_name = $post_file['tmp_name'];
 		$upload_info = pathinfo( $old_name );
-		$new_name = $upload_info['dirname'].'/'.$post_file['name'];	
-		
+		$new_name = $upload_info['dirname'].'/'.$post_file['name'];
+
 		move_uploaded_file( $old_name, $new_name );
-		
+
 		self::resizeAndSave( $new_name, $destination, $width, $height, $crop, $resizeUp, $transparency );
-		
+
 		return true;
 	}
 }

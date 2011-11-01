@@ -18,6 +18,8 @@
  *
  */
 
+namespace Sifo;
+
 class Domains
 {
 	protected $domain;

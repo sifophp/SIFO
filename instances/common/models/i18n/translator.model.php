@@ -1,9 +1,12 @@
 <?php
+namespace Common;
+
+namespace Common;
 
 /**
  * Manages the translations.
  */
-class I18nTranslatorModel extends Model
+class I18nTranslatorModel extends \Sifo\Model
 {
 	/**
 	 * Returns the translations list for a given langauge.

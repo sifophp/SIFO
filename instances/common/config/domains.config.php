@@ -4,15 +4,15 @@
 
 	$config['domain.com'] = array(
 	'devel' => true,
-	'instance' => 'default',
+	'instance' => 'common',
 	'auth' => 'user,password',	// User and password requested by the browser, comment to disable
 	'trusted_ips' = 'ip1,ip2,...,ipn'; // When the auth directive is in use. Define here trusted user ip's for access without password.
 	'lang_in_subdomain' => true, // The language is set in the subdomain. E.g: fr.subdomain.com
 	'www_as_subdomain' => true, // Are you using "www" as a "default" subdomain or not.
 	'language' => 'es', // Language by default, e.g. domain.es is always in Spanish
 	'language_domain' =>'messages' // Name of the file containing the translations,
-	'static_host' => 'http://static.seoframework.local', // host containing the images and other static content
-	'media_host' => 'http://media.seoframework.local', // Avatars and other media not fitting under static. Comment or remove to disable.
+	'static_host' => 'http://static.sifo.local', // host containing the images and other static content
+	'media_host' => 'http://media.sifo.local', // Avatars and other media not fitting under static. Comment or remove to disable.
 	'database' => array(
 		'db_driver' => 'mysql', // mysqli also available
 		'db_host' => '127.0.0.1',
@@ -36,34 +36,34 @@
 		'short_open_tag' => '1'
 	).
 	'libraries_profile' => 'default', // This profile defines the versions of libraries your project will use.
-										// By default (if you don't add this variable in your domains.config) will use "default" profile.
+										// By default (if you don't add this variable in your domains.config) will use "common" profile.
 	);
 	Redirections use the EXACT term in the host, and needs the format
 	$config['redirections'] = array( array( 'from' => 'domain.old', 'to' => 'http://domain.new' ), array( 'from' => 'domain2.old', 'to' => 'http://domain.new' ),... );
 	FROM: is only the host while TO contains the protocol.
 
 	Use $config['core_inheritance'] for active new versions of core.
-		$config['core_inheritance'] = array( 'SEOframework', 'SEOframework5.3' );  // For work with SIFO for php5.3
+		$config['core_inheritance'] = array( 'Sifo', 'Sifo5.3' );  // For work with SIFO for php5.3
  */;
 
-$config['core_inheritance'] = array( 'SEOframework' );
+$config['core_inheritance'] = array( 'Sifo' );
 // Define the inheritance of this instance (which instances are their parents:
-// $config['instance_inheritance'] = array( 'default', 'mygrandparent', 'myparent' );
+// $config['instance_inheritance'] = array( 'common', 'mygrandparent', 'myparent' );
 
 $config['redirections'] = array(
-	array( 'from' => 'www.seoframework.local', 'to' => 'http://seoframework.local' ),
-	array( 'from' => 'www2.seoframework.local', 'to' => 'http://seoframework.local' ),
+	array( 'from' => 'www.sifo.local', 'to' => 'http://sifo.local' ),
+	array( 'from' => 'www2.sifo.local', 'to' => 'http://sifo.local' ),
 );
 
-$config['seoframework.local'] = array(
+$config['sifo.local'] = array(
 	'devel' => true,
-	'instance' => 'default',
+	'instance' => 'common',
 	'language' => 'en_US',
 	'language_domain' =>'messages',
 	'lang_in_subdomain' => array( 'es' => 'es_ES', 'en' => 'en_US' ),
 	'www_as_subdomain' => false,
-	'static_host' => 'http://static.seoframework.local',
-	'media_host' => 'http://static.seoframework.local', // Alternative static content (media). Comment to disable.
+	'static_host' => 'http://static.sifo.local',
+	'media_host' => 'http://static.sifo.local', // Alternative static content (media). Comment to disable.
 	'database' => array(
 		// If you need a master/slave schema enable the 'profile' line below:
 		// 'profile' => 'PRODUCTION', // Use this option for MASTER/SLAVE configurations and fill db_profiles.config.php with credentials.
@@ -93,5 +93,5 @@ $config['seoframework.local'] = array(
 	//'libraries_profile' => 'bleeding_edge' // What profile of libraries should be used.
 );
 
-$config['unit.test'] = $config['seoframework.local'];
-$config['unit.test']['instance'] = 'default';
+$config['unit.test'] = $config['sifo.local'];
+$config['unit.test']['instance'] = 'common';
