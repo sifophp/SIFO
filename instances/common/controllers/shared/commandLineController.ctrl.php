@@ -1,8 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
 abstract class CommandLineController extends \Sifo\Controller
 {
 	const TEST		= 'TEST';
@@ -128,7 +126,7 @@ abstract class CommandLineController extends \Sifo\Controller
 		$this->debug_mode = \Sifo\Domains::getInstance()->getDevMode();
 
 		// Init i18n configuration.
-		$this->i18n = \Sifo\\Sifo\\Sifo\I18N::getInstance( \Sifo\Domains::getInstance()->getLanguageDomain(), $this->language );
+		$this->i18n = \Sifo\I18N::getInstance( \Sifo\Domains::getInstance()->getLanguageDomain(), $this->language );
 	}
 
 	/**

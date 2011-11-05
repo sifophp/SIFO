@@ -24,7 +24,7 @@ namespace Sifo;
 /**
  * CSS packer.
  */
-class CssPacker extends \Sifo\MediaPacker
+class CssPacker extends MediaPacker
 {
 	/**
 	 * Media type of the current packer.

@@ -48,7 +48,7 @@ class RedisModel
 			{
 				$db_params = Domains::getInstance()->getParam( 'redis' );
 			}
-			self::$connected_client[self::$connection_params] = new Predis_Client( $db_params );
+			self::$connected_client[self::$connection_params] = new Predis\Client( $db_params );
 		}
 
 		return self::$connected_client[self::$connection_params];

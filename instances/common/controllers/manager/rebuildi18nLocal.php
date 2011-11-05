@@ -1,5 +1,4 @@
 <?php
-namespace Common;
 
 namespace Common;
 /**
@@ -27,7 +26,7 @@ class ManagerRebuildi18nLocalController extends \Sifo\Controller
 				unset( $locales_available[$key] ); // Rebuild only "messages".
 			}
 		}
-		
+
 		$literals = $findI18N->getLiterals( $this->instance );
 
 		// Look for master file and save contents from literals:

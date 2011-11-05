@@ -30,7 +30,7 @@ namespace Sifo;
  * ------
  * Examples of usage:
  *
- * $dir = new DirectoryList();
+ * $dir = new \Sifo\DirectoryList();
  *
  * // Recursive list of all files including dirs:
  * $iterator = $dir->getRecursiveList( $path );
@@ -85,13 +85,13 @@ class DirectoryList
 		if ( !empty( $valid_extensions ) )
 		{
 			return new FilterFilesByExtensionIterator(
-							new IteratorIterator( new RecursiveDirectoryIterator( $path ) ),
+							new \IteratorIterator( new \RecursiveDirectoryIterator( $path ) ),
 							$valid_extensions );
 		}
 		else
 		{
 			// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
-			return new IteratorIterator( new RecursiveDirectoryIterator( $path ) );
+			return new \IteratorIterator( new \RecursiveDirectoryIterator( $path ) );
 		}
 
 	}
@@ -102,25 +102,26 @@ class DirectoryList
 	 *
 	 * @param string $path Directory where you want to start parsing.
 	 * @param array $valid_extensions List of accepted extensions in the list, empty array for no filtering.
-	 * @return RecursiveIteratorIterator of RecursiveDirectoryIterator
+	 * @return
+	 * ratorIterator of RecursiveDirectoryIterator
 	 */
 	public function getRecursiveList( $path, $accept_directories = true, $valid_extensions = array( ) )
 	{
 		$mode = $this->_getIteratorMode( $accept_directories );
-		$dir_iterator = new RecursiveDirectoryIterator( $path );
+		$dir_iterator = new \RecursiveDirectoryIterator( $path );
 
 		if ( !empty( $valid_extensions ) )
 		{
 			return new FilterFilesByExtensionIterator(
-							new RecursiveIteratorIterator(
+							new \RecursiveIteratorIterator(
 									$dir_iterator,
-									$mode, RecursiveIteratorIterator::CATCH_GET_CHILD
+									$mode, \RecursiveIteratorIterator::CATCH_GET_CHILD
 							),
 							$valid_extensions );
 		}
 		else
 		{
-			return new RecursiveIteratorIterator( $dir_iterator, $mode, RecursiveIteratorIterator::CATCH_GET_CHILD );
+			return new \RecursiveIteratorIterator( $dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD );
 		}
 
 	}
@@ -138,8 +139,8 @@ class DirectoryList
 		 * RecursiveIteratorIterator::CATCH_GET_CHILD = Catches exceptions in getChildren() call
 		 */
 		return ( $accept_directories ?
-						RecursiveIteratorIterator::SELF_FIRST :
-						RecursiveIteratorIterator::LEAVES_ONLY
+						\RecursiveIteratorIterator::SELF_FIRST :
+						\RecursiveIteratorIterator::LEAVES_ONLY
 				);
 
 	}
@@ -150,12 +151,12 @@ class DirectoryList
  * Filters out unwanted files from the iterator. Pass an array with the list of
  * extensions you want to accept.
  */
-class FilterFilesByExtensionIterator extends FilterIterator
+class FilterFilesByExtensionIterator extends \FilterIterator
 {
 
 	protected $allowed_extensions;
 
-	public function __construct( Iterator $iterator, Array $allowed_extensions )
+	public function __construct( \Iterator $iterator, Array $allowed_extensions )
 	{
 		$this->allowed_extensions = $allowed_extensions;
 		parent::__construct( $iterator );

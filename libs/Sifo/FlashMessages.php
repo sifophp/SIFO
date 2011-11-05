@@ -46,7 +46,7 @@ class FlashMessages
 			case self::MSG_INFO:
 				break;
 			default:
-				throw new Exception( 'Unknow type of FlashMessage' );
+				throw new \Exception( 'Unknown type of FlashMessage' );
 
 		}
 

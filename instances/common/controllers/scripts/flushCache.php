@@ -1,8 +1,9 @@
 <?php
-namespace Common;
 
 namespace Common;
+
 include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
+
 class ScriptsFlushCacheController extends CommandLineController
 {
 	private $_last_accessed;
@@ -76,7 +77,7 @@ class ScriptsFlushCacheController extends CommandLineController
 		$this->setNewParam( 'm', 'mmin', 'Flush status was not last modified n minutes ago.', true, false );
 
 	}
-	
+
 	public function exec()
 	{
 		$this->showMessage( "Starting the flush", self::VERBOSE );

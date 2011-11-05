@@ -107,7 +107,7 @@ class Client
 		}
 		else
 		{
-			$bc = new Browscap( ROOT_PATH . '/libs/Browscap/');
+			$bc = new \Browscap( ROOT_PATH . '/libs/Browscap/');
 			$browser = $bc->getBrowser( $useragent, $return_array );
 		}
 

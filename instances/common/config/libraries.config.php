@@ -32,7 +32,7 @@ $config['default'] = array(
 	'googleTranslate' => 'googleTranslate-1.7',
 	'phpthumb' => 'PhpThumb',
 	'phpmailer' => 'phpMailer_v5.1',
-	'predis' => 'Predis-0.6.0-PHP5.2',
+	'predis' => 'Predis',
 	'sphinx' => 'Sphinx'
 	//'krumo' => 'Krumo'
 );

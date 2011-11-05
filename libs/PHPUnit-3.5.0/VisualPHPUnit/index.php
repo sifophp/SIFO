@@ -61,26 +61,26 @@
 	
 	require_once ROOT_PATH . '/instances/Bootstrap.php';
 
-	require_once ROOT_PATH . '/libs/SEOframework/Exceptions.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Registry.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Filter.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Config.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Domains.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Urls.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Router.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Database.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Controller.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Model.php';
-	require_once ROOT_PATH . '/libs/SEOframework/View.php';
-	require_once ROOT_PATH . '/libs/SEOframework/I18N.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Crypt.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Cookie.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Session.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Cache.php';
-	require_once ROOT_PATH . '/libs/SEOframework/FlashMessages.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Mail.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Benchmark.php';
-	require_once ROOT_PATH . '/libs/SEOframework/Client.php';
+	require_once ROOT_PATH . '/libs/Sifo/Exceptions.php';
+	require_once ROOT_PATH . '/libs/Sifo/Registry.php';
+	require_once ROOT_PATH . '/libs/Sifo/Filter.php';
+	require_once ROOT_PATH . '/libs/Sifo/Config.php';
+	require_once ROOT_PATH . '/libs/Sifo/Domains.php';
+	require_once ROOT_PATH . '/libs/Sifo/Urls.php';
+	require_once ROOT_PATH . '/libs/Sifo/Router.php';
+	require_once ROOT_PATH . '/libs/Sifo/Database.php';
+	require_once ROOT_PATH . '/libs/Sifo/Controller.php';
+	require_once ROOT_PATH . '/libs/Sifo/Model.php';
+	require_once ROOT_PATH . '/libs/Sifo/View.php';
+	require_once ROOT_PATH . '/libs/Sifo/I18N.php';
+	require_once ROOT_PATH . '/libs/Sifo/Crypt.php';
+	require_once ROOT_PATH . '/libs/Sifo/Cookie.php';
+	require_once ROOT_PATH . '/libs/Sifo/Session.php';
+	require_once ROOT_PATH . '/libs/Sifo/Cache.php';
+	require_once ROOT_PATH . '/libs/Sifo/FlashMessages.php';
+	require_once ROOT_PATH . '/libs/Sifo/Mail.php';
+	require_once ROOT_PATH . '/libs/Sifo/Benchmark.php';
+	require_once ROOT_PATH . '/libs/Sifo/Client.php';
 	
     if ( empty($_POST) && !isset( $_GET['file'] ) ) {
         $results = array();

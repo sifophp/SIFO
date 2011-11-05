@@ -214,7 +214,7 @@ class I18N
 		if ( !( isset( self::$google_translate_api_instance ) ) )
 		{
 			include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'googleTranslate' ). '/googleTranslate.class.php';
-			self::$google_translate_api_instance = new GoogleTranslateWrapper();
+			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
 		}
 		$result = self::$google_translate_api_instance->detectLanguage( $text );
 
@@ -232,7 +232,7 @@ class I18N
 		if ( !( isset( self::$google_translate_api_instance ) ) )
 		{
 			include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'googleTranslate' ). '/googleTranslate.class.php';
-			self::$google_translate_api_instance = new GoogleTranslateWrapper();
+			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
 		}
 		self::$google_translate_api_instance->translatedText = '';
 

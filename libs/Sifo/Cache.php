@@ -44,13 +44,13 @@ class Cache
 				{
 					// Use the newer client library MemcacheD.
 					include_once ROOT_PATH . '/libs/MemCached/memcached.class.php';
-					$memcached = MemcachedClient::getInstance();
+					$memcached = \MemcachedClient::getInstance();
 				}
 				else
 				{
 					// Use the old client library Memcache.
 					include_once ROOT_PATH . '/libs/MemCached/memcache.class.php';
-					$memcached = MemcacheClient::getInstance();
+					$memcached = \MemcacheClient::getInstance();
 				}
 
 				// Check that Memcached is listening:
@@ -66,7 +66,7 @@ class Cache
 					$memcache_config['active'] = false;
 
 					// Use cache disk instead:
-					include ROOT_PATH . '/libs/SEOframework/CacheDisk.php';
+					include ROOT_PATH . '/libs/Sifo/CacheDisk.php';
 					self::$instance = CacheDisk::singleton();
 					self::$cache_type = 'Disk';
 				}
@@ -74,7 +74,7 @@ class Cache
 			else
 			{
 				// Use cache disk instead:
-				include ROOT_PATH . '/libs/SEOframework/CacheDisk.php';
+				include ROOT_PATH . '/libs/Sifo/CacheDisk.php';
 				self::$instance = CacheDisk::singleton();
 				self::$cache_type = 'Disk';
 			}

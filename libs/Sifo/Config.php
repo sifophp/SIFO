@@ -56,8 +56,15 @@ class Config
 	private function __construct( $instance_name )
 	{
 		$this->instance_name = $instance_name;
-		$this->config_path = ROOT_PATH . "/instances/" . $instance_name ."/config/";
-		// $this->paths_to_configs = $this->parseIni( $this->configuration_files );
+		if ( $instance_name === 'tests' )
+		{
+			$this->config_path = ROOT_PATH . '/' . $instance_name ."/config/";
+		}
+		else
+		{
+			$this->config_path = ROOT_PATH . "/instances/" . $instance_name ."/config/";
+		}
+
 		include_once( $this->config_path . $this->configuration_files );
 		$this->paths_to_configs = $config;
 	}
@@ -93,7 +100,6 @@ class Config
 	 */
 	protected function loadConfig( $profile )
 	{
-
 		if( !isset( $this->paths_to_configs[$profile] ) )
 		{
 			throw new Exception_Configuration( "The profile '$profile' was not found" );
@@ -190,7 +196,6 @@ class Config
 		return array( 'name' => $classname, 'path' => $path );
 	}
 
-
 	/**
 	 * Instance name.
 	 *
@@ -211,7 +216,7 @@ class Config
 		// Delete this condition when everyone has rebuild their projects (Max: Jan 2011).
 		if ( !isset( $this->paths_to_configs['libraries'] ) )
 		{
-			$this->paths_to_configs['libraries'] = "/instances/default/config/libraries.config.php";
+			$this->paths_to_configs['libraries'] = "/instances/utilities/config/libraries.config.php";
 		}
 
 		$libraries = $this->getConfig( 'libraries', 'default' );

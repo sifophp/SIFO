@@ -366,16 +366,15 @@ class Filter
 
 	/**
 	 * Checks if a string is a valid.
+	 * d-m-Y format unless passed.
 	 *
 	 * Matches:
 	 * 1/1/2005 | 29/02/12 | 29/02/2400
 	 * Non-Matches:
 	 * 29/2/2005 | 29/02/13 | 29/02/2200
 	 *
-	 * Until PHP 5.3 is not widely used the DateTime won't be used.
-	 *
 	 * @param string $var_name
-	 * @param string $format (UNUSED yet) Any format accepted by date()
+	 * @param string $format Any format accepted by date(), defaults to d-m-Y.
 	 * @return mixed String of the date or false.
 	 */
 	public function getDate( $var_name, $format = 'd-m-Y' )
@@ -385,12 +384,11 @@ class Filter
 			return false;
 		}
 
-		// Matching a Date in mm/dd/yyyy Format
-		if ( preg_match( '/^(((0?[1-9]|[12]\d|3[01])[\.\-\/](0?[13578]|1[02])[\.\-\/]((1[6-9]|[2-9]\d)?\d{2}|\d))|((0?[1-9]|[12]\d|30)[\.\-\/](0?[13456789]|1[012])[\.\-\/]((1[6-9]|[2-9]\d)?\d{2}|\d))|((0?[1-9]|1\d|2[0-8])[\.\-\/]0?2[\.\-\/]((1[6-9]|[2-9]\d)?\d{2}|\d))|(29[\.\-\/]0?2[\.\-\/]((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00|[048])))$/i', $this->request[$var_name] ) )
+		$date = \DateTime::createFromFormat( $format, $this->request[$var_name] );
+		if ( $date !== false )
 		{
-			return $this->request[$var_name];
+			return $date->format( $format );
 		}
-		// PHP 5.3 function: DateTime::createFromFormat( $format, $this->request[$var_name] )
 
 		return false;
 	}

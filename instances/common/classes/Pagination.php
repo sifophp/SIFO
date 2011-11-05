@@ -1,5 +1,4 @@
 <?php
-namespace Common;
 
 namespace Common;
 /**
@@ -549,7 +548,7 @@ class Pagination
 	public function setTemplate( $layout_template )
 	{
 		$tpl_config = $this->config->getConfig( 'templates' );
-	
+
 		if ( !isset( $tpl_config[$layout_template] ) )
 		{
 			trigger_error( "Template file '$layout_template' not found." );

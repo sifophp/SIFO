@@ -1,6 +1,25 @@
 <?php
+/**
+ * LICENSE
+ *
+ * Copyright 2010 Carlos Soriano
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 namespace Sifo;
+use PDO,PDOStatement;
 
 /**
  * DbDebugStatement class that is extended for debugging purposes.
@@ -33,9 +52,29 @@ class MysqlDebugStatement extends MysqlStatement
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
-		MysqlDebug::setDebug( $this->queryString, $query_time, $context, $this, $this->db_params );
+		$query_string = $this->_replacePreparedParameters( $this->queryString, $parameters );
+		MysqlDebug::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
+
+		if ( !$result )
+		{
+			trigger_error( "Database error: " . implode( ' ', $this->errorInfo() ), E_USER_WARNING );
+		}
 
 		return $result;
+	}
+
+	private function _replacePreparedParameters( $query_string, Array $parameters )
+	{
+		foreach( $parameters as $param => $value )
+		{
+			if ( !is_numeric( $value ) )
+			{
+				$value = '"' . $value . '"';
+			}
+			$query_string = str_replace( $param, $value, $query_string );
+		}
+
+		return $query_string;
 	}
 
 	/**
@@ -104,7 +143,7 @@ class MysqlDebug extends Mysql
 	 *
 	 * @var string
 	 */
-	protected $statement_class = 'MysqlDebugStatement';
+	const STATEMENT_CLASS = '\\SeoFramework\\MysqlDebugStatement';
 
 	/**
 	 * Singleton static method.
@@ -160,7 +199,10 @@ class MysqlDebug extends Mysql
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_' . $method );
 
-		DatabaseDebug::setDebug( $arguments[0], $query_time, $arguments[1], $result, $this->db_params );
+		if ( $arguments !== array() )
+		{
+			MysqlDebug::setDebug( $arguments[0], $query_time, $arguments[1], $result, $this->db_params );
+		}
 
 		return $result;
 	}
@@ -230,5 +272,3 @@ class MysqlDebug extends Mysql
 		return $trace;
 	}
 }
-
-?>

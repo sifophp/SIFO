@@ -76,7 +76,7 @@ class Domains
 		}
 		else
 		{
-			$this->core_inheritance = array( 'SEOframework');
+			$this->core_inheritance = array( 'Sifo');
 		}
 
 		// Get the domain inheritance.
@@ -87,7 +87,7 @@ class Domains
 		}
 		else
 		{
-			$this->instance_inheritance = array( 'default' );
+			$this->instance_inheritance = array( 'common' );
 		}
 
 		if ( isset( $this->domain_configuration['redirections'] ) && is_array( $this->domain_configuration['redirections'] ) )

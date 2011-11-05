@@ -1,7 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
 class FilterCookieDebug extends \Sifo\FilterCookie
 {
 

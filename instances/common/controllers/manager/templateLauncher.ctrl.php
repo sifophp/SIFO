@@ -1,5 +1,4 @@
 <?php
-namespace Common;
 
 namespace Common;
 
@@ -12,7 +11,7 @@ class ManagerTemplateLauncherController extends \Sifo\Controller
 	/**
 	 * Return the found in use vars in tpl.
 	 *
-	 * @param array $template 
+	 * @param array $template
 	 */
 	private function _getRequiredVars( $template_identifier )
 	{

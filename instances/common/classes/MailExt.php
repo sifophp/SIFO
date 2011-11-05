@@ -1,5 +1,4 @@
 <?php
-namespace Common;
 
 namespace Common;
 // Use this class only for send mails from web (no scripts). (With debug pause).

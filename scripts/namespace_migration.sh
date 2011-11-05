@@ -33,6 +33,7 @@ echo "Additional work might be needed to entirely adapt your code. You better ha
 echo '----------------------------------------'
 echo "Directory: $INSTANCE_DIR"
 echo "Namespace: $NAMESPACE"
+echo "Instance:  $NAMESPACE"
 echo '----------------------------------------'
 echo 'Press a key to continue in the party or CTRL-C to leave it'
 echo ''
@@ -165,29 +166,37 @@ CLASSES=(
  	echo "---- Applying namespaces to $CLASS"
  	
  	# tab + class + parenthesis or :: or tab
- 	CLASS_USE_EXPR='s/\([\t]\)\('$CLASS'\)\([\s\t(:]\)/\1\Sifo\\\2\3/g'
+ 	CLASS_USE_EXPR='s/\([\t\=]\)\('$CLASS'\)\([\t(:;\{]\)/\1\\Sifo\\\2\3/g'
  	# When the class name is in the end of the line (like "extends Controller")
- 	CLASS_END_EXPR='s/\([\t]\)\('$CLASS'\)$/\1\\Sifo\\\2/g'
+ 	CLASS_END_EXPR='s/\([\t\=]\)\('$CLASS'\)$/\1\\Sifo\\\2/g'
+	CLASS_INI_EXPR='s/^\('$CLASS'\)\([\t(:;\{]\)/\\Sifo\\\1\2/g'
  	
  	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_USE_EXPR {} \;
  	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_END_EXPR {} \;
+	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_INI_EXPR {} \;
  	
- 	# Repeat the same with spaces. The \s operator does not work properly in old sed versions. 
- 	CLASS_USE_EXPR='s/\([[:space:]]\)\('$CLASS'\)\([\s\t(:]\)/\1\Sifo\\\2\3/g'
- 	CLASS_END_EXPR='s/\([[:space:]]\)\('$CLASS'\)$/\1\\Sifo\\\2/g'
- 	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_USE_EXPR {} \;
- 	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_END_EXPR {} \;
+ 	# Repeat the same with spaces. The \s or \  operator does not work properly in old sed versions. 
+ 	CLASS_USE_SPACE_EXPR='s/\([[:space:]]\)\('$CLASS'\)\([\t(:;\{]\)/\1\\Sifo\\\2\3/g'
+	CLASS_END_SPACE_EXPR='s/\([[:space:]]\)\('$CLASS'\)$/\1\\Sifo\\\2/g'
+ 	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_USE_SPACE_EXPR {} \;
+	find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $CLASS_END_SPACE_EXPR {} \;
+	
+	# BUG: Use of class like Config :: getInstance(), note spaces, won't be replaced
  	
  done
 
+echo "-- Removing your instance name from class names (e.g: HomeIndex$NAMESPACE\Controller to HomeIndexController)"
+INSTANCE_CLASS_EXPR='s/\('$NAMESPACE'\)\(Controller\|Model\)/\2/g'
+find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $INSTANCE_CLASS_EXPR {} \;
 
 # Add namespace
 echo "-- Adding namespace $NAMESPACE to your files (as the second line)"
 find $INSTANCE_DIR/{controllers,models,classes} -type f -name "*.php" -exec sed -i "2i\
 namespace $NAMESPACE;" {} \;
 
-echo "-- Copying the new classes.config.php file format"
+echo "-- Copying the new classes.config.php file format You should overwrite them and then rebuild."
 cp $SIFO_PATH/instances/common/config/classes.config.php $INSTANCE_DIR/config/classes.config.php
+cp $SIFO_PATH/instances/common/config/templates.config.php $INSTANCE_DIR/config/templates.config.php
 
 echo "-- Cleaning Smarty compiled files"
 rm -fr $INSTANCE_DIR/templates/_smarty/compile/*

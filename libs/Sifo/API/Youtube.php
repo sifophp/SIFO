@@ -29,7 +29,7 @@ include ROOT_PATH . '/libs/EpiClasses/EpiCurl.php';
  * @author Jorge Tarrero (thedae@gmail.com)
  * @version 0.1
  *
- * Example of usage in SEOframework:
+ * Example of usage in Sifo:
  * 		$api = $this->getClass( 'APIYoutube' );
  * 		$video_url = 'http://www.youtube.com/watch?v=ybNJb6EuU1Y'; OR $video_url = 'ybNJb6EuU1Y';
  * 		$video_data = $api->getVideoData( $video_url );

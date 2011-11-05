@@ -48,7 +48,7 @@ class Search
 				$sphinx_port 	= Config::getInstance()->getConfig( 'sphinx', 'port' );
 
 				self::$search_engine 	= 'Sphinx';
-				self::$instance 		= new SphinxClient();
+				self::$instance 		= new \SphinxClient();
 				self::$instance->SetServer( $sphinx_server, $sphinx_port );
 
 				// Check that Sphinx is listening:

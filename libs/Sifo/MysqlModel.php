@@ -63,4 +63,3 @@ class MysqlModel extends Model
 		return $attribute;
 	}
 }
-?>
