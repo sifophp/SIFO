@@ -11,7 +11,7 @@
 <body>
 <div id="error500">
 	<p style="width:600px;margin:auto;" class="msg_ko">{t}Internal Server Error{/t}</p>
-{	if $error}
+{	if isset($error)}
 <hr />
 Message:
 <pre>
@@ -22,7 +22,7 @@ Message:
 <pre>
 {$error.trace}
 </pre>
-{				/if}
+{	/if}
 </div>
 </body>
 </html>

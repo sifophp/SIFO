@@ -89,6 +89,7 @@ a { color: blue;}
 </script>
 {/literal}
 </head>
+{if isset( $error ) }
 <body onload="init()">
 	<div id="redirect_info">
 		<h1>{ $error.code } Redirect exception</h1>
@@ -99,7 +100,7 @@ a { color: blue;}
 			<a id='pause_btn' href="#" class="button"
 			onclick="pause_toggle();">Pause</a>
 	</div>
-
+{/if}
 
 
 </body>

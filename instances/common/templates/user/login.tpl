@@ -5,7 +5,7 @@
 <div id="wrapper" class="lang_{$url.lang}{if $links_new_window} new_window{/if}{if $rtl} rtl{/if}">
 {	$modules.header}
 <div id="contents" class="clearfix">
-{if $errors}
+{if isset($errors)}
 <div class="msg_ko">
 {foreach from=$errors item=error}
 	<p>{t}{$error}{/t}</p>

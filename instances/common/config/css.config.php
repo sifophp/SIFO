@@ -3,7 +3,7 @@
 $config['default'] = array(
 	'media' => 'screen',
 	'files' => array(
-		'instances/obolog/public/static/css/main.css'
+		'instances/common/public/static/css/bootstrap.css'
 	)
 );
 
