@@ -9,7 +9,7 @@ class I18nStatusController extends \Sifo\Controller
 	{
 		if ( !$this->hasDebug() )
 		{
-			throw new Sifo\Exception_404( 'Translation only available while debugging' );
+			throw new \SifoException_404( 'Translation only available while debugging' );
 		}
 
 		$this->addModule( 'head', 'SharedHead' );

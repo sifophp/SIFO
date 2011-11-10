@@ -17,9 +17,9 @@
  *           - delimiter  (optional, defaults to '%' ) - string
  *			 - lower	  (optional, set to lower=no if you don't want lowercase) - string
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
- *           
+ *
  *           Examples of usage:
- *           
+ *
  *           {fill subject="http://domain.com/profile/%username%" username='fred'}
  *           Output: http://domain.com/profile/fred
  *
@@ -66,7 +66,7 @@ function smarty_function_fill($params, &$smarty)
 		$_tmp_result = str_replace( $_delimiter . $_key . $_delimiter, (string)$_val, $_tmp_result);
 
 		// The UrlParse::normalize, amongs other things lowers the string. Check if plugin calls with lower=no to skip:
-		if ( true === UrlParser::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
+		if ( true === \Sifo\Urls::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
 		{
 			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, UrlParser::normalize( (string)$_val ), $_html_result);
 		}
@@ -78,7 +78,7 @@ function smarty_function_fill($params, &$smarty)
 
     if ( false !== strpos($_html_result, $_delimiter) )
     {
-        $smarty->trigger_error("fill: There are still parameters to replace, because the '$_delimiter' delimiter was found in $_html_result");  
+        $smarty->trigger_error("fill: There are still parameters to replace, because the '$_delimiter' delimiter was found in $_html_result");
     }
 
     return $_html_result;

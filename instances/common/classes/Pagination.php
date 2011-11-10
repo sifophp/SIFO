@@ -237,7 +237,7 @@ class Pagination
 		// Throw exception when page is higher than current page.
 		if ( $this->current_page_number > $this->num_pages )
 		{
-			throw new Sifo\Exception_404( 'Pagination error: trying to retrieve an unexisting page' );
+			throw new \SifoException_404( 'Pagination error: trying to retrieve an unexisting page' );
 		}
 
 		return $this->getPaginationData();

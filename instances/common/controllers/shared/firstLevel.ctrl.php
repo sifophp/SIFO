@@ -1,8 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
 /**
  * Create common sets of actions for all controllers
  */
@@ -17,7 +15,7 @@ abstract class SharedFirstLevelController extends \Sifo\Controller
 		{
 			if ( !$this->isLogged() )
 			{
-				throw new Sifo\Exception_403( 'Authentication needed first.' );
+				throw new \Sifo\Exception_403( 'Authentication needed first.' );
 			}
 		}
 

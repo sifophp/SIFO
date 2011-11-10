@@ -42,13 +42,16 @@ class RedisModel
 
 		if ( !isset( self::$connected_client[self::$connection_params] ) )
 		{
-			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'predis' ).'/lib/Predis.php';
+			$version = Config::getInstance()->getLibrary( 'predis' );
+			include_once ROOT_PATH . '/libs/'.$version .'/lib/Predis/Autoloader.php';
+			\Predis\Autoloader::register();
+			include_once ROOT_PATH . '/libs/'.$version . '/lib/Predis/Client.php';
 
 			if ( empty( $db_params ) )
 			{
 				$db_params = Domains::getInstance()->getParam( 'redis' );
 			}
-			self::$connected_client[self::$connection_params] = new Predis\Client( $db_params );
+			self::$connected_client[self::$connection_params] = new \Predis\Client( $db_params );
 		}
 
 		return self::$connected_client[self::$connection_params];

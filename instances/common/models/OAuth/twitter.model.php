@@ -43,7 +43,7 @@ class OAuthTwitterModel extends EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new Sifo\Exception_500( $e->getMessage() );
+			throw new \SifoException_500( $e->getMessage() );
 		}
 
 	}
@@ -56,7 +56,7 @@ class OAuthTwitterModel extends EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new Sifo\Exception_500( $e->getMessage() );
+			throw new \SifoException_500( $e->getMessage() );
 		}
 		
 	}
@@ -84,7 +84,7 @@ class OAuthTwitterModel extends EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new Sifo\Exception_500( $e->getMessage() );
+			throw new \SifoException_500( $e->getMessage() );
 		}
 
 		

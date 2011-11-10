@@ -43,6 +43,8 @@ read
 echo "OH MY GOD! You did it!"
 
 # PARTY BEGINS HERE:
+mkdir $INSTANCE_DIR/public/static/{js,css}/generated/
+chmod -R 777 $INSTANCE_DIR/public/static/{js,css}/generated/
 
 echo "-- The 'default' instance has been renamed to 'common', fixing..."
 find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/instances\/default/instances\/common/g' {} \;
@@ -188,6 +190,8 @@ CLASSES=(
 echo "-- Removing your instance name from class names (e.g: HomeIndex$NAMESPACE\Controller to HomeIndexController)"
 INSTANCE_CLASS_EXPR='s/\('$NAMESPACE'\)\(Controller\|Model\)/\2/g'
 find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i $INSTANCE_CLASS_EXPR {} \;
+INSTANCE_CLASS_EXPR='s/class\('$NAMESPACE'\)/class\1/g'
+find $INSTANCE_DIR/classes/ -type f -name "*.php" -exec sed -i $INSTANCE_CLASS_EXPR {} \;
 
 # Add namespace
 echo "-- Adding namespace $NAMESPACE to your files (as the second line)"

@@ -82,7 +82,7 @@ namespace Common;'."\n");
 				fclose($file);
 			}
 			$params = $this->getParams();
-			throw new Sifo\Exception_302( $params['url']['locales'] . ':saved-true:i:'.$instance.':l:'.$language_file );
+			throw new \SifoException_302( $params['url']['locales'] . ':saved-true:i:'.$instance.':l:'.$language_file );
 		}
 		else
 		{
@@ -97,7 +97,7 @@ namespace Common;'."\n");
 namespace Common;'."\n");
 					fclose($file);
 				}
-				throw new Sifo\Exception_302( $params['url']['locales'] . ':created-true:i:'.$params["parsed_params"]["instance"] );
+				throw new \SifoException_302( $params['url']['locales'] . ':created-true:i:'.$params["parsed_params"]["instance"] );
 			}
 		}
 	}

@@ -99,7 +99,7 @@ class HomeIndexController extends SharedFirstLevelController
 		// Parameters in the application
 		// var_dump( $this->getParams() );
 
-		// SAMPLE: Get data from the database without a Sifo\Model:
+		// SAMPLE: Get data from the database without a \SifoModel:
 		// $this->assign( 'data', Db::getInstance()->getAll( 'SELECT * FROM accounts where id_account < ?', 20 ) );
 
 		// With a \Sifo\Model

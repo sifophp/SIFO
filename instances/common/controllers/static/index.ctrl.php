@@ -21,7 +21,7 @@ class StaticIndexController extends SharedFirstLevelController
 		}
 		else
 		{
-			throw new Sifo\Exception_404( 'Page ' . $params['path'] . ' not found.' );
+			throw new \Sifo\Exception_404( 'Page ' . $params['path'] . ' not found.' );
 		}
 
 	}

@@ -26,7 +26,7 @@ class I18nSaveController extends \Sifo\Controller
 
 			$query = 'REPLACE i18n_translations (id_message, lang, translation,author) VALUES(?,?,?,?);';
 
-			$result = Sifo\Database::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
+			$result = \SifoDatabase::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
 
 			if ( $result )
 			{

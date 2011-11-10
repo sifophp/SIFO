@@ -17,10 +17,10 @@ class DebugMailController extends \Sifo\Controller
 	{
 		if( !($this->mail_data = \Sifo\Session::get( 'mail_data' ) ) )
 		{
-			throw new Sifo\Exception_500( 'No exists mail data to send the mail' );
+			throw new \SifoException_500( 'No exists mail data to send the mail' );
 		}
 		\Sifo\Session::delete( 'mail_data' );
-		$mail = new Sifo\Mail();
+		$mail = new \SifoMail();
 		return $mail->send( $this->mail_data['to'], $this->mail_data['subject'], $this->mail_data['body'] );
 	}
 
@@ -28,7 +28,7 @@ class DebugMailController extends \Sifo\Controller
 	{
 		if ( !$this->hasDebug() )
 		{
-			throw Sifo\Exception_404( 'Only in debug mode' );
+			throw \SifoException_404( 'Only in debug mode' );
 		}
 		$this->setLayout( 'debug/mail.tpl' );
 		\Sifo\Session::getInstance();
