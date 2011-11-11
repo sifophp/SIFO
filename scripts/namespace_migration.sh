@@ -205,6 +205,19 @@ cp $SIFO_PATH/instances/common/config/templates.config.php $INSTANCE_DIR/config/
 echo "-- Cleaning Smarty compiled files"
 rm -fr $INSTANCE_DIR/templates/_smarty/compile/*
 
+
+echo "-- Populating external Github Submodules"
+echo "---- Downloading Facebook libraries"
+cd $SIFO_PATH/libs/Facebook-php-sdk
+git submodule init
+git submodule update
+
+echo "---- Downloading Predis libraries"
+cd $SIFO_PATH/libs/Predis
+git submodule init
+git submodule update
+
+
 echo "Script Finished."
 echo "Now go to /rebuild and then start testing"
 

@@ -316,7 +316,7 @@ class Form
 
 }
 
-class Exception_Form extends Exception
+class Exception_Form extends \Exception
 {
 
 }
