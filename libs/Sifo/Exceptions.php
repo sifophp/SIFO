@@ -99,7 +99,7 @@ class SEO_Exception extends \Exception
 		parent::__construct( $message, $code );
 
 		$current_exception = get_class( $this );
-		$current_exception_code = ( int ) str_replace( 'Exception_', '', $current_exception );
+		$current_exception_code = ( int ) str_replace( 'Sifo\Exception_', '', $current_exception );
 
 		// See if the http status code needs a redirection:
 		if ( ( 300 <= $current_exception_code ) && ( 307 >= $current_exception_code ) )
