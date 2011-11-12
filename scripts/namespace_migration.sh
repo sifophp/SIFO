@@ -43,7 +43,7 @@ read
 echo "OH MY GOD! You did it!"
 
 # PARTY BEGINS HERE:
-mkdir $INSTANCE_DIR/public/static/{js,css}/generated/
+mkdir -p $INSTANCE_DIR/public/static/{js,css}/generated/
 chmod -R 777 $INSTANCE_DIR/public/static/{js,css}/generated/
 
 echo "-- The 'default' instance has been renamed to 'common', fixing..."
@@ -56,9 +56,9 @@ echo "-- Renaming class UrlParser to Urls"
 find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/UrlParser/Urls/g' {} \;
 
 # Correct getClass usage
-echo "-- Moving from getClass to 'new'"
-find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/\$this->getClass(\s*["]\(\w*\)["]\(,*\s*\)\(true\)*\s*[)]/new \1()/g' {} \;
-find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i "s/\$this->getClass(\s*[']\(\w*\)[']\(,*\s*\)\(true\)*\s*[)]/new \1()/g" {} \;
+#echo "-- Moving from getClass to 'new'"
+#find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/\$this->getClass(\s*["]\(\w*\)["]\(,*\s*\)\(true\)*\s*[)]/new \1()/g' {} \;
+#find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i "s/\$this->getClass(\s*[']\(\w*\)[']\(,*\s*\)\(true\)*\s*[)]/new \1()/g" {} \;
 
 CLASSES=(
 'CLBootstrap'

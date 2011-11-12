@@ -68,7 +68,7 @@ function smarty_function_fill($params, &$smarty)
 		// The UrlParse::normalize, amongs other things lowers the string. Check if plugin calls with lower=no to skip:
 		if ( true === \Sifo\Urls::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
 		{
-			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, UrlParser::normalize( (string)$_val ), $_html_result);
+			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, \Sifo\Urls::normalize( (string)$_val ), $_html_result);
 		}
 		else
 		{
