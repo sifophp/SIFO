@@ -21,9 +21,9 @@
  */
 function smarty_modifier_normalize($string, $strict = false)
 {
-	if ( class_exists( 'UrlParser' ) && method_exists( 'UrlParser', 'normalize' ) )
+	if ( class_exists( '\Sifo\Urls' ) && method_exists( '\Sifo\Urls', 'normalize' ) )
 	{
-		$_urlized_val = UrlParser::normalize( $string );
+		$_urlized_val = \Sifo\Urls::normalize( $string );
 	}
 	else
 	{

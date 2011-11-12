@@ -159,7 +159,7 @@ function smarty_function_genurl( $params, &$smarty )
 					}
 					if ( $normalize )
 					{
-						$_val[$__key] = UrlParser::normalize( $_val[$__key] );
+						$_val[$__key] = \Sifo\Urls::normalize( $_val[$__key] );
 					}
 
 				}
@@ -173,13 +173,13 @@ function smarty_function_genurl( $params, &$smarty )
 				I18N::setDomain( $current_domain, I18N::getLocale() );
 				if ( $normalize )
 				{
-					$_val = UrlParser::normalize( $_val );
+					$_val = \Sifo\Urls::normalize( $_val );
 				}
 
 			}
 			elseif ( $normalize )
 			{
-				$_val = UrlParser::normalize( $_val );
+				$_val = \Sifo\Urls::normalize( $_val );
 			}
 
 			if ( isset( $_val ) && '' != $_val && false !== $_val )

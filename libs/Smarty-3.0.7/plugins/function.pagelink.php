@@ -30,7 +30,7 @@ function smarty_function_pagelink( $params, &$smarty )
 	{
 		$_actual_querystring = FilterServer::getInstance()->getString( 'QUERY_STRING' );
 		$_actual_path = FilterServer::getInstance()->getString( 'REQUEST_URI' );
-		$_actual_host = UrlParser::$base_url;
+		$_actual_host = \Sifo\Urls::$base_url;
 	}
 	else
 	{
