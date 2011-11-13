@@ -1,8 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
 class ManagerFindi18nController extends \Sifo\Controller
 {
 	public function extractStringsForTranslation( $path, $instance, $in_templates = false )
@@ -91,8 +89,14 @@ class ManagerFindi18nController extends \Sifo\Controller
 		$literals_groups['forms'] = $this->extractStringsForTranslation( "$path/config", $instance, false );
 
 		// Smarty plugins:
-		$libs_path = ROOT_PATH . '/libs/Smarty-2.6.26/plugins';
+		$libs_path = ROOT_PATH . \Sifo\Config::getInstance()->getLibrary( 'smarty' ) . '/plugins';
 		$literals_groups['smarty'] = $this->extractStringsForTranslation( $libs_path, 'libs', false );
+
+		$instance_plugins = $path . '/templates/_smarty/plugins';
+		if ( is_dir( $instance_plugins ) )
+		{
+			$literals_groups['smarty'] = array_merge( $literals_groups['smarty'], $this->extractStringsForTranslation( $instance_plugins, $instance, false ) );
+		}
 
 		$final_literals = array();
 
@@ -185,7 +189,7 @@ class ManagerFindi18nController extends \Sifo\Controller
 		$files = array();
 
 		// Extract directories:
-		$iterator = new DirectoryIterator( ROOT_PATH . "/$relative_path" );
+		$iterator = new \DirectoryIterator( ROOT_PATH . "/$relative_path" );
 
 		foreach ( $iterator as $fileinfo )
 		{

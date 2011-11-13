@@ -132,7 +132,7 @@ class Database
 				$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 			}
 			// If connection to database fails throw a SIFO 500 error.
-			catch( ADODB_Exception $e )
+			catch( \ADODB_Exception $e )
 			{
 				throw new Exception_500( $e->getMessage(), $e->getCode() );
 			}
@@ -186,7 +186,7 @@ class Database
 		{
 			$answer = call_user_func_array(array(self::$adodb[self::$destination_type], $method),$args);
 		}
-		catch( ADODB_Exception $e )
+		catch( \ADODB_Exception $e )
 		{
 			$answer = false;
 			$error = $e->getMessage();

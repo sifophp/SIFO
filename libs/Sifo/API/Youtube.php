@@ -95,7 +95,7 @@ class APIYoutube
 		{
 			$xml_data = @new SimpleXMLElement( $response->data );
 		}
-		catch( Exception $e )
+		catch( \Exception $e )
 		{
 			if ( 'Invalid id' === $response->data )
 			{

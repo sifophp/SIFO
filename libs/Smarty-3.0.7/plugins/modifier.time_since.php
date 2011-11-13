@@ -29,53 +29,53 @@ function smarty_modifier_time_since( $diff_time )
 	{
         $value[0] = floor($diff_time/(60*60*24*365));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("year");
+	        $value[1] = \Sifo\I18n::getTranslation("year");
 	    else
-	        $value[1] = I18n::getTranslation("years");
+	        $value[1] = \Sifo\I18n::getTranslation("years");
 	}
 	elseif ( floor($diff_time/(60*60*24)) >= 30 )
 	{
         $value[0] = floor($diff_time/(60*60*24*30));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("month");
+	        $value[1] = \Sifo\I18n::getTranslation("month");
 	    else
-	        $value[1] = I18n::getTranslation("months");
+	        $value[1] = \Sifo\I18n::getTranslation("months");
 	}
 	elseif ( floor($diff_time/(60*60*24)) >= 7 )
 	{
         $value[0] = floor($diff_time/(60*60*24*7));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("week");
+	        $value[1] = \Sifo\I18n::getTranslation("week");
 	    else
-	        $value[1] = I18n::getTranslation("weeks");
+	        $value[1] = \Sifo\I18n::getTranslation("weeks");
 	}
 	elseif ( floor($diff_time/(60*60)) >= 24 )
 	{
         $value[0] = floor($diff_time/(60*60*24));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("day");
+	        $value[1] = \Sifo\I18n::getTranslation("day");
 	    else
-	        $value[1] = I18n::getTranslation("days");
+	        $value[1] = \Sifo\I18n::getTranslation("days");
 	}elseif ( floor($diff_time/(60)) >= 60 )
     {
         $value[0] = floor($diff_time/(60*60));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("hour");
+	        $value[1] = \Sifo\I18n::getTranslation("hour");
 	    else
-	        $value[1] = I18n::getTranslation("hours");
+	        $value[1] = \Sifo\I18n::getTranslation("hours");
     }
     elseif ( floor($diff_time/(60)) >= 1 )
     {
         $value[0] = floor($diff_time/(60));
         if ( 1 == $value[0] )
-	        $value[1] = I18n::getTranslation("minute");
+	        $value[1] = \Sifo\I18n::getTranslation("minute");
 	    else
-	        $value[1] = I18n::getTranslation("minutes");
+	        $value[1] = \Sifo\I18n::getTranslation("minutes");
     }
     else
     {
         $value[0] = false;
-        $value[1] = I18n::getTranslation("just some seconds");
+        $value[1] = \Sifo\I18n::getTranslation("just some seconds");
     }
 
 	$value[1] = smarty_block_t( array( 'count' => $value[0] ), $value[1], $this, null );
@@ -89,7 +89,7 @@ function smarty_modifier_time_since( $diff_time )
         $params[1] = $value[1];
     }
 
-	return smarty_block_t( $params, I18n::getTranslation( '%1 ago' ), $this, null );
+	return smarty_block_t( $params, \Sifo\I18n::getTranslation( '%1 ago' ), $this, null );
 ;
 }
 
