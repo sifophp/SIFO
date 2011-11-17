@@ -110,6 +110,7 @@ class Bootstrap
 		// Include files:
 		self::includeRequiredFiles();
 
+
 		// Register autoloader:
 		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
 
@@ -155,7 +156,7 @@ class Bootstrap
 			throw new Exception_500( $e->getMessage() );
 		}
 
-		if ( !include_once ROOT_PATH . '/' . $classInfo['path'] )
+		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
 		{
 			throw new Exception_500( "Doesn't exist in expected path {$classInfo['path']}" );
 		}

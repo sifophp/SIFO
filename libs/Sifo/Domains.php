@@ -103,6 +103,7 @@ class Domains
 				}
 			}
 
+			// If you add more non-domain entries in the config file, must be unset here.
 			unset( $this->domain_configuration['redirections'] );
 		}
 

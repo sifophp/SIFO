@@ -170,7 +170,7 @@ class MediaGenerator
 		return ( $checkout_revision === $revision );
 	}
 
-	protected function getCheckoutRevision()
+	public function getCheckoutRevision()
 	{
 		$lines = file( $this->svn_entries_file );
 
