@@ -1,6 +1,6 @@
 <h1>Error {$error_code} - {$error_code_msg}</h1>
 
-{if $error}
+{if isset($error)}
 <hr />
 Message:
 <pre>
