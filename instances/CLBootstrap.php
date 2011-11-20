@@ -1,48 +1,26 @@
 <?php
-
-namespace Sifo;
-
 /**
  *
  * Class CLBootstrap
  */
+namespace Sifo;
+
 require_once 'Bootstrap.php';
 
 class CLBootstrap extends Bootstrap
 {
-	public static $required_classes = array(
-		'Exceptions',
-		'Registry',
-		'Filter',
-		'Domains',
-		'Urls',
-		'Router',
-		'Database',
-		'Controller',
-		'Model',
-		'I18N',
-		'Benchmark',
-	);
-
 	static $script_controller;
 	static $command_line_params ;
 
-	/**
-	 * Include the necessary files to run SIFO. (and someone more...)
-	 */
-	public static function includeRequiredFiles()
-	{
-		foreach ( self::$required_classes as $class )
-		{
-			self::includeFile( $class );
-		}
-	}
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
 	 */
 	public static function execute()
 	{
+		// Register autoloader:
+		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
+
 		// Set paths:
 		self::$root = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
@@ -70,7 +48,7 @@ class CLBootstrap extends Bootstrap
 			$ctrl = self::invokeController( $controller );
 			$ctrl->build();
 		}
-		catch ( Exception $e )
+		catch ( \Exception $e )
 		{
 			echo ( $e->getMessage() . "\n" . $e->getTraceAsString() );
 			die;
@@ -90,7 +68,7 @@ CLBootstrap::includeRequiredFiles();
 if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 {
 	// Dump help info:
-	require_once ROOT_PATH . '/instances/default/controllers/shared/commandLineController.ctrl.php';
+	require_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 	echo PHP_EOL . "Use 'php $argv[0] <domain> --help' for read the help info." . PHP_EOL . PHP_EOL;
 	die;
 }

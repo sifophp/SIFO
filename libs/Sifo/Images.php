@@ -29,8 +29,10 @@ class Images
 	 * @param file $to
 	 * @param integer $width
 	 * @param integer $height
-	 * @param boolean $crop
+	 * @param false|array $crop
+	 * @param boolean $resizeUp
 	 * @param boolean $transparency
+	 * @param int $quality
 	 * @return boolean
 	 */
 	static public function resizeAndSave( $from, $to, $width, $height, $crop = false, $resizeUp = false, $transparency = false, $quality = 100 )
@@ -39,8 +41,8 @@ class Images
 
 		$fileinfo = pathinfo( $to );
 
-		$thumb = PhpThumbFactory::create( $from );
-		$thumb = PhpThumbFactory::create( $from, array(
+		$thumb = \PhpThumbFactory::create( $from );
+		$thumb = \PhpThumbFactory::create( $from, array(
 					'resizeUp' => $resizeUp,
 					'preserveAlpha' => $transparency,
 					'preserveTransparency' => $transparency,
@@ -53,7 +55,7 @@ class Images
 		}
 		else
 		{
-			$thumb->adaptiveResize( $width, $height );
+			$thumb->adaptiveResize( $width, $height, $crop['x'], $crop['y'] );
 		}
 
 		$thumb->save( $to, $fileinfo['extension'] );
@@ -81,8 +83,8 @@ class Images
 
 		$fileinfo = pathinfo( $to );
 
-		$thumb = PhpThumbFactory::create( $from );
-		$thumb = PhpThumbFactory::create( $from, array(
+		$thumb = \PhpThumbFactory::create( $from );
+		$thumb = \PhpThumbFactory::create( $from, array(
 					'resizeUp' => $resizeUp,
 					'preserveAlpha' => $transparency,
 					'preserveTransparency' => $transparency,

@@ -20,42 +20,57 @@
 
 namespace Sifo;
 
+include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'predis' ) . '/lib/Predis/Autoloader.php';
+
+/**
+ * Customized Predis autoloader.
+ */
+class PredisAutoloader extends \Predis\Autoloader
+{
+    /**
+     * Registers the autoloader class with the PHP SPL autoloader.
+     *
+     * Extended so the predis autoloader is PREPENDED instead of appended
+     * to the autoload stack.
+     */
+    public static function register()
+    {
+        spl_autoload_register( array( new self, 'autoload' ), true, true );
+    }
+}
+
+/**
+ * Predis adapter for Sifo.
+ */
 class RedisModel
 {
 	/**
 	 * Redis client object.
 	 * @var Predis_Client
 	 */
-	private static $connected_client = null;
+	private static $connected_client = array();
 
-	private static $connection_params;
+	private $profile;
 
 	/**
 	 * Connect to redis and return a redis object to start passing commands.
 	 *
-	 * @param string $db_params Connection settings array.
+	 * @param string $profile Connection profile.
 	 * @return Predis_Client
 	 */
-	public function connect( $db_params = null )
+	public function connectDb( $profile )
 	{
-		self::$connection_params = sha1( serialize( $db_params ) );
-
-		if ( !isset( self::$connected_client[self::$connection_params] ) )
+		if ( !isset( self::$connected_client[$profile] ) )
 		{
-			$version = Config::getInstance()->getLibrary( 'predis' );
-			include_once ROOT_PATH . '/libs/'.$version .'/lib/Predis/Autoloader.php';
-			\Predis\Autoloader::register();
-			include_once ROOT_PATH . '/libs/'.$version . '/lib/Predis/Client.php';
+			PredisAutoloader::register();
 
-			if ( empty( $db_params ) )
-			{
-				$db_params = Domains::getInstance()->getParam( 'redis' );
-			}
-			self::$connected_client[self::$connection_params] = new \Predis\Client( $db_params );
+			$db_params = Config::getInstance()->getConfig( 'redis', $profile );
+
+			self::$connected_client[$profile] = new \Predis\Client( $db_params );
+			$this->profile = $profile;
 		}
 
-		return self::$connected_client[self::$connection_params];
-		//return Predis_Client::create( Config::getInstance()->getConfig( 'redis' ) );
+		return self::$connected_client[$profile];
 	}
 
 	/**
@@ -63,20 +78,18 @@ class RedisModel
 	 */
 	public function disconnect()
 	{
-		self::$connected_client[self::$connection_params]->disconnect();
-		self::$connected_client[self::$connection_params] = null;
+		self::$connected_client[$this->profile]->disconnect();
+		self::$connected_client[$this->profile] = null;
 	}
 
 	/**
 	 * Disconnect clients on object destruction.
-	 *
-	 * TODO: Only disconnects last.
 	 */
 	public function __destruct()
 	{
-		if ( null !== self::$connected_client[self::$connection_params] )
+		foreach ( self::$connected_client as $client )
 		{
-			$this->disconnect();
+			$client->disconnect();
 		}
 	}
 }

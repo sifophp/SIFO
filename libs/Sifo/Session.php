@@ -118,6 +118,16 @@ class Session
 		}
 	}
 
+	/**
+	 * @param string $index
+	 * @returns boolean
+	 *
+	 */
+	public static function keyExists( $key )
+	{
+		return isset( $_SESSION[$key] );
+	}
+
 	public function destroy()
 	{
 		if ( isset( $_SESSION ) )

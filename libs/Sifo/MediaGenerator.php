@@ -58,7 +58,7 @@ class MediaGenerator
 	 *
 	 * @var array
 	 */
-	protected $media_config;
+	protected $media_config = array();
 
 	/**
 	 * Media type, specified in the children.
@@ -97,13 +97,13 @@ class MediaGenerator
 		$this->instance_static_host = Domains::getInstance()->getStaticHost();
 		$this->static_path = ROOT_PATH . '/instances/' . $this->working_instance . '/public/static/';
 		$this->hashes_file = $this->static_path . $this->media_type . '.hashes.php';
-		$this->svn_entries_file = $this->static_path . '.svn/entries';
 
 		foreach ( $this->instance_inheritance as $instance )
 		{
 			try
 			{
-				$this->media_config[$instance] = Config::getInstance( $instance )->getConfig( $this->media_type );
+				$instance_config = Config::getInstance( $instance )->getConfig( $this->media_type );
+				$this->media_config = array_merge( $this->media_config, $instance_config );
 			}
 			catch( Exception_Configuration $e )
 			{
@@ -128,6 +128,8 @@ class MediaGenerator
 				$base_code = $this->generateAllMediaGroups();
 			}
 
+			$media = $this->getMediaArray( $media );
+
 			$generated = array();
 			foreach ( $media as $type => $media_list )
 			{
@@ -142,6 +144,36 @@ class MediaGenerator
 		}
 
 		return $generated;
+	}
+
+	protected function getMediaArray( array $media )
+	{
+		$media_array = array();
+		foreach( $media as $group )
+		{
+			$media_config = $this->media_config['packages'][$group];
+			$media_array[$group] = $this->buildMediaArray( $media_config );
+		}
+
+		return $media_array;
+	}
+
+	protected function buildMediaArray( array $media_config )
+	{
+		$filenames = array();
+		foreach ( $media_config as $relationship )
+		{
+			if ( isset( $relationship['package'] ) )
+			{
+				throw new \Exception( 'Package grouping not supported yet!' );
+			}
+			else
+			{
+				$filenames[] = $this->media_config['files'][$relationship['file']];
+			}
+		}
+
+		return $filenames;
 	}
 
 	protected function getGeneratedHashes()
@@ -170,36 +202,35 @@ class MediaGenerator
 		return ( $checkout_revision === $revision );
 	}
 
-	protected function getCheckoutRevision()
+	public static function getCheckoutRevision( $root_path = ROOT_PATH )
 	{
-		$lines = file( $this->svn_entries_file );
+		$revision = rtrim( file_get_contents( $root_path . '/.git/HEAD' ) );
+		if ( strpos( $revision, 'ref: ' ) === 0 )
+		{
+			$revision_path = substr( $revision, 5 );
+			$revision = rtrim( file_get_contents( $root_path . '/.git/' . $revision_path ) );
+		}
 
-		return (integer)$lines[3];
+		return $revision;
 	}
 
 	protected function getHashesFileContent( Array $generated )
 	{
 		$revision = $this->getCheckoutRevision();
-		return "<?php\n\$revision={$revision};\n\$hashes=" . var_export( $generated, true ) . ';';
+		return "<?php\n\$revision='{$revision}';\n\$hashes=" . var_export( $generated, true ) . ';';
 	}
 
 	protected function generateAllMediaGroups()
 	{
-		$merged_configs = array();
-		foreach( $this->media_config as $instance => $instance_config )
-		{
-			$merged_configs = array_merge( $merged_configs, $instance_config );
-		}
-
 		$media = array();
-		foreach( $merged_configs as $media_name => $media_config )
+		foreach( $this->media_config['packages'] as $group => $media_config )
 		{
-			$media[$media_config['group']][$media_config['priority']] = $media_name;
+			$media[$group] = $this->buildMediaArray( $media_config );
 		}
 
 		foreach( $media as $group => $media_name )
 		{
-			if ( $group !== 'none' )
+			if ( $group !== 'common' )
 			{
 				ksort( $media[$group] );
 				$this->generated_groups[] = $group;
@@ -239,8 +270,7 @@ class MediaGenerator
 
 		$file = $this->media_type . '/generated/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
 		$path = $this->static_path . $file;
-		//$generated_file = $this->instance_language . '/' . $this->media_type . '/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
-		$generated_file = $this->media_type . '/generated/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
+		$generated_file = $this->instance_language . '/' . $this->media_type . '/' . $list_hash . '-' . $current_hash . '.' . $this->media_type;
 
 		$this->generateMedia( $path, $media_list, $preffix_code );
 
@@ -264,14 +294,9 @@ class MediaGenerator
 		$content = $preffix_code;
 		foreach ( $media_list as $media )
 		{
-			foreach ( $this->media_config as $instance_name => $instance_config )
+			foreach ( $this->instance_inheritance as $instance_name )
 			{
-				$filename = '';
-				if ( isset( $instance_config[$media]['filename'] ) )
-				{
-					$filename = $this->getStaticPath( $instance_name, $instance_config[$media]['filename'] );
-				}
-
+				$filename = $this->getStaticPath( $instance_name, $media );
 
 				if ( is_file( $filename ) )
 				{
@@ -296,13 +321,9 @@ class MediaGenerator
 		$hash = '';
 		foreach ( $media_list as $media )
 		{
-			foreach ( $this->media_config as $instance_name => $instance_config )
+			foreach ( $this->instance_inheritance as $instance_name )
 			{
-				$filename = '';
-				if ( isset( $instance_config[$media]['filename'] ) )
-				{
-					$filename = $this->getStaticPath( $instance_name, $instance_config[$media]['filename'] );
-				}
+				$filename = $this->getStaticPath( $instance_name, $media );
 
 				if ( is_file( $filename ) )
 				{
@@ -474,5 +495,3 @@ CODE;
 		return $base_code;
 	}
 }
-
-?>

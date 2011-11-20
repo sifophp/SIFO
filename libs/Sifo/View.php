@@ -51,11 +51,11 @@ class View
 
 		// Paths definition:
 		$templates_path = ROOT_PATH . '/instances/' . $this->instance . '/templates/';
-		$this->view->template_dir = ROOT_PATH . '/';  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
-		$this->view->compile_dir  = $templates_path . '_smarty/compile/';
-		$this->view->config_dir   = $templates_path . '_smarty/configs/';
-		$this->view->cache_dir    = $templates_path . '_smarty/cache/';
-		$this->view->plugins_dir[] =  $templates_path . '_smarty/plugins';
+		$this->view->setTemplateDir( ROOT_PATH . '/' );  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
+		$this->view->setCompileDir( $templates_path . '_smarty/compile/' );
+		$this->view->setConfigDir( $templates_path . '_smarty/configs/' );
+		$this->view->setCacheDir( $templates_path . '_smarty/cache/' );
+		$this->view->addPluginsDir( $templates_path . '_smarty/plugins' );
 
 		// Settings:
 		// Smarty tests to see if the current template has changed (different time stamp) since the last time it was compiled. If it has changed, it recompiles
@@ -77,7 +77,7 @@ class View
 		// If set to TRUE, Smarty will respect the If-Modified-Since header sent from the client. If the cached file timestamp has not changed since the last visit, then a '304: Not Modified'  header will be sent instead of the content
 		$this->view->cache_modified_check = true;
 
-		// SMARTY 3 compatibility. Delete once SEOFramework doesn't support Smarty 2.
+		// SMARTY 3 compatibility. Delete once Sifo doesn't support Smarty 2.
 		if ( isset ( $this->view->auto_literal ) )
 		{
 			$this->view->auto_literal = false;

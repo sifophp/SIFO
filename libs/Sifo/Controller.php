@@ -42,13 +42,6 @@ abstract class Controller
 	const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
 
 	/**
-	 * Stores the final cache name. This param cannot be initialized to a default value.
-	 *
-	 * @var string
-	 */
-	protected $cache_name;
-
-	/**
 	 * List of classes that will be autoloaded automatically.
 	 *
 	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
@@ -173,6 +166,50 @@ abstract class Controller
 		$this->params['page'] = $this->getCurrentPage();
 
 		$this->view = new View();
+	}
+
+	public function getAssignedVars()
+	{
+		return $this->view->getTemplateVars();
+	}
+
+	public function getLayout()
+	{
+		return $this->layout;
+	}
+
+	/**
+	 * Performs the form validation workflow.
+	 *
+	 * @param type $submit_button
+	 * @param type $form_config
+	 * @return null if no submit sent. True if validated correctly, false otherwise.
+	 */
+	protected function getValidatedForm( $submit_button, $form_config, $default_fields = array() )
+	{
+		$post = FilterPost::getInstance();
+
+		$form = new Form( $post, $this->view );
+		if ( $post->isSent( $submit_button ) )
+		{
+			$return = $form->validateElements( $form_config );
+
+			if ( $return )
+			{
+				$return = $form;
+			}
+		}
+		else
+		{
+			$form->addFields( $default_fields );
+			$return = null;
+		}
+
+		$this->assign( 'form_values', $form->getFields() );
+		$this->assign( 'requirements', $form->getRequirements( $form_config ) );
+		$this->assign( 'error', $form->getErrors() );
+
+		return $return;
 	}
 
 	/**
@@ -479,37 +516,20 @@ abstract class Controller
 	{
 		$cache_key = $this->getCacheDefinition();
 
-		if ( false == $cache_key || empty( $cache_key ) )
+		if ( false === $cache_key || '' === $cache_key  )
 		{
 			return false;
 		}
 
-		if ( is_array( $cache_key ) )
+		if ( !is_array( $cache_key ) )
 		{
-			// Cache defines the 'name' and time of 'expiration' of the cache:
-			if ( !isset( $cache_key['expiration'] ) || !isset( $cache_key['name'] ) )
-			{
-				throw new Exception_500( 'If getCacheDefinition returns an array, the name and expiration keys must be set.' );
-			}
-		}
-		// Cache returns only a string with the 'name'
-		else
-		{
-			$cache_key = array(
-					'name' => $cache_key,
-					'expiration' => self::CACHE_DEFAULT_EXPIRATION
-			);
+			$cache_key = array( 'cachekey' => $cache_key );
 		}
 
-		// Cache expiration time or name might be overriden at some application point.
-		if ( isset( $this->cache_expiration ) )
+		$cache_key['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
+		if ( !empty( $this->cache_expiration ) )
 		{
 			$cache_key['expiration'] = $this->cache_expiration;
-		}
-
-		if ( isset( $this->cache_name ) )
-		{
-			$cache_key['name'] = $this->cache_name;
 		}
 
 		// Prepend necessary values to cache:
@@ -532,16 +552,7 @@ abstract class Controller
 		// First of all, let's construct the cache base with domain, language and controller name.
 		$cache_base_key[] = Domains::getInstance()->getDomain();
 		$cache_base_key[] = $this->language;
-
-		// We use the "name" if is set or the controller name instead, then we remove it from definition.
-		$ctrl_name = get_class( $this );
-		if ( isset( $definition['name'] ) && !empty( $definition['name'] ) )
-		{
-			$ctrl_name = $definition['name'];
-			unset( $definition['name'] );
-		}
-
-		$cache_base_key[] = $ctrl_name;
+		$cache_base_key[] = get_class( $this );
 
 		// Now we add the rest of identifiers of the definition excluding the "expiration".
 		unset( $definition['expiration'] );
@@ -636,8 +647,8 @@ abstract class Controller
 	/**
 	 * Returns the HTML of a smarty template or false if was impossible to fetch.
 	 *
-	 * @param unknown_type $template
-	 * @return unknown
+	 * @param string $template
+	 * @return boolean
 	 */
 	public function fetch( $template )
 	{
@@ -880,12 +891,69 @@ abstract class Controller
 	 *
 	 * @param array $modules List of modules to load.
 	 */
-	public function addModules( $modules = array() )
+	public function addModules( array $modules = array() )
 	{
 		foreach ( $modules as $key => $val )
 		{
 			$this->modules[$key] = $val;
 		}
+	}
+
+	/**
+	 * Get a list of common modules merged with custom ones retreived from child controller.
+	 *
+	 * @return array
+	 */
+	public function getModules()
+	{
+		return $this->modules;
+	}
+
+	/**
+	 * Add JS to the stack.
+	 *
+	 * @param string $media_name Name of the JS file.
+	 */
+	protected function addJs( $media_name )
+	{
+		$this->addMedia( 'js', $media_name );
+	}
+
+	/**
+	 * Add CSS to the stack.
+	 *
+	 * @param string $media_name Name of the CSS file.
+	 */
+	protected function addCss( $media_name )
+	{
+		$this->addMedia( 'css', $media_name );
+	}
+
+	/**
+	 * Add some kind of media to the stack to be loaded in the head.
+	 *
+	 * @param string $media_type Media type [js|css].
+	 * @param string $group_name Name of the group in the js|css config file.
+	 */
+	protected function addMedia( $media_type, $group_name )
+	{
+		$media = $this->getParam( 'media' );
+
+		if ( !isset( $media[$media_type] ) || !in_array( $group_name, $media[$media_type] ) )
+		{
+			$media_config = $this->getConfig( $media_type );
+			if ( isset( $media_config['packages'][$group_name] ) )
+			{
+				$media[$media_type][key( $media_config['packages'][$group_name] )] = $group_name;
+				ksort( $media[$media_type] );
+			}
+			else
+			{
+				trigger_error( 'The specified group name "' . $group_name . '" does not exists in config file', E_USER_WARNING );
+			}
+		}
+
+		$this->addParams( array( 'media' => $media ) );
 	}
 
 	/**
@@ -965,7 +1033,9 @@ abstract class Controller
 	 */
 	public function hasDebug()
 	{
-		return self::$has_debug;
+		return self::$has_debug &&
+				( FilterCookie::getInstance()->getInteger( 'debug' ) ||
+				FilterGet::getInstance()->getInteger( 'debug' ) );
 	}
 
 	/**
@@ -976,26 +1046,6 @@ abstract class Controller
 	public function setDebug( $value )
 	{
 		self::$has_debug = (bool) $value;
-	}
-
-	/**
-	 * Overrides the cache name WHEN THERE IS CACHE ALREADY.
-	 *
-	 * @param string $name
-	 */
-	public function setCacheName( $name )
-	{
-		$this->cache_name = $name;
-	}
-
-	/**
-	 * Overrides the cache expiration time WHEN THERE IS CACHE ALREADY.
-	 *
-	 * @param integer $number_of_seconds
-	 */
-	public function setCacheExpiration( $number_of_seconds )
-	{
-		$this->cache_expiration = $number_of_seconds;
 	}
 
 	/**

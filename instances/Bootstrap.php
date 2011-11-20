@@ -28,7 +28,6 @@ require_once ROOT_PATH . '/libs/Sifo/Config.php';
 
 class Bootstrap
 {
-
 	/**
 	 * Root path.
 	 *
@@ -58,6 +57,13 @@ class Bootstrap
 	public static $language;
 
 	/**
+	 * If debug is active or not.
+	 *
+	 * @var boolean
+	 */
+	public static $debug = false;
+
+	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
 	 * to parse code. This array can be replaced in your libraries.config under
 	 * the key $config['classes_always_preloaded']
@@ -78,27 +84,20 @@ class Bootstrap
 	 */
 	public static function includeRequiredFiles()
 	{
-		try
-		{
-			$included_classes = Config::getInstance()->getConfig( 'libraries', 'classes_always_preloaded' );
-		}
-		catch ( Exception_Configuration $e )
-		{
-			$included_classes = self::$required_classes;
-		}
-
-		foreach ( $included_classes as $class )
+		foreach ( self::$required_classes as $class )
 		{
 			self::includeFile( $class );
 		}
-
 	}
 
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
-	 * @param string $root Path to root.
+	 * @param $instance_name
 	 * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
+	 *
+	 * @internal param string $root Path to root.
+	 *
 	 */
 	public static function execute( $instance_name, $controller_name = null )
 	{
@@ -118,7 +117,6 @@ class Bootstrap
 		self::dispatch( $controller_name );
 
 		Benchmark::getInstance()->timingStop();
-
 	}
 
 	public static function invokeController( $controller )
@@ -134,17 +132,18 @@ class Bootstrap
 		$class .= 'Controller';
 
 		return self::getClass( $class );
-
 	}
 
 	/**
 	 * Includes (include_once) the file corresponding to the passed passed classname.
 	 * It does not instantiate any object.
 	 *
+	 * This method must be public as it is used in external places, as unit-tests.
+	 *
 	 * @param string $classname
 	 * @return string The classname you asked for.
 	 */
-	protected static function includeFile( $classname )
+	public static function includeFile( $classname )
 	{
 		try
 		{
@@ -161,7 +160,6 @@ class Bootstrap
 		}
 
 		return $classInfo['name'];
-
 	}
 
 	/**
@@ -188,7 +186,6 @@ class Bootstrap
 		{
 			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
 		}
-
 	}
 
 	/**
@@ -266,6 +263,8 @@ class Bootstrap
 			// Active/deactive auto-rebuild option:
 			if ( $ctrl->hasDebug() )
 			{
+				self::$debug = true;
+
 				$ctrl->getClass( 'Cookie' );
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
 				{
@@ -274,6 +273,14 @@ class Bootstrap
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_nothing' ) && FilterCookie::getInstance()->getInteger( 'rebuild_all' ) )
 				{
 					Cookie::delete( 'rebuild_all' );
+				}
+				if ( 1 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				{
+					Cookie::set( 'debug', 1 );
+				}
+				if ( 0 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				{
+					Cookie::delete( 'debug' );
 				}
 			}
 
@@ -284,18 +291,10 @@ class Bootstrap
 				self::invokeController( 'debug/index' )->dispatch();
 			}
 		}
-		catch ( SEO_Exception $e )
+		catch ( \Exception $e )
 		{
 			self::_dispatchErrorController( $e );
 		}
-		// The exception should be catched by the application. Throw a 500 header by default.
-		catch ( Exception $e )
-		{
-			header( 'HTTP/1.0 500 Internal Server Error' );
-			trigger_error( "FATAL ERROR. An uncatched exception has been raised:\n" . $e->getMessage() . "\n" . $e->getTraceAsString() );
-			die;
-		}
-
 	}
 
 	/**
@@ -306,6 +305,13 @@ class Bootstrap
 	 */
 	private static function _dispatchErrorController( $e )
 	{
+		if ( !isset( $e->http_code ) )
+		{
+			$e->http_code = 503;
+			$e->http_code_msg = 'Exception!';
+			$e->redirect = false;
+		}
+
 		header( 'HTTP/1.0 ' . $e->http_code . ' ' . $e->http_code_msg );
 
 		// Execute ErrorCommonController when an exception is captured.
@@ -365,7 +371,6 @@ class Bootstrap
 		}
 
 		return $result;
-
 	}
 
 	/**
@@ -379,7 +384,5 @@ class Bootstrap
 		{
 			ini_set( $varname, $newvalue );
 		}
-
 	}
-
 }

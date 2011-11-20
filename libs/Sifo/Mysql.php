@@ -164,7 +164,7 @@ class Mysql
 	 */
 	static public function getInstance( $profile = 'default' )
 	{
-		if ( self::$instance[$profile] === null )
+		if ( !isset( self::$instance[$profile] ) )
 		{
 			Benchmark::getInstance()->timingStart( 'db_connections' );
 

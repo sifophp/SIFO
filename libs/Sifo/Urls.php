@@ -177,7 +177,7 @@ class Urls
 		}
 		else
 		{
-			self::$params = false;
+			self::$params = array();
 		}
 
 		self::$path_parts = explode( self::$url_definition['context_separator'], self::$path );
@@ -301,5 +301,25 @@ class Urls
 
 		// And in case there is more bullshit..
 		return utf8_encode( $string );
+	}
+
+	static public function buildUrl( $tld, $controller, array $actions = array(), array $params = array() )
+	{
+		$url = Urls::getUrl( $tld ) . '/';
+		$callback = create_function(
+				'$a',
+				'return urlencode( $a );'
+		);
+		$actions = array_map($callback, $actions );
+		$actions[] = Urls::getUrl( $controller );
+		$url .= implode( self::$url_definition['context_separator'], $actions );
+
+		if ( array() !== $params )
+		{
+			$url .= self::$url_definition['params_separator'];
+		}
+		$url .= implode( self::$url_definition['params_separator'], $params );
+
+		return $url;
 	}
 }

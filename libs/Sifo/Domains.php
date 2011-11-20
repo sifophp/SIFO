@@ -69,6 +69,11 @@ class Domains
 
 		$this->domain_configuration = Config::getInstance()->getConfig( 'domains' );
 
+		if ( isset( $this->domain_configuration['instance_type'] ) )
+		{
+			unset( $this->domain_configuration['instance_type'] );
+		}
+
 		if ( isset( $this->domain_configuration['core_inheritance'] ) )
 		{
 			$this->core_inheritance = $this->domain_configuration['core_inheritance'];

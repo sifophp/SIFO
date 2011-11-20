@@ -143,7 +143,7 @@ class MysqlDebug extends Mysql
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = '\\SeoFramework\\MysqlDebugStatement';
+	const STATEMENT_CLASS = '\\Sifo\\MysqlDebugStatement';
 
 	/**
 	 * Singleton static method.
@@ -153,7 +153,7 @@ class MysqlDebug extends Mysql
 	 */
 	static public function getInstance( $profile = 'default' )
 	{
-		if ( self::$instance[$profile] === null )
+		if ( !isset( self::$instance[$profile] ) )
 		{
 			Benchmark::getInstance()->timingStart( 'db_connections' );
 
@@ -179,7 +179,7 @@ class MysqlDebug extends Mysql
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
-		$this->setDebug( $statement, $query_time, $context, $result, $this->db_params );
+		$this->setDebug( $statement, $query_time, $context, $result, $this->db_params, $this->pdo );
 
 		return $result;
 	}
@@ -215,17 +215,19 @@ class MysqlDebug extends Mysql
 	 * @param string $context The context of the sql query.
 	 * @param integer|array $resultset The result of the query.
 	 */
-	public static function setDebug( $statement, $query_time, $context, $resultset, $db_params )
+	public static function setDebug( $statement, $query_time, $context, $resultset, $db_params, $pdo = null )
 	{
 		if ( $resultset !== false )
 		{
 			$error = $resultset->errorInfo();
 			$resultset_array = $resultset->fetchAll();
+			$rows_num = $resultset->rowCount();
 		}
 		else
 		{
-			$error = $this->pdo->errorInfo();
+			$error = $pdo->errorInfo();
 			$resultset_array = 0;
+			$rows_num = 0;
 		}
 
 		$debug_query = array(
@@ -242,7 +244,7 @@ class MysqlDebug extends Mysql
 			"error" => ( isset( $error[2] ) !== false ) ? $error[2] : false
 		);
 
-		$debug_query['rows_num'] = $resultset->rowCount();
+		$debug_query['rows_num'] = $rows_num;
 
 		if ( $debug_query['error'] !== false )
 		{

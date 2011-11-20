@@ -186,7 +186,7 @@ class Database
 		{
 			$answer = call_user_func_array(array(self::$adodb[self::$destination_type], $method),$args);
 		}
-		catch( \ADODB_Exception $e )
+		catch( ADODB_Exception $e )
 		{
 			$answer = false;
 			$error = $e->getMessage();

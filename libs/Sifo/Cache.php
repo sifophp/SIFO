@@ -44,7 +44,7 @@ class Cache
 				{
 					// Use the newer client library MemcacheD.
 					include_once ROOT_PATH . '/libs/MemCached/memcached.class.php';
-					$memcached = \MemcachedClient::getInstance();
+					$memcached = \Sifo\MemcachedClient::getInstance();
 				}
 				else
 				{

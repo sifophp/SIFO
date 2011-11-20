@@ -67,6 +67,11 @@ class Filter
 		return self::$instance;
 	}
 
+	public function setVar( $key, $value )
+	{
+		$this->request[$key] = $value;
+	}
+
 	/**
 	 * Checks if a var has been sent in the request.
 	 *
@@ -156,21 +161,7 @@ class Filter
 			return false;
 		}
 
-		if ( preg_match( self::VALID_EMAIL_REGEXP, $this->request[$var_name] ) )
-		{
-			if ( $check_dns )
-			{
-				list( $username, $domain ) = split( '@', $this->request[$var_name] );
-				return ( checkdnsrr( $domain, 'MX' ) ? $this->request[$var_name] : false );
-			}
-			else
-			{
-				return $this->request[$var_name];
-			}
-		}
-
-		return false;
-		// Vulnerable: return filter_var( $this->request[$var_name], FILTER_VALIDATE_EMAIL );
+		return filter_var( $this->request[$var_name], FILTER_VALIDATE_EMAIL );
 	}
 
 	/**
@@ -366,7 +357,6 @@ class Filter
 
 	/**
 	 * Checks if a string is a valid.
-	 * d-m-Y format unless passed.
 	 *
 	 * Matches:
 	 * 1/1/2005 | 29/02/12 | 29/02/2400
@@ -374,7 +364,7 @@ class Filter
 	 * 29/2/2005 | 29/02/13 | 29/02/2200
 	 *
 	 * @param string $var_name
-	 * @param string $format Any format accepted by date(), defaults to d-m-Y.
+	 * @param string $format Any format accepted by date()
 	 * @return mixed String of the date or false.
 	 */
 	public function getDate( $var_name, $format = 'd-m-Y' )
@@ -387,6 +377,52 @@ class Filter
 		$date = \DateTime::createFromFormat( $format, $this->request[$var_name] );
 		if ( $date !== false )
 		{
+			return $date->format( $format );
+		}
+
+		return false;
+	}
+
+	public function getDateWithDefaultValue( $var_name, $default_date, $format = 'd-m-Y' )
+	{
+		$date = $this->getDate( $var_name, $format );
+		if ( !$date )
+		{
+			$date = $default_date;
+		}
+
+		return $date;
+	}
+
+	public function getDateMultiValue( $var_name, $minimum_years = null, $second_var_name = null, $third_var_name = null, $format = 'd-m-Y' )
+	{
+		if ( !isset( $this->request[$var_name] ) )
+		{
+			return false;
+		}
+
+		$field_values = $this->request[$var_name];
+		if ( null !== $second_var_name && null !== $third_var_name )
+		{
+			if ( isset( $this->request[$second_var_name] ) && isset( $this->request[$third_var_name] ) )
+			{
+				$field_values = $this->request[$var_name] . '/' .
+						$this->request[$second_var_name] . '/' .
+						$this->request[$third_var_name];
+			}
+		}
+
+		$date = \DateTime::createFromFormat( $format, $field_values );
+		if ( $date !== false )
+		{
+			if ( null !== $minimum_years )
+			{
+				if ( new \DateTime('now') < $date->add( new \DateInterval( "P{$minimum_years}Y" ) ) )
+				{
+					return false;
+				}
+			}
+
 			return $date->format( $format );
 		}
 
@@ -468,7 +504,7 @@ class FilterServer extends Filter
 
 	/**
 	 * Filters variables passed by Server (Apache SetEnv for instance)
-	 * @return Filter
+	 * @return FilterServer
 	 */
 	public static function getInstance()
 	{

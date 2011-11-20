@@ -88,8 +88,11 @@ class Form
 	 */
 	protected $is_valid = true;
 
-
-	private function __construct( $filter )
+	/**
+	 * @param Filter $filter Filter object (FilterPost, FilterGet...)
+	 * @return Form
+	 */
+	public function __construct( Filter $filter )
 	{
 		$this->filter = $filter;
 	}
@@ -144,7 +147,7 @@ class Form
 		$filter_result = call_user_func_array( array( $this->filter, $filter_rule ), $total_params );
 
 		// The filter might sanitize the given string, so must be returned cleaned up. Apply filter:
-		if ( !is_bool( $filter_result ) )
+		if ( !is_bool( $filter_result ) || $filter_rule === 'getBoolean' )
 		{
 			$this->fields[$name] = $filter_result;
 		}

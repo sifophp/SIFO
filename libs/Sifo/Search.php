@@ -20,44 +20,49 @@
 
 namespace Sifo;
 
-class Search
+include ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
+
+class Search extends \SphinxClient
 {
 	static private $instance;
 	static public $search_engine;
 
-	private function __construct() {}
+	/**
+	 * Initializes the class.
+	 */
+	private function __construct()
+	{
+		$this->SphinxClient();
+
+		$sphinx_active = Config::getInstance()->getConfig( 'sphinx', 'active' );
+
+		// Check if Sphinx is enabled by configuration:
+		if ( true === $sphinx_active )
+		{
+			$sphinx_server 	= Config::getInstance()->getConfig( 'sphinx', 'server' );
+			$sphinx_port 	= Config::getInstance()->getConfig( 'sphinx', 'port' );
+
+			self::$search_engine 	= 'Sphinx';
+			$this->SetServer( $sphinx_server, $sphinx_port );
+
+			// Check that Sphinx is listening:
+			if ( true ==! $this->Open() )
+			{
+				trigger_error( 'Sphinx ('.$sphinx_server.':'.$sphinx_port.') is down!' );
+			}
+		}
+	}
 
 	/**
-	 * Singleton of config class.
+	 * Singleton of search class.
 	 *
-	 * @param string $instance_name Instance Name, needed to determine correct paths.
-	 * @return object Config
+	 * @return object Search
 	 */
 	public static function getInstance()
 	{
 		if ( !isset ( self::$instance ) )
 		{
-			$sphinx_active = Config::getInstance()->getConfig( 'sphinx', 'active' );
-
-			// Check if Sphinx is enabled by configuration:
-			if ( true === $sphinx_active )
-			{
-				include ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
-
-				$sphinx_server 	= Config::getInstance()->getConfig( 'sphinx', 'server' );
-				$sphinx_port 	= Config::getInstance()->getConfig( 'sphinx', 'port' );
-
-				self::$search_engine 	= 'Sphinx';
-				self::$instance 		= new \SphinxClient();
-				self::$instance->SetServer( $sphinx_server, $sphinx_port );
-
-				// Check that Sphinx is listening:
-				if ( true ==! self::$instance->Open() )
-				{
-					trigger_error( 'Sphinx ('.$sphinx_server.':'.$sphinx_port.') is down!' );
-					self::$instance = false;
-				}
-			}
+			self::$instance = new self();
 		}
 
 		return self::$instance;
@@ -68,28 +73,21 @@ class Search
 	 *
 	 * @return array
 	 */
-	function RunQueries()
+	public function RunQueries( $search_tag = null )
 	{
-		Benchmark::getInstance()->timingStart( 'search' );
+		if ( Bootstrap::$debug )
+		{
+			Benchmark::getInstance()->timingStart( 'search' );
+			$answer = parent::RunQueries();
+			Benchmark::getInstance()->timingCurrentToRegistry( 'search' );
 
-		$answer = self::$instance->RunQueries();
-
-		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'search' );
-
-		Registry::push( 'searches', $answer );
+			Registry::push( 'searches', $answer );
+		}
+		else
+		{
+			$answer = parent::RunQueries();
+		}
 
 		return $answer;
-	}
-
-	/**
-	 * Delegate all calls to the proper class.
-	 *
-	 * @param string $method
-	 * @param mixed $args
-	 * @return mixed
-	 */
-	function __call($method, $args)//call adodb methods
-	{
-		return call_user_func_array(array(self::$instance, $method),$args);
 	}
 }
