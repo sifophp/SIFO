@@ -52,6 +52,9 @@ echo "[IMPORTANT] Manually change in your domains.config.php the inheritance fro
 echo "-- Getting rid of old naming SEOframework, long life Sifo..."
 find $INSTANCE_DIR/config/ -type f -name "*.php" -exec sed -i 's/SEOframework/Sifo/g' {} \;
 
+echo "Moving Smarty references of 3.0.7 to 3.1.4"
+find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/Smarty-3.0.7/Smarty-3.1.4/g' {} \;
+
 echo "-- Renaming class UrlParser to Urls"
 find $INSTANCE_DIR/ -type f -name "*.php" -exec sed -i 's/UrlParser/Urls/g' {} \;
 
