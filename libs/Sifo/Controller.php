@@ -63,7 +63,7 @@ abstract class Controller
 	protected $debug_info = array();
 
 	/**
-	 * Wether the page has debug or not.
+	 * Whether the page has debug or not.
 	 *
 	 * @var boolean
 	 */
@@ -235,7 +235,7 @@ abstract class Controller
 			 * The relative_path exists but the first getUrl try not found it.
 			 * We try with the path translations:
 			*/
-			if ( $reversal_route = Router::getReversalRoute( $relative_path ) )
+			if ( Router::getReversalRoute( $relative_path ) )
 			{
 				if ( !( $url = Urls::getInstance( $this->instance )->getUrl( Router::getReversalRoute( $relative_path ) ) ) )
 				{
@@ -295,37 +295,6 @@ abstract class Controller
 	public function getTemplate( $template )
 	{
 		return ROOT_PATH . '/' . Config::getInstance( $this->instance )->getConfig( 'templates', $template ) ;
-	}
-
-	/**
-	 * Read a cookie with a simple sanitization of the content.
-	 *
-	 * @param string $cookie
-	 * @return string|false
-	 *
-	 * TODO: DELETE METHOD
-	 */
-	public function getCookie( $name )
-	{
-		if ( isset( $_COOKIE[$cookie] ) )
-		{
-			return filter_var( $_COOKIE[$cookie], FILTER_SANITIZE_STRING );
-		}
-
-		return false;
-	}
-
-	/**
-	 * DEPRECATED: Use Metadata.class
-	 *
-	 * @param string|array $tpl_var
-	 * @param mixed $value
-	 *
-	 * TODO: DELETE METHOD
-	 */
-	public function assignToMetadata( $mtd_var, $value )
-	{
-		$this->params['metadata'][$mtd_var] = $value;
 	}
 
 	/**

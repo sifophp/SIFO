@@ -46,6 +46,13 @@ class Config
 	 */
 	protected $configuration_files = 'configuration_files.config.php';
 
+    /**
+     * Variables taken from the config are stored here in the class context.
+     * 
+     * @var array
+     */
+    protected $config_values;
+
 	/**
 	 * Content inside the $configuration_files file specififying in which instance is found every config.
 	 *
@@ -161,6 +168,8 @@ class Config
 	{
 		$classes = $this->getConfig( 'classes' );
 		$class_type = explode( '\\', $class_type );
+        $path = null;
+        
 		if ( isset( $class_type[1] ) && $class_type[0] == '\\' . $class_type[1] )
 		{
 			unset( $class_type[1] );
@@ -192,8 +201,8 @@ class Config
 		}
 
 		// The var is OK,  we return the requested array element.
-		$classname = "\\{$class_type[1]}\\$class_type[0]";
-		return array( 'name' => $classname, 'path' => $path );
+		$class_name = "\\{$class_type[1]}\\$class_type[0]";
+		return array( 'name' => $class_name, 'path' => $path );
 	}
 
 	/**
@@ -210,13 +219,14 @@ class Config
 	 * Returns the library assigned to the given alias.
 	 *
 	 * @param string $alias Alias of the librar, e.g: 'smarty'
-	 */
+     * @return string Effective name of the folder with the library
+     */
 	public function getLibrary( $alias )
 	{
 		// Delete this condition when everyone has rebuild their projects (Max: Jan 2011).
 		if ( !isset( $this->paths_to_configs['libraries'] ) )
 		{
-			$this->paths_to_configs['libraries'] = "/instances/utilities/config/libraries.config.php";
+			$this->paths_to_configs['libraries'] = "/instances/common/config/libraries.config.php";
 		}
 
 		$libraries = $this->getConfig( 'libraries', 'default' );
@@ -229,7 +239,7 @@ class Config
 
 		if ( !isset( $libraries[$alias] ) )
 		{
-			throw new Exception_Configuration( "The library '$alias' you are loading is not set in profile '$default'" );
+			throw new Exception_Configuration( "The library '$alias' you are loading is not set in profile " . self::$libraries_profile );
 		}
 
 		return $libraries[$alias];

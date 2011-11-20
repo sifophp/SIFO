@@ -77,7 +77,8 @@ class Benchmark
 	 * Returns the current time for the given group name.
 	 *
 	 * @param string $name
-	 */
+     * @return int Current time
+     */
 	public function timingCurrent ($name = 'default') {
 		if (!isset(self::$start_times[$name])) {
 			return 0;
