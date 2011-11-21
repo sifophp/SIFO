@@ -17,7 +17,9 @@ then
 fi
 
 INSTANCE=$1
-CHANGELOG="$CORE/instances/$INSTANCE/logs/deploy_changelog.txt"
+LOG="/tmp/deploy_$INSTANCE.log"
+CHANGELOG="$CORE/instances/$INSTANCE/logs/deploy_LOG.txt"
+
 USER=`whoami`
 INSTANCEPATH="$CORE/instances/$INSTANCE"
 TODAY=`date "+%Y-%b-%d %k:%M"`
@@ -31,10 +33,10 @@ BRANCH='master'
 #fi
 
 mkdir -p $CORE/instances/$INSTANCE/logs/
-echo "Updating servers..."
-echo "************************************************" >> $CHANGELOG
-echo "$INSTANCE update: $TODAY ($USER)" >> $CHANGELOG
-echo "************************************************" >> $CHANGELOG
+echo "Updating servers..." > $LOG
+echo "************************************************" >> $LOG
+echo "$INSTANCE update: $TODAY ($USER)" >> $LOG
+echo "************************************************" >> $LOG
 
 cd $CORE
 CORE_REMOTE_REV=`git ls-remote origin $BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
@@ -47,26 +49,28 @@ INST_LOCAL_REV=`git rev-parse refs/heads/$BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*
 if [ "$CORE_LOCAL_REV" == "$CORE_REMOTE_REV" ]
 then
     echo -e "SIFO is already in the latest revision: $CORE_LOCAL_REV"
-    echo -e "SIFO is already in the latest revision: $CORE_LOCAL_REV" >> $CHANGELOG
+    echo -e "SIFO is already in the latest revision: $CORE_LOCAL_REV" >> $LOG
 else
     cd $CORE
-    git pull origin $BRANCH >> $CHANGELOG
-    echo "What changed in SIFO..." >> $CHANGELOG
-    git whatchanged $CORE_LOCAL_REV..$CORE_REMOTE_REV >> $CHANGELOG
+    git pull origin $BRANCH >> $LOG
+    echo "What changed in SIFO..." >> $LOG
+    git whatchanged $CORE_LOCAL_REV..$CORE_REMOTE_REV >> $LOG
 fi
 
 if [ "$INST_REMOTE_REV" == "$INST_LOCAL_REV" ]
 then
     echo -e "Instance $INSTANCE is already in the latest revision: $INST_REMOTE_REV"
-    echo -e "Instance $INSTANCE is already in the latest revision: $INST_REMOTE_REV" >> $CHANGELOG
+    echo -e "Instance $INSTANCE is already in the latest revision: $INST_REMOTE_REV" >> $LOG
 else
     cd $INSTANCEPATH
-    git pull origin $BRANCH >> $CHANGELOG
-    echo "What changed in $INSTANCE..." >> $CHANGELOG
-    git whatchanged $INST_LOCAL_REV..$INST_REMOTE_REV >> $CHANGELOG
+    git pull origin $BRANCH >> $LOG
+    echo "What changed in $INSTANCE..." >> $LOG
+    git whatchanged $INST_LOCAL_REV..$INST_REMOTE_REV >> $LOG
 fi
 
 # Put user to original path before executing the script
 cd $ORIGINAL_PATH
 
-tail -n 100 $CHANGELOG
+# Append current log to accumulative changelog
+cat $LOG >> $CHANGELOG
+cat $LOG
