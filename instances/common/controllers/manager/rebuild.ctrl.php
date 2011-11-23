@@ -53,7 +53,7 @@ class ManagerRebuildController extends \Sifo\Controller
 	{
 		if ( true !== $this->hasDebug() )
 		{
-			throw new \SifoException_404( 'User tried to access the rebuild page, but he\'s not in development' );
+			throw new \Sifo\Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
 		}
 
 		// Calculate where the config files are taken from.
