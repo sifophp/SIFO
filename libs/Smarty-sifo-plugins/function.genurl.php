@@ -51,7 +51,7 @@ function smarty_function_genurl( $params, &$smarty )
 
 	if ( false !== strpos( $_delimiter, '$' ) )
 	{
-		$smarty->trigger_error( "fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE );
+		trigger_error( "fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE );
 	}
 
 	$action = ( isset( $params['action'] ) ) ? $params['action'] : 'replace';
@@ -159,7 +159,7 @@ function smarty_function_genurl( $params, &$smarty )
 					}
 					if ( $normalize )
 					{
-						$_val[$__key] = Urls::normalize( $_val[$__key] );
+						$_val[$__key] = \Sifo\Urls::normalize( $_val[$__key] );
 					}
 
 				}
@@ -173,13 +173,13 @@ function smarty_function_genurl( $params, &$smarty )
 				\Sifo\I18N::setDomain( $current_domain, \Sifo\I18N::getLocale() );
 				if ( $normalize )
 				{
-					$_val = Urls::normalize( $_val );
+					$_val = \Sifo\Urls::normalize( $_val );
 				}
 
 			}
 			elseif ( $normalize )
 			{
-				$_val = Urls::normalize( $_val );
+				$_val = \Sifo\Urls::normalize( $_val );
 			}
 
 			if ( isset( $_val ) && '' != $_val && false !== $_val )
@@ -192,7 +192,7 @@ function smarty_function_genurl( $params, &$smarty )
 				}
 				else
 				{
-					$smarty->trigger_error( "fill: The parameter '" . $_key . "' is not defined in given params_definition", E_USER_NOTICE );
+					trigger_error( "fill: The parameter '" . $_key . "' is not defined in given params_definition", E_USER_NOTICE );
 				}
 			}
 		}

@@ -44,16 +44,8 @@ function smarty_function_pagelink($params, &$smarty)
     } else {
         $_delimiter = ':';
     }
-	if ( class_exists( 'FilterServer' ) && method_exists( 'FilterServer', 'getString' ) )
-	{
-		$_actual_querystring = FilterServer::getInstance()->getString( 'QUERY_STRING' );
-		$_actual_path = FilterServer::getInstance()->getString( 'REQUEST_URI' );
-	}
-	else
-	{
-		$_actual_querystring = $_SERVER['QUERY_STRING'];		
-		$_actual_path = $_SERVER['REQUEST_URI'];	
-	}
+		$_actual_querystring = \Sifo\FilterServer::getInstance()->getString( 'QUERY_STRING' );
+		$_actual_path = \Sifo\FilterServer::getInstance()->getString( 'REQUEST_URI' );
     
     if ( !empty( $_actual_querystring ) )
     {
@@ -76,7 +68,7 @@ function smarty_function_pagelink($params, &$smarty)
 	
 	if ( !isset( $params['page'] ) )
 	{
-        $smarty->trigger_error("pagelink: You should provide the destination pagelink.");  
+        trigger_error("pagelink: You should provide the destination pagelink.");  
 	}
 	else
 	{

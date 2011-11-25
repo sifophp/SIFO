@@ -13,7 +13,8 @@ include_once('block.t.php');
  * Type:     function.
  * Name:     email_obfuscator.
  * Purpose:  email obfuscation for protecting emails.
- * @author   Nino Dafonte <nino.dafonte@softonic.com>.
+ * 
+ * @author   Nino Dafonte <nino.dafonte@gmail.com>.
  * @param	string 	Email to obfuscate (received automatically).
  * @param 	string 	Text to show instead of the email.
  * @return 	string 	JavaScript to show the obfuscated email.

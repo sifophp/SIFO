@@ -46,7 +46,7 @@ function smarty_function_fill_params($params, &$smarty)
 
     if ( false !== strpos($_delimiter, '$' ) )
     {
-         $smarty->trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
+         trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
     }
     
 	$action = ( isset( $params['action'] ) ) ? $params['action'] : 'replace';
@@ -124,11 +124,6 @@ function smarty_function_fill_params($params, &$smarty)
 			elseif ( $_key == 'order' || $_key == 'onsale' )
 			{
 				$_val = \Sifo\I18N::getTranslation( $_val );
-			}
-			
-			if ( method_exists( UtilsUvinum, 'normalize' ) )			
-			{
-				$_val = UtilsUvinum::normalize( $_val );
 			}
 			
 			if ( !empty( $_val ) )

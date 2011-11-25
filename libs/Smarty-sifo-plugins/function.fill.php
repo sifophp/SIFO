@@ -15,6 +15,7 @@
  *           - [any]      (required) - string
  *           - subject       (required) - string
  *           - delimiter  (optional, defaults to '%' ) - string
+ *			 - lower	  (optional, set to lower=no if you don't want lowercase) - string
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
  *           
  *           Examples of usage:
@@ -34,7 +35,7 @@
  * @param Smarty
  * @return string
  */
-function smarty_function_filln($params, &$smarty)
+function smarty_function_fill($params, &$smarty)
 {
 
     if ( isset($params['delimiter']) )
@@ -47,38 +48,37 @@ function smarty_function_filln($params, &$smarty)
 
     if ( false !== strpos($_delimiter, '$' ) )
     {
-         $smarty->trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
+         trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
     }
 
-    if (!isset($params['subject']) || count($params)<2) 
-    {
-        $smarty->trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
+    if (!isset($params['subject']) || count($params)<2) {
+        trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
     }
+
 
    	$_html_result = $params['subject'];
-   	$_tmp_result = $_html_result;
-
+	$_tmp_result = $_html_result;
     unset( $params['subject'] );
-    
-	foreach($params as $_key => $_val)
+
+	foreach( $params as $_key => $_val )
 	{
 		$_val = (string)$_val;
-		$_tmp_result = str_replace( $_delimiter . $_key . $_delimiter, $_val, $_tmp_result);
-				
-		if ( method_exists( UtilsUvinum, 'normalize' ) )
+		$_tmp_result = str_replace( $_delimiter . $_key . $_delimiter, (string)$_val, $_tmp_result);
+
+		// The UrlParse::normalize, amongs other things lowers the string. Check if plugin calls with lower=no to skip:
+		if ( true === \Sifo\Urls::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
 		{
-			$_urlized_val = UtilsUvinum::normalize( $_val );
-			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, $_urlized_val, $_html_result);
-		}
-		else if ( method_exists( Urls, 'normalize' ) )
-		{
-			$_urlized_val = Urls::normalize( $_val );
-			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, $_urlized_val, $_html_result);
+			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, \Sifo\Urls::normalize( (string)$_val ), $_html_result);
 		}
 		else
 		{
-			$_html_result = $_tmp_result;		
+			$_html_result = $_tmp_result;
 		}
+    }
+
+    if ( false !== strpos($_html_result, $_delimiter) )
+    {
+        trigger_error("fill: There are still parameters to replace, because the '$_delimiter' delimiter was found in $_html_result");  
     }
 
     return $_html_result;

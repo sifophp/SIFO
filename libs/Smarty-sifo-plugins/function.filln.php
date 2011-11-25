@@ -16,9 +16,9 @@
  *           - subject       (required) - string
  *           - delimiter  (optional, defaults to '%' ) - string
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
- *           
+ *
  *           Examples of usage:
- *           
+ *
  *           {fill subject="http://domain.com/profile/%username%" username='fred'}
  *           Output: http://domain.com/profile/fred
  *
@@ -34,39 +34,39 @@
  * @param Smarty
  * @return string
  */
-function smarty_function_thumbn($params, &$smarty)
+function smarty_function_filln($params, &$smarty)
 {
-    if (!isset($params['source'])) 
-    {
-        $smarty->trigger_error("fill: The attribute 'source' and at least one parameter is needed in function {url}", E_USER_NOTICE);
-    }
-    
-    if (!isset($params['size']))
-    {
-    	$params['size'] = 'mini';
-    }
-    
-    if ( !in_array($params['size'], array('mini','thumbnail','medium','transparent','full') ) )
-    {
-        $smarty->trigger_error("fill: The attribute 'size' has an invalid value {url}", E_USER_NOTICE);
-    }
-    
-    if ( is_array( $params['source'] ) )
-    {
-    	$wine['name']		= ($params['source']['wine_name'])?$params['source']['wine_name']:$params['source']['name'];
-    	$wine['type']		= ($params['source']['wine_type'])?$params['source']['wine_type']:$params['source']['type'];
-    	$wine['image_url']	= $params['source']['image_url'];    	
-    }
-    else
-    {
-    	$wine['name']		= '';
-    	$wine['image_url']	= $params['source'];
-    	$wine['type']		= 'tinto';
+
+    if (isset($params['delimiter'])) {
+        $_delimiter = $params['delimiter'];
+        unset($params['delimiter']);
+    } else {
+        $_delimiter = '%';
     }
 
-    unset( $params['source'] );
-        
-    return UtilsUvinum::getWineThumbnail( $wine, $params['size'] );
+    if (false !== strpos($_delimiter, '$')) {
+        trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
+    }
+
+    if (!isset($params['subject']) || count($params) < 2) {
+        trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
+    }
+
+    $_html_result = $params['subject'];
+    $_tmp_result = $_html_result;
+
+    unset($params['subject']);
+
+    foreach ($params as $_key => $_val)
+    {
+        $_val = (string)$_val;
+        $_tmp_result = str_replace($_delimiter . $_key . $_delimiter, $_val, $_tmp_result);
+
+        $normalized_url = \Sifo\Urls::normalize($_val);
+        $_html_result = str_replace($_delimiter . $_key . $_delimiter, $normalized_url, $_html_result);
+    }
+
+    return $_html_result;
 
 }
 

@@ -55,9 +55,11 @@ class View
 		$this->view->setCompileDir( $templates_path . '_smarty/compile/' );
 		$this->view->setConfigDir( $templates_path . '_smarty/configs/' );
 		$this->view->setCacheDir( $templates_path . '_smarty/cache/' );
-		$this->view->addPluginsDir( $templates_path . '_smarty/plugins' );
+        $this->view->addPluginsDir( ROOT_PATH . '/libs/Smarty-sifo-plugins' );
+        $this->view->addPluginsDir( $templates_path . '_smarty/plugins' );
 
-		// Settings:
+
+        // Settings:
 		// Smarty tests to see if the current template has changed (different time stamp) since the last time it was compiled. If it has changed, it recompiles
 		$this->view->compile_check = true;
 

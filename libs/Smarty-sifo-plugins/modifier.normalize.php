@@ -2,7 +2,7 @@
 /**
  * Smarty plugin
  * @package Smarty
- * @subpackage PluginsModifier
+ * @subpackage plugins
  */
 
 
@@ -15,15 +15,19 @@
  * @link http://smarty.php.net/manual/en/language.modifier.default.php
  *          default (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
+ *
+ * Slightly modified to normalize usign SIFO class.
  * @param string
  * @param string
  * @return string
  */
-function smarty_modifier_default($string, $default = '')
+function smarty_modifier_normalize($string, $strict = false)
 {
-    if (!isset($string) || $string === '')
-        return $default;
-    else
-        return $string;
+	$normalized_url = \Sifo\Urls::normalize( $string );
+
+	return $normalized_url;
 }
+
+/* vim: set expandtab: */
+
 ?>
