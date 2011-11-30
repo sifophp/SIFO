@@ -8,10 +8,10 @@
         <div class="container">
           <a class="brand" href="#">Sifo</a>
           <ul class="nav">
-			<li class="active"><a href="{$url.main}">Home</a></li>
-			<li><a href="{$url.section_1}">Section 1</a></li>
-			<li><a href="{$url.section_2}">Section 2</a></li>
-			<li><a href="{$url.section_3}">Section 3</a></li>
+			<li class="active"><a href="">Home</a></li>
+			<li><a href="">Section 1</a></li>
+			<li><a href="">Section 2</a></li>
+			<li><a href="">Section 3</a></li>
           </ul>
         </div>
       </div>

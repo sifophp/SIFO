@@ -86,13 +86,6 @@ abstract class Controller
 	public $is_json = false;
 
 	/**
-	 * By setting this value to false, the debug will be disabled.
-	 *
-	 * @var boolean
-	 */
-	public $debug_enable = true;
-
-	/**
 	 * Parameters used in the controller.
 	 *
 	 * @var array
@@ -137,7 +130,7 @@ abstract class Controller
 		$this->language = Domains::getInstance()->getLanguage();
 
 		$this->url_definition = Urls::getInstance( $this->instance )->getUrlDefinition();
-		self::$has_debug = Domains::getInstance()->getDevMode();
+		self::$has_debug = Bootstrap::$debug;
 
 		$urls = Urls::getInstance( $this->instance )->getUrlConfig();
 		$current_url = $this->getUrl( Urls::getInstance( Bootstrap::$instance )->getPath(), Urls::getInstance( $this->instance )->getParams() );
@@ -151,7 +144,7 @@ abstract class Controller
 				'path' => Urls::getInstance( $this->instance )->getPath(),
 				'path_parts' => Urls::getInstance( $this->instance )->getPathParts(),
 				'params' => Urls::getInstance( $this->instance )->getParams(),
-				'has_debug' => Domains::getInstance()->getDevMode(),
+				'has_debug' => Bootstrap::$debug,
 				'lang' => $this->language,
 				'url' => $urls,
 
@@ -436,7 +429,7 @@ abstract class Controller
 	 */
 	protected function grabCache()
 	{
-		if ( $this->hasDebug() && ( FilterCookie::getInstance()->getInteger( 'rebuild_all' ) || FilterGet::getInstance()->getInteger( 'rebuild' ) ) )
+		if ( Domains::getInstance()->getDevMode() && ( FilterCookie::getInstance()->getInteger( 'rebuild_all' ) || FilterGet::getInstance()->getInteger( 'rebuild' ) ) )
 		{
 			return false;
 		}
@@ -935,7 +928,7 @@ abstract class Controller
 	protected function addToDebug( $key, $value, $context = null)
 	{
 		// Store everything in the debug in the registry.
-		if ( self::$has_debug )
+		if ( $this->hasDebug() )
 		{
 			if (  null === $context )
 			{
@@ -1002,9 +995,7 @@ abstract class Controller
 	 */
 	public function hasDebug()
 	{
-		return self::$has_debug &&
-				( FilterCookie::getInstance()->getInteger( 'debug' ) ||
-				FilterGet::getInstance()->getInteger( 'debug' ) );
+		return self::$has_debug && Bootstrap::$debug;
 	}
 
 	/**

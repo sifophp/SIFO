@@ -51,7 +51,7 @@ class ManagerRebuildController extends \Sifo\Controller
 
 	public function build()
 	{
-		if ( true !== $this->hasDebug() )
+		if ( true !== \Sifo\Domains::getInstance()->getDevMode() )
 		{
 			throw new \Sifo\Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
 		}

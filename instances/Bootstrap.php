@@ -109,7 +109,6 @@ class Bootstrap
 		// Include files:
 		self::includeRequiredFiles();
 
-
 		// Register autoloader:
 		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
 
@@ -120,6 +119,12 @@ class Bootstrap
 		Benchmark::getInstance()->timingStop();
 	}
 
+    /**
+     * Invokes a controller with the folder/action form.
+     *
+     * @param string $controller The controller in folder/action form.
+     * @return Controller|void
+     */
 	public static function invokeController( $controller )
 	{
 		$controller_path = explode( '/', $controller );
@@ -155,7 +160,7 @@ class Bootstrap
 			throw new Exception_500( $e->getMessage() );
 		}
 
-		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
+		if ( !include_once ROOT_PATH . '/' . $classInfo['path'] )
 		{
 			throw new Exception_500( "Doesn't exist in expected path {$classInfo['path']}" );
 		}
@@ -260,12 +265,9 @@ class Bootstrap
 				'controller_route' => $controller,
 			) );
 
-
 			// Active/deactive auto-rebuild option:
-			if ( $ctrl->hasDebug() )
+			if ( $domain->getDevMode() )
 			{
-				self::$debug = true;
-
 				$ctrl->getClass( 'Cookie' );
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
 				{
@@ -283,11 +285,16 @@ class Bootstrap
 				{
 					Cookie::delete( 'debug' );
 				}
+
+                if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
+                {
+                    self::$debug = true;
+                }
 			}
 
 			$ctrl->dispatch();
 
-			if ( false === $ctrl->is_json && true === $ctrl->debug_enable && $ctrl->hasDebug() )
+			if ( false === $ctrl->is_json && $ctrl->hasDebug() )
 			{
 				self::invokeController( 'debug/index' )->dispatch();
 			}

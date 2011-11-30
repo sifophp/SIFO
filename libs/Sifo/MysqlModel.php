@@ -119,8 +119,12 @@ class MysqlModel
 	}
 
 	/**
-	 * Magic method to retreive table names from a configuration file.
-	 */
+	 * Magic method to retrieve table names from a configuration file.
+     *
+     * @param string $attribute
+     *
+     * @return string
+     */
 	public function __get( $attribute )
 	{
 		$tablenames = Config::getInstance()->getConfig( 'tablenames' );

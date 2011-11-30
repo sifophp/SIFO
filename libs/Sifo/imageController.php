@@ -99,7 +99,7 @@ abstract class ImageController extends Controller
 	 */
 	protected function grabCache()
 	{
-		if ( $this->hasDebug() && ( FilterCookie::getInstance()->getInteger( 'rebuild_all' ) || FilterGet::getInstance()->getInteger( 'rebuild' ) ) )
+        if ( Domains::getInstance()->getDevMode() && ( FilterCookie::getInstance()->getInteger( 'rebuild_all' ) || FilterGet::getInstance()->getInteger( 'rebuild' ) ) )
 		{
 			return false;
 		}

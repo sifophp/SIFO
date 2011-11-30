@@ -467,45 +467,49 @@ LoadjQueryUI();
 {* Sphinx and other search-related queries *}
 {if is_array($debug.searches)}
 	<h1 id="search_queries">{t}Searches{/t}</h1>
-{foreach name=search from=$debug.searches item=value}
-	<h2 class="queries query_read" id="search_{$smarty.foreach.search.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.search.index}" href="#">{$smarty.foreach.search.index+1}. [R] {$value.tag}</a> <small>({$value.time|time_format} - match: {$value.resultset.total_found} elements - return: {$value.resultset.matches|@count} elements )</small></h2>
-	<div id="search_content_{$smarty.foreach.search.index}" class="debug_contents">
+{foreach name=search from=$debug.searches item=search}
+{foreach name=match from=$search item=value}
+	<h2 class="queries query_read" id="search_{$smarty.foreach.match.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.match.index}" href="#">{$smarty.foreach.match.index+1}. [R]</a> <small>({$value.time|time_format} - match: {$value.total_found} elements - return: {if isset($value.matches)}{$value.matches|@count}{else}0{/if} elements )</small></h2>
+	<div id="search_content_{$smarty.foreach.match.index}" class="debug_contents">
 		<table>
 			<tr>
 				<th>Filter</th>
 				<th>Order</th>
 				<th>GroupBy</th>
 				<th>Indexs</th>
-				<th>Controller</th>
 			</tr>
 			<tr>
-				<td>{$value.filter}</td>
-				<td>{$value.order}</td>
-				<td>{$value.groupby}</td>
-				<td>{$value.indexs}</td>
-				<td>{$value.controller}</td>
+				<td>{if isset($value.filter)}{$value.filter}{/if}</td>
+				<td>{if isset($value.order)}{$value.order}{/if}</td>
+				<td>{if isset($value.groupby)}{$value.groupby}{/if}</td>
+				<td>{if isset($value.indexs)}{$value.indexs}{/if}</td>
 			</tr>
 		</table>
 		<table>
 			<tr>
+				<th>ID</th>
 				<th>WEIGHT</th>
-{			foreach from=$value.resultset.attrs key=attribute item=values}
-				<th>{$attribute}</th>
+{			foreach name=weights from=$value.attrs item=values}
+				<th>{$values@key}</th>
 {			/foreach}
 			</tr>
-{			foreach from=$value.resultset.matches item=match}
+{if isset($value.matches)}
+{			foreach from=$value.matches item=match}
 			<tr>
+				<td>{$match@key}</td>
 				<td>{$match.weight}</td>
 {				foreach from=$match.attrs key=attribute item=values}
 				<td>{if is_array($values)}{$values|debug_print_var}{else}{$values}{/if}</td>
 {				/foreach}
 			</tr>
 {			/foreach}
+{/if}
 		</table>
 		<pre>
-{			$value|debug_print_var}
+{*			$value|debug_print_var*}
 		</pre>
 	</div>
+{/foreach}
 {/foreach}
 {/if}
 
@@ -516,11 +520,11 @@ LoadjQueryUI();
 		<a class="debug_toggle_view" href="#" rel="queries_content_{$smarty.foreach.queries.index}">
 		{$smarty.foreach.queries.index+1}. {if $query.type=='read'}[R]{else}[W]{/if} {$query.tag}</a> <small>({$query.time|time_format} - rows:{$query.rows_num})</small></h2>
 	<div id="queries_content_{$smarty.foreach.queries.index}" class="debug_contents">
-		<pre>{$query.sql|escape}</pre>
+		<pre>{$query.sql}</pre>
 {		if false !== $query.error}
 		<pre style="color:red">
 --
-{$query.error|escape}
+{$query.error}
 		</pre>
 {		/if}
 		<table>
@@ -579,7 +583,7 @@ LoadjQueryUI();
 {		else}
 			<strong>{t}Empty resultset{/t}</strong>
 {		/if}
-{if isset( $query.trace ) }<pre>{$query.trace}</pre>{/if}
+{if isset($query.trace) }<pre>{$query.trace}</pre>{/if}
 	</div>
 {/foreach}
 {/if}

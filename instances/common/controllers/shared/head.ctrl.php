@@ -62,7 +62,7 @@ class SharedHeadController extends \Sifo\Controller
 		$this->assign( 'js_groups', $this->js_groups );
 
 		$this->assign( 'static_rev', $this->getStaticRevision() );
-		$this->assign( 'media_module', $this->fetch( 'shared/media.tpl' ) );
+		$this->assign( 'media_module', $this->fetch( 'shared/media_packer.tpl' ) );
 
 	}
 }
