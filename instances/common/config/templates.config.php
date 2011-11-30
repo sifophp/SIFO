@@ -19,6 +19,7 @@ $config = array (
   'shared/footer.tpl' => 'instances/common/templates/shared/footer.tpl',
   'shared/head.tpl' => 'instances/common/templates/shared/head.tpl',
   'shared/header.tpl' => 'instances/common/templates/shared/header.tpl',
+  'shared/media_generator.tpl' => 'instances/common/templates/shared/media_generator.tpl',
   'shared/media_packer.tpl' => 'instances/common/templates/shared/media_packer.tpl',
   'shared/system_messages.tpl' => 'instances/common/templates/shared/system_messages.tpl',
   'static/common.tpl' => 'instances/common/templates/static/common.tpl',

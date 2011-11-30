@@ -8,6 +8,10 @@ $config = array (
   array (
     'Sifo' => 'libs/Sifo/API/Youtube.php',
   ),
+  'AmazonS3' => 
+  array (
+    'Sifo' => 'libs/Sifo/AmazonS3.php',
+  ),
   'Benchmark' => 
   array (
     'Sifo' => 'libs/Sifo/Benchmark.php',
