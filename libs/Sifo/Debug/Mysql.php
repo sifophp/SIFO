@@ -24,7 +24,7 @@ use PDO,PDOStatement;
 /**
  * DbDebugStatement class that is extended for debugging purposes.
  */
-class MysqlDebugStatement extends MysqlStatement
+class DebugMysqlStatement extends MysqlStatement
 {
 	/**
 	 * The fetched result.
@@ -53,7 +53,7 @@ class MysqlDebugStatement extends MysqlStatement
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
 		$query_string = $this->_replacePreparedParameters( $this->queryString, $parameters );
-		MysqlDebug::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
+		DebugMysql::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
 
 		if ( !$result )
 		{
@@ -129,7 +129,7 @@ class MysqlDebugStatement extends MysqlStatement
  *
  * This is done in a separate class to avoid decreased performance in production environments.
  */
-class MysqlDebug extends Mysql
+class DebugMysql extends Mysql
 {
 	/**
 	 * The singleton instance of this class.
@@ -143,7 +143,7 @@ class MysqlDebug extends Mysql
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = '\\Sifo\\MysqlDebugStatement';
+	const STATEMENT_CLASS = '\\Sifo\\DebugMysqlStatement';
 
 	/**
 	 * Singleton static method.
@@ -157,7 +157,7 @@ class MysqlDebug extends Mysql
 		{
 			Benchmark::getInstance()->timingStart( 'db_connections' );
 
-			self::$instance[$profile] = new MysqlDebug( $profile );
+			self::$instance[$profile] = new DebugMysql( $profile );
 
 			Benchmark::getInstance()->timingCurrentToRegistry( 'db_connections' );
 		}
@@ -201,7 +201,7 @@ class MysqlDebug extends Mysql
 
 		if ( $arguments !== array() )
 		{
-			MysqlDebug::setDebug( $arguments[0], $query_time, $arguments[1], $result, $this->db_params );
+			DebugMysql::setDebug( $arguments[0], $query_time, $arguments[1], $result, $this->db_params );
 		}
 
 		return $result;
@@ -237,7 +237,7 @@ class MysqlDebug extends Mysql
 			"host" => $db_params['db_host'],
 			"database" => $db_params['db_name'],
 			"user" => $db_params['db_user'],
-			"trace" => MysqlDebug::generateTrace( debug_backtrace( false ) ),
+			"trace" => DebugMysql::generateTrace( debug_backtrace( false ) ),
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
 			"resultset" => $resultset_array,
 			"time" => $query_time,
