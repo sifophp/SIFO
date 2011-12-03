@@ -55,6 +55,9 @@ $config['redirections'] = array(
 	array( 'from' => 'www2.sifo.local', 'to' => 'http://sifo.local' ),
 );
 
+// This is used by external scripts in order to know if this is an executable instance or an abstract one.
+$config['instance_type'] = 'instantiable';
+
 $config['sifo.local'] = array(
 	'devel' => true,
 	'instance' => 'common',

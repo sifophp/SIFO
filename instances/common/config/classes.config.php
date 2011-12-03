@@ -52,6 +52,10 @@ $config = array (
   array (
     'Sifo' => 'libs/Sifo/Database.php',
   ),
+  'DebugMysql' => 
+  array (
+    'Sifo' => 'libs/Sifo/Debug/Mysql.php',
+  ),
   'Dir' => 
   array (
     'Sifo' => 'libs/Sifo/Dir.php',
@@ -123,10 +127,6 @@ $config = array (
   'Mysql' => 
   array (
     'Sifo' => 'libs/Sifo/Mysql.php',
-  ),
-  'MysqlDebug' => 
-  array (
-    'Sifo' => 'libs/Sifo/MysqlDebug.php',
   ),
   'MysqlModel' => 
   array (
