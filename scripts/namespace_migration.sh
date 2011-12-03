@@ -124,7 +124,6 @@ CLASSES=(
 'Exception_504'
 'Exception_505'
 'FilterPost'
-'FilterPost'
 'FilterGet'
 'FilterRequest'
 'FilterServer'
@@ -210,15 +209,10 @@ rm -fr $INSTANCE_DIR/templates/_smarty/compile/*
 
 
 echo "-- Populating external Github Submodules"
-echo "---- Downloading Facebook libraries"
-cd $SIFO_PATH/libs/Facebook-php-sdk
+cd $SIFO_PATH
 git submodule init
 git submodule update
 
-echo "---- Downloading Predis libraries"
-cd $SIFO_PATH/libs/Predis
-git submodule init
-git submodule update
 
 
 echo "Script Finished."
