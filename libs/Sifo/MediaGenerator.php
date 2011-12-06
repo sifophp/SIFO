@@ -74,7 +74,19 @@ class MediaGenerator
 	 */
 	protected $generate_all_groups = false;
 
+	/**
+	 * The list of already generated media groups.
+	 *
+	 * @var array
+	 */
 	protected $generated_groups = array();
+
+	/**
+	 * The added media list to be generated.
+	 *
+	 * @var array
+	 */
+	protected static $added_media = array();
 
 	/**
 	 * Class constructor.
@@ -83,7 +95,7 @@ class MediaGenerator
 	 */
 	public function __construct()
 	{
-		throw new Exception( 'This class can\'t be instanciated, please specify one of the children' );
+		throw new \Exception( 'This class can\'t be instanciated, please specify one of the children' );
 	}
 
 	/**
@@ -110,6 +122,56 @@ class MediaGenerator
 				// Config not found. This is OK.
 			}
 		}
+	}
+
+	/**
+	 * Add JS to the stack.
+	 *
+	 * @param string $media_name Name of the JS file.
+	 */
+	public static function addJs( $media_name )
+	{
+		self::addMedia( 'js', $media_name );
+	}
+
+	/**
+	 * Add CSS to the stack.
+	 *
+	 * @param string $media_name Name of the CSS file.
+	 */
+	public static function addCss( $media_name )
+	{
+		self::addMedia( 'css', $media_name );
+	}
+
+	/**
+	 * Add some kind of media to the stack to be loaded in the head.
+	 *
+	 * @param string $media_type Media type [js|css].
+	 * @param string $group_name Name of the group in the js|css config file.
+	 */
+	protected static function addMedia( $media_type, $group_name )
+	{
+		$media_config = Config::getInstance()->getConfig( $media_type );
+		if ( isset( $media_config['packages'][$group_name] ) )
+		{
+			self::$added_media[$media_type][key( $media_config['packages'][$group_name] )] = $group_name;
+			ksort( self::$added_media[$media_type] );
+		}
+		else
+		{
+			trigger_error( 'The specified group name "' . $group_name . '" does not exists in config file', E_USER_WARNING );
+		}
+	}
+
+	/**
+	 * Returns the added media.
+	 *
+	 * @return array
+	 */
+	public static function getMedia()
+	{
+		return self::$added_media;
 	}
 
 	/**

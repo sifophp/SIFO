@@ -108,14 +108,12 @@ class MysqlModel
 	 */
 	protected function connectDb( $profile = 'default' )
 	{
-		$this->getClass( 'Mysql', false );
-		if ( Domains::getInstance()->getDevMode() !== true )
+		if ( Bootstrap::$debug !== true )
 		{
 			return Mysql::getInstance( $profile );
 		}
 
-		$this->getClass( 'MysqlDebug', false );
-		return MysqlDebug::getInstance( $profile );
+		return DebugMysql::getInstance( $profile );
 	}
 
 	/**

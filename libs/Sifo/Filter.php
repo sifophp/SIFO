@@ -161,7 +161,20 @@ class Filter
 			return false;
 		}
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_EMAIL );
+		if ( preg_match( self::VALID_EMAIL_REGEXP, $this->request[$var_name] ) )
+		{
+			if ( $check_dns )
+			{
+				$exploded_email = explode( '@', $this->request[$var_name] );
+				return ( checkdnsrr( $exploded_email[1], 'MX' ) ? $this->request[$var_name] : false );
+			}
+			else
+			{
+				return $this->request[$var_name];
+			}
+		}
+
+		return false;
 	}
 
 	/**
