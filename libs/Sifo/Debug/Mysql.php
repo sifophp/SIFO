@@ -21,6 +21,8 @@
 namespace Sifo;
 use PDO,PDOStatement;
 
+include_once ROOT_PATH . '/libs/Sifo/Mysql.php';
+
 /**
  * DbDebugStatement class that is extended for debugging purposes.
  */
