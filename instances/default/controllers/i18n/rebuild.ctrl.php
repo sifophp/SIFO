@@ -37,33 +37,26 @@ class I18nRebuildController extends Controller
 		$failed = array();
 		$result = true;
 
+
 		foreach ( $language_list as $language )
 		{
-			$buffer ='';
-			$empty_strings_buffer ='';
+			$buffer = '';
+			$empty_strings_buffer = '';
 			$empty[$language] = 0;
+
 			foreach ( $translations as $msgid => $msgstr )
 			{
-
-				$item = '$translations["'. str_replace( '"', '\"', $msgid ) .'"] = ' . '"';
-				if ( $language != 'en_US' )
+				$msgstr[ $language ] = trim( $msgstr[ $language ] );
+				if ( !empty( $msgstr[ $language ] ) )
 				{
-					$item .= str_replace( '"', '\"', $msgstr[$language] );
+					$item = $this->buildItem( $msgid, $msgstr[$language] );
+					$buffer .= $item;
 				}
 				else
 				{
-					$item .= str_replace( '"', '\"', $msgid );
-				}
-
-				$item .= "\";\n";
-				if ( $msgstr[$language] == '' )
-				{
+					$item = $this->buildItem( $msgid, $msgid );
 					$empty[$language]++;
 					$empty_strings_buffer .= $item;
-				}
-				else
-				{
-					$buffer .= $item;
 				}
 			}
 			$buffer = "<?php\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
@@ -91,5 +84,14 @@ class I18nRebuildController extends Controller
 			'status' => 'KO',
 			'msg' => 'Failed to save the translation:' . implode( "\n", $failed )
 		);
+	}
+
+	protected function buildItem( $msgid, $translation )
+	{
+		$item = '$translations["'. str_replace( '"', '\"', $msgid ) .'"] = ' . '"';
+		$item .= str_replace( '"', '\"', $translation );
+		$item .= "\";\n";
+
+		return $item;
 	}
 }
