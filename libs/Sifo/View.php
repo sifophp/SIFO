@@ -28,22 +28,14 @@ include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'smarty' )
 class View extends \Smarty
 {
 	/**
-	 * The current instance being executed by the framework.
-	 *
-	 * @var string
-	 */
-	private $instance;
-
-	/**
 	 * Constructor. Inherits all methods from Smarty.
 	 */
 	public function __construct()
 	{
 		parent::__construct();
-		$this->instance = Bootstrap::$instance;
 
 		// Paths definition:
-		$templates_path = ROOT_PATH . '/instances/' . $this->instance . '/templates/';
+		$templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
 		$this->setTemplateDir( ROOT_PATH . '/' );  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
 		$this->setCompileDir( $templates_path . '_smarty/compile/' );
 		$this->setConfigDir( $templates_path . '_smarty/configs/' );
@@ -51,27 +43,8 @@ class View extends \Smarty
         $this->addPluginsDir( ROOT_PATH . '/libs/Smarty-sifo-plugins' );
         $this->addPluginsDir( $templates_path . '_smarty/plugins' );
 
-        // Settings:
-		// Smarty tests to see if the current template has changed (different time stamp) since the last time it was compiled. If it has changed, it recompiles
-		$this->compile_check = true;
-
-		// This forces Smarty to (re)compile templates on every invocation. This setting overrides  $compile_check
-		$this->force_compile = false;
-
-		// This tells Smarty whether or not to cache the output of the templates to the  $cache_dir. 0=no caching, 1=use cache with $cache_lifetime, 2=different $cache_lifetime per template
-		$this->caching = 0;
-
-		//  This is the length of time in seconds that a template cache is valid. Once this time has expired, the cache will be regenerated.
-		// Infinite=-1, N seconds=N,
-		$this->cache_lifetime = 90;
-
-		// Memcached caching:
-		// $this->cache_handler_func = array( &$this, "smarty_memcache_handler" );
-
-		// If set to TRUE, Smarty will respect the If-Modified-Since header sent from the client. If the cached file timestamp has not changed since the last visit, then a '304: Not Modified'  header will be sent instead of the content
-		$this->cache_modified_check = true;
-
-		$this->debugging = 0;
+		// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
+		$this->auto_literal = false;
 	}
 }
 ?>
