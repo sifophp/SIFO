@@ -303,15 +303,22 @@ class Urls
 		return utf8_encode( $string );
 	}
 
-	static public function buildUrl( $tld, $controller, array $actions = array(), array $params = array() )
+	/**
+	 * Builds an standard Sifo url.
+	 *
+	 * @param string $hostname The hostname of the url to be built. Must be a key in the url.config.
+	 * @param string $controller The controller part of the url as defined in the router. Must be a key in the url.config.
+	 * @param array $actions An array of parameters that will be available in the $params['path_parts'] array.
+	 * @param array $params Url parameters that will be available in the $params['params'] array.
+	 * @return string A sifo url.
+	 */
+	static public function buildUrl( $hostname, $controller, array $actions = array(), array $params = array() )
 	{
-		$url = Urls::getUrl( $tld ) . '/';
-		$callback = create_function(
-				'$a',
-				'return urlencode( $a );'
-		);
+		$url = Urls::getUrl( $hostname ) . '/';
+		$callback = function( $a ) { return urlencode( $a ); };
+
 		$actions = array_map($callback, $actions );
-		$actions[] = Urls::getUrl( $controller );
+		array_unshift( $actions, Urls::getUrl( $controller ) );
 		$url .= implode( self::$url_definition['context_separator'], $actions );
 
 		if ( array() !== $params )
