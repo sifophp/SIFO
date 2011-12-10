@@ -263,11 +263,26 @@ class Domains
 
 	/**
 	 * Deactivate dev mode in order not to use the debug in the excecution even it's dev mode defined in domains.config.
+	 *
+	 * @deprecated Use setDevMode(false) instead.
+	 *
 	 * @return void
 	 */
 	public function setDevModeOff()
 	{
 		$this->dev_mode = false;
+	}
+
+	/**
+	 * Sets the dev mode. Useful for production environments where an "admin" user should be able to rebuild the page.
+	 *
+	 * @param boolean $new_dev_mode The new dev_mode.
+	 *
+	 * @return void
+	 */
+	public function setDevMode( $new_dev_mode )
+	{
+		$this->dev_mode = $new_dev_mode;
 	}
 
 	/**
