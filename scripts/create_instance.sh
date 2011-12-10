@@ -39,14 +39,14 @@ absolute_dir=`pwd`
 ln -s $absolute_dir/tests/ ../../tests/instances/$1
 
 echo "--> Copying the config files..."
-# cp -R ../default/config/* config
-rsync -aC ../default/config .
+# cp -R ../common/config/* config
+rsync -aC ../common/config .
 
 # Customizing the configuration_files.config.php and domains.config.php to the instance:
 echo "--> Customizing config files with the instance name..."
-cat ../default/public/root/index.php | sed -e "s/default/$1/g" > ../$1/public/root/index.php
-cat ../default/config/configuration_files.config.php | sed -e "s/default/$1/g" > ../$1/config/configuration_files.config.php
-cat ../default/config/domains.config.php | sed -e "s/default/$1/g" | sed -e "s/seoframework.local/$2/g" > ../$1/config/domains.config.php
+cat ../common/public/root/index.php | sed -e "s/common/$1/g" > ../$1/public/root/index.php
+cat ../common/config/configuration_files.config.php | sed -e "s/common/$1/g" > ../$1/config/configuration_files.config.php
+cat ../common/config/domains.config.php | sed -e "s/common/$1/g" | sed -e "s/sifo.local/$2/g" > ../$1/config/domains.config.php
 
 #
 echo "--> Creating the tipically messages files..."
@@ -55,7 +55,7 @@ echo "<?php \$translations[\"hello\"] = '';" > locale/messages_en_US.php
 
 # Create the customized index.php:
 echo "--> Creating a index.php for this $1 instance..."
-cat ../default/public/root/index.php | sed -e "s/default/$1/g" > ../$1/public/root/index.php
+cat ../common/public/root/index.php | sed -e "s/common/$1/g" > ../$1/public/root/index.php
 
 # Deleting all the .svn info probably copied by error:
 echo "--> Delete some .svn directory probably copied in error..."
