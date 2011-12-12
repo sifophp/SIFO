@@ -1,6 +1,6 @@
 <?php
 
-CoverageAnalysis::add( ROOT_PATH . '/libs/SEOframework/CacheDisk.php' );
+CoverageAnalysis::add( ROOT_PATH . '/libs/Sifo/CacheDisk.php' );
 
 /**
  * Test class for CacheDisk.
@@ -19,7 +19,7 @@ class CacheDiskTest extends PHPUnit_Extensions_ControllerTest
      */
     protected function setUp()
     {
-        $this->object = $this->getProxyClass( 'CacheDisk' );
+        $this->object = $this->getProxyClass( 'CacheDisk', array( 'Sifo' ) );
     }
 
     /**
@@ -36,7 +36,7 @@ class CacheDiskTest extends PHPUnit_Extensions_ControllerTest
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof CacheDisk );
+		$this->assertTrue( $this->object instanceof \Sifo\CacheDisk );
 	}
 
 	/**
@@ -44,10 +44,10 @@ class CacheDiskTest extends PHPUnit_Extensions_ControllerTest
 	 */
 	public function testGetInstance()
 	{
-		$object = CacheDisk::singleton();
-		$this->assertTrue( $object instanceof CacheDisk );
+		$object = \Sifo\CacheDisk::singleton();
+		$this->assertTrue( $object instanceof \Sifo\CacheDisk );
 
-		$singleton = CacheDisk::singleton();
+		$singleton = \Sifo\CacheDisk::singleton();
 		$this->assertEquals( $object, $singleton );
 	}
 }

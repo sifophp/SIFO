@@ -1,6 +1,6 @@
 <?php
 
-CoverageAnalysis::add( ROOT_PATH . '/libs/SEOframework/Benchmark.php' );
+CoverageAnalysis::add( ROOT_PATH . '/libs/Sifo/Benchmark.php' );
 
 /**
  * Test class for Benchmark.
@@ -19,7 +19,7 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
      */
     protected function setUp()
     {
-        $this->object = $this->getProxyClass( 'Benchmark' );
+        $this->object = $this->getProxyClass( 'Benchmark', array( 'Sifo' ) );
     }
 
     /**
@@ -36,7 +36,7 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof Benchmark );
+		$this->assertTrue( $this->object instanceof \Sifo\Benchmark );
 	}
 
 	/**
@@ -44,10 +44,10 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 	 */
 	public function testGetInstance()
 	{
-		$object = Benchmark::getInstance();
-		$this->assertTrue( $object instanceof Benchmark );
+		$object = \Sifo\Benchmark::getInstance();
+		$this->assertTrue( $object instanceof \Sifo\Benchmark );
 
-		$singleton = Benchmark::getInstance();
+		$singleton = \Sifo\Benchmark::getInstance();
 		$this->assertEquals( $object, $singleton );
 	}
 

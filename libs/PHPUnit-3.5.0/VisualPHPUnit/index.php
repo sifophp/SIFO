@@ -61,6 +61,8 @@
 	
 	require_once ROOT_PATH . '/instances/Bootstrap.php';
 
+	\Sifo\Bootstrap::$instance = 'common';
+
 	require_once ROOT_PATH . '/libs/Sifo/Exceptions.php';
 	require_once ROOT_PATH . '/libs/Sifo/Registry.php';
 	require_once ROOT_PATH . '/libs/Sifo/Filter.php';
