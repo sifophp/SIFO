@@ -12,7 +12,8 @@ class ManagerRebuildController extends \Sifo\Controller
 	protected $filenames = array(
 		'config' => 'configuration_files.config.php',
 		'templates' => 'templates.config.php',
-		'classes' => 'classes.config.php'
+		'classes' => 'classes.config.php',
+		'locale' => 'locale.config.php'
 	);
 
 	/**
@@ -61,7 +62,8 @@ class ManagerRebuildController extends \Sifo\Controller
 			'config' => array( 'config' ),
 			'templates' => array( 'templates' ),
 			'classes' => array( 'core', 'classes', 'controllers', 'models' ),
-				) );
+			'locale' => array( 'locale' ),
+		) );
 
 
 		// Reset the layout and paste the content in the empty template:
@@ -168,8 +170,6 @@ MESG;
 					foreach ( $available_files as $v )
 					{
 						$rel_path = $this->cleanStartingSlash( $v["relative"] );
-						$class = '';
-
 						$path = str_replace( '//', '/', "instances/$current_instance/$type/$rel_path" );
 
 						// Calculate the class name for the given file:

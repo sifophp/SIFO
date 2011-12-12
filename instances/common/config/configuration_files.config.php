@@ -14,6 +14,7 @@ $config = array (
   'lang/router_es_ES' => 'instances/common/config/lang/router_es_ES.config.php',
   'languages' => 'instances/common/config/languages.config.php',
   'libraries' => 'instances/common/config/libraries.config.php',
+  'locale' => 'instances/common/config/locale.config.php',
   'mail' => 'instances/common/config/mail.config.php',
   'memcache' => 'instances/common/config/memcache.config.php',
   'openinviter' => 'instances/common/config/openinviter.config.php',

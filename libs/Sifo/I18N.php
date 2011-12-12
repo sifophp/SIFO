@@ -108,8 +108,8 @@ class I18N
 	{
 		// Active domain is an indentifier in the format 'messages_es_ES' for internal use only.
 		self::$active_domain_and_locale = $domain . '_' . $locale;
-		self::$locale = $locale;
-		self::$domain = $domain;
+		self::$locale                   = $locale;
+		self::$domain                   = $domain;
 		self::bindTextDomain();
 
 	}
@@ -119,20 +119,22 @@ class I18N
 	 */
 	static protected function bindTextDomain()
 	{
-//		Only if gettext is enabled:
-//		setlocale( LC_ALL, self::$locale );
-//		bindtextdomain( self::$domain, PATH_LOCALE );
-//		bind_textdomain_codeset( self::$domain, 'UTF-8' );
-//		textdomain( self::$domain );
+		//		Only if gettext is enabled:
+		//		setlocale( LC_ALL, self::$locale );
+		//		bindtextdomain( self::$domain, PATH_LOCALE );
+		//		bind_textdomain_codeset( self::$domain, 'UTF-8' );
+		//		textdomain( self::$domain );
 		// Loads all the messages into memory in case they aren't loaded before.
 		if ( !isset( self::$translations[self::$active_domain_and_locale] ) )
 		{
-			include_once( ROOT_PATH . '/instances/' . Bootstrap::$instance . '/locale/' . self::$active_domain_and_locale . '.php' );
+			$translations_file = Config::getInstance()->getConfig( 'locale', self::$active_domain_and_locale );
+			include_once( ROOT_PATH . "/$translations_file" );
 
 			if ( !isset( $translations ) )
 			{
 				throw new Exception_500( 'Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale );
 			}
+
 			self::$translations[self::$active_domain_and_locale] = $translations;
 		}
 
@@ -213,7 +215,7 @@ class I18N
 	{
 		if ( !( isset( self::$google_translate_api_instance ) ) )
 		{
-			include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'googleTranslate' ). '/googleTranslate.class.php';
+			include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'googleTranslate' ) . '/googleTranslate.class.php';
 			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
 		}
 		$result = self::$google_translate_api_instance->detectLanguage( $text );
@@ -231,7 +233,7 @@ class I18N
 	{
 		if ( !( isset( self::$google_translate_api_instance ) ) )
 		{
-			include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'googleTranslate' ). '/googleTranslate.class.php';
+			include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'googleTranslate' ) . '/googleTranslate.class.php';
 			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
 		}
 		self::$google_translate_api_instance->translatedText = '';
@@ -240,4 +242,3 @@ class I18N
 	}
 
 }
-?>
