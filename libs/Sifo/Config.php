@@ -60,7 +60,7 @@ class Config
 	 */
 	protected $paths_to_configs = array();
 
-	private function __construct( $instance_name )
+	protected function __construct( $instance_name )
 	{
 		$this->instance_name = $instance_name;
 		if ( $instance_name === 'tests' )

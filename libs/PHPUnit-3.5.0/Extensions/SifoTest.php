@@ -64,8 +64,6 @@ CLASS;
 			$reflected_var->setAccessible( true );
 			$var_name = $reflected_var->getName();
 
-			$real_value = $reflected_var->getValue( new $classname );
-
 			$is_static = '';
 			if ( false !== $reflected_var->isStatic() )
 			{
