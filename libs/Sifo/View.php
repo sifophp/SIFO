@@ -40,8 +40,26 @@ class View extends \Smarty
 		$this->setCompileDir( $templates_path . '_smarty/compile/' );
 		$this->setConfigDir( $templates_path . '_smarty/configs/' );
 		$this->setCacheDir( $templates_path . '_smarty/cache/' );
-        $this->addPluginsDir( ROOT_PATH . '/libs/Smarty-sifo-plugins' );
-        $this->addPluginsDir( $templates_path . '_smarty/plugins' );
+
+	 	// Get the instances inheritance.
+		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
+
+		// If there is inheritance.
+		if ( is_array( $instance_inheritance ) )
+		{
+			// First the child instance, last the parent instance.
+			$instance_inheritance = array_reverse( $instance_inheritance );
+			foreach ( $instance_inheritance as $current_instance )
+			{
+				$this->addPluginsDir( ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins' );
+			}
+		}
+		else
+		{
+			$this->addPluginsDir( $templates_path . '_smarty/plugins' );
+		}
+		// Last path is the default smarty plugins directory.
+		$this->addPluginsDir( ROOT_PATH . '/libs/Smarty-sifo-plugins' );
 
 		// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
 		$this->auto_literal = false;
