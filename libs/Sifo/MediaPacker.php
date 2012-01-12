@@ -45,7 +45,7 @@ abstract class MediaPacker
 	{
 		$this->working_instance = Config::getInstance()->getInstanceName();
 		$this->instance_static_host = Domains::getInstance()->getStaticHost();
-		$this->generated_files_folder = ROOT_PATH . '/instances/' . $this->working_instance . '/public/static/' . $this->media_type . '/generated/';
+		$this->generated_files_folder = ROOT_PATH . '/instances/' . $this->working_instance . '/public/static/' . $this->media_type . '/generated';
 	}
 
 	/**
@@ -58,13 +58,32 @@ abstract class MediaPacker
 		foreach ( $media as $group => $media_name )
 		{
 			ksort( $media[$group] ); // Reorder elements by priority key, no matter how the array was created.
-			$file = $this->generated_files_folder . $group . '.' . $this->media_type;
+			$file = $this->generated_files_folder . '/' . $group . '.' . $this->media_type;
 
 			// Add the basepath definition at the beginning of the 'default' JS file:
 			$prepend_string = ( 'default' == $group && 'js' == $this->media_type ? $this->getBasePathConfig( $media ) : '');
 
 			$this->writePackedContent( $file, $media[$group], $prepend_string );
 		}
+	}
+
+	/**
+	 * Sets the directory where you want to write the generated files to.
+	 *
+	 * @param $path Real path to the directory storing
+	 * @throws \RuntimeException
+	 */
+	public function setGeneratedFolder( $path )
+	{
+		if ( is_dir( $path ) )
+		{
+			$this->generated_files_folder = $path;
+		}
+		else
+		{
+			throw new \RuntimeException( 'Path given to store generated content is not a valid dir.' );
+		}
+
 	}
 
 }

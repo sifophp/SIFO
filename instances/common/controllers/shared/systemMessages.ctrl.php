@@ -1,8 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
 class SharedSystemMessagesController extends \Sifo\Controller
 {
 	public function build()
