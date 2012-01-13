@@ -38,9 +38,9 @@ class MemcacheClient
 	{
 		try
 		{
-			$servers = Config::getInstance()->getConfig( 'memcache', 'servers' );
+			$servers = \Sifo\Config::getInstance()->getConfig( 'memcache', 'servers' );
 		}
-		catch ( Exception_Configuration $e )
+		catch ( \Sifo\Exception_Configuration $e )
 		{
 			// Default memcached address and listening port.
 			$servers = array( array( '127.0.0.1' => 11211 ) );

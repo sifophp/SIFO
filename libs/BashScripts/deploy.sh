@@ -33,6 +33,7 @@ BRANCH='master'
 #fi
 
 mkdir -p $CORE/instances/$INSTANCE/logs/
+
 echo "Updating servers..." > $LOG
 echo "************************************************" >> $LOG
 echo "$INSTANCE update: $TODAY ($USER)" >> $LOG

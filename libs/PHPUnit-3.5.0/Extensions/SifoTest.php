@@ -17,11 +17,17 @@ class PHPUnit_Extensions_SifoTest extends PHPUnit_Framework_TestCase
 	 * Create the proxy class of the given class name.
 	 *
 	 * @param object $classname Class name.
+	 * @param array $namespaces Ordered list of the namespaces of the given class.
 	 * @return object
 	 */
-	protected function getProxyClass( $classname )
+	protected function getProxyClass( $classname, $namespaces = array() )
 	{
 		$proxy_classname = $classname . 'ProxyTest';
+
+		if ( !empty( $namespaces ) )
+		{
+			$classname = '\\' . implode( '\\', $namespaces ) . '\\' . $classname;
+		}
 
 		$proxy_class = <<<CLASS
 class $proxy_classname extends $classname
@@ -57,8 +63,6 @@ CLASS;
 		{
 			$reflected_var->setAccessible( true );
 			$var_name = $reflected_var->getName();
-
-			$real_value = $reflected_var->getValue( new $classname );
 
 			$is_static = '';
 			if ( false !== $reflected_var->isStatic() )

@@ -1,15 +1,16 @@
 <?php
+
 /**
  * LICENSE
- * 
+ *
  * Copyright 2010 Albert Lombarte
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,38 +19,50 @@
  *
  */
 
+namespace Sifo;
+
 /**
  * Class Bootstrap
  */
-require_once ROOT_PATH . '/libs/SEOframework/Config.php';
+require_once ROOT_PATH . '/libs/Sifo/Config.php';
 
 class Bootstrap
 {
-
 	/**
 	 * Root path.
 	 *
 	 * @var string
 	 */
 	public static $root;
+
 	/**
 	 * Application path.
 	 *
 	 * @var string
 	 */
 	public static $application;
+
 	/**
 	 * Instance name, this is the folder under 'instances'.
 	 *
 	 * @var string
 	 */
 	public static $instance;
+
 	/**
 	 * Language of this instance.
 	 *
 	 * @var string
 	 */
 	public static $language;
+
+	/**
+	 * If debug is active or not.
+	 *
+	 * @var boolean
+	 */
+	public static $debug = false;
+
 	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
 	 * to parse code. This array can be replaced in your libraries.config under
@@ -59,18 +72,11 @@ class Bootstrap
 	 */
 	public static $required_classes = array(
 		'Exceptions',
-		'Registry',
 		'Filter',
 		'Domains',
 		'Urls',
 		'Router',
-		'Database',
-		'Controller',
-		'Model',
-		'View',
-		'I18N',
-		'Benchmark',
-		'Cache'
+		'Controller'
 	);
 
 	/**
@@ -78,16 +84,7 @@ class Bootstrap
 	 */
 	public static function includeRequiredFiles()
 	{
-		try
-		{
-			$included_classes = Config::getInstance()->getConfig( 'libraries', 'classes_always_preloaded' );
-		}
-		catch ( Exception_Configuration $e )
-		{
-			$included_classes = self::$required_classes;
-		}
-
-		foreach ( $included_classes as $class )
+		foreach ( self::$required_classes as $class )
 		{
 			self::includeFile( $class );
 		}
@@ -96,8 +93,11 @@ class Bootstrap
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
-	 * @param string $root Path to root.
+	 * @param $instance_name
 	 * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
+	 *
+	 * @internal param string $root Path to root.
+	 *
 	 */
 	public static function execute( $instance_name, $controller_name = null )
 	{
@@ -108,6 +108,10 @@ class Bootstrap
 
 		// Include files:
 		self::includeRequiredFiles();
+
+		// Register autoloader:
+		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
+
 		Benchmark::getInstance()->timingStart();
 
 		self::dispatch( $controller_name );
@@ -115,6 +119,12 @@ class Bootstrap
 		Benchmark::getInstance()->timingStop();
 	}
 
+    /**
+     * Invokes a controller with the folder/action form.
+     *
+     * @param string $controller The controller in folder/action form.
+     * @return Controller|void
+     */
 	public static function invokeController( $controller )
 	{
 		$controller_path = explode( '/', $controller );
@@ -134,10 +144,12 @@ class Bootstrap
 	 * Includes (include_once) the file corresponding to the passed passed classname.
 	 * It does not instantiate any object.
 	 *
+	 * This method must be public as it is used in external places, as unit-tests.
+	 *
 	 * @param string $classname
 	 * @return string The classname you asked for.
 	 */
-	protected static function includeFile( $classname )
+	public static function includeFile( $classname )
 	{
 		try
 		{
@@ -148,7 +160,7 @@ class Bootstrap
 			throw new Exception_500( $e->getMessage() );
 		}
 
-		if ( !include_once ROOT_PATH . '/' . $classInfo['path'] )
+		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
 		{
 			throw new Exception_500( "Doesn't exist in expected path {$classInfo['path']}" );
 		}
@@ -223,13 +235,13 @@ class Bootstrap
 
 			self::$language = $domain->getLanguage();
 			$php_inis = $domain->getPHPInis();
-			
+
 			if ( $php_inis )
 			{
 				self::_overWritePHPini( $php_inis );
 			}
 
-			$url = UrlParser::getInstance( self::$instance );
+			$url = Urls::getInstance( self::$instance );
 			$path_parts = $url->getPathParts();
 
 			if ( !$domain->valid_domain )
@@ -251,11 +263,10 @@ class Bootstrap
 			// Save in params for future references:
 			$ctrl->addParams( array(
 				'controller_route' => $controller,
-					) );
-
+			) );
 
 			// Active/deactive auto-rebuild option:
-			if ( $ctrl->hasDebug() )
+			if ( $domain->getDevMode() )
 			{
 				$ctrl->getClass( 'Cookie' );
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
@@ -266,36 +277,49 @@ class Bootstrap
 				{
 					Cookie::delete( 'rebuild_all' );
 				}
+				if ( 1 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				{
+					Cookie::set( 'debug', 1 );
+				}
+				if ( 0 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				{
+					Cookie::delete( 'debug' );
+				}
+
+                if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
+                {
+                    self::$debug = true;
+                }
 			}
 
-			$response = $ctrl->dispatch();
+			$ctrl->dispatch();
 
-			if ( false === $ctrl->is_json && true === $ctrl->debug_enable && $ctrl->hasDebug() )
+			if ( false === $ctrl->is_json && $ctrl->hasDebug() )
 			{
 				self::invokeController( 'debug/index' )->dispatch();
 			}
 		}
-		catch ( SEO_Exception $e )
+		catch ( \Exception $e )
 		{
 			self::_dispatchErrorController( $e );
-		}
-		// The exception should be catched by the application. Throw a 500 header by default.
-		catch ( Exception $e )
-		{
-			header( 'HTTP/1.0 500 Internal Server Error' );
-			trigger_error( "FATAL ERROR. An uncatched exception has been raised:\n" . $e->getMessage() . "\n" . $e->getTraceAsString() );
-			die;
 		}
 	}
 
 	/**
 	 * Dispatches an error after an exception.
-	 * 
+	 *
 	 * @param Exception $e
-	 * @return output buffer 
+	 * @return output buffer
 	 */
 	private static function _dispatchErrorController( $e )
 	{
+		if ( !isset( $e->http_code ) )
+		{
+			$e->http_code = 503;
+			$e->http_code_msg = 'Exception!';
+			$e->redirect = false;
+		}
+
 		header( 'HTTP/1.0 ' . $e->http_code . ' ' . $e->http_code_msg );
 
 		// Execute ErrorCommonController when an exception is captured.
@@ -307,7 +331,7 @@ class Bootstrap
 			'code_msg' => $e->http_code_msg,
 			'msg' => $e->getMessage(),
 			'trace' => $e->getTraceAsString(),
-				) );
+		) );
 
 		// All the SEO_Exceptions with need of redirection have this attribute:
 		if ( $e->redirect )
@@ -324,7 +348,7 @@ class Bootstrap
 			else
 			{
 				// Relative path passed, use path as the key in url.config.php file:
-				$new_location = UrlParser::getUrl( $path );
+				$new_location = Urls::getUrl( $path );
 			}
 
 			if ( empty( $new_location ) || false == $new_location )
@@ -353,14 +377,14 @@ class Bootstrap
 		{
 			self::invokeController( 'debug/index' )->dispatch();
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Sets all the PHP ini configurations stored in the configuration.
-	 * 
-	 * @param array $php_inis 
+	 *
+	 * @param array $php_inis
 	 */
 	private static function _overWritePHPini( Array $php_inis )
 	{

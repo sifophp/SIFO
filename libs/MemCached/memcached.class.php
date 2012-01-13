@@ -1,5 +1,5 @@
 <?php
-include_once ROOT_PATH . '/libs/MemCached/memcache.class.php';
+namespace Sifo;
 
 /**
  * Provides an interface to communicate with the Memcached server.
@@ -12,7 +12,7 @@ include_once ROOT_PATH . '/libs/MemCached/memcache.class.php';
  *
  */
 
-class MemcachedClient extends Memcached
+class MemcachedClient extends \Memcached
 {
 
 	private static $instance = null;

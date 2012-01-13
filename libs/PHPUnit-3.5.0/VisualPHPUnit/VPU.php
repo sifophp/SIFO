@@ -152,7 +152,7 @@ class VPU {
         if ( $dir{strlen($dir) - 1} !== '/' ) {
             $dir .= '/';
         }
-        $filename = $dir . date('Y-m-d G:i') . '.html';
+        $filename = $dir . date('Y-m-d_G-i') . '.html';
         $this->_write_file($filename, $data);
         // TODO: Add a try/catch for this
         chmod($filename, 0777);
@@ -713,9 +713,10 @@ class VPU {
 			}
 
 			$source_code = '';
-			foreach ( $file_contents as $line_number => $line )
+			foreach ( $file_contents as $line )
 			{
-				$source_code .= $line;
+				// Remove the php tags from source code, to fix an eval error in snapshots.
+				$source_code .= preg_replace( '/<\?(php)?|\?>/', '', $line );
 			}
 
 			$stats = array(
