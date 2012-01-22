@@ -1110,18 +1110,12 @@ abstract class Controller
 	 */
 	protected function getCurrentPage()
 	{
-		if ( empty( $this->params['params'] ) )
+		// Functions as is_numeric do not work properly with large integers in 64bit machines.
+		if ( !empty( $this->params['params'] ) && preg_match( '/^[0-9]+$/', end( $this->params['params'] ) ) )
 		{
-			return 1;
+			return array_pop( $this->params['params'] );
 		}
 
-		$last_value = array_pop( $this->params['params'] );
-		// Functions as is_numeric do not work properly with large integers in 64bit machines.
-		if ( preg_match( '/^[0-9]+$/', $last_value ) )
-		{
-			return $last_value;
-		}
-		array_push( $this->params['params'], $last_value );
 		return 1;
 	}
 }
