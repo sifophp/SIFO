@@ -55,16 +55,27 @@ class RedisModel
 	/**
 	 * Connect to redis and return a redis object to start passing commands.
 	 *
+	 * If no profile is passed, default connection stated in domains.config.php is taken. Otherwise, profile
+	 * will be searched in redis.config.php.
+	 *
 	 * @param string $profile Connection profile.
 	 * @return Predis_Client
 	 */
-	public function connectDb( $profile )
+	public function connect( $profile = null )
 	{
 		if ( !isset( self::$connected_client[$profile] ) )
 		{
 			PredisAutoloader::register();
 
-			$db_params = Config::getInstance()->getConfig( 'redis', $profile );
+			// Connection taken from domains.config.php:
+			if ( null == $profile )
+			{
+				$db_params = Domains::getInstance()->getParam( 'redis' );
+			}
+			else // Advanced configuration taken from redis.config.php
+			{
+				$db_params = Config::getInstance()->getConfig( 'redis', $profile );
+			}
 
 			self::$connected_client[$profile] = new \Predis\Client( $db_params );
 			$this->profile = $profile;
