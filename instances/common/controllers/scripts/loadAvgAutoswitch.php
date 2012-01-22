@@ -4,7 +4,7 @@ namespace Common;
 namespace Common;
 include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 
-class ScriptsLoadAvgAutoswitchController extends CommandLineController
+class ScriptsLoadAvgAutoswitchController extends SharedCommandLineController
 {
 	/**
 	 * Do you need read this comment? Really????.

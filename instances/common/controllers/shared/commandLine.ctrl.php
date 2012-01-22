@@ -1,7 +1,7 @@
 <?php
 namespace Common;
 
-abstract class CommandLineController extends \Sifo\Controller
+abstract class SharedCommandLineController extends \Sifo\Controller
 {
 	const TEST		= 'TEST';
 	const VERBOSE	= 'VERBOSE';
@@ -113,7 +113,7 @@ abstract class CommandLineController extends \Sifo\Controller
 
 	public function __construct()
 	{
-		$this->instance = CL\Sifo\Bootstrap::$instance;
+		$this->instance = \Sifo\CLBootstrap::$instance;
 		$this->language = \Sifo\Domains::getInstance()->getLanguage();
 
 		$this->params = array(
@@ -344,9 +344,9 @@ abstract class CommandLineController extends \Sifo\Controller
 
 	private function _validateCommandCall()
 	{
-		if ( !( $this instanceof CommandLineController ) )
+		if ( !( $this instanceof SharedCommandLineController ) )
 		{
-			$this->showMessage( 'For make a script runnable controller, these must be instance of CommandLineController' );
+			$this->showMessage( 'For make a script runnable controller, these must be instance of SharedCommandLineController' );
 			return false;
 		}
 		return true;

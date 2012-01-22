@@ -4,7 +4,7 @@ namespace Common;
 namespace Common;
 include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 
-class ScriptsSendLogController extends CommandLineController
+class ScriptsSendLogController extends SharedCommandLineController
 {
 	private $_parsed_errors=array();
 	private $_from_time;

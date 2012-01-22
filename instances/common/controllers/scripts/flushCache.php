@@ -4,7 +4,7 @@ namespace Common;
 
 include_once ROOT_PATH . '/instances/common/controllers/shared/commandLineController.ctrl.php';
 
-class ScriptsFlushCacheController extends CommandLineController
+class ScriptsFlushCacheController extends SharedCommandLineController
 {
 	private $_last_accessed;
 	private $_last_modified;
