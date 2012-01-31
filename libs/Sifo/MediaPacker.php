@@ -28,11 +28,22 @@ abstract class MediaPacker
 {
 
 	/**
-	 * Static path of the current instance.
+	 * Relative and public path to the generated content (as served by the static server).
+	 *
+	 * E.g: js/generated
 	 *
 	 * @var string
 	 */
-	protected $generated_files_folder;
+	public $generated_files_public_path;
+
+	/**
+	 * Filesystem path where the files will be packed and saved to.
+	 *
+	 * E.g: /var/www/sifo/instances/myinstance/public/static/js/generated
+	 *
+	 * @var string
+	 */
+	public $generated_files_folder;
 
 	/**
 	 * Media type, specified in the children.
@@ -45,7 +56,14 @@ abstract class MediaPacker
 	{
 		$this->working_instance = Config::getInstance()->getInstanceName();
 		$this->instance_static_host = Domains::getInstance()->getStaticHost();
-		$this->generated_files_folder = ROOT_PATH . '/instances/' . $this->working_instance . '/public/static/' . $this->media_type . '/generated';
+
+		// Contents will be accessible by static server under this path:
+		$this->generated_files_public_path = $this->media_type . '/generated';
+
+		// Packed contents will be stored under this filesystem path. You can overwrite this property:
+		$this->generated_files_folder = ROOT_PATH . '/instances/' . $this->working_instance . '/public/static/' . $this->generated_files_public_path;
+
+
 	}
 
 	/**

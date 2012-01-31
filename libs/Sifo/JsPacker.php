@@ -24,7 +24,7 @@ namespace Sifo;
 /**
  * Javascript packer.
  */
-class JsPacker extends \Sifo\MediaPacker
+class JsPacker extends MediaPacker
 {
 	/**
 	 * Media type of the current packer.
@@ -81,7 +81,7 @@ var basePathConfig = {\n
 CODE;
 		foreach ( $media_list as $group => $media_data )
 		{
-			$base_array[] = "\t'$group': sHostStatic + '/js/generated/$group.js?rev=' + Hash";
+			$base_array[] = "\t'$group': sHostStatic + '/{$this->generated_files_public_path}/$group.js?rev=' + Hash";
 		}
 
 		$base_code .= implode( ",\n", $base_array ) . "\n};\n";
