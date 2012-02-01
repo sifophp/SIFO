@@ -438,7 +438,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 				$this->showMessage( "Now I would try send an email with subject: '" . $this->getSubject() . "' to '" . $this->_recipient . "'", self::TEST );
 				if ( !$this->test )
 				{
-					$mail = new \SifoMail();
+					$mail = new \Sifo\Mail();
 					$mail->send( $this->_recipient, $this->getSubject(), $this->_reformatToEmail( $this->_stdout ) );
 				}
 			}
