@@ -36,30 +36,35 @@ class Database
 
 	/**
 	 * Stores the current query type needed.
+	 *
 	 * @var integer
 	 */
 	static private $destination_type;
 
 	/**
 	 * Identifies a query as write operation and is sent to the master.
+	 *
 	 * @var integer
 	 */
 	const TYPE_MASTER = 'master';
 
 	/**
 	 * Identifies a query as read operation and is sent to a slave.
+	 *
 	 * @var integer
 	 */
 	const TYPE_SLAVE = 'slave';
 
 	/**
 	 * No need to identify a query because is a single server.
+	 *
 	 * @var integer
 	 */
 	const TYPE_SINGLE_SERVER = 'single_server';
 
 	/**
 	 * Dummy Singleton
+	 *
 	 * @return Db
 	 */
 	static public function getInstance()
@@ -69,7 +74,7 @@ class Database
 			self::$instance = new Database(); //create class instance
 		}
 
-		return  self::$instance;
+		return self::$instance;
 	}
 
 	/**
@@ -83,15 +88,15 @@ class Database
 		// When adodb is instantiated for the first time the object becomes in an array with a type of operation.
 		if ( !is_array( self::$adodb ) )
 		{
-				$version = Config::getInstance()->getLibrary( 'adodb' );
-				include_once( ROOT_PATH . "/libs/$version/adodb-exceptions.inc.php" ); //include exceptions for php5
-				include_once( ROOT_PATH . "/libs/$version/adodb.inc.php" );
+			$version = Config::getInstance()->getLibrary( 'adodb' );
+			include_once( ROOT_PATH . "/libs/$version/adodb-exceptions.inc.php" ); //include exceptions for php5
+			include_once( ROOT_PATH . "/libs/$version/adodb.inc.php" );
 
-				if ( !isset( $db_params['profile'] ) )
-				{
-					// No Master/Slave schema expected:
-					self::$destination_type = self::TYPE_SINGLE_SERVER;
-				}
+			if ( !isset( $db_params['profile'] ) )
+			{
+				// No Master/Slave schema expected:
+				self::$destination_type = self::TYPE_SINGLE_SERVER;
+			}
 		}
 
 		if ( !isset( self::$adodb[self::$destination_type] ) )
@@ -121,18 +126,18 @@ class Database
 					}
 				}
 				self::$adodb[self::$destination_type] = \NewADOConnection( $db_params['db_driver'] );
-				self::$adodb[self::$destination_type]->Connect( $db_params['db_host'], $db_params['db_user'],$db_params['db_password'], $db_params['db_name'] ); //connect to database constants are taken from config
+				self::$adodb[self::$destination_type]->Connect( $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'] ); //connect to database constants are taken from config
 				if ( isset( $db_params['db_init_commands'] ) && is_array( $db_params['db_init_commands'] ) )
 				{
-					foreach( $db_params['db_init_commands'] as $command )
+					foreach ( $db_params['db_init_commands'] as $command )
 					{
 						self::$adodb[self::$destination_type]->Execute( $command );
 					}
 				}
 				$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 			}
-			// If connection to database fails throw a SIFO 500 error.
-			catch( \ADODB_Exception $e )
+				// If connection to database fails throw a SIFO 500 error.
+			catch ( \ADODB_Exception $e )
 			{
 				throw new Exception_500( $e->getMessage(), $e->getCode() );
 			}
@@ -141,7 +146,7 @@ class Database
 		}
 	}
 
-	public function __call($method, $args)//call adodb methods
+	public function __call( $method, $args ) //call adodb methods
 	{
 		// Method provides a valid comment to associate to this query:
 		if ( isset( $args[1] ) && is_array( $args[1] ) && key_exists( 'tag', $args[1] ) ) // Arg could be a single string, not an array. Do not do isset($args[1]['tag'])
@@ -152,7 +157,7 @@ class Database
 		else
 		{
 			// No comment provided by programmer, set a default comment:
-			$tag = 'Query from '.get_class( $this ).' ('. $this->__getMethodName( $this ).')';
+			$tag = 'Query from ' . get_class( $this ) . ' (' . $this->__getMethodName( $this ) . ')';
 		}
 
 		$query = ''; // Methods like Affected_Rows that don't have a query associated nor $args.
@@ -184,23 +189,34 @@ class Database
 
 		try
 		{
-			$answer = call_user_func_array(array(self::$adodb[self::$destination_type], $method),$args);
+			$answer = call_user_func_array( array( self::$adodb[self::$destination_type], $method ), $args );
 		}
-		catch( ADODB_Exception $e )
+		catch ( \ADODB_Exception $e )
 		{
 			$answer = false;
-			$error = $e->getMessage();
+			// Log mysql_errors to disk:
+			$this->writeDiskLog( $e->getMessage() );
+
+			// Command Line scripts show the exception since there is no debug to getvacvar it.
+			if ( class_exists( 'Sifo\CLBootstrap', false ) )
+			{
+				throw $e;
+			}
 		}
 
 		if ( $answer && ( 'GetRow' == $method || 'GetOne' == $method ) )
+		{
 			$resultset = array( $answer );
+		}
 		else
+		{
 			$resultset = $answer;
+		}
 
-		// Log mysql_errors to disk:
+
 		if ( isset( $error ) )
 		{
-			$this->writeDiskLog( $error );
+
 		}
 
 		$this->queryDebug( $resultset, $tag, $method, $read_operation, isset( $error ) ? $error : null );
@@ -208,16 +224,17 @@ class Database
 		// Reset queries in master flag:
 		self::$launch_in_master = false;
 
+
 		return $answer;
 	}
 
-	function __get($property)
+	function __get( $property )
 	{
 		$this->_lazyLoadAdodbConnection();
 		return self::$adodb[self::$destination_type]->$property;
 	}
 
-	function __set($property, $value)
+	function __set( $property, $value )
 	{
 		$this->_lazyLoadAdodbConnection();
 		self::$adodb[self::$destination_type][$property] = $value;
@@ -227,19 +244,20 @@ class Database
 	{
 	}
 
-	private function __getMethodName($object)
+	private function __getMethodName( $object )
 	{
 		$trace_steps = debug_backtrace();
-		$class_name = get_class($object);
-		foreach (array_reverse($trace_steps) as $step )
+		$class_name = get_class( $object );
+		foreach ( array_reverse( $trace_steps ) as $step )
 		{
-			if ( ( isset( $step['class'] ) ) && ( $step['class']==$class_name ) )
+			if ( ( isset( $step['class'] ) ) && ( $step['class'] == $class_name ) )
 			{
 				return $step['function'];
 			}
 		}
-				return 'undefined';
+		return 'undefined';
 	}
+
 	/**
 	 * Forces next query (only one) to be executed in the master.
 	 */
@@ -250,6 +268,7 @@ class Database
 
 	/**
 	 * Close database connection.
+	 *
 	 * @return void
 	 */
 	protected function closeConnectionDatabase()
@@ -261,6 +280,7 @@ class Database
 
 	/**
 	 * Set Query Debug. Used in '__call' method. It checks if dev mode is enabled and then stores debug data in registry.
+	 *
 	 * @param $resultset
 	 * @param $tag
 	 * @param $method
@@ -270,27 +290,27 @@ class Database
 	 */
 	protected function queryDebug( $resultset, $tag, $method, $read_operation, $error )
 	{
-		if( !Domains::getInstance()->getDevMode() )
+		if ( !Domains::getInstance()->getDevMode() )
 		{
 			return false;
 		}
 
-		$query 		= self::$adodb[self::$destination_type]->_querySQL;
+		$query = self::$adodb[self::$destination_type]->_querySQL;
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
 		$debug_query = array(
-			"tag" => $tag,
-			"sql" => in_array( $method, array( 'Affected_Rows', 'Insert_ID' ) ) ? $method : $query,
-			"type" => ( $read_operation ? 'read' : 'write' ),
+			"tag"         => $tag,
+			"sql"         => in_array( $method, array( 'Affected_Rows', 'Insert_ID' ) ) ? $method : $query,
+			"type"        => ( $read_operation ? 'read' : 'write' ),
 			"destination" => self::$destination_type,
-			"host" => self::$adodb[self::$destination_type]->host,
-			"database" => self::$adodb[self::$destination_type]->database,
-			"user" => self::$adodb[self::$destination_type]->user,
-			"controller" => get_class( $this ),
+			"host"        => self::$adodb[self::$destination_type]->host,
+			"database"    => self::$adodb[self::$destination_type]->database,
+			"user"        => self::$adodb[self::$destination_type]->user,
+			"controller"  => get_class( $this ),
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
-			"resultset" => is_integer( $resultset ) ? array( array( $method => $resultset ) ): $resultset,
-			"time" => $query_time,
-			"error" => ( isset( $error ) ? $error : false )
+			"resultset"   => is_integer( $resultset ) ? array( array( $method => $resultset ) ) : $resultset,
+			"time"        => $query_time,
+			"error"       => ( isset( $error ) ? $error : false )
 		);
 
 		if ( $debug_query['type'] == 'read' )
@@ -307,7 +327,7 @@ class Database
 		}
 
 		Registry::push( 'queries', $debug_query );
-		if( isset( $error ) )
+		if ( isset( $error ) )
 		{
 			Registry::push( 'queries_errors', $error );
 		}
@@ -315,14 +335,15 @@ class Database
 
 	/**
 	 * Log mysql_errors to disk:
+	 *
 	 * @param $error
 	 * @return void
 	 */
 	protected function writeDiskLog( $error )
 	{
-		$date 			= date( 'd-m-Y H:i:s');
-		$referer 		= FilterServer::getInstance()->getString( 'HTTP_REFERER' );
-		$current_url	= FilterServer::getInstance()->getString( 'SCRIPT_URI' );
+		$date = date( 'd-m-Y H:i:s' );
+		$referer = FilterServer::getInstance()->getString( 'HTTP_REFERER' );
+		$current_url = FilterServer::getInstance()->getString( 'SCRIPT_URI' );
 
 		// Log mysql_errors to disk:
 		$message = <<<MESSAGE
@@ -345,12 +366,12 @@ class LoadBalancer_ADODB extends LoadBalancer
 		try
 		{
 			$db = \NewADOConnection( $node_properties['db_driver'] );
-			$result = $db->Connect( $node_properties['db_host'], $node_properties['db_user'],$node_properties['db_password'], $node_properties['db_name'] );
+			$result = $db->Connect( $node_properties['db_host'], $node_properties['db_user'], $node_properties['db_password'], $node_properties['db_name'] );
 
 			// If no exception at this point the server is ready:
 			$this->addServer( $index, $node_properties['weight'] );
 		}
-		catch( \ADODB_Exception $e )
+		catch ( \ADODB_Exception $e )
 		{
 			// The server is down, won't be added in the balancing. Log it:
 			trigger_error( "SERVER IS DOWN! " . $node_properties['db_host'] );
@@ -358,4 +379,5 @@ class LoadBalancer_ADODB extends LoadBalancer
 
 	}
 }
+
 ?>
