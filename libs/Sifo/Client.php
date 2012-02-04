@@ -31,6 +31,7 @@ class Client
 
 	/**
 	 * Filter server.
+	 *
 	 * @var FilterServer
 	 */
 	static private $server;
@@ -39,6 +40,7 @@ class Client
 	 * Singleton of Client class.
 	 *
 	 * @param string $instance_name Instance Name, needed to determine correct paths.
+	 *
 	 * @return object Client
 	 */
 	public static function getInstance()
@@ -58,21 +60,33 @@ class Client
 
 	/**
 	 * Get 2 letter country code from client IP.
+	 *
+	 * @static
+	 *
+	 * @param null $ip Associated IP or leave null for current user's IP.
+	 *
+	 * @return bool|mixed
 	 */
-	public static function getCountryCode()
+	public static function getCountryCode( $ip = null )
 	{
+		$registry_key = 'Client_CountryCode_' . $ip;
 
-		if ( Registry::KeyExists( 'Client_CountryCode' ) )
+		if ( Registry::KeyExists( $registry_key ) )
 		{
-			$country_code = Registry::get( 'Client_CountryCode' );
+			$country_code = Registry::get( $registry_key );
 		}
 		else
 		{
+			if ( null == $ip )
+			{
+				$ip = self::getIP();
+			}
+
 			require_once ROOT_PATH . '/libs/GeoIP-Lite/geoip.php';
 			$gi = geoip_open( ROOT_PATH . '/libs/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
-			$country_code = geoip_country_code_by_addr( $gi, self::getIP() );
+			$country_code = geoip_country_code_by_addr( $gi, $ip );
 			geoip_close( $gi );
-			Registry::set( 'Client_CountryCode', $country_code );
+			Registry::set( $registry_key, $country_code );
 		}
 
 		return $country_code;
@@ -80,21 +94,33 @@ class Client
 
 	/**
 	 * Get country name from client IP.
+	 *
+	 * @static
+	 *
+	 * @param null $ip Associated IP or leave null for current user's IP.
+	 *
+	 * @return bool|mixed
 	 */
-	public static function getCountryName()
+	public static function getCountryName( $ip = null )
 	{
+		$registry_key = 'Client_CountryName_' . $ip;
 
-		if ( Registry::KeyExists( 'Client_CountryName' ) )
+		if ( Registry::KeyExists( $registry_key ) )
 		{
-			$country_name = Registry::get( 'Client_CountryName' );
+			$country_name = Registry::get( $registry_key );
 		}
 		else
 		{
+			if ( null == $ip )
+			{
+				$ip = self::getIP();
+			}
+
 			require_once ROOT_PATH . '/libs/GeoIP-Lite/geoip.php';
 			$gi = geoip_open( ROOT_PATH . '/libs/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
-			$country_name = geoip_country_name_by_addr( $gi, self::getIP() );
+			$country_name = geoip_country_name_by_addr( $gi, $ip );
 			geoip_close( $gi );
-			Registry::set( 'Client_CountryName', $country_name );
+			Registry::set( $registry_key, $country_name );
 		}
 
 		return $country_name;
@@ -128,9 +154,13 @@ class Client
 		$server = FilterServer::getInstance();
 
 		if ( $lang = $server->getString( 'HTTP_ACCEPT_LANGUAGE' ) )
+		{
 			return self::parseDefaultLanguage( $lang );
+		}
 		else
+		{
 			return self::parseDefaultLanguage( NULL );
+		}
 	}
 
 	private static function parseDefaultLanguage( $http_accept, $deflang = "es-es" )
@@ -143,9 +173,13 @@ class Client
 			{
 				#check for q-value and create associative array. No q-value means 1 by rule
 				if ( preg_match( "/(.*);q=([0-1]{0,1}\.\d{0,4})/i", $val, $matches ) )
-					$lang[$matches[1]] = ( float ) $matches[2];
+				{
+					$lang[$matches[1]] = ( float )$matches[2];
+				}
 				else
+				{
 					$lang[$val] = 1.0;
+				}
 			}
 
 			#return default language (highest q-value)
@@ -154,7 +188,7 @@ class Client
 			{
 				if ( $value > $qval )
 				{
-					$qval = ( float ) $value;
+					$qval = ( float )$value;
 					$deflang = $key;
 				}
 			}
@@ -184,18 +218,12 @@ class Client
 			$ip = $server->getIp( "REMOTE_ADDR" );
 		}
 
-		// Simulated IP, only when a local IP is detected, to allow geolocation services work.
-		if ( strstr( $ip, '127.0.0.' ) || strstr( $ip, '192.168.' ) )
-		{
-			$ip = '89.140.161.225';
-		}
-
 		// From http://www.eslomas.com/index.php/archives/2005/04/26/obtencion-ip-real-php/
 		$entries = preg_split( '/[,\s]/', $ip );
 
 		reset( $entries );
 
-		while ( list (, $entry ) = each( $entries ) )
+		while ( list ( , $entry ) = each( $entries ) )
 		{
 			$entry = trim( $entry );
 
@@ -207,7 +235,8 @@ class Client
 					'/^127.0.0.1/',
 					'/^192.168..*/',
 					'/^172.((1[6-9])|(2[0-9])|(3[0-1]))..*/',
-					'/^10..*/' );
+					'/^10..*/'
+				);
 
 				$found_ip = preg_replace( $private_ip, $client_ip, $ip_list[1] );
 
@@ -245,5 +274,38 @@ class Client
 
 			return $answer;
 		}
+	}
+
+	/**
+	 * Returns true if an IP belongs to a private range.
+	 *
+	 * @static
+	 * @param $ip IP you want to check or null for current user's IP.
+	 * @return bool
+	 */
+	public static function isPrivateIP( $ip = null )
+	{
+		if ( null == $ip )
+		{
+			$ip = self::getIP();
+		}
+
+		$private_ip_patterns = array(
+			'/^192.168..*/',
+			'/^172.((1[6-9])|(2[0-9])|(3[0-1]))..*/',
+			'/^10..*/',
+			'/^0./',
+			'/^127.0.0.1/'
+		);
+
+		foreach ( $private_ip_patterns as $pattern )
+		{
+			if ( preg_match( $pattern, $ip ) )
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
