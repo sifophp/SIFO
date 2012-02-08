@@ -49,13 +49,6 @@ abstract class Controller
 	protected $include_classes = array();
 
 	/**
-	 * Stores the final cache expiration in seconds. This param cannot be initialized to a default value.
-	 *
-	 * @var integer
-	 */
-	protected $cache_expiration;
-
-	/**
 	 * Information useful for debugging.
 	 *
 	 * @var array
@@ -488,10 +481,9 @@ abstract class Controller
 			$cache_key = array( 'cachekey' => $cache_key );
 		}
 
-		$cache_key['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
-		if ( !empty( $this->cache_expiration ) )
+		if ( empty( $cache_key['expiration'] ) )
 		{
-			$cache_key['expiration'] = $this->cache_expiration;
+			$cache_key['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
 		}
 
 		// Prepend necessary values to cache:
@@ -969,17 +961,6 @@ abstract class Controller
 	 */
 	public function setCacheName( $name )
 	{
-	}
-
-	/**
-	 * Overrides the cache expiration time WHEN THERE IS CACHE ALREADY.
-	 *
-	 * @deprecated This is no longer needed as the cache expiration is overriden directly by the controller.
-	 * @param integer $number_of_seconds
-	 */
-	public function setCacheExpiration( $number_of_seconds )
-	{
-		$this->cache_expiration = $number_of_seconds;
 	}
 
 	/**
