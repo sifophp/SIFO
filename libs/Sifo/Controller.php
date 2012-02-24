@@ -908,7 +908,7 @@ abstract class Controller
 	 *
 	 * @param string $class_name
 	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Instance_of_a_Class
+	 * @return Object
 	 */
 	public function getClass( $class_name, $call_constructor = true )
 	{
@@ -951,16 +951,6 @@ abstract class Controller
 	public function setDebug( $value )
 	{
 		self::$has_debug = (bool) $value;
-	}
-
-	/**
-	 * Overrides the cache name WHEN THERE IS CACHE ALREADY.
-	 *
-	 * @deprecated This is no longer needed as the cache name is generated with the classname + getCacheDefinition().
-	 * @param string $name
-	 */
-	public function setCacheName( $name )
-	{
 	}
 
 	/**
