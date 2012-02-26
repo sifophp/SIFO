@@ -23,7 +23,7 @@ namespace Sifo;
 abstract class Controller
 {
 	/**
-	 * Cache expiration for this controller, by default set to 4 hours (in seconds).
+	 * Cache expiration for this controller, by default set to 4 hours (expressed in seconds).
 	 *
 	 * @var integer
 	 */
@@ -35,14 +35,7 @@ abstract class Controller
 	const CACHE_COMPRESS = 0;
 
 	/**
-	 * Define the format of the stored cache tag.
-	 *
-	 * @var string
-	 */
-	const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
-
-	/**
-	 * List of classes that will be autoloaded automatically.
+	 * List of classes that will be auto-loaded automatically.
 	 *
 	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
 	 */
@@ -164,13 +157,14 @@ abstract class Controller
 		return $this->layout;
 	}
 
-	/**
-	 * Performs the form validation workflow.
-	 *
-	 * @param type $submit_button
-	 * @param type $form_config
-	 * @return null if no submit sent. True if validated correctly, false otherwise.
-	 */
+    /**
+     * Performs the form validation workflow.
+     *
+     * @param string $submit_button
+     * @param string $form_config
+     * @param array $default_fields
+     * @return null if no submit sent. True if validated correctly, false otherwise.
+     */
 	protected function getValidatedForm( $submit_button, $form_config, $default_fields = array() )
 	{
 		$post = FilterPost::getInstance();
@@ -277,7 +271,8 @@ abstract class Controller
 	 * Returns the absolute path to a template. Customized templates are specified in the configuration files.
 	 *
 	 * @param string $template
-	 */
+     * @return string
+     */
 	public function getTemplate( $template )
 	{
 		return ROOT_PATH . '/' . Config::getInstance( $this->instance )->getConfig( 'templates', $template ) ;
@@ -288,7 +283,7 @@ abstract class Controller
 	 *
 	 * @param string|array $tpl_var
 	 * @param mixed $value
-	 * @return void
+	 * @return \Smarty_Internal_Data
 	 */
 	public function assign( $tpl_var, $value )
 	{
@@ -306,6 +301,7 @@ abstract class Controller
 	{
 		if ( count( $this->modules ) > 0 )
 		{
+            $modules = array();
 			// Execute additional modules and put their result in the 'modules' variable.
 			foreach ( $this->modules as $module_name => $controller )
 			{
@@ -324,7 +320,6 @@ abstract class Controller
 	{
 		if ( $this->hasDebug() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
 		{
-			$this->getClass( 'Session', false );
 			@Session::getInstance()->destroy();
 		}
 
@@ -394,7 +389,7 @@ abstract class Controller
 	/**
 	 * Grabs the HTML for a smarty template.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	protected function grabHtml()
 	{
@@ -500,56 +495,17 @@ abstract class Controller
 	 */
 	private function _getFinalCacheKeyName( Array $definition )
 	{
-		$cache_key = array();
-		$cache_base_key = array();
-
-		// First of all, let's construct the cache base with domain, language and controller name.
-		$cache_base_key[] = Domains::getInstance()->getDomain();
-		$cache_base_key[] = $this->language;
-		$cache_base_key[] = get_class( $this );
-
-		// Now we add the rest of identifiers of the definition excluding the "expiration".
-		unset( $definition['expiration'] );
-
-		if ( !empty( $definition ) )
-		{
-			foreach ( $definition as $key => $val )
-			{
-				$cache_key[] = $this->getCacheTag( $key, $val );
-			}
-			sort( $cache_key );
-		}
-
-		return implode( '_', array_merge( $cache_base_key, $cache_key ) );
+		$definition['class'] = get_class( $this ); // Add the controller class name.
+		return Cache::getCacheKeyName( $definition );
 	}
 
-	/**
-	 * Construct the cache tag if it's defined in config.
-	 *
-	 * @param string $tag Cache tag.
-	 * @param mixed $value Cache value.
-	 * @return string
-	 */
-	protected function getCacheTag( $tag, $value )
-	{
-		$cache_tag = $tag . '=' . $value;
-
-		$cache_config = Config::getInstance()->getConfig( 'memcache' );
-		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
-		{
-			$pointer = Cache::getInstance()->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
-			$cache_tag .= '/' . ( int ) $pointer;
-		}
-
-		return $cache_tag;
-	}
 
 	/**
 	 * Returns the cache definition of this controller.
 	 *
 	 * A string with the cache key can be returned or an array with 'name' and 'expiration' (both mandatory).
 	 *
-	 * @return string|array|false
+	 * @return mixed Array with tags, string or 'false'.
 	 */
 	public function getCacheDefinition()
 	{
@@ -571,25 +527,16 @@ abstract class Controller
 
 		return Cache::getInstance()->delete( $this->_getFinalCacheKeyName( $key_definition ) );
 	}
-
 	/**
-	 * Delete cache from all the controllers that contain the given tag.
+	 * Deletes all the cache keys that share a common tag at the specified value.
 	 *
-	 * @param string $tag Cache tag.
-	 * @param mixed $value Cache value.
+	 * @param $tag
+	 * @param $value
 	 * @return boolean
 	 */
 	public function deleteCacheByTag( $tag, $value )
 	{
-		$stored_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value );
-		$cache_handler = Cache::getInstance();
-
-		if ( false === $cache_handler->add( $stored_tag, 1 ) )
-		{
-			$cache_handler->increment( $stored_tag );
-		}
-
-		return true;
+		return Cache::deleteCacheByTag( $tag, $value );
 	}
 
 	protected function assignCommonVars()
@@ -634,7 +581,7 @@ abstract class Controller
 
 
 	/**
-	 * After the content is rendered all the tags <!-- REPLACED are searched for module execution.
+	 * After the content is rendered all the tags <!-- REPLACE: are searched for module execution.
 	 *
 	 * This function allows to decrease the number of memcache sets.
 	 *
@@ -866,9 +813,9 @@ abstract class Controller
 	/**
 	 * Adds an element in the debug as a new entry. You can set the context to create groups.
 	 *
-	 * @param unknown_type $key
-	 * @param unknown_type $value
-	 * @param unknown_type $context
+	 * @param string $key
+	 * @param string $value
+	 * @param string $context
 	 */
 	protected function addToDebug( $key, $value, $context = null)
 	{
@@ -954,8 +901,8 @@ abstract class Controller
 	}
 
 	/**
-	 * Customize this method in your controller to define wich 'expected' params can you receive by GET.
-	 * Use array( url_param_code => array( 'internal_key' => 'param_name',  // manadtory
+	 * Customize this method in your controller to define which 'expected' params can you receive by GET.
+	 * Use array( url_param_code => array( 'internal_key' => 'param_name',  // mandatory
 	 *								'is_list'		 => true/false, // mandatory
 	 *								'apply_translation' => true/false // mandatory
 	 *								'accepted_values' => array( list_values ), // optional
@@ -970,13 +917,13 @@ abstract class Controller
 		return array();
 	}
 
-	/**
-	 * Parse the url params in params array searching for some expected params. If someone is found modify the array.
-	 * $params array is referenced.
-	 *
-	 * @param array $params Get params.
-	 * @return array
-	 */
+    /**
+     * Parse the url params in params array searching for some expected params. If someone is found modify the array.
+     * $params array is referenced.
+     *
+     * @internal param array $params Get params.
+     * @return array
+     */
 	protected function parseParams()
 	{
 		$expected_params = array();

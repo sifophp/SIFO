@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,15 +22,24 @@ namespace Sifo;
 
 class Cache
 {
+	/**
+	 * Define the format of the stored cache tag.
+	 *
+	 * @var string
+	 */
+	const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
+
 	static private $instance;
 	static public $cache_type;
 
-	private function __construct() {}
+	private function __construct()
+	{
+	}
 
 	/**
 	 * Singleton of config class.
 	 *
-	 * @return object Config
+	 * @return Cache
 	 */
 	public static function getInstance()
 	{
@@ -84,14 +93,92 @@ class Cache
 	}
 
 	/**
+	 * Construct the cache tag if it's defined in config.
+	 *
+	 * @param string $tag Cache tag.
+	 * @param mixed $value Cache value.
+	 *
+	 * @return string
+	 */
+	public static function getCacheTag( $tag, $value )
+	{
+		$cache_tag = $tag . '=' . $value;
+
+		$cache_config = Config::getInstance()->getConfig( 'memcache' );
+		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
+		{
+			$pointer = self::$instance->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
+			$cache_tag .= '/' . ( int )$pointer;
+		}
+
+		return $cache_tag;
+	}
+
+	/**
+	 * Returns the cache string identifier after calculating all the tags and prepending the necessary attributes.
+	 *
+	 * @param array $definition Cache definition.
+	 *
+	 * @return string
+	 */
+	public static function getCacheKeyName( Array $definition )
+	{
+		$cache_key = array();
+		$cache_base_key = array();
+
+		// First of all, let's construct the cache base with domain, language and controller name.
+		$cache_base_key[] = Domains::getInstance()->getDomain();
+		$cache_base_key[] = Domains::getInstance()->getLanguage();
+
+		// Now we add the rest of identifiers of the definition excluding the "expiration".
+		unset( $definition['expiration'] );
+
+		if ( !empty( $definition ) )
+		{
+			foreach ( $definition as $key => $val )
+			{
+				$cache_key[] = Cache::getCacheTag( $key, $val );
+			}
+			sort( $cache_key );
+		}
+
+		return implode( '_', array_merge( $cache_base_key, $cache_key ) );
+	}
+
+	/**
+	 * Delete cache from all the keys that contain the given tag in that value.
+	 *
+	 * @param string $tag Cache tag.
+	 * @param mixed $value Cache value.
+	 *
+	 * @return boolean Always returns true
+	 */
+	public static function deleteCacheByTag( $tag, $value )
+	{
+		$stored_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value );
+		$cache_handler = Cache::getInstance();
+
+		if ( false === $cache_handler->add( $stored_tag, 1 ) )
+		{
+			$cache_handler->increment( $stored_tag );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Delegate all calls to the proper class.
 	 *
 	 * @param string $method
 	 * @param mixed $args
+	 *
 	 * @return mixed
 	 */
-	function __call($method, $args)//call adodb methods
+	public function __call( $method, $args ) //call adodb methods
 	{
-		return call_user_func_array(array(self::$instance, $method),$args);
+		return call_user_func_array( array(
+			self::$instance,
+			$method
+		), $args );
 	}
 }
