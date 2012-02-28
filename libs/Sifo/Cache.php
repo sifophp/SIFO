@@ -105,9 +105,11 @@ class Cache
 		$cache_tag = $tag . '=' . $value;
 
 		$cache_config = Config::getInstance()->getConfig( 'memcache' );
+
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			$pointer = self::$instance->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
+			$cache_handler = Cache::getInstance();
+			$pointer = $cache_handler->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
 			$cache_tag .= '/' . ( int )$pointer;
 		}
 
