@@ -473,7 +473,7 @@ abstract class Controller
 
 		if ( !is_array( $cache_key ) )
 		{
-			$cache_key = array( 'cachekey' => $cache_key );
+			$cache_key = array( 'name' => $cache_key );
 		}
 
 		if ( empty( $cache_key['expiration'] ) )
@@ -495,7 +495,11 @@ abstract class Controller
 	 */
 	private function _getFinalCacheKeyName( Array $definition )
 	{
-		$definition['class'] = get_class( $this ); // Add the controller class name.
+		// Add the controller class name when 'name' is empty.
+		if ( !isset( $definition['name'] ) )
+		{
+			$definition['name'] = get_class( $this );
+		}
 		return Cache::getCacheKeyName( $definition );
 	}
 
