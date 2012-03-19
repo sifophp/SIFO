@@ -163,6 +163,8 @@ function smarty_function_genurl( $params, &$smarty )
 					}
 
 				}
+				// Ordering values list:
+				sort( $_val );
 				$_val = implode( ',', $_val );
 			}
 			elseif ( true === $url_params_definition[$_key]['apply_translation'] )
