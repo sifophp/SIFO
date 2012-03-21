@@ -67,3 +67,90 @@ CORE.utilities.getTimeSince = function (sDate) {
 		return sDate;
 	}
 };
+
+CORE.utilities.deleteById = function(sTargetId) {
+	var oTarget = document.getElementById(sTargetId);
+	var oContainer = null;
+	if (oTarget){
+		oContainer = oTarget.parentNode;
+		oContainer.removeChild(oTarget);
+	}
+};
+
+CORE.utilities.placeUrlContent = function(sUrl, sTargetId, fpCallback) {
+	var aUrl = sUrl.split('#');
+	var sContainerUrl = aUrl[0] + '';
+	var sContainerId = aUrl[1] + '';
+	var oContainer = null;
+	var sTempContainerId = 'getUrlContent';
+	var oBody = null;
+	var oTarget = document.getElementById(sTargetId);
+
+	if (oTarget && document.getElementById(sContainerId) == null){
+		$.get(
+			sContainerUrl,
+			function(sHtml) {
+
+				oBody = document.createElement('div');
+				oBody.id = sTempContainerId;
+				oBody.innerHTML = sHtml;
+				oBody.style.display = 'none';
+				document.body.appendChild(oBody);
+
+				oContainer = document.getElementById(sContainerId) ? document.getElementById(sContainerId) : null;
+
+				CORE.utilities.deleteById(sTempContainerId);
+
+				if (oContainer)
+				{
+					oTarget.appendChild(oContainer);
+					fpCallback();
+				}
+				else
+				{
+					return false;
+				}
+			}
+		);
+	}
+};
+
+/**
+ * Launch one function when doing scroll and the targe references are visible
+ *
+ * @param aReferences Array of elements to check if are visible
+ * @param fpCallback Function to execute when the elements are visible
+ */
+CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
+   $(window).scroll(function()
+   {
+           var nScrollTop = $(window).scrollTop();
+           var nViewPort = $(window).height();
+           var nPosTopReference = 0;
+           var aReferences = aReferences ? aReferences : [];
+           var $oReference = null;
+           var sReference = null;
+           var sKey = '';
+
+           for(sKey in aReferences)
+           {
+                   if(aReferences.hasOwnProperty(sKey))
+                   {
+                           sReference = aReferences[sKey];
+                           $oReference = $(sReference);
+                           if($oReference.length)
+                           {
+                                   nPosTopReference = $oReference.offset().top;
+                                   break;
+                           }
+                   }
+           }
+           sReference = $oReference = null;
+           if(nScrollTop+nViewPort >= nPosTopReference)
+           {
+                   fpCallback();
+                   $(window).unbind("scroll");
+           }
+   });
+}
+
