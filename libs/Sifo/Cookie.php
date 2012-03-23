@@ -53,9 +53,11 @@ class Cookie
 		self::$path = '/';
 	}
 
-	static public function set( $name, $value, $days = 14 )
+	static public function set( $name, $value, $days = 14, $domain = false )
 	{
-		self::_initDomain();
+
+		$domain ?: self::_initDomain();
+
 		if ( 0 == $days )
 		{
 			$result = setcookie( $name, $value, 0, self::$path, self::$domain );
