@@ -20,14 +20,16 @@
 
 namespace Sifo;
 
-class Cache
+/**
+ * Proxy class that handles all Cache types in a single interface.
+ */
+class Cache extends CacheBase
 {
-	/**
-	 * Define the format of the stored cache tag.
-	 *
-	 * @var string
-	 */
-	const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
+
+	const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
+	const CACHE_TYPE_MEMCACHED = 'MEMCACHED';
+	const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
+	const CACHE_TYPE_DISK = 'DISK';
 
 	static private $instance;
 	static public $cache_type;
@@ -41,146 +43,78 @@ class Cache
 	 *
 	 * @return Cache
 	 */
-	public static function getInstance()
+	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER )
 	{
-		if ( !isset ( self::$instance ) )
+
+		if ( !isset ( self::$instance[$type] ) )
 		{
-			$memcache_config = Config::getInstance()->getConfig( 'memcache' );
-			// Check if Memcached is enabled by configuration:
-			if ( true === $memcache_config['active'] )
+			if ( self::CACHE_TYPE_AUTODISCOVER == $type )
 			{
-				if ( isset( $memcache_config['client'] ) && $memcache_config['client'] === 'Memcached' )
-				{
+				$type = self::discoverCacheType();
+			}
+
+			switch ( $type )
+			{
+				case self::CACHE_TYPE_MEMCACHED:
 					// Use the newer client library MemcacheD.
-					include_once ROOT_PATH . '/libs/MemCached/memcached.class.php';
-					$memcached = \Sifo\MemcachedClient::getInstance();
-				}
-				else
-				{
-					// Use the old client library Memcache.
-					include_once ROOT_PATH . '/libs/MemCached/memcache.class.php';
-					$memcached = \MemcacheClient::getInstance();
-				}
-
-				// Check that Memcached is listening:
-				if ( $memcached->isActive() )
-				{
-					self::$instance = $memcached;
-					self::$cache_type = 'Memcached';
-				}
-				else
-				{
-					trigger_error( 'Memcached is down!' );
-					// Failed to connect to Memcached hosts
-					$memcache_config['active'] = false;
-
+					self::$instance[$type] = new CacheMemcached();
+					break;
+				case self::CACHE_TYPE_MEMCACHE:
+					// Use the old PECL extension Memcache:
+					self::$instance[$type] = new CacheMemcache();
+					break;
+				case self::CACHE_TYPE_DISK:
 					// Use cache disk instead:
-					include ROOT_PATH . '/libs/Sifo/CacheDisk.php';
-					self::$instance = CacheDisk::singleton();
-					self::$cache_type = 'Disk';
-				}
+					self::$instance[$type] = new CacheDisk();
+					break;
+				default:
+					throw new Exception_500( 'Unknown cache type requested' );
+			}
+
+			self::$cache_type = $type;
+
+			// Memcache is down, we cache on disk to handle this dangerous situation:
+			if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !self::$instance[$type]->isActive() )
+			{
+				trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
+
+				// Use cache disk instead:
+				self::$instance[$type] = new CacheDisk();
+				self::$cache_type = self::CACHE_TYPE_DISK;
+			}
+
+		}
+
+		return self::$instance[$type];
+	}
+
+	/**
+	 * Reads from configuration files the cache type this project is using by default.
+	 *
+	 * @return string Cache type.
+	 */
+	static protected function discoverCacheType()
+	{
+		$cache_config = Config::getInstance()->getConfig( 'cache' );
+
+		if ( true === $cache_config['active'] )
+		{
+			if ( isset( $cache_config['client'] ) && $cache_config['client'] === 'Memcached' )
+			{
+				$type = self::CACHE_TYPE_MEMCACHED;
 			}
 			else
 			{
-				// Use cache disk instead:
-				include ROOT_PATH . '/libs/Sifo/CacheDisk.php';
-				self::$instance = CacheDisk::singleton();
-				self::$cache_type = 'Disk';
+				$type = self::CACHE_TYPE_MEMCACHE;
 			}
 		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Construct the cache tag if it's defined in config.
-	 *
-	 * @param string $tag Cache tag.
-	 * @param mixed $value Cache value.
-	 *
-	 * @return string
-	 */
-	public static function getCacheTag( $tag, $value )
-	{
-		$cache_tag = $tag . '=' . $value;
-
-		$cache_config = Config::getInstance()->getConfig( 'memcache' );
-
-		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
+		else
 		{
-			$cache_handler = Cache::getInstance();
-			$pointer = $cache_handler->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
-			$cache_tag .= '/' . ( int )$pointer;
+			$type = self::CACHE_TYPE_DISK;
 		}
 
-		return $cache_tag;
+		return $type;
 	}
 
-	/**
-	 * Returns the cache string identifier after calculating all the tags and prepending the necessary attributes.
-	 *
-	 * @param array $definition Cache definition.
-	 *
-	 * @return string
-	 */
-	public static function getCacheKeyName( Array $definition )
-	{
-		$cache_key = array();
-		$cache_base_key = array();
 
-		// First of all, let's construct the cache base with domain, language and controller name.
-		$cache_base_key[] = Domains::getInstance()->getDomain();
-		$cache_base_key[] = Domains::getInstance()->getLanguage();
-
-		// Now we add the rest of identifiers of the definition excluding the "expiration".
-		unset( $definition['expiration'] );
-
-		if ( !empty( $definition ) )
-		{
-			foreach ( $definition as $key => $val )
-			{
-				$cache_key[] = Cache::getCacheTag( $key, $val );
-			}
-			sort( $cache_key );
-		}
-
-		return implode( '_', array_merge( $cache_base_key, $cache_key ) );
-	}
-
-	/**
-	 * Delete cache from all the keys that contain the given tag in that value.
-	 *
-	 * @param string $tag Cache tag.
-	 * @param mixed $value Cache value.
-	 *
-	 * @return boolean Always returns true
-	 */
-	public static function deleteCacheByTag( $tag, $value )
-	{
-		$stored_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value );
-		$cache_handler = Cache::getInstance();
-
-		if ( false === $cache_handler->add( $stored_tag, 1 ) )
-		{
-			$cache_handler->increment( $stored_tag );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Delegate all calls to the proper class.
-	 *
-	 * @param string $method
-	 * @param mixed $args
-	 *
-	 * @return mixed
-	 */
-	public function __call( $method, $args ) //call adodb methods
-	{
-		return call_user_func_array( array(
-			self::$instance,
-			$method
-		), $args );
-	}
 }

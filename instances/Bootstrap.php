@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,9 +109,7 @@ class Bootstrap
 		// Include files:
 		self::includeRequiredFiles();
 
-		// Register autoloader:
-		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
-
+		self::autoload();
 		Benchmark::getInstance()->timingStart();
 
 		self::dispatch( $controller_name );
@@ -119,12 +117,27 @@ class Bootstrap
 		Benchmark::getInstance()->timingStop();
 	}
 
-    /**
-     * Invokes a controller with the folder/action form.
-     *
-     * @param string $controller The controller in folder/action form.
-     * @return Controller|void
-     */
+	/**
+	 * Registers the autoload used by Sifo.
+	 *
+	 * @static
+	 */
+	public static function autoload()
+	{
+		// Register autoloader:
+		return spl_autoload_register( array(
+			'\\Sifo\Bootstrap',
+			'includeFile'
+		) );
+	}
+
+	/**
+	 * Invokes a controller with the folder/action form.
+	 *
+	 * @param string $controller The controller in folder/action form.
+	 *
+	 * @return Controller|void
+	 */
 	public static function invokeController( $controller )
 	{
 		$controller_path = explode( '/', $controller );
@@ -147,6 +160,7 @@ class Bootstrap
 	 * This method must be public as it is used in external places, as unit-tests.
 	 *
 	 * @param string $classname
+	 *
 	 * @return string The classname you asked for.
 	 */
 	public static function includeFile( $classname )
@@ -169,12 +183,13 @@ class Bootstrap
 	}
 
 	/**
-	 * Returns an instance of the requested class. The second parameter controls
+	 * Returns an instance of the requested class at the lowest level in the hierarchy. The second parameter controls
 	 * if an instance of the object is returned. If you are getting a class with
 	 * a private constructor (e.g: singleton) set it to false.
 	 *
 	 * @param string $class Class name you want to get
 	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
+	 *
 	 * @return Object|void
 	 */
 	public static function getClass( $class, $call_constructor = true )
@@ -203,34 +218,29 @@ class Bootstrap
 	{
 		try
 		{
-			$config = Config::getInstance( self::$instance );
 			$domain = Domains::getInstance();
-			$filter_server = FilterServer::getInstance();
-			$filter_cookie = FilterCookie::getInstance();
+			$destination = $domain->getRedirect();
 
-			$destiny = $domain->getRedirect();
-			if ( !empty( $destiny ) )
+			if ( !empty( $destination ) )
 			{
 				header( 'HTTP/1.0 301 Moved Permanently' );
-				header( "Location: " . $destiny, true, 301 );
+				header( "Location: " . $destination, true, 301 );
 				exit;
 			}
 
 			$auth_data = $domain->getAuthData();
-			$ip_user = $filter_server->getString( 'REMOTE_ADDR' );
 
-			// [TODO FIX ERROR] Disabled "trusted_ips" filter due to regular auth system not working.
-			// if ( $filter_cookie->isEmpty( 'seofwauth' ) && !empty( $auth_data ) && isset( $auth_data['trusted_ips'] ) && !in_array( $ip_user, $auth_data['trusted_ips'] ) )
-
-			if ( $filter_cookie->isEmpty( 'seofwauth' ) && !empty( $auth_data ) )
+			if ( !empty( $auth_data ) && FilterCookie::getInstance()->getString( 'domain_auth' ) != $auth_data['hash'] )
 			{
+				$filter_server = FilterServer::getInstance();
 				if ( $filter_server->isEmpty( 'PHP_AUTH_USER' ) || $filter_server->isEmpty( 'PHP_AUTH_PW' ) || $filter_server->getString( 'PHP_AUTH_USER' ) != $auth_data['user'] || $filter_server->getString( 'PHP_AUTH_PW' ) != $auth_data['password'] )
 				{
 					header( 'WWW-Authenticate: Basic realm="Protected page"' );
 					throw new Exception_401( 'You should enter a valid credentials.' );
 				}
+
 				// If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
-				setcookie( 'seofwauth', 'true', 0, '/', $domain->getDomain() );
+				setcookie( 'domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain() );
 			}
 
 			self::$language = $domain->getLanguage();
@@ -286,10 +296,10 @@ class Bootstrap
 					Cookie::delete( 'debug' );
 				}
 
-                if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
-                {
-                    self::$debug = true;
-                }
+				if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
+				{
+					self::$debug = true;
+				}
 			}
 
 			$ctrl->dispatch();
@@ -309,6 +319,7 @@ class Bootstrap
 	 * Dispatches an error after an exception.
 	 *
 	 * @param Exception $e
+	 *
 	 * @return output buffer
 	 */
 	private static function _dispatchErrorController( $e )

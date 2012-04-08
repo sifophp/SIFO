@@ -144,7 +144,7 @@ abstract class ImageController extends Controller
 
 		if ( false !== $cache_key )
 		{
-			CacheDisk::singleton()->set( $cache_key['name'], $content, self::CACHE_COMPRESS, $cache_key['expiration'] );
+			CacheDisk::singleton()->set( $cache_key['name'], $content, $cache_key['expiration'] );
 		}
 
 		$this->postDispatch();

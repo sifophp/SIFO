@@ -20,9 +20,21 @@ $config = array (
   array (
     'Sifo' => 'libs/Sifo/Cache.php',
   ),
+  'CacheBase' => 
+  array (
+    'Sifo' => 'libs/Sifo/Cache/Base.php',
+  ),
   'CacheDisk' => 
   array (
-    'Sifo' => 'libs/Sifo/CacheDisk.php',
+    'Sifo' => 'libs/Sifo/Cache/Disk.php',
+  ),
+  'CacheMemcache' => 
+  array (
+    'Sifo' => 'libs/Sifo/Cache/Memcache.php',
+  ),
+  'CacheMemcached' => 
+  array (
+    'Sifo' => 'libs/Sifo/Cache/Memcached.php',
   ),
   'Client' => 
   array (
@@ -100,6 +112,10 @@ $config = array (
   array (
     'Sifo' => 'libs/Sifo/JsPacker.php',
   ),
+  'Keyspace' => 
+  array (
+    'Sifo' => 'libs/Sifo/Keyspace.php',
+  ),
   'LoadBalancer' => 
   array (
     'Sifo' => 'libs/Sifo/LoadBalancer.php',
@@ -131,6 +147,10 @@ $config = array (
   'MysqlModel' => 
   array (
     'Sifo' => 'libs/Sifo/MysqlModel.php',
+  ),
+  'PaypalNotifier' => 
+  array (
+    'Sifo' => 'libs/Sifo/PaypalNotifier.php',
   ),
   'RedisModel' => 
   array (
@@ -252,9 +272,9 @@ $config = array (
   array (
     'Common' => 'instances/common/controllers/shared/advertising.ctrl.php',
   ),
-  'SharedCommandLineControllerController' => 
+  'SharedCommandLineController' => 
   array (
-    'Common' => 'instances/common/controllers/shared/commandLineController.ctrl.php',
+    'Common' => 'instances/common/controllers/shared/commandLine.ctrl.php',
   ),
   'SharedFirstLevelController' => 
   array (

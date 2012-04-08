@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-include_once 'Cache.php';
-
 /**
  * Determines where to send the data based on server capabilities.
  *
@@ -85,7 +83,7 @@ abstract class LoadBalancer
 
 			// Save in cache available servers (even if none):
 			$serialized_nodes = serialize( array( 'nodes' => $this->nodes, 'total_weights' => $this->total_weights ) );
-			$cache->set( $this->loadbalancer_cache_key, $serialized_nodes, false, self::CACHE_EXPIRATION );
+			$cache->set( $this->loadbalancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION );
 		}
 		else
 		{

@@ -63,27 +63,6 @@
 
 	\Sifo\Bootstrap::$instance = 'common';
 
-	require_once ROOT_PATH . '/libs/Sifo/Exceptions.php';
-	require_once ROOT_PATH . '/libs/Sifo/Registry.php';
-	require_once ROOT_PATH . '/libs/Sifo/Filter.php';
-	require_once ROOT_PATH . '/libs/Sifo/Config.php';
-	require_once ROOT_PATH . '/libs/Sifo/Domains.php';
-	require_once ROOT_PATH . '/libs/Sifo/Urls.php';
-	require_once ROOT_PATH . '/libs/Sifo/Router.php';
-	require_once ROOT_PATH . '/libs/Sifo/Database.php';
-	require_once ROOT_PATH . '/libs/Sifo/Controller.php';
-	require_once ROOT_PATH . '/libs/Sifo/Model.php';
-	require_once ROOT_PATH . '/libs/Sifo/View.php';
-	require_once ROOT_PATH . '/libs/Sifo/I18N.php';
-	require_once ROOT_PATH . '/libs/Sifo/Crypt.php';
-	require_once ROOT_PATH . '/libs/Sifo/Cookie.php';
-	require_once ROOT_PATH . '/libs/Sifo/Session.php';
-	require_once ROOT_PATH . '/libs/Sifo/Cache.php';
-	require_once ROOT_PATH . '/libs/Sifo/FlashMessages.php';
-	require_once ROOT_PATH . '/libs/Sifo/Mail.php';
-	require_once ROOT_PATH . '/libs/Sifo/Benchmark.php';
-	require_once ROOT_PATH . '/libs/Sifo/Client.php';
-	
     if ( empty($_POST) && !isset( $_GET['file'] ) ) {
         $results = array();
         $handler = opendir(SNAPSHOT_DIRECTORY);

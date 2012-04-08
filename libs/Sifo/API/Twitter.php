@@ -42,6 +42,7 @@ include ROOT_PATH . '/libs/EpiClasses/EpiCurl.php';
  * Limitations: Public methods don't need setAccount, but YOU CAN'T MIX REQUESTS THAT ARE DIFFERENT IN THE $require_authentication.
  *
  * @author Albert Lombarte <alombarte@gmail.com>
+ * @deprecated Use Epi Classes (see libs/) instead.
  *
  */
 class APITwitter {

@@ -30,11 +30,6 @@ abstract class Controller
 	const CACHE_DEFAULT_EXPIRATION = 14400;
 
 	/**
-	 * Use compression in caching?
-	 */
-	const CACHE_COMPRESS = 0;
-
-	/**
 	 * List of classes that will be auto-loaded automatically.
 	 *
 	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
@@ -93,6 +88,13 @@ abstract class Controller
 	private $view;
 
 	/**
+	 * Stores the cache object.
+	 *
+	 * @var Cache
+	 */
+	protected $cache;
+
+	/**
 	 * I18n object
 	 *
 	 * @var I18N
@@ -144,6 +146,7 @@ abstract class Controller
 		$this->params['parsed_params'] = $this->parseParams();
 		$this->params['page'] = $this->getCurrentPage();
 
+		$this->cache = Cache::getInstance( Cache::CACHE_TYPE_AUTODISCOVER );
 		$this->view = new View();
 	}
 
@@ -375,7 +378,7 @@ abstract class Controller
 
 		if ( false !== $cache_key )
 		{
-			Cache::getInstance()->set( $cache_key['name'], $content, self::CACHE_COMPRESS, $cache_key['expiration'] );
+			$this->cache->set( $cache_key['name'], $content, $cache_key['expiration'] );
 		}
 
 		$this->postDispatch();
@@ -417,11 +420,6 @@ abstract class Controller
 	 */
 	protected function grabCache()
 	{
-		if ( Domains::getInstance()->getDevMode() && ( FilterCookie::getInstance()->getInteger( 'rebuild_all' ) || FilterGet::getInstance()->getInteger( 'rebuild' ) ) )
-		{
-			return false;
-		}
-
 		// When DATA is sent, invalidate cache:
 		if ( 0 < FilterPost::getInstance()->countVars() )
 		{
@@ -435,14 +433,8 @@ abstract class Controller
 			return false;
 		}
 
-		// The hasExpired method is only for cache disk. Cache system have its own TTL
-		if ( Cache::getInstance() instanceof CacheDisk && Cache::getInstance()->hasExpired( $cache_key['name'], $cache_key['expiration'] ) )
-		{
-			return false;
-		}
-
 		Benchmark::getInstance()->timingStart( 'cache' );
-		$content = Cache::getInstance()->get( $cache_key['name'] );
+		$content = $this->cache->get( $cache_key['name'] );
 		Benchmark::getInstance()->timingCurrentToRegistry( 'cache' );
 
 		if ( $content )
@@ -500,7 +492,8 @@ abstract class Controller
 		{
 			$definition['name'] = get_class( $this );
 		}
-		return Cache::getCacheKeyName( $definition );
+
+		return $this->cache->getCacheKeyName( $definition );
 	}
 
 
@@ -529,7 +522,7 @@ abstract class Controller
 			$key_definition = array( 'name' => $key_definition );
 		}
 
-		return Cache::getInstance()->delete( $this->_getFinalCacheKeyName( $key_definition ) );
+		return $this->cache->delete( $this->_getFinalCacheKeyName( $key_definition ) );
 	}
 	/**
 	 * Deletes all the cache keys that share a common tag at the specified value.
@@ -540,7 +533,7 @@ abstract class Controller
 	 */
 	public function deleteCacheByTag( $tag, $value )
 	{
-		return Cache::deleteCacheByTag( $tag, $value );
+		return $this->cache->deleteCacheByTag( $tag, $value );
 	}
 
 	protected function assignCommonVars()
@@ -656,7 +649,7 @@ abstract class Controller
 
 		if ( false !== $cache_key )
 		{
-			Cache::getInstance()->set( $cache_key['name'], $module_content, self::CACHE_COMPRESS, $cache_key['expiration'] );
+			$this->cache->set( $cache_key['name'], $module_content, $cache_key['expiration'] );
 		}
 
 		$module->postDispatch();

@@ -186,11 +186,7 @@ class Domains
 					$auth_parts = explode( ',', $settings['auth'] );
 					$this->auth_data['user'] = $auth_parts[0];
 					$this->auth_data['password'] = $auth_parts[1];
-
-					if ( isset( $settings['trusted_ips'] ) )
-					{
-						$this->auth_data['trusted_ips'] = explode( ',', $settings['trusted_ips'] );
-					}
+					$this->auth_data['hash'] = sha1( date( 'hdmY' ) . $settings['auth'] );
 				}
 
 				if ( isset( $settings['static_host'] ) )
