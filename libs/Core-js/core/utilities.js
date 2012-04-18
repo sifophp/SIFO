@@ -156,25 +156,37 @@ CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
 
 
 CORE.utilities.isVisible = function (oElement) {
-	var nTop = oElement.offsetTop;
-	var nLeft = oElement.offsetLeft;
-	var nWidth = oElement.offsetWidth;
-	var nHeight = oElement.offsetHeight;
-	var nWindowInnerHeight = window.innerHeight ? window.innerHeight : document.body.clientHeight;
-	var nWindowInnerWidth = window.innerHeight ? window.innerHeight : document.body.clientWidth;
-	var nWindowPageYOffset = window.pageYOffset ? window.pageYOffset : window.document.documentElement.scrollTop;
-	var nWindowPageXOffset = window.pageYOffset ? window.pageXOffset : window.document.documentElement.scrollLeft;
 
-	while(oElement.offsetParent) {
-		oElement = oElement.offsetParent;
-		nTop += oElement.offsetTop;
-		nLeft += oElement.offsetLeft;
+	if (jQuery) {
+		var docViewTop = $(window).scrollTop();
+	    var docViewBottom = docViewTop + $(window).height();
+
+	    var elemTop = $(oElement).offset().top;
+	    var elemBottom = elemTop + $(oElement).height();
+
+	    return ((elemBottom >= docViewTop) && (elemTop <= docViewBottom)
+	      && (elemBottom <= docViewBottom) &&  (elemTop >= docViewTop) );
+	} else {
+		var nTop = oElement.offsetTop;
+		var nLeft = oElement.offsetLeft;
+		var nWidth = oElement.offsetWidth;
+		var nHeight = oElement.offsetHeight;
+		var nWindowInnerHeight = window.innerHeight ? window.innerHeight : document.body.clientHeight;
+		var nWindowInnerWidth = window.innerHeight ? window.innerHeight : document.body.clientWidth;
+		var nWindowPageYOffset = window.pageYOffset ? window.pageYOffset : window.document.documentElement.scrollTop;
+		var nWindowPageXOffset = window.pageYOffset ? window.pageXOffset : window.document.documentElement.scrollLeft;
+
+		while(oElement.offsetParent) {
+			oElement = oElement.offsetParent;
+			nTop += oElement.offsetTop;
+			nLeft += oElement.offsetLeft;
+		}
+		return (
+			nTop >= nWindowPageYOffset &&
+			nLeft >= nWindowPageXOffset &&
+			(nTop + nHeight) <= (nWindowPageYOffset + nWindowInnerHeight ) &&
+			(nLeft + nWidth) <= (nWindowPageXOffset + nWindowInnerWidth )
+		);
 	}
-	return (
-		nTop >= nWindowPageYOffset &&
-		nLeft >= nWindowPageXOffset &&
-		(nTop + nHeight) <= (nWindowPageYOffset + nWindowInnerHeight ) &&
-		(nLeft + nWidth) <= (nWindowPageXOffset + nWindowInnerWidth )
-	);
 }
 
