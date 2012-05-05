@@ -126,6 +126,11 @@ class CacheDisk extends CacheBase
 	 */
 	public function get( $key )
 	{
+		if ( $this->hasRebuild() )
+		{
+			return false;
+		}
+
 		$source_file = $this->getCacheFilename( $key );
 
 		$file_content = @file_get_contents( $source_file );

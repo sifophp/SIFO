@@ -143,7 +143,7 @@ MESG;
 					foreach ( $available_files as $v )
 					{
 						// Allow only extensions PHP, TPL, CONF
-						$desired_file_pattern = preg_match( "/\.(php|tpl|conf)$/i", $v["relative"] );
+						$desired_file_pattern = preg_match( '/\.(php|tpl|conf)$/i', $v["relative"] );
 
 						if ( $desired_file_pattern )
 						{
