@@ -48,7 +48,7 @@ class CacheDisk extends CacheBase
 	 */
 	public function add( $key, $var, $expire = 0 )
 	{
-		if ( false != self::get( $key ) )
+		if ( false != $this->get( $key ) )
 		{
 			return false;
 		}

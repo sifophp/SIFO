@@ -105,18 +105,15 @@ abstract class ImageController extends Controller
 		}
 
 		$cache_key = $this->parseCache();
-		// Controller does not uses cache:
+
+		// Controller does not use cache:
 		if ( !$cache_key )
 		{
 			return false;
 		}
 
-		if ( CacheDisk::singleton()->hasExpired( $cache_key['name'], $cache_key['expiration'] ) )
-		{
-			return false;
-		}
-
-		$content = CacheDisk::singleton()->get( $cache_key['name'] );
+		$cache = new CacheDisk();
+		$content = $cache->get( $cache_key['name'] );
 
 		return ( $content ? $content : false );
 	}
@@ -144,7 +141,8 @@ abstract class ImageController extends Controller
 
 		if ( false !== $cache_key )
 		{
-			CacheDisk::singleton()->set( $cache_key['name'], $content, $cache_key['expiration'] );
+			$cache = new CacheDisk();
+			$cache->set( $cache_key['name'], $content, $cache_key['expiration'] );
 		}
 
 		$this->postDispatch();
