@@ -43,12 +43,12 @@ echo "$INSTANCE update: $TODAY ($USER)" >> $LOG
 echo "************************************************" >> $LOG
 
 cd $CORE
-SIFO_BRANCH=`git branch | sed 's/^\* //g'`
+SIFO_BRANCH=`git branch | awk '/^\*/ { print $2 }'`
 CORE_REMOTE_REV=`git ls-remote origin $SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 CORE_LOCAL_REV=`git rev-parse refs/heads/$SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 
 cd $INSTANCEPATH
-INSTANCE_BRANCH=`git branch | sed 's/^\* //g'`
+INSTANCE_BRANCH=`git branch | awk '/^\*/ { print $2 }'`
 INST_REMOTE_REV=`git ls-remote origin $INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 INST_LOCAL_REV=`git rev-parse refs/heads/$INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 
