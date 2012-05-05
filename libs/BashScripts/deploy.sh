@@ -52,10 +52,22 @@ INSTANCE_BRANCH=`git branch | sed 's/^\* //g'`
 INST_REMOTE_REV=`git ls-remote origin $INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 INST_LOCAL_REV=`git rev-parse refs/heads/$INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 
-echo -e "From revision: $INST_LOCAL_REV"
-echo -e "From revision: $INST_LOCAL_REV" >> $LOG
-echo -e "To revision: $INST_REMOTE_REV"
-echo -e "To revision: $INST_REMOTE_REV" >> $LOG
+echo "---SIFO---"
+echo "---SIFO---" >> $LOG
+echo -e "From revision:\t$CORE_LOCAL_REV"
+echo -e "From revision:\t$CORE_LOCAL_REV" >> $LOG
+echo -e "To revision:\t$CORE_REMOTE_REV"
+echo -e "To revision:\t$CORE_REMOTE_REV" >> $LOG
+echo -e "BRANCH: $INSTANCE_BRANCH"
+echo -e "BRANCH: $INSTANCE_BRANCH" >> $LOG
+echo "---$INSTANCE---"
+echo "---$INSTANCE---" >> $LOG
+echo -e "From revision:\t$INST_LOCAL_REV"
+echo -e "From revision:\t$INST_LOCAL_REV" >> $LOG
+echo -e "To revision:\t$INST_REMOTE_REV"
+echo -e "To revision:\t$INST_REMOTE_REV" >> $LOG
+echo -e "BRANCH: $INSTANCE_BRANCH"
+echo -e "BRANCH: $INSTANCE_BRANCH" >> $LOG
 echo "************************************************"
 echo "************************************************" >> $LOG
 
