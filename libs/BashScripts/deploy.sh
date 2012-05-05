@@ -58,8 +58,8 @@ echo -e "From revision:\t$CORE_LOCAL_REV"
 echo -e "From revision:\t$CORE_LOCAL_REV" >> $LOG
 echo -e "To revision:\t$CORE_REMOTE_REV"
 echo -e "To revision:\t$CORE_REMOTE_REV" >> $LOG
-echo -e "BRANCH: $INSTANCE_BRANCH"
-echo -e "BRANCH: $INSTANCE_BRANCH" >> $LOG
+echo -e "BRANCH: $SIFO_BRANCH"
+echo -e "BRANCH: $SIFO_BRANCH" >> $LOG
 echo "---$INSTANCE---"
 echo "---$INSTANCE---" >> $LOG
 echo -e "From revision:\t$INST_LOCAL_REV"
