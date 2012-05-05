@@ -8,11 +8,15 @@ ORIGINAL_PATH=$PWD
 SCRIPTPATH=$(cd ${0%/*} && echo $PWD/${0##*/})
 CORE=`dirname "$SCRIPTPATH"`
 CORE=`cd "${CORE}/../.." && pwd -P`
+SIFO_BRANCH=`git branch | sed 's/^\* //g'`
 
 if [ $# != 1 ]
 then
-	echo "This script updates the server with the latest code in the repo"
+    echo ""
+    echo ""
+	echo "This script takes '$CORE' to HEAD revision of the current branches"
 	echo "--USAGE: $0 <instancename>"
+	echo ""
 	exit 0
 fi
 
@@ -23,7 +27,7 @@ CHANGELOG="$CORE/instances/$INSTANCE/logs/deploy_LOG.txt"
 USER=`whoami`
 INSTANCEPATH="$CORE/instances/$INSTANCE"
 TODAY=`date "+%Y-%b-%d %k:%M"`
-BRANCH='master'
+
 
 #if [ "$USER" == "root" ]
 #then
@@ -40,12 +44,20 @@ echo "$INSTANCE update: $TODAY ($USER)" >> $LOG
 echo "************************************************" >> $LOG
 
 cd $CORE
-CORE_REMOTE_REV=`git ls-remote origin $BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
-CORE_LOCAL_REV=`git rev-parse refs/heads/$BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
+CORE_REMOTE_REV=`git ls-remote origin $SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
+CORE_LOCAL_REV=`git rev-parse refs/heads/$SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 
 cd $INSTANCEPATH
-INST_REMOTE_REV=`git ls-remote origin $BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
-INST_LOCAL_REV=`git rev-parse refs/heads/$BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
+INSTANCE_BRANCH=`git branch | sed 's/^\* //g'`
+INST_REMOTE_REV=`git ls-remote origin $INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
+INST_LOCAL_REV=`git rev-parse refs/heads/$INSTANCE_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
+
+echo -e "From revision: $INST_LOCAL_REV"
+echo -e "From revision: $INST_LOCAL_REV" >> $LOG
+echo -e "To revision: $INST_REMOTE_REV"
+echo -e "To revision: $INST_REMOTE_REV" >> $LOG
+echo "************************************************"
+echo "************************************************" >> $LOG
 
 if [ "$CORE_LOCAL_REV" == "$CORE_REMOTE_REV" ]
 then
@@ -53,9 +65,9 @@ then
     echo -e "SIFO is already in the latest revision: $CORE_LOCAL_REV" >> $LOG
 else
     cd $CORE
-    git pull origin $BRANCH >> $LOG
-    echo "What changed in SIFO..." >> $LOG
-    git whatchanged $CORE_LOCAL_REV..$CORE_REMOTE_REV >> $LOG
+    git pull origin $SIFO_BRANCH >> $LOG
+    # echo "What changed in SIFO..." >> $LOG
+    # git whatchanged $CORE_LOCAL_REV..$CORE_REMOTE_REV >> $LOG
 fi
 
 if [ "$INST_REMOTE_REV" == "$INST_LOCAL_REV" ]
@@ -64,12 +76,12 @@ then
     echo -e "Instance $INSTANCE is already in the latest revision: $INST_REMOTE_REV" >> $LOG
 else
     cd $INSTANCEPATH
-    git pull origin $BRANCH >> $LOG
+    git pull origin $INSTANCE_BRANCH >> $LOG
     echo "What changed in $INSTANCE..." >> $LOG
     git whatchanged $INST_LOCAL_REV..$INST_REMOTE_REV >> $LOG
 fi
 
-# Put user to original path before executing the script
+# Leaver user in the original path before executing this script
 cd $ORIGINAL_PATH
 
 # Append current log to accumulative changelog
