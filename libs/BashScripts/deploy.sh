@@ -8,7 +8,6 @@ ORIGINAL_PATH=$PWD
 SCRIPTPATH=$(cd ${0%/*} && echo $PWD/${0##*/})
 CORE=`dirname "$SCRIPTPATH"`
 CORE=`cd "${CORE}/../.." && pwd -P`
-SIFO_BRANCH=`git branch | sed 's/^\* //g'`
 
 if [ $# != 1 ]
 then
@@ -44,6 +43,7 @@ echo "$INSTANCE update: $TODAY ($USER)" >> $LOG
 echo "************************************************" >> $LOG
 
 cd $CORE
+SIFO_BRANCH=`git branch | sed 's/^\* //g'`
 CORE_REMOTE_REV=`git ls-remote origin $SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 CORE_LOCAL_REV=`git rev-parse refs/heads/$SIFO_BRANCH | sed 's/\([0-9a-f]\{10\}\)\(.*\)/\1/g'`
 
