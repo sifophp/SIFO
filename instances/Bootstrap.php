@@ -219,6 +219,7 @@ class Bootstrap
 		try
 		{
 			$domain = Domains::getInstance();
+			self::$debug = $domain->getDevMode();
 			$destination = $domain->getRedirect();
 
 			if ( !empty( $destination ) )
