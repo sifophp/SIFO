@@ -36,11 +36,10 @@ class CssPacker extends MediaPacker
 	/**
 	 * Write media pack in disk.
 	 *
-	 * @param string $pack_filename File name of the generated media pack.
 	 * @param array $media_list List of media files included in the pack.
 	 * @param string $prepend_string Prepended content.
 	 */
-	protected function writePackedContent( $pack_filename, Array $media_list, $prepend_string = '' )
+	protected function getPackedContent( Array $media_list, $prepend_string = '' )
 	{
 		$content = $prepend_string;
 		foreach ( $media_list['files'] as $media )
@@ -55,8 +54,6 @@ class CssPacker extends MediaPacker
 				$content .= "\n\n/* END {$path_info['basename']} */" . chr( 13 );
 			}
 		}
-
-		file_put_contents( $pack_filename, $content );
 
 		return $content;
 

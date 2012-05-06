@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,15 @@ abstract class MediaPacker
 	 */
 	protected $media_type;
 
+	/**
+	 * Write media pack in disk.
+	 *
+	 * @param string $pack_filename File name of the generated media pack.
+	 * @param array $media_list List of media files included in the pack.
+	 * @param string $prepend_string Prepended content.
+	 */
+	abstract protected function getPackedContent( Array $media_list, $prepend_string = '' );
+
 	public function __construct()
 	{
 		$this->working_instance = Config::getInstance()->getInstanceName();
@@ -79,9 +88,20 @@ abstract class MediaPacker
 			$file = $this->generated_files_folder . '/' . $group . '.' . $this->media_type;
 
 			// Add the basepath definition at the beginning of the 'default' JS file:
-			$prepend_string = ( 'default' == $group && 'js' == $this->media_type ? $this->getBasePathConfig( $media ) : '');
+			$prepend_string = ( 'default' == $group && 'js' == $this->media_type ? $this->getBasePathConfig( $media ) : '' );
 
-			$this->writePackedContent( $file, $media[$group], $prepend_string );
+			$content = $this->getPackedContent( $media[$group], $prepend_string );
+
+			// Create subdirs if needed:
+			$file_info = pathinfo( $file );
+			if ( !is_dir( $file_info['dirname'] ) )
+			{
+				// Create directory recursively if does not exist yet.
+				mkdir( $file_info['dirname'], 0755, true );
+			}
+
+			// Write packed file to disk:
+			file_put_contents( $file, $content );
 		}
 	}
 
@@ -89,6 +109,7 @@ abstract class MediaPacker
 	 * Sets the directory where you want to write the generated files to.
 	 *
 	 * @param $path Real path to the directory storing
+	 *
 	 * @throws \RuntimeException
 	 */
 	public function setGeneratedFolder( $path )

@@ -36,11 +36,10 @@ class JsPacker extends MediaPacker
 		/**
 	 * Write media pack in disk.
 	 *
-	 * @param string $pack_filename File name of the generated media pack.
 	 * @param array $media_list List of media files included in the pack.
 	 * @param string $prepend_string Prepended content.
 	 */
-	protected function writePackedContent( $pack_filename, Array $media_list, $prepend_string = '' )
+	protected function getPackedContent( Array $media_list, $prepend_string = '' )
 	{
 		$content = $prepend_string;
 		foreach ( $media_list as $media )
@@ -58,8 +57,6 @@ class JsPacker extends MediaPacker
 				$content .= "alert( 'File {$media['name']} not found' );";
 			}
 		}
-
-		file_put_contents( $pack_filename, $content );
 
 		return $content;
 
