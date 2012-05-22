@@ -48,7 +48,7 @@ class ManagerFindi18nController extends \Sifo\Controller
 			else
 			{
 				// {t}Search 'T' blocks{/t}
-				preg_match_all( "/\{t([^\{\}]*)\}([^\{\}]+)\{\/t\}/", $tpl_text, $matches );
+				preg_match_all( "/\{t([^\{\}]*)\}([^\{\}]+)\{\/t[^\}]*\}/", $tpl_text, $matches );
 				$file_literals = array_unique( $matches[2] );
 			}
 
@@ -122,6 +122,11 @@ class ManagerFindi18nController extends \Sifo\Controller
 	public function build()
 	{
 		$this->setLayout( 'manager/findi18n.tpl' );
+
+		if ( !\Sifo\Domains::getInstance()->getDevMode() )
+		{
+			throw new \SifoException_404( 'Translation only available while in devel mode' );
+		}
 
 		$post = \Sifo\Filter::getInstance();
 		$available_instances = $this->getFileSystemFiles( 'instances', true );

@@ -71,7 +71,7 @@
 	<label for="instance">Instance:</label>
 	<select id="instance" name="instance">
 {	foreach from=$instances item=i}
-		<option value="{$i}"{if $instance == $i} selected="selected"{/if}>{$i}</option>
+		<option value="{$i}"{if isset($instance) && $instance == $i} selected="selected"{/if}>{$i}</option>
 {	/foreach}
 	</select>
 
@@ -79,14 +79,14 @@
 {	foreach from=$locales key=loc_instance item=loc_files}
 	<select id="locale_{$loc_instance}" style="display:none">
 {		foreach from=$loc_files item=i}
-		<option value="{$i}"{if $locale == $i} selected="selected"{/if}>{$i}</option>
+		<option value="{$i}"{if isset($locale) && $locale == $i} selected="selected"{/if}>{$i}</option>
 {		/foreach}
 	</select>
 {	/foreach}
 
 	<select id="locale" name="locale">
 {	foreach from=$locales.$instance item=i}
-		<option value="{$i}"{if $locale == $i} selected="selected"{/if}>{$i}</option>
+		<option value="{$i}"{if isset($locale) && $locale == $i} selected="selected"{/if}>{$i}</option>
 {	/foreach}
 	</select>
 	<label for="charset">using charset:</label>

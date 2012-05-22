@@ -9,6 +9,10 @@ class I18nRebuildController extends \Sifo\Controller
 
 	public function build()
 	{
+		if ( !\Sifo\Domains::getInstance()->getDevMode() )
+		{
+			throw new \SifoException_404( 'Translation only available while in devel mode' );
+		}
 
 		$translator = new I18nTranslatorModel();
 		$filter = \Sifo\Filter::getInstance();

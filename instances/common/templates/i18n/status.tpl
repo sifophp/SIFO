@@ -1,26 +1,26 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$url.lang}">
-{$modules.head}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$url.lang|default:''}">
+{$modules.head|default:''}
 <body>
 <div id="wrapper">
 {	$modules.system_messages}
 	<div id="contents" class="translation_page">
 		<h1>Translator</h1>
 {		if $isAdmin}
-		<a href="#" id="rebuild" rel="{$url.translations_rebuild}">Rebuild translations</a>
+		<a href="#" id="rebuild" rel="{$url.translations_rebuild|default:''}">Rebuild translations</a>
 		<a href="#" id="add-trans">Add translation</a>
 		<div id="add-trans-form">
-		<form action="{$url.translations-add}">
+		<form action="{$url.translations-add|default:''}">
 			<input type="text" value="" name="msgid" />
 			<input type="text" value="" name="translation" />
-			<input type="hidden" name="lang" value="{$curr_lang}" />
+			<input type="hidden" name="lang" value="{$curr_lang|default:''}" />
 			<input type="submit" value="Add" class="add" />
 		</form>
 	</div>
 {		/if}
 
 {	if $translations}
-	<a href="{$url.translate}" title="Translation status">Back to translations status</a>
+	<a href="{$url.translate|default:''}" title="Translation status">Back to translations status</a>
 	<table>
 		<thead>
 			<tr>
@@ -35,26 +35,26 @@
 		</thead>
 		<tbody>
 {		foreach from=$translations key=key item=t}
-			<tr {if $key % 2 == 0} class="odd" {/if}id="row{$t.id}">
-				<td><label for="idmsg_{$t.id}" id="label_{$t.id}">{$t.message|escape:'html'}</label></td>
+			<tr {if $key % 2 == 0} class="odd" {/if}id="row{$t.id|default:''}">
+				<td><label for="idmsg_{$t.id|default:''}" id="label_{$t.id|default:''}">{$t.message|escape:'html'|default:''}</label></td>
 				<td>
 				{if $can_edit}
-				<form method="post" action="{$url.translations_save}" name="save_{$t.id}" onsubmit="save( this );return false;" accept-charset="UTF-8">
+				<form method="post" action="{$url.translations_save|default:''}" name="save_{$t.id|default:''}" onsubmit="save( this );return false;" accept-charset="UTF-8">
 					{if $t.comment}
-					Notes: <em>{$t.comment}</em><br/>
+					Notes: <em>{$t.comment|default:''}</em><br/>
 					{/if}
-					<a href="#" class="copy" title="Copy original string" rel="{$t.id}">&gt;&gt;</a>
-					<input type="text" value="{$t.translation|escape:html}"	id="idmsg_{$t.id}" name="translation" />
-					<input type="hidden" name="id_message" value="{$t.id}" />
-					<input type="hidden" name="lang" value="{$curr_lang}" />
+					<a href="#" class="copy" title="Copy original string" rel="{$t.id|default:''}">&gt;&gt;</a>
+					<input type="text" value="{$t.translation|escape:html|default:''}"	id="idmsg_{$t.id|default:''}" name="translation" />
+					<input type="hidden" name="id_message" value="{$t.id|default:''}" />
+					<input type="hidden" name="lang" value="{$curr_lang|default:''}" />
 					<input type="submit" value="Save" class="save" />
-					<input type="hidden" name="save_url" url="{$url.translations_save}" />
+					<input type="hidden" name="save_url" url="{$url.translations_save|default:''}" />
 				</form>
 				{else}
-					{$t.translation|escape:html}
+					{$t.translation|escape:html|default:''}
 				{/if}
 				</td>
-				<td><small>{$t.modified}<br />by {$t.author|truncate:10}</small></td>
+				<td><small>{$t.modified|default:''}<br />by {$t.author|truncate:10|default:''}</small></td>
 			</tr>
 {		/foreach}
 		</tbody>
@@ -68,10 +68,10 @@
 			<th>Language</th><th>Status</th><th>Completeness</th>
 		</tr>
 {		foreach from=$different_languages item=l key=key}
-		<tr {if $key % 2 == 0} class="odd" {/if}id="row{$t.id}">
-			<td><a href="{$url.translate}:{$l.lang}" title="Translate {$l.english_name}">{$l.english_name} ({$l.name})</a></td>
-			<td>{if $l.missing == 0}Translation complete{else}{$l.missing} strings missing{/if}</td>
-			<td class="fill_{if $l.percent >95}ok{elseif $l.percent > 70}warn{else}ko{/if}">{$l.percent}%</td></tr>
+		<tr {if $key % 2 == 0} class="odd" {/if}id="row{$t.id|default:''}">
+			<td><a href="{$url.translate|default:''}:{$l.lang|default:''}" title="Translate {$l.english_name|default:''}">{$l.english_name|default:''} ({$l.name|default:''})</a></td>
+			<td>{if $l.missing == 0}Translation complete{else}{$l.missing|default:''} strings missing{/if}</td>
+			<td class="fill_{if $l.percent >95}ok{elseif $l.percent > 70}warn{else}ko{/if}">{$l.percent|default:''}%</td></tr>
 {		/foreach}
 	</table>
 	</div>
@@ -192,7 +192,7 @@ function save( obj )
 </script>
 {/literal}
 </div>
-{$modules.footer}
+{$modules.footer|default:''}
 </div>
 </body>
 </html>

@@ -9,6 +9,10 @@ class I18nSaveController extends \Sifo\Controller
 
 	public function build()
 	{
+		if ( !\Sifo\Domains::getInstance()->getDevMode() )
+		{
+			throw new \SifoException_404( 'Translation only available while in devel mode' );
+		}
 
 		$translator = new I18nTranslatorModel();
 
@@ -26,7 +30,7 @@ class I18nSaveController extends \Sifo\Controller
 
 			$query = 'REPLACE i18n_translations (id_message, lang, translation,author) VALUES(?,?,?,?);';
 
-			$result = \SifoDatabase::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
+			$result = \Sifo\Database::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email ) );
 
 			if ( $result )
 			{
