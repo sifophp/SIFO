@@ -467,37 +467,55 @@ LoadjQueryUI();
 {* Sphinx and other search-related queries *}
 {if is_array($debug.searches)}
 	<h1 id="search_queries">{t}Searches{/t}</h1>
-{foreach name=search from=$debug.searches item=search}
-{foreach name=match from=$search item=value}
-	<h2 class="queries query_read" id="search_{$smarty.foreach.match.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.match.index}" href="#">{$smarty.foreach.match.index+1}. [R]</a> <small>({$value.time|time_format} - match: {$value.total_found} elements - return: {if isset($value.matches)}{$value.matches|@count}{else}0{/if} elements )</small></h2>
-	<div id="search_content_{$smarty.foreach.match.index}" class="debug_contents">
+{foreach name=search from=$debug.searches item=value}
+	<h2 class="queries query_read" id="search_{$smarty.foreach.search.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.search.index}" href="#">{$smarty.foreach.search.index+1}. [R] {$value.tag}</a> <small>({$value.time|time_format} - match: {$value.total_found|default:''} elements - return: {$value.returned_rows|default:''} elements )</small></h2>
+	<div id="search_content_{$smarty.foreach.search.index}" class="debug_contents">
+		{foreach name=search_query from=$value.queries item=query}
+		<h3 class="{if $query.error}query_error{/if}">{$smarty.foreach.search_query.index}. {$query.tag} <small>({$query.time|time_format} - match: {$query.total_found|default:''} elements - return: {$query.returned_rows|default:''} elements )</small></h3>
+		{if $query.error}<p class="query_error"><b>{$query.error}</b></p>{/if}
 		<table>
 			<tr>
+				<th>Query</th>
 				<th>Filter</th>
 				<th>Order</th>
 				<th>GroupBy</th>
 				<th>Indexs</th>
+				<th>Trace</th>
 			</tr>
 			<tr>
-				<td>{if isset($value.filter)}{$value.filter}{/if}</td>
-				<td>{if isset($value.order)}{$value.order}{/if}</td>
-				<td>{if isset($value.groupby)}{$value.groupby}{/if}</td>
-				<td>{if isset($value.indexs)}{$value.indexs}{/if}</td>
+				<td>{$query.query}</td>
+				<td>
+					{foreach name=fil from=$query.filters item=filter}
+					{$filter.attribute} = (
+						{if is_array($filter.values)}
+							{foreach name=val from=$filter.values item=value}
+								{$value}{if !$smarty.foreach.val.last}, {/if}
+							{/foreach}
+						{else}
+							{$filter.values}
+						{/if}
+						 ){if !$smarty.foreach.fil.last} && {/if}
+					{/foreach}
+				</td>
+				<td>{if isset($query.sort.mode)}<em>{$query.sort.mode}</em>{/if} {if isset($query.sort.sortby)}- {$query.sort.sortby}{/if}</td>
+				<td>{if isset($query.group.attribute)}{$query.group.attribute}{/if} {if isset($query.group.func)}<em>- Func: {$query.group.func}</em>{/if} {if isset($query.group.groupsort)}- Groupsort: {$query.group.groupsort}{/if}</td>
+				<td>{$query.indexes}</td>
+				<td>{$query.controller}</td>
 			</tr>
 		</table>
 		<table>
 			<tr>
-				<th>ID</th>
 				<th>WEIGHT</th>
-{			foreach name=weights from=$value.attrs item=values}
-				<th>{$values@key}</th>
+				<th>ID</th>
+{			foreach from=$query.resultset.attrs key=attribute item=values}
+				<th>{$attribute}</th>
 {			/foreach}
 			</tr>
-{if isset($value.matches)}
-{			foreach from=$value.matches item=match}
+{if isset( $query.resultset.matches )}
+{			foreach from=$query.resultset.matches key=id item=match}
 			<tr>
-				<td>{$match@key}</td>
 				<td>{$match.weight}</td>
+				<td>{$id}</td>
 {				foreach from=$match.attrs key=attribute item=values}
 				<td>{if is_array($values)}{$values|debug_print_var}{else}{$values}{/if}</td>
 {				/foreach}
@@ -505,11 +523,8 @@ LoadjQueryUI();
 {			/foreach}
 {/if}
 		</table>
-		<pre>
-{*			$value|debug_print_var*}
-		</pre>
+		{/foreach}
 	</div>
-{/foreach}
 {/foreach}
 {/if}
 

@@ -20,74 +20,83 @@
 
 namespace Sifo;
 
-include ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
-
-class Search extends \SphinxClient
+class Search
 {
-	static private $instance;
+	static protected $instance;
+
 	static public $search_engine;
+
+	protected $sphinx;
 
 	/**
 	 * Initializes the class.
 	 */
-	private function __construct()
+	protected function __construct()
 	{
-		$this->SphinxClient();
-
-		$sphinx_active = Config::getInstance()->getConfig( 'sphinx', 'active' );
+		$sphinx_active 	= Config::getInstance()->getConfig( 'sphinx', 'active' );
 
 		// Check if Sphinx is enabled by configuration:
 		if ( true === $sphinx_active )
 		{
-			$sphinx_server 	= Config::getInstance()->getConfig( 'sphinx', 'server' );
-			$sphinx_port 	= Config::getInstance()->getConfig( 'sphinx', 'port' );
+			include ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
+
+			$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
 
 			self::$search_engine 	= 'Sphinx';
-			$this->SetServer( $sphinx_server, $sphinx_port );
+			$this->sphinx 			= new \SphinxClient();
+			$this->sphinx->SetServer( $sphinx_config['server'], $sphinx_config['port'] );
 
-			// Check that Sphinx is listening:
-			if ( true ==! $this->Open() )
+			// If it's defined a time out connection in config file:
+			if( isset( $sphinx_config['time_out'] ) )
 			{
-				trigger_error( 'Sphinx ('.$sphinx_server.':'.$sphinx_port.') is down!' );
+				$this->sphinx->SetConnectTimeout( $sphinx_config['time_out'] );
+			}
+
+			// Check if Sphinx is listening:
+			if ( true ==! $this->sphinx->Open() )
+			{
+				throw new \Sifo\Exception_500( 'Sphinx ('.$sphinx_config['server'].':'.$sphinx_config['port'].') is down!' );
 			}
 		}
+		return $sphinx_config;
 	}
 
 	/**
-	 * Singleton of search class.
+	 * Singleton of config class.
 	 *
-	 * @return object Search
+	 * @param string $instance_name Instance Name, needed to determine correct paths.
+	 * @return object Config
 	 */
 	public static function getInstance()
 	{
 		if ( !isset ( self::$instance ) )
 		{
-			self::$instance = new self();
+			if ( Domains::getInstance()->getDevMode() !== true )
+			{
+				self::$instance = new Search;
+			}
+			else
+			{
+				self::$instance = new DebugSearch;
+			}
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * Override parent RunQueries to put results into debug array and benchmark times.
+	 * Delegate all calls to the proper class.
 	 *
-	 * @return array
+	 * @param string $method
+	 * @param mixed $args
+	 * @return mixed
 	 */
-	public function RunQueries( $search_tag = null )
+	function __call( $method, $args )
 	{
-		if ( Bootstrap::$debug )
+		if ( is_object( $this->sphinx ) )
 		{
-			Benchmark::getInstance()->timingStart( 'search' );
-			$answer = parent::RunQueries();
-			Benchmark::getInstance()->timingCurrentToRegistry( 'search' );
-
-			Registry::push( 'searches', $answer );
+			return call_user_func_array( array( $this->sphinx, $method ), $args );
 		}
-		else
-		{
-			$answer = parent::RunQueries();
-		}
-
-		return $answer;
+		return null;
 	}
 }
