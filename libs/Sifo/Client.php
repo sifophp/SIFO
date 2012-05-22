@@ -265,7 +265,7 @@ class Client
 		{
 			$browser_info = self::getBrowser();
 			$answer = true;
-			if ( false == $browser_info->Crawler || empty( $browser_info->Crawler ) )
+			if ( !isset( $browser_info->Crawler ) || false == $browser_info->Crawler || empty( $browser_info->Crawler ) )
 			{
 				$answer = false;
 			}
