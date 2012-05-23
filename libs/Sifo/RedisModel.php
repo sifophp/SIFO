@@ -59,7 +59,7 @@ class RedisModel
 	 * will be searched in redis.config.php.
 	 *
 	 * @param string $profile Connection profile.
-	 * @return Predis_Client
+	 * @return \Predis\Client
 	 */
 	public function connect( $profile = null )
 	{

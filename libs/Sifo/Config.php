@@ -80,7 +80,7 @@ class Config
 	 * Singleton of config class.
 	 *
 	 * @param string $instance_name Instance Name, needed to determine correct paths.
-	 * @return object Config
+	 * @return Config
 	 */
 	public static function getInstance( $instance_name = null )
 	{

@@ -56,11 +56,12 @@ class Cache extends CacheBase
 			switch ( $type )
 			{
 				case self::CACHE_TYPE_MEMCACHED:
-					// Use the newer client library MemcacheD.
+					// http://php.net/manual/en/book.memcached.php
+					// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
 					self::$instance[$type] = new CacheMemcached();
 					break;
 				case self::CACHE_TYPE_MEMCACHE:
-					// Use the old PECL extension Memcache:
+					// http://php.net/manual/en/book.memcache.php:
 					self::$instance[$type] = new CacheMemcache();
 					break;
 				case self::CACHE_TYPE_DISK:
