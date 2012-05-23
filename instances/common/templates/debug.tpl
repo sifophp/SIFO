@@ -485,6 +485,7 @@ LoadjQueryUI();
 			<tr>
 				<td>{$query.query}</td>
 				<td>
+				{if isset($query.filters)}
 					{foreach name=fil from=$query.filters item=filter}
 					{$filter.attribute} = (
 						{if is_array($filter.values)}
@@ -496,6 +497,7 @@ LoadjQueryUI();
 						{/if}
 						 ){if !$smarty.foreach.fil.last} && {/if}
 					{/foreach}
+				{/if}
 				</td>
 				<td>{if isset($query.sort.mode)}<em>{$query.sort.mode}</em>{/if} {if isset($query.sort.sortby)}- {$query.sort.sortby}{/if}</td>
 				<td>{if isset($query.group.attribute)}{$query.group.attribute}{/if} {if isset($query.group.func)}<em>- Func: {$query.group.func}</em>{/if} {if isset($query.group.groupsort)}- Groupsort: {$query.group.groupsort}{/if}</td>
