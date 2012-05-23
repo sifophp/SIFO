@@ -63,6 +63,20 @@ class I18N
 	static public $translations;
 
 	/**
+	 * Store current instance translations.
+	 *
+	 * @var string
+	 */
+	static public $current_instance = null;
+
+	/**
+	 * Store instance translations.
+	 *
+	 * @var array
+	 */
+	static public $instance_translations = null;
+
+	/**
 	 * LanguageDetect class instance.
 	 *
 	 * @var object
@@ -104,20 +118,19 @@ class I18N
 	 *
 	 * @param string $domain The message domain.
 	 */
-	static public function setDomain( $domain, $locale )
+	static public function setDomain( $domain, $locale, $instance = null )
 	{
 		// Active domain is an indentifier in the format 'messages_es_ES' for internal use only.
 		self::$active_domain_and_locale = $domain . '_' . $locale;
 		self::$locale                   = $locale;
 		self::$domain                   = $domain;
-		self::bindTextDomain();
-
+		self::bindTextDomain( $instance );
 	}
 
 	/**
 	 * Support DOMAIN message catalog.
 	 */
-	static protected function bindTextDomain()
+	static protected function bindTextDomain( $instance = null )
 	{
 		//		Only if gettext is enabled:
 		//		setlocale( LC_ALL, self::$locale );
@@ -125,19 +138,36 @@ class I18N
 		//		bind_textdomain_codeset( self::$domain, 'UTF-8' );
 		//		textdomain( self::$domain );
 		// Loads all the messages into memory in case they aren't loaded before.
-		if ( !isset( self::$translations[self::$active_domain_and_locale] ) )
+
+		if ( empty( $instance ) )
 		{
-			$translations_file = Config::getInstance()->getConfig( 'locale', self::$active_domain_and_locale );
-			include_once( ROOT_PATH . "/$translations_file" );
-
-			if ( !isset( $translations ) )
-			{
-				throw new Exception_500( 'Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale );
-			}
-
-			self::$translations[self::$active_domain_and_locale] = $translations;
+			$instance = Bootstrap::$instance;
 		}
 
+		// Loads all the messages into memory in case they aren't loaded before, or current instance is different than instance passed.
+		if ( !isset( self::$translations[self::$active_domain_and_locale] ) || self::$current_instance !== $instance )
+		{
+			self::$current_instance = $instance;
+
+			// Include instance messages file in case we don't have previously stored translations for this instance, domain and language.
+			if ( !isset( self::$instance_translations[self::$current_instance][self::$active_domain_and_locale] ) )
+			{
+				$translations_file = Config::getInstance( $instance )->getConfig( 'locale', self::$active_domain_and_locale );
+				include_once( ROOT_PATH . "/$translations_file" );
+
+				if ( !isset( $translations ) )
+				{
+					throw new Exception_500( 'Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale );
+				}
+
+				self::$translations[self::$active_domain_and_locale] = $translations;
+				self::$instance_translations[self::$current_instance][self::$active_domain_and_locale] = $translations;
+			}
+			else
+			{
+				self::$translations[self::$active_domain_and_locale] = self::$instance_translations[self::$current_instance][self::$active_domain_and_locale];
+			}
+		}
 	}
 
 	/**
