@@ -32,15 +32,25 @@ class ManagerRebuildController extends \Sifo\Controller
 
 		$output = array( );
 
+		$instance_inheritance 	= array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() );
+		$current_instance		= array_pop( $instance_inheritance );
+
+		if ( count( $instance_inheritance ) > 0 )
+		{
+			$this->assign( 'instance_parent', end( $instance_inheritance ) );
+		}
+
 		foreach ( $files as $file => $folders )
 		{
 			$configs = array( );
 			foreach ( $folders as $folder )
 			{
-				$configs = array_merge( $configs, $this->getAvailableFiles( $folder ) );
+				$configs = array_merge( $configs, $this->getAvailableFiles( $folder, $current_instance ) );
 			}
 
 			$this->assign( 'config', $configs );
+			$this->assign( 'file_name', $this->filenames[$file] );
+
 			$configs_content = $this->grabHtml();
 			file_put_contents( ROOT_PATH . "/instances/" . $this->instance . "/config/" . $this->filenames[$file], $configs_content );
 			$output[$file] = $configs_content;
@@ -125,13 +135,12 @@ MESG;
 		return $class;
 	}
 
-	protected function getAvailableFiles( $type )
+	protected function getAvailableFiles( $type, $current_instance )
 	{
 		$d = new \Sifo\Dir();
 		$type_files = array( );
 
 		$core_inheritance = \Sifo\Domains::getInstance()->getCoreInheritance();
-		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
 		if ( $type == 'core' )
 		{
@@ -161,56 +170,61 @@ MESG;
 		}
 		else
 		{
-			foreach ( $instance_inheritance as $current_instance )
+			$available_files = $d->getFileListRecursive( ROOT_PATH . "/instances/" . $current_instance . "/$type" );
+
+			if ( is_array( $available_files ) === true && count( $available_files ) > 0 )
 			{
-				$available_files = $d->getFileListRecursive( ROOT_PATH . "/instances/" . $current_instance . "/$type" );
-
-				if ( is_array( $available_files ) === true && count( $available_files ) > 0 )
+				foreach ( $available_files as $k => $v )
 				{
-					foreach ( $available_files as $v )
+					$rel_path = $this->cleanStartingSlash( $v["relative"] );
+
+					$path = str_replace( '//', '/', "instances/$current_instance/$type/$rel_path" );
+
+					// Calculate the class name for the given file:
+					$rel_path = str_replace( '.model.php', '', $rel_path );
+					$rel_path = str_replace( '.ctrl.php', '', $rel_path );
+					$rel_path = str_replace( '.config.php', '', $rel_path );
+					$rel_path = str_replace( '.php', '', $rel_path ); // Default
+
+					$class = $this->getClassTypeStandarized( $rel_path );
+
+					if ( 'default' != $current_instance )
 					{
-						$rel_path = $this->cleanStartingSlash( $v["relative"] );
-						$path = str_replace( '//', '/', "instances/$current_instance/$type/$rel_path" );
+						$class_extended = $class . ucfirst( $current_instance );
+					}
+					else
+					{
+						$class_extended = $class;
+					}
 
-						// Calculate the class name for the given file:
-						$rel_path = str_replace( '.model.php', '', $rel_path );
-						$rel_path = str_replace( '.ctrl.php', '', $rel_path );
-						$rel_path = str_replace( '.config.php', '', $rel_path );
-						$rel_path = str_replace( '.php', '', $rel_path ); // Default
-
-						$class = $this->getClassTypeStandarized( $rel_path );
-
-						switch ( $type )
-						{
-							case 'controllers':
-								$class .= 'Controller';
-								$type_files[$class][ucfirst( $current_instance )] = $path;
-								break;
-							case 'models':
-								$class .= 'Model';
-								$type_files[$class][ucfirst( $current_instance )] = $path;
-								break;
-							case 'classes':
-								$type_files[$class][ucfirst( $current_instance )] = $path;
-								break;
-							case 'config':
-								if ( $rel_path == 'configuration_files' )
-								{
-									continue;
-								}
-							case 'templates':
-							default:
-								$type_files[$rel_path] = $path;
-						}
+					switch ( $type )
+					{
+						case 'controllers':
+							$class .= 'Controller';
+							$type_files[$class][ucfirst( $current_instance )] = $path;
+							break;
+						case 'models':
+							$class .= 'Model';
+							$type_files[$class][ucfirst( $current_instance )] = $path;
+							break;
+						case 'classes':
+							$type_files[$class][ucfirst( $current_instance )] = $path;
+							break;
+						case 'config':
+							if ( $rel_path == 'configuration_files' )
+							{
+								continue;
+							}
+						case 'templates':
+						default:
+							$type_files[$rel_path] = $path;
 					}
 				}
 			}
 		}
 
-
 		ksort( $type_files );
 		return $type_files;
-
 	}
 
 }
