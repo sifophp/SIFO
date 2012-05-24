@@ -1,10 +1,10 @@
 <?php
 /**
  * The core of the OpenInviter system
- * 
+ *
  * Contains methods and properties used by all
  * the OpenInivter plugins
- * 
+ *
  * @author OpenInviter
  * @version 1.7.6
  */
@@ -34,16 +34,16 @@ class openinviter
 	private $basePath='';
 	private $availablePlugins=array();
 	private $currentPlugin=array();
-	
+
 	public function __construct()
 		{
 		$this->basePath=dirname(__FILE__);
-		$openinviter_settings = Config::getInstance()->getConfig( 'openinviter' );
+		$openinviter_settings = \Sifo\Config::getInstance()->getConfig( 'openinviter' );
 		require_once($this->basePath."/plugins/_base.php");
 		$this->settings=$openinviter_settings;
 		$this->configOK=$this->checkConfig();
 		}
-	
+
 	private function checkConfig()
 		{
 		$to_add=array();$ok=true;
@@ -66,7 +66,7 @@ class openinviter
 			}
 		return $ok;
 		}
-	
+
 	private function arrayToText($array)
 		{
 		$text='';
@@ -83,7 +83,7 @@ class openinviter
 			}
 		return($text);
 		}
-	
+
 	private function statsCheck()
 		{
 		if (!$this->settings['stats']) return true;
@@ -100,29 +100,29 @@ class openinviter
 		elseif (!$this->statsOpenDB()) { $this->internalError="Unable to open the stats database.";return false; }
 		return true;
 		}
-	
+
 	private function statsOpenDB()
 		{
 		if (!$this->settings['stats']) return true;
-		if (function_exists('sqlite_open')) 
+		if (function_exists('sqlite_open'))
 			if ($this->statsDB=sqlite_open($this->basePath.'/openinviter_stats.sqlite',0666)) return true;
 		return false;
 		}
-	
+
 	private function statsRecordImport($contacts)
 		{
 		if (!$this->settings['stats']) return true;
 		if (!$this->statsDB) if (!$this->statsOpenDB()) return false;
 		$this->statsQuery("INSERT INTO oi_imports (service,contacts,insert_dt,insert_ip) VALUES ('{$this->plugin->service}','{$contacts}','".date("Y-m-d H:i:s")."','{$_SERVER['REMOTE_ADDR']}')");
 		}
-	
+
 	private function statsRecordMessages($msg_type,$messages)
 		{
 		if (!$this->settings['stats']) return true;
 		if (!$this->statsDB) if (!$this->statsOpenDB()) return false;
 		$this->statsQuery("INSERT INTO oi_messages (service,type,messages,insert_dt,insert_ip) VALUES ('{$this->plugin->service}','{$msg_type}','{$messages}','".date("Y-m-d H:i:s")."','{$_SERVER['REMOTE_ADDR']}')");
 		}
-	
+
 	public function statsQuery($query)
 		{
 		if (!$this->settings['stats']) return false;
@@ -131,17 +131,17 @@ class openinviter
 			if (!$this->statsCheck()) return false;
 			if (!$this->statsOpenDB()) return false;
 			}
-		return sqlite_query($this->statsDB,$query,SQLITE_ASSOC);		
+		return sqlite_query($this->statsDB,$query,SQLITE_ASSOC);
 		}
-	
+
 	/**
 	 * Start internal plugin
-	 * 
+	 *
 	 * Starts the internal plugin and
 	 * transfers the settings to it.
-	 * 
+	 *
 	 * @param string $plugin_name The name of the plugin being started
-	 */	  
+	 */
 	public function startPlugin($plugin_name,$getPlugins=false)
 		{
 		if (!$getPlugins) $this->currentPlugin=$this->availablePlugins[$plugin_name];
@@ -153,7 +153,7 @@ class openinviter
 			if (!file_exists($this->basePath."/plugins/_hosted.plg.php")) $this->internalError="Invalid service provider";
 			else
 				{
-				if (!class_exists('_hosted')) require_once($this->basePath."/plugins/_hosted.plg.php");
+				if (!class_exists('_hosted', false)) require_once($this->basePath."/plugins/_hosted.plg.php");
 				if ($getPlugins)
 					{
 					$this->servicesLink=new _hosted($plugin_name);
@@ -174,13 +174,14 @@ class openinviter
 		elseif (file_exists($this->basePath."/plugins/{$plugin_name}.plg.php"))
 			{
 			$ok=true;
-			if (!class_exists($plugin_name)) require_once($this->basePath."/plugins/{$plugin_name}.plg.php");
+
+			if (!class_exists($plugin_name, false)) require_once($this->basePath."/plugins/{$plugin_name}.plg.php");
 			$this->plugin=new $plugin_name();
     		$this->plugin->settings=$this->settings;
     		$this->plugin->base_version=$this->version;
     		$this->plugin->base_path=$this->basePath;
     		$this->currentPlugin=$this->availablePlugins[$plugin_name];
-			if (file_exists($this->basePath."/conf/{$plugin_name}.conf")) 
+			if (file_exists($this->basePath."/conf/{$plugin_name}.conf"))
 				{
 				include($this->basePath."/conf/{$plugin_name}.conf");
 				if (empty($enable)) $this->internalError="Invalid service provider";
@@ -191,10 +192,10 @@ class openinviter
 		else { $this->internalError="Invalid service provider";return false; }
 		return true;
 		}
-	
+
 	/**
 	 * Stop the internal plugin
-	 * 
+	 *
 	 * Acts as a wrapper function for the stopPlugin
 	 * function in the OpenInviter_Base class
 	 */
@@ -205,10 +206,10 @@ class openinviter
 
 	/**
 	 * Login function
-	 * 
+	 *
 	 * Acts as a wrapper function for the plugin's
 	 * login function.
-	 * 
+	 *
 	 * @param string $user The username being logged in
 	 * @param string $pass The password for the username being logged in
 	 * @return mixed FALSE if the login credentials don't match the plugin's requirements or the result of the plugin's login function.
@@ -218,13 +219,13 @@ class openinviter
 		if (!$this->checkLoginCredentials($user)) return false;
 		return $this->plugin->login($user,$pass);
 		}
-	
+
 	/**
 	 * Get the current user's contacts
-	 * 
+	 *
 	 * Acts as a wrapper function for the plugin's
 	 * getMyContacts function.
-	 * 
+	 *
 	 * @return mixed The result of the plugin's getMyContacts function.
 	 */
 	public function getMyContacts()
@@ -232,40 +233,40 @@ class openinviter
 		$contacts=$this->plugin->getMyContacts();
 		if ($contacts!==false) $this->statsRecordImport(count($contacts));
 		return $contacts;
-		}	
+		}
 
 	/**
 	 * End the current user's session
-	 * 
+	 *
 	 * Acts as a wrapper function for the plugin's
 	 * logout function
-	 * 
+	 *
 	 * @return bool The result of the plugin's logout function.
 	 */
 	public function logout()
 		{
-		return $this->plugin->logout();	
+		return $this->plugin->logout();
 		}
 
 	public function writePlConf($name_file,$type)
 		{
 		if (!file_exists($this->basePath."/conf")) mkdir($this->basePath."/conf",0755,true);
-		if ($type=='social')  file_put_contents($this->basePath."/conf/{$name_file}.conf",'<?php $enable=true;$autoUpdate=true;$messageDelay=1;$maxMessages=10;?>');	
+		if ($type=='social')  file_put_contents($this->basePath."/conf/{$name_file}.conf",'<?php $enable=true;$autoUpdate=true;$messageDelay=1;$maxMessages=10;?>');
 		elseif($type=='email') file_put_contents($this->basePath."/conf/{$name_file}.conf",'<?php $enable=true;$autoUpdate=true; ?>');
-		elseif($type=='hosted') file_put_contents($this->basePath."/conf/{$name_file}.conf",'<?php $enable=false;$autoUpdate=true; ?>');		
+		elseif($type=='hosted') file_put_contents($this->basePath."/conf/{$name_file}.conf",'<?php $enable=false;$autoUpdate=true; ?>');
 		}
 
 	/**
 	 * Get the installed plugins
-	 * 
+	 *
 	 * Returns information about the available plugins
-	 * 
+	 *
 	 * @return mixed An array of the plugins available or FALSE if there are no plugins available.
 	 */
 	public function getPlugins($update=false,$required_details=false)
 		{
 		$plugins=array();
-		if ($required_details) 
+		if ($required_details)
 			{
 			$valid_rcache=false;$cache_rpath=$this->settings['cookie_path'].'/'."int_{$required_details}.php";
 			if (file_exists($cache_rpath))
@@ -298,12 +299,12 @@ class openinviter
 		        	else return array();
 		        	}
 	        	if (isset($array_file['_hosted'])) unset($array_file['_hosted']);
-	        	}	
+	        	}
 	         if ($update==TRUE OR $this->settings['hosted']==FALSE)
 	        	{
 	        	$reWriteAll=false;
-				if (count($array_file)>0) 
-					{			
+				if (count($array_file)>0)
+					{
 					ksort($array_file);$modified_files=array();
 					if (!empty($plugins['hosted'])) { $reWriteAll=true;$plugins=array(); }
 					else
@@ -314,8 +315,8 @@ class openinviter
 							if (empty($vals)) unset($plugins[$key]);
 							else $plugins[$key]=$vals;
 							}
-					foreach ($array_file as $plugin_key=>$file) 
-						if (filemtime($file)>$cache_ts OR $reWriteAll) 
+					foreach ($array_file as $plugin_key=>$file)
+						if (filemtime($file)>$cache_ts OR $reWriteAll)
 							$modified_files[$plugin_key]=$file;
 					foreach($modified_files as $plugin_key=>$file)
 						if (file_exists($this->basePath."/conf/{$plugin_key}.conf"))
@@ -343,12 +344,12 @@ class openinviter
 					}
 				}
 			}
-		if (!$this->settings['hosted']) $returnPlugins=$plugins;			
-		else $returnPlugins=(!empty($plugins['hosted'])?$plugins['hosted']:array());		
-		if ($required_details) 
-			{			
+		if (!$this->settings['hosted']) $returnPlugins=$plugins;
+		else $returnPlugins=(!empty($plugins['hosted'])?$plugins['hosted']:array());
+		if ($required_details)
+			{
 			if (!$valid_rcache)
-				{					 
+				{
 				foreach($returnPlugins as $types=>$plugins)
 					foreach($plugins as $plugKey=>$plugin)
 						if (!empty($plugin['imported_details']))
@@ -359,25 +360,25 @@ class openinviter
 					$cache_contents="<?php\n";
 					$cache_contents.="\$returnPlugins=array(\n".$this->arrayToText($returnPlugins)."\n);\n";
 					$cache_contents.="?>";
-					file_put_contents($cache_rpath,$cache_contents);	
-					}		
+					file_put_contents($cache_rpath,$cache_contents);
+					}
 				}
 			return $returnPlugins;
 			}
 		$temp=array();
-		if (!empty($returnPlugins)) 
+		if (!empty($returnPlugins))
 			foreach ($returnPlugins as $type=>$type_plugins)
-				$temp=array_merge($temp,$type_plugins);				
-		$this->availablePlugins=$temp;							 																	
+				$temp=array_merge($temp,$type_plugins);
+		$this->availablePlugins=$temp;
 		return $returnPlugins;
 		}
-	
+
 	/**
 	 * Send a message
-	 * 
+	 *
 	 * Acts as a wrapper for the plugin's
 	 * sendMessage function.
-	 * 
+	 *
 	 * @param string $session_id The OpenInviter user's session ID
 	 * @param string $message The message being sent to the users
 	 * @param array $contacts An array of contacts that are going to receive the message
@@ -389,33 +390,33 @@ class openinviter
 		$internal=$this->getInternalError();
 		if ($internal) return false;
 		if (!method_exists($this->plugin,'sendMessage')) { $this->statsRecordMessages('E',count($contacts));return -1; }
-		else 
+		else
 			{
 			$sent=$this->plugin->sendMessage($session_id,$message,$contacts);
 			if ($sent!==false) $this->statsRecordMessages('I',count($contacts));
 			return $sent;
 			}
 		}
-	
+
 	/**
 	 * Find out if the contacts should be displayed
-	 * 
+	 *
 	 * Tells whether the current plugin will display
 	 * a list of contacts or not
-	 * 
+	 *
 	 * @return bool TRUE if the plugin displays the list of contacts, FALSE otherwise.
 	 */
 	public function showContacts()
 		{
 		return $this->plugin->showContacts;
 		}
-	
+
 	/**
 	 * Check version requirements
-	 * 
+	 *
 	 * Checks if the current version of OpenInviter
 	 * is greater than the plugin's required version
-	 * 
+	 *
 	 * @param string $required_version The OpenInviter version that the plugin requires.
 	 * @return bool TRUE if the version if equal or greater, FALSE otherwise.
 	 */
@@ -424,30 +425,30 @@ class openinviter
 		if (version_compare($required_version,$this->version,'<=')) return true;
 		return false;
 		}
-	
+
 	/**
 	 * Find out the version of OpenInviter
-	 * 
+	 *
 	 * Find out the version of the OpenInviter
 	 * base class
-	 * 
+	 *
 	 * @return string The version of the OpenInviter base class.
 	 */
 	public function getVersion()
 		{
 		return $this->version;
 		}
-	
+
 	/**
 	 * Check the provided login credentials
-	 * 
+	 *
 	 * Checks whether the provided login credentials
 	 * match the plugin's required structure and (if required)
 	 * if the provided domain name is allowed for the
 	 * current plugin.
-	 * 
+	 *
 	 * @param string $user The provided user name.
-	 * @return bool TRUE if the login credentials match the required structure, FALSE otherwise. 
+	 * @return bool TRUE if the login credentials match the required structure, FALSE otherwise.
 	 */
 	private function checkLoginCredentials($user)
 		{
@@ -478,7 +479,7 @@ class openinviter
 			}
 		return true;
 		}
-	
+
 	public function getPluginByDomain($user)
 		{
 		$user_domain=explode('@',$user);if (!isset($user_domain[1])) return false;
@@ -492,13 +493,13 @@ class openinviter
 			}
 		return false;
 		}
-	
+
 	/**
 	 * Gets the OpenInviter's internal error
-	 * 
+	 *
 	 * Gets the OpenInviter's base class or the plugin's
 	 * internal error message
-	 * 
+	 *
 	 * @return mixed The error message or FALSE if there is no error.s
 	 */
 	public function getInternalError()
@@ -507,19 +508,19 @@ class openinviter
 		if (isset($this->plugin->internalError)) return $this->plugin->internalError;
 		return false;
 		}
-	
+
 	/**
 	 * Get the current OpenInviter session ID
-	 * 
+	 *
 	 * Acts as a wrapper function for the plugin's
 	 * getSessionID function.
-	 * 
+	 *
 	 * @return mixed The result of the plugin's getSessionID function.
 	 */
 	public function getSessionID()
 		{
 		return $this->plugin->getSessionID();
 		}
-	
+
 	}
 ?>
