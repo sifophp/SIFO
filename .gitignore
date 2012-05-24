@@ -1,5 +1,8 @@
 .DS_Store
-logs/*
+.idea/*
 nbproject/*
+logs/*
 *%*
 *.tpl.php
+instances/*/
+!instances/common
