@@ -146,6 +146,19 @@ class Database
 		}
 	}
 
+	/**
+	 * Return properly escaped string to be passed to SQL query.
+	 *
+	 * @param string $string
+	 * @return string
+	 */
+	public function escapeSqlString( $string )
+	{
+		$this->_lazyLoadAdodbConnection();
+
+		return self::$adodb[self::$destination_type]->qstr( $string );
+	}
+
 	public function __call( $method, $args ) //call adodb methods
 	{
 		// Method provides a valid comment to associate to this query:
