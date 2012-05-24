@@ -15,6 +15,7 @@ $config['Cookie']['Sifo'] = 'libs/Sifo/Cookie.php';
 $config['Crypt']['Sifo'] = 'libs/Sifo/Crypt.php';
 $config['CssPacker']['Sifo'] = 'libs/Sifo/CssPacker.php';
 $config['Database']['Sifo'] = 'libs/Sifo/Database.php';
+$config['DebugMessages']['Sifo'] = 'libs/Sifo/Debug/Messages.php';
 $config['DebugMysql']['Sifo'] = 'libs/Sifo/Debug/Mysql.php';
 $config['DebugSearch']['Sifo'] = 'libs/Sifo/Debug/Search.php';
 $config['Dir']['Sifo'] = 'libs/Sifo/Dir.php';

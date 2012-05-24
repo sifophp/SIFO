@@ -296,9 +296,30 @@ function LoadjQueryUI()
 }
 
 LoadjQueryUI();
-
-</script>
 {/literal}
+
+{if $debug.debug_messages}
+{literal}
+// JavaScript debug this is for IE and other browsers w/o console
+if (!window.console) console = {};
+console.log = console.log || function(){};
+console.warn = console.warn || function(){};
+console.error = console.error || function(){};
+console.info = console.info || function(){};
+console.debug = console.debug || function(){};
+{/literal}
+
+{	foreach from=$debug.debug_messages item=debug_message name=debug_messages_iteration}
+{		if $debug_message.is_object}
+var object_{$smarty.foreach.debug_messages_iteration.iteration} = {$debug_message.message};
+var val_{$smarty.foreach.debug_messages_iteration.iteration} = eval("(" + object_{$smarty.foreach.debug_messages_iteration.iteration} + ")" );
+console.{$debug_message.type}( val_{$smarty.foreach.debug_messages_iteration.iteration} );
+{		else}
+console.{$debug_message.type}( {$debug_message.message} );
+{		/if}
+{	/foreach}
+{/if}
+</script>
 
 <div id="debug">
 	<div id="debug_timers">

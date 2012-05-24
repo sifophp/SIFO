@@ -34,6 +34,7 @@ class DebugIndexController extends \Sifo\Controller
 		$debug['queries']			= \Sifo\Registry::getInstance()->get( 'queries' );
 		$debug['queries_errors']	= \Sifo\Registry::getInstance()->get( 'queries_errors' );
 		$debug['searches']			= \Sifo\Registry::getInstance()->get( 'searches' );
+		$debug['debug_messages']  	= \Sifo\Registry::getInstance()->get( 'debug_messages' );
 		$debug['session']			= $this->getSessionData();
 		$debug['cookies']			= FilterCookieDebug::getCookiesArray();
 
