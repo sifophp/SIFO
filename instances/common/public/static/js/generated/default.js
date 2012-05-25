@@ -9221,36 +9221,72 @@ CORE.utilities.placeUrlContent = function(sUrl, sTargetId, fpCallback) {
  * @param fpCallback Function to execute when the elements are visible
  */
 CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
-   $(window).scroll(function()
-   {
-           var nScrollTop = $(window).scrollTop();
-           var nViewPort = $(window).height();
-           var nPosTopReference = 0;
-           var aReferences = aReferences ? aReferences : [];
-           var $oReference = null;
-           var sReference = null;
-           var sKey = '';
+	$(window).scroll(function()
+	{
+		var nScrollTop = $(window).scrollTop();
+		var nViewPort = $(window).height();
+		var nPosTopReference = 0;
+		var aReferences = aReferences ? aReferences : [];
+		var $oReference = null;
+		var sReference = null;
+		var sKey = '';
 
-           for(sKey in aReferences)
-           {
-                   if(aReferences.hasOwnProperty(sKey))
-                   {
-                           sReference = aReferences[sKey];
-                           $oReference = $(sReference);
-                           if($oReference.length)
-                           {
-                                   nPosTopReference = $oReference.offset().top;
-                                   break;
-                           }
-                   }
-           }
-           sReference = $oReference = null;
-           if(nScrollTop+nViewPort >= nPosTopReference)
-           {
-                   fpCallback();
-                   $(window).unbind("scroll");
-           }
-   });
+		for(sKey in aReferences)
+		{
+			if(aReferences.hasOwnProperty(sKey))
+			{
+				sReference = aReferences[sKey];
+				$oReference = $(sReference);
+				if($oReference.length)
+				{
+					nPosTopReference = $oReference.offset().top;
+					break;
+				}
+			}
+		}
+		sReference = $oReference = null;
+		if(nScrollTop+nViewPort >= nPosTopReference)
+		{
+			fpCallback();
+			$(window).unbind("scroll");
+		}
+	});
+}
+
+
+CORE.utilities.isVisible = function (oElement) {
+
+	if (jQuery) {
+		var docViewTop = $(window).scrollTop();
+	    var docViewBottom = docViewTop + $(window).height();
+
+	    var elemTop = $(oElement).offset().top;
+	    var elemBottom = elemTop + $(oElement).height();
+
+	    return ((elemBottom >= docViewTop) && (elemTop <= docViewBottom)
+	      && (elemBottom <= docViewBottom) &&  (elemTop >= docViewTop) );
+	} else {
+		var nTop = oElement.offsetTop;
+		var nLeft = oElement.offsetLeft;
+		var nWidth = oElement.offsetWidth;
+		var nHeight = oElement.offsetHeight;
+		var nWindowInnerHeight = window.innerHeight ? window.innerHeight : document.body.clientHeight;
+		var nWindowInnerWidth = window.innerHeight ? window.innerHeight : document.body.clientWidth;
+		var nWindowPageYOffset = window.pageYOffset ? window.pageYOffset : window.document.documentElement.scrollTop;
+		var nWindowPageXOffset = window.pageYOffset ? window.pageXOffset : window.document.documentElement.scrollLeft;
+
+		while(oElement.offsetParent) {
+			oElement = oElement.offsetParent;
+			nTop += oElement.offsetTop;
+			nLeft += oElement.offsetLeft;
+		}
+		return (
+			nTop >= nWindowPageYOffset &&
+			nLeft >= nWindowPageXOffset &&
+			(nTop + nHeight) <= (nWindowPageYOffset + nWindowInnerHeight ) &&
+			(nLeft + nWidth) <= (nWindowPageXOffset + nWindowInnerWidth )
+		);
+	}
 }
 
 

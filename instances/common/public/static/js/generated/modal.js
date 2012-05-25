@@ -138,9 +138,9 @@ CORE.classes.modal.init = function (oOptions){
 
     if (Cg.isIE6) {
 
-	$LAB.script(Cm.nyromodal_ie).wait( function() {
-	    Cc.modal.load(oSettings);
-	});
+		$LAB.script(Cm.nyromodal_ie).wait( function() {
+		    Cc.modal.load(oSettings);
+		});
 		
     }
     else
@@ -150,24 +150,11 @@ CORE.classes.modal.init = function (oOptions){
 	
 };
 
-// TO-DO: retornar la funcion "load" con la precarga de nyroIE o sin el (eliminar init - if ie {return} )
-/*
+CORE.classes.modal.autobind = function (oTarget){
 
-CORE.classes.modal.bind = function (oSettings){
-	
-    if ( oSettings.event === null) oSettings.event = 'click';
+	$(oTarget).nyroModal();
 
-    $(oSettings.target).bind( oSettings.event, function(e) {
-		
-	e.preventDefault();
-
-	if ( oSettings.url === null) oSettings.url = this.href;
-
-	$.nmManual( oSettings.url, oSettings);
-	
-    });
-
-};*/
+};
 
 CORE.classes.modal.open = function (oOptions){
 
@@ -177,7 +164,6 @@ CORE.classes.modal.open = function (oOptions){
 	if (oOptions === undefined)
 	{
 		var oOptions = {};
-
 	}
 
 	for ( key in oOptions )	{
