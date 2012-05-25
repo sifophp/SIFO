@@ -141,7 +141,7 @@ class SEO_Exception extends \Exception
 	{
 		if ( isset( self::$http_codes[$code] ) )
 		{
-			$exception = "Exception_" . $code;
+			$exception = '\Sifo\Exception_' . $code;
 			throw new $exception( $message );
 		}
 		else

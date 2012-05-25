@@ -17,11 +17,11 @@ include_once ROOT_PATH . '/libs/EpiClasses/EpiCurl.php';
 include_once ROOT_PATH . '/libs/EpiClasses/EpiOAuth.php';
 include_once ROOT_PATH . '/libs/EpiClasses/EpiTwitter.php';
 
-class OAuthTwitterModel extends EpiTwitter
+class OAuthTwitterModel extends \EpiTwitter
 {
 	/**
 	 * Twitter Object
-	 * @var EpiTwitter
+	 * @var \EpiTwitter
 	 */
 	protected $twitterObj;
 
@@ -41,9 +41,9 @@ class OAuthTwitterModel extends EpiTwitter
 			$this->useAsynchronous( true );
 			$this->setTimeout( $this->credentials['request_timeout'], $this->credentials['connection_timeout'] );
 		}
-		catch( Exception $e )
+		catch( \Exception $e )
 		{
-			throw new \SifoException_500( $e->getMessage() );
+			throw new \Sifo\Exception_500( $e->getMessage() );
 		}
 
 	}
@@ -54,9 +54,9 @@ class OAuthTwitterModel extends EpiTwitter
 		{
 			return parent::__call( $name, $params );
 		}
-		catch( Exception $e )
+		catch( \Exception $e )
 		{
-			throw new \SifoException_500( $e->getMessage() );
+			throw new \Sifo\Exception_500( $e->getMessage() );
 		}
 		
 	}
