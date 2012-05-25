@@ -21,10 +21,13 @@
 namespace Sifo;
 
 /**
- * DebugMessages class: It lets you show debug messages in browser console from your PHP code. Code related to this behaviour in instances/common/controllers/debug/index.ctrl.php
+ * Allows you to show debug messages in the browser console from your PHP code.
+ *
+ * Code reusing this class for print is instances/common/controllers/debug/index.ctrl.php
+ *
  * How to use it:
  *
- * \Sifo\DebugMessages::log( 'This message will be shown in browser console.' );
+ * \Sifo\DebugMessages::log( 'This message will be shown in the browser console when debug is ON.' );
  * \Sifo\DebugMessages::log( $variable );
  * \Sifo\DebugMessages::log( $variable_array );
  */
