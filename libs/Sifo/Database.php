@@ -207,8 +207,10 @@ class Database
 		catch ( \ADODB_Exception $e )
 		{
 			$answer = false;
+			$error 	= $e->getMessage();
+
 			// Log mysql_errors to disk:
-			$this->writeDiskLog( $e->getMessage() );
+			$this->writeDiskLog( $error );
 
 			// Command Line scripts show the exception since there is no debug to getvacvar it.
 			if ( class_exists( 'Sifo\CLBootstrap', false ) )
@@ -224,12 +226,6 @@ class Database
 		else
 		{
 			$resultset = $answer;
-		}
-
-
-		if ( isset( $error ) )
-		{
-
 		}
 
 		$this->queryDebug( $resultset, $tag, $method, $read_operation, isset( $error ) ? $error : null );
