@@ -38,7 +38,7 @@ class Search
 		// Check if Sphinx is enabled by configuration:
 		if ( true === $sphinx_active )
 		{
-			include ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
+			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
 
 			$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
 
