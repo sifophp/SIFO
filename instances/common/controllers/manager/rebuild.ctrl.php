@@ -33,27 +33,47 @@ class ManagerRebuildController extends \Sifo\Controller
 		$output = array( );
 
 		$instance_inheritance 	= array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() );
-		$current_instance		= array_pop( $instance_inheritance );
 
-		if ( count( $instance_inheritance ) > 0 )
+		$instance_inheritance_reverse = array_reverse( $instance_inheritance );
+
+		// Build the instance configuration: instance name and his parent instance name is exists.
+		foreach( $instance_inheritance_reverse as $key => $instance )
 		{
-			$this->assign( 'instance_parent', end( $instance_inheritance ) );
+			$instance_config['current'] 	= $instance;
+			if ( isset( $instance_inheritance[ $key+1 ] ) )
+			{
+				$instance_config['parent'] 	= $instance_inheritance_reverse[$key+1];
+			}
+			$instances_configuration[] = $instance_config;
+			unset( $instance_config );
 		}
 
-		foreach ( $files as $file => $folders )
+		// For each instance in the inheritance it regenerates his configuration files.
+		foreach( $instances_configuration as $instance )
 		{
-			$configs = array( );
-			foreach ( $folders as $folder )
+			$current_instance		= $instance['current'];
+
+			$this->assign( 'instance_parent', null );
+			if ( isset( $instance['parent'] ) )
 			{
-				$configs = array_merge( $configs, $this->getAvailableFiles( $folder, $current_instance ) );
+				$this->assign( 'instance_parent', $instance['parent'] );
 			}
 
-			$this->assign( 'config', $configs );
-			$this->assign( 'file_name', $this->filenames[$file] );
+			foreach ( $files as $file => $folders )
+			{
+				$configs = array( );
+				foreach ( $folders as $folder )
+				{
+					$configs = array_merge( $configs, $this->getAvailableFiles( $folder, $current_instance ) );
+				}
 
-			$configs_content = $this->grabHtml();
-			file_put_contents( ROOT_PATH . "/instances/" . $this->instance . "/config/" . $this->filenames[$file], $configs_content );
-			$output[$file] = $configs_content;
+				$this->assign( 'config', $configs );
+				$this->assign( 'file_name', $this->filenames[$file] );
+
+				$configs_content = $this->grabHtml();
+				file_put_contents( ROOT_PATH . "/instances/" . $current_instance . "/config/" . $this->filenames[$file], $configs_content );
+				$output[$current_instance][$file] = $configs_content;
+			}
 		}
 
 		return $output;
@@ -75,17 +95,25 @@ class ManagerRebuildController extends \Sifo\Controller
 			'locale' => array( 'locale' ),
 		) );
 
-
 		// Reset the layout and paste the content in the empty template:
 		$this->setLayout( 'empty.tpl' );
 		// Disable debug on this page.
 		$this->setDebug( false );
+
+		$instance_inheritance 	= implode( ' > ', array_reverse( array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() ) ) );
+
 		$message = <<<MESG
-INSTANCE '{$this->instance}'.
+INSTANCE INHERITANCE: $instance_inheritance.
+REMEMBER: All this instances have changed their configurations files.
+
 MESG;
-		foreach ( $files_output as $file => $output )
+		foreach( $files_output as $instance_name => $files_instance )
 		{
-			$message .= "\n==== {$this->filenames[$file]} ====\n$output\n\n";
+			$message .= "\n************************** " . strtoupper( $instance_name ) . " ******************\n\n";
+			foreach ( $files_instance as $file => $output )
+			{
+				$message .= "\n==== {$this->filenames[$file]} ====\n$output\n";
+			}
 		}
 
 		$this->assign( 'content', $message );

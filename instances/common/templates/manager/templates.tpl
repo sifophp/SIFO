@@ -1,5 +1,5 @@
 <?php
-{if isset( $instance_parent )}
+{if !empty( $instance_parent )}
 include ROOT_PATH . '/instances/{$instance_parent}/config/{$file_name}';
 {/if}
 {foreach from=$config item=c key=k}

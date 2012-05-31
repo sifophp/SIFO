@@ -125,7 +125,7 @@ class ManagerFindi18nController extends \Sifo\Controller
 
 		if ( !\Sifo\Domains::getInstance()->getDevMode() )
 		{
-			throw new \SifoException_404( 'Translation only available while in devel mode' );
+			throw new \Sifo\Exception_404( 'Translation only available while in devel mode' );
 		}
 
 		$post = \Sifo\Filter::getInstance();
