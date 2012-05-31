@@ -85,7 +85,7 @@ abstract class Controller
 	 *
 	 * @var View
 	 */
-	private $view;
+	protected $view;
 
 	/**
 	 * Stores the cache object.
