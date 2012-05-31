@@ -52,7 +52,7 @@ class ManagerTemplateLauncherController extends \Sifo\Controller
 	{
 		if ( true !== \Sifo\Domains::getInstance()->getDevMode() )
 		{
-			throw new \SifoException_404( 'User tried to access the rebuild page, but he\'s not in development' );
+			throw new \Sifo\Exception_404( 'User tried to access the rebuild page, but he\'s not in development' );
 		}
 
 		$get = \Sifo\FilterGet::getInstance();

@@ -15,12 +15,13 @@ class DebugMailController extends \Sifo\Controller
 
 	private function continueMail()
 	{
-		if( !($this->mail_data = \Sifo\Session::get( 'mail_data' ) ) )
+        $session = \Sifo\Session::getInstance();
+		if( !($this->mail_data = $session->get( 'mail_data' ) ) )
 		{
-			throw new \SifoException_500( 'No exists mail data to send the mail' );
+			throw new \Sifo\Exception_500( 'No exists mail data to send the mail' );
 		}
-		\Sifo\Session::delete( 'mail_data' );
-		$mail = new \SifoMail();
+        $session->delete( 'mail_data' );
+		$mail = new \Sifo\Mail();
 		return $mail->send( $this->mail_data['to'], $this->mail_data['subject'], $this->mail_data['body'] );
 	}
 
@@ -28,10 +29,10 @@ class DebugMailController extends \Sifo\Controller
 	{
 		if ( !$this->hasDebug() )
 		{
-			throw \SifoException_404( 'Only in debug mode' );
+			throw new \Sifo\Exception_404( 'Only in debug mode' );
 		}
 		$this->setLayout( 'debug/mail.tpl' );
-		\Sifo\Session::getInstance();
+
 		if ( $this->getParam( 'current_url' ) == $this->getUrl( 'mail-continue' ) )
 		{
 			$this->assign( 'mail_sent', true );
@@ -49,8 +50,8 @@ class DebugMailController extends \Sifo\Controller
 			{
 				$new_mail_data['return_page'] = \Sifo\FilterServer::getInstance()->getString( 'HTTP_REFERER' );
 			}
-			// For can cotinue clicking the link:
-			\Sifo\Session::set( 'mail_data', $new_mail_data );
+			// So it continue by clicking on the link:
+			\Sifo\Session::getInstance()->set( 'mail_data', $new_mail_data );
 			$this->assign( 'mail_data', $new_mail_data );
 			$this->assign( 'continue_sending', $this->getUrl( 'mail-continue' ) );
 		}

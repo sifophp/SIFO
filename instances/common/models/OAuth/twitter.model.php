@@ -84,7 +84,7 @@ class OAuthTwitterModel extends \EpiTwitter
 		}
 		catch( Exception $e )
 		{
-			throw new \SifoException_500( $e->getMessage() );
+			throw new \Sifo\Exception_500( $e->getMessage() );
 		}
 
 		
