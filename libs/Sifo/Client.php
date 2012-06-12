@@ -252,6 +252,31 @@ class Client
 	}
 
 	/**
+	 * Determines if actual client is a Mobile Device
+	 * based on USERAGENTS contained in Browscap library.
+	 */
+	public static function isMobile()
+	{
+		if ( Registry::keyExists( 'Client_isMobile' ) )
+		{
+			return Registry::get( 'Client_isMobile' );
+		}
+		else
+		{
+			$browser_info = self::getBrowser();
+			$answer = true;
+			if ( empty( $browser_info->isMobileDevice ) )
+			{
+				$answer = false;
+			}
+
+			Registry::set( 'Client_isMobile', $answer );
+
+			return $answer;
+		}
+	}
+
+	/**
 	 * Determines if actual client is a Crawler
 	 * based on USERAGENTS contained in Browscap library.
 	 */
