@@ -1,8 +1,15 @@
 <?php
 /**
- * This file should define all the properties regarding advertising modules.
+ * Debug config.
+ * If array is empty, in Debug will be showed all the information available.
+ * You can define wich modules do you want to be showed in debug. For example:
  *
- * The key is used as 'module_name'.
+ *  $config['debug']['queries'] = true;
+ *  $config['debug']['searches'] = false;
+ *  $config['debug']['log_messages'] = true;
+ *
+ * In that case, debug will show the queries module and logs modules. Searches won't be showed even it has information.
+ *
  */
 
 $config['debug'] = array();
