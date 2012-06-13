@@ -57,13 +57,6 @@ class Bootstrap
 	public static $language;
 
 	/**
-	 * If debug is active or not.
-	 *
-	 * @var boolean
-	 */
-	public static $debug = false;
-
-	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
 	 * to parse code. This array can be replaced in your libraries.config under
 	 * the key $config['classes_always_preloaded']
@@ -219,7 +212,6 @@ class Bootstrap
 		try
 		{
 			$domain = Domains::getInstance();
-			self::$debug = $domain->getDevMode();
 			$destination = $domain->getRedirect();
 
 			if ( !empty( $destination ) )
@@ -299,13 +291,13 @@ class Bootstrap
 
 				if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
 				{
-					self::$debug = true;
+					Domains::getInstance()->setDebugMode( true );
 				}
 			}
 
 			$ctrl->dispatch();
 
-			if ( false === $ctrl->is_json && $ctrl->hasDebug() )
+			if ( false === $ctrl->is_json && Domains::getInstance()->getDebugMode() )
 			{
 				self::invokeController( 'debug/index' )->dispatch();
 			}
@@ -370,7 +362,7 @@ class Bootstrap
 				exit;
 			}
 
-			if ( !$ctrl2->hasDebug() )
+			if ( !Domains::getInstance()->getDebugMode() )
 			{
 				header( "Location: " . $new_location, true, $e->http_code );
 			}
@@ -384,8 +376,8 @@ class Bootstrap
 		}
 
 		$result = $ctrl2->dispatch();
-		// Load the debug in case you have enabled the devel flag.
-		if ( $ctrl2->hasDebug() )
+		// Load the debug in case you have enabled the has debug flag.
+		if ( Domains::getInstance()->getDebugMode() )
 		{
 			self::invokeController( 'debug/index' )->dispatch();
 		}

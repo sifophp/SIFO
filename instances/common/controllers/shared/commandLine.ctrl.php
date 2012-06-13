@@ -99,10 +99,10 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 			'is_required'		=> false,
 		),
 		array(
-			'short_param_name'	=> 'nd',
-			'long_param_name'	=> 'nodebug',
-			'help_string'		=> 'Deactivate the debug mode even if it is active in domains.config.',
-			'need_second_param'	=> false,
+			'short_param_name'	=> 'dm',
+			'long_param_name'	=> 'debugmode',
+			'help_string'		=> 'Valid values: 1 to activate debug, 0 to deactivate debug. If it\'s active it will generate the debug output in /sifo/logs/',
+			'need_second_param'	=> true,
 			'is_required'		=> false,
 		),
 	);
@@ -119,11 +119,11 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		$this->params = array(
 			'instance' => \Sifo\Bootstrap::$instance,
 			'controller' => get_class( $this ),
-			'has_debug' => \Sifo\Domains::getInstance()->getDevMode(),
+			'has_debug' => \Sifo\Domains::getInstance()->getDebugMode(),
 			'lang' => $this->language,
 		);
 
-		$this->debug_mode = \Sifo\Domains::getInstance()->getDevMode();
+		$this->debug_mode = \Sifo\Domains::getInstance()->getDebugMode();
 
 		// Init i18n configuration.
 		$this->i18n = \Sifo\I18N::getInstance( \Sifo\Domains::getInstance()->getLanguageDomain(), $this->language );
@@ -198,7 +198,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 				echo $message . PHP_EOL;
 				break;
 			default:
-				throw new OutOfBoundsException( 'Undefined in_mode selected.' );
+				throw new \OutOfBoundsException( 'Undefined in_mode selected.' );
 		}
 	}
 
@@ -217,7 +217,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		{
 			if ( ( $short_param_name == $param['short_param_name'] ) || ( $long_param_name == $param['long_param_name'] ) )
 			{
-				throw new RuntimeException( 'You are trying to set a previously defined param.' );
+				throw new \RuntimeException( 'You are trying to set a previously defined param.' );
 			}
 		}
 
@@ -378,10 +378,10 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 				case "force":
 					$this->force = true;
 					break;
-				case "nd":
-				case "nodebug":
-					$this->params['has_debug'] = false;
-					\Sifo\Domains::getInstance()->setDevModeOff();
+				case "dm":
+				case "debugmode":
+					$this->params['has_debug'] = (bool)$option[1];
+					\Sifo\Domains::getInstance()->setDebugMode( (bool)$option[1] );
 					break;
 			}
 		}

@@ -1,7 +1,11 @@
 <?php
 $config['ads/google.tpl'] = 'instances/common/templates/ads/google.tpl';
-$config['debug.tpl'] = 'instances/common/templates/debug.tpl';
+$config['debug/basic_debug.tpl'] = 'instances/common/templates/debug/basic_debug.tpl';
+$config['debug/database.tpl'] = 'instances/common/templates/debug/database.tpl';
+$config['debug/debug.tpl'] = 'instances/common/templates/debug/debug.tpl';
+$config['debug/log_messages.tpl'] = 'instances/common/templates/debug/log_messages.tpl';
 $config['debug/mail.tpl'] = 'instances/common/templates/debug/mail.tpl';
+$config['debug/search.tpl'] = 'instances/common/templates/debug/search.tpl';
 $config['empty.tpl'] = 'instances/common/templates/empty.tpl';
 $config['error/30x_redirect.tpl'] = 'instances/common/templates/error/30x_redirect.tpl';
 $config['error/404.tpl'] = 'instances/common/templates/error/404.tpl';

@@ -98,7 +98,7 @@ class ManagerRebuildController extends \Sifo\Controller
 		// Reset the layout and paste the content in the empty template:
 		$this->setLayout( 'empty.tpl' );
 		// Disable debug on this page.
-		$this->setDebug( false );
+		\Sifo\Domains::getInstance()->setDebugMode( false );
 
 		$instance_inheritance 	= implode( ' > ', array_reverse( array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() ) ) );
 

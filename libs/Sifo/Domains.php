@@ -30,6 +30,7 @@ class Domains
 	protected $static_host = false;
 	protected $media_host = false;
 	protected $dev_mode = false;
+	protected $has_debug = false;
 	protected $instance;
 	protected $domain_configuration = array();
 	protected $php_inis = false;
@@ -171,6 +172,7 @@ class Domains
 
 				$this->domain 	= $host;
 				$this->dev_mode = ( $settings['devel'] === true );
+				$this->has_debug = isset( $settings['has_debug'] ) ? $settings['has_debug'] === true : $this->dev_mode;
 
 				// See if the domain changes the instance used, otherwise 'default' is assumed.
 				if ( isset( $settings['instance'] ) && !empty( $settings['instance'] ) )
@@ -258,27 +260,21 @@ class Domains
 	}
 
 	/**
-	 * Deactivate dev mode in order not to use the debug in the excecution even it's dev mode defined in domains.config.
-	 *
-	 * @deprecated Use setDevMode(false) instead.
-	 *
-	 * @return void
+	 * Returns if debug is enabled or not.
+	 * @return bool
 	 */
-	public function setDevModeOff()
+	public function getDebugMode()
 	{
-		$this->dev_mode = false;
+		return $this->has_debug;
 	}
 
 	/**
-	 * Sets the dev mode. Useful for production environments where an "admin" user should be able to rebuild the page.
-	 *
-	 * @param boolean $new_dev_mode The new dev_mode.
-	 *
-	 * @return void
+	 * Change debug mode during the execution.
+	 * @return bool
 	 */
-	public function setDevMode( $new_dev_mode )
+	public function setDebugMode( $mode )
 	{
-		$this->dev_mode = $new_dev_mode;
+		$this->has_debug = (bool)$mode;
 	}
 
 	/**

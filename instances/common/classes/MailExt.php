@@ -15,7 +15,7 @@ class MailExt extends \Sifo\Mail
 	public function send( $to, $subject, $body )
 	{
 		// Debug advice:
-		if ( \Sifo\Domains::getInstance()->getDevMode() )
+		if ( \Sifo\Domains::getInstance()->getDebugMode() )
 		{
 			$this->_dispatchMailController( $to, $subject, $body );
 		}

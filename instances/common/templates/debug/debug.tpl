@@ -1,3 +1,4 @@
+{if isset($command_line_mode) && $command_line_mode}<body>{/if}
 {literal}
 <style type="text/css">
 /* @group DEBUG reset */
@@ -109,6 +110,10 @@
 
 #debug .query_error {
 	background-color: red;
+}
+
+#debug .query_duplicated {
+	background-color: orange;
 }
 
 #debug .query_slow small, #debug .query_very_slow small,
@@ -297,28 +302,6 @@ function LoadjQueryUI()
 
 LoadjQueryUI();
 {/literal}
-
-{if $debug.debug_messages}
-{literal}
-// JavaScript debug this is for IE and other browsers w/o console
-if (!window.console) console = {};
-console.log = console.log || function(){};
-console.warn = console.warn || function(){};
-console.error = console.error || function(){};
-console.info = console.info || function(){};
-console.debug = console.debug || function(){};
-{/literal}
-
-{	foreach from=$debug.debug_messages item=debug_message name=debug_messages_iteration}
-{		if $debug_message.is_object}
-var object_{$smarty.foreach.debug_messages_iteration.iteration} = {$debug_message.message};
-var val_{$smarty.foreach.debug_messages_iteration.iteration} = eval("(" + object_{$smarty.foreach.debug_messages_iteration.iteration} + ")" );
-console.{$debug_message.type}( val_{$smarty.foreach.debug_messages_iteration.iteration} );
-{		else}
-console.{$debug_message.type}( {$debug_message.message} );
-{		/if}
-{	/foreach}
-{/if}
 </script>
 
 <div id="debug">
@@ -328,19 +311,23 @@ console.{$debug_message.type}( {$debug_message.message} );
 			<dd>{$debug.times.total|time_format}</dd>
 {if $debug.times.scripts}
 			<dt>{t}Scripts{/t}</dt>
-			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.scripts format="%.0f"}%</span>{$debug.times.scripts|time_format}</dd>
+			<dd><span>{if isset( $debug.times.total) && $debug.times.total > 0 }{math equation="y / x * 100" x=$debug.times.total y=$debug.times.scripts format="%.0f"}%{/if}</span>{$debug.times.scripts|time_format}</dd>
 {/if}
 {if $debug.times.db_connections}
 			<dt>{t}DB connects{/t} <small>({t 1=$debug.elements.db_connections}%1 connects{/t})</small></dt>
-			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_connections format="%.0f"}%</span>{$debug.times.db_connections|time_format}</dd>
+			<dd><span>{if isset( $debug.times.total) && $debug.times.total > 0}{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_connections format="%.0f"}%{/if}</span>{$debug.times.db_connections|time_format}</dd>
 {/if}
 {if $debug.times.db_queries}
 			<dt>{t}DB queries{/t} <small>(<a href="#db_queries">{t 1=$debug.elements.db_queries}%1 sql{/t}</a>)</small></dt>
-			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_queries format="%.0f"}%</span>{$debug.times.db_queries|time_format}</dd>
+			<dd><span>{if isset( $debug.times.total) && $debug.times.total > 0}{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_queries format="%.0f"}%{/if}</span>{$debug.times.db_queries|time_format}</dd>
 {/if}
 {if $debug.queries_errors}
 			<dt class="query_error">{t}DB errors{/t}</dt>
 			<dd class="query_error"><strong>{$debug.queries_errors|@count}</strong></dd>
+{/if}
+{if $debug.queries_duplicated}
+			<dt class="query_duplicated">{t}Duplicated Queries{/t}</dt>
+			<dd class="query_duplicated"><strong>{$debug.queries_duplicated|@count}</strong></dd>
 {/if}
 {if $debug.times.search}
 			<dt>{t}Searches{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.search}%1 searches{/t}</a>)</small></dt>
@@ -358,6 +345,7 @@ console.{$debug_message.type}( {$debug_message.message} );
 			<dt>{t}Used memory{/t}</dt>
 			<dd>{$debug.memory_usage}</dd>
 {/if}
+{if !isset($command_line_mode) || !$command_line_mode}
 			<dt>{t}Automatic rebuild{/t}</dt>
 {if $debug.rebuild_all }
 			<dd><input type="checkbox" name="rebuild_all" id="rebuild_all_active" checked onclick="window.location='?rebuild_nothing=1'">
@@ -368,11 +356,13 @@ console.{$debug_message.type}( {$debug_message.message} );
 {/if}
 			<dt>{t}ACTIONS{/t}</dt>
 			<dd><a href="?kill_session=1">{t}Kill session{/t}</a> -
-				<a href="?rebuild=1">{t}Rebuild{/t}</a><br/><a href="#debug">{t}Debug{/t}&raquo;</a></dd>
+				<a href="?rebuild=1">{t}Rebuild{/t}</a><br/><a href="#debug">{t}Debug{/t}&raquo;</a>
+			</dd>
+{/if}
 		</dl>
 	</div>
 
-{if is_array($debug.traces)}
+{if isset($debug.traces) && is_array($debug.traces)}
 	<h2 id="traces_title"><a class="debug_toggle_view" rel="traces_content" href="#">{t}Show traces{/t}</a></h2>
 	<div id="traces_content" class="debug_contents">
 	<ul>
@@ -389,243 +379,19 @@ console.{$debug_message.type}( {$debug_message.message} );
 	</div>
 {/if}
 
-<h1 id="benchmarks">{t}Benchmarks{/t}</h1>
-<h2 id="bench"><a class="debug_toggle_view" rel="benchmarks_content" href="#">Times of execution</a></h2>
-<div id="benchmarks_content" class="debug_contents">
-	<table class="benchmark_contents">
-{ if isset($debug.benchmarks)}
-{		foreach name=bench from=$debug.benchmarks item=bench key=label}
-		<tr {if $bench>0.1} class="slow"{/if}><td>{$label}</td><td>{$bench|number_format:4} secs.</td></tr>
-{		/foreach}
-{ /if}
-	</table>
-	<div class="benchmarks_legend">
-		<p>Order of execution:
-		<ul>
-		<li><strong>Parent dispatch:</strong>
-				<ul>
-					<li>Parent preDispatch</li>
-					<li>executeNestedModules [<strong>foreach module</strong>]
-						<ul>
-							<li>preDispatch</li>
-							<li>execute</li>
-							<li>postDispatch</li>
-						</ul>
-					</li>
-					<li>Parent execute
-						<ul>
-							<li>preDispatch</li>
-							<li>execute</li>
-							<li>postDispatch</li>
-						</ul>
-					</li>
-					<li>Grab HTML</li>
-					<li>Realtimereplacement [<strong>foreach RTR found</strong>]
-						<ul>
-							<li>preDispatch</li>
-							<li>execute</li>
-							<li>postDispatch</li>
-						</ul>
-					</li>
-				</ul>
-			</li>
-		</ul>
-	</div>
-
-</div>
-	<h1 id="controllers">{t}Controllers{/t}</h1>
-{foreach name=controllers from=$debug.controllers item=controller key=controller_name}
-	<h2 id="cont_{$smarty.foreach.controllers.index}"><a class="debug_toggle_view" rel="cont_content_{$smarty.foreach.controllers.index}" href="#">{$smarty.foreach.controllers.index+1}. {$controller_name}</a></h2>
-	<div id="cont_content_{$smarty.foreach.controllers.index}" class="debug_contents">
-{	foreach from=$controller item=content key=key name=controllerparams}
-{		if $key == "CONTROLLER"}
-	<h3><a class="debug_toggle_view" rel="params_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}" href="#">Controller parameters</a></h3>
-	<div id="params_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}" class="debug_contents">
-	<ul>
-{		foreach from=$content.parameters item=content1 key=key1}
-{			if is_array($content1)}
-			<li class="array"><strong>{$key1}: Array</strong>
-{				foreach from=$content1 item=arr key=k}
-				<ul>
-					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
-				</ul>
-{				/foreach}
-			</li>
-{			else}
-			<li><strong>{$key1}</strong>: "{$content1|escape}"</li>
-{			/if}
-{		/foreach}
-	</ul>
-	</div>
-{		else}
-
-{*	TEMPLATES AND OTHER FUTURE ELEMENTS *}
-	<h3><a class="debug_toggle_view" rel="assigns_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}" href="#">
-{			if $key == "assigns"}Template assigns{else}{$key}{/if}
-		</a></h3>
-	<div  id="assigns_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}" class="debug_contents">
-	<ul>
-{		foreach from=$content item=content1 key=key1}
-{			if is_array($content1)}
-			<li class="array"><strong>{$key1}: Array</strong>
-{				foreach from=$content1 item=arr key=k}
-				<ul>
-					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
-				</ul>
-{				/foreach}
-			</li>
-{			else}
-			<li><strong>{$key1}</strong>: "{$content1|escape}"</li>
-{			/if}
-{		/foreach}
-	</ul>
-	</div>
-{		/if}
-{	/foreach}
-	</div>
-{/foreach}
+{* Basic debug: Benchmarks and controllers *}
+{$debug_modules.basic_debug}
 
 {* Sphinx and other search-related queries *}
-{if is_array($debug.searches)}
-	<h1 id="search_queries">{t}Searches{/t}</h1>
-{foreach name=search from=$debug.searches item=value}
-	<h2 class="queries query_read" id="search_{$smarty.foreach.search.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.search.index}" href="#">{$smarty.foreach.search.index+1}. [R] {$value.tag}</a> <small>({$value.time|time_format} - match: {$value.total_found|default:''} elements - return: {$value.returned_rows|default:''} elements )</small></h2>
-	<div id="search_content_{$smarty.foreach.search.index}" class="debug_contents">
-		{foreach name=search_query from=$value.queries item=query}
-		<h3 class="{if $query.error}query_error{/if}">{$smarty.foreach.search_query.index}. {$query.tag} <small>({$query.time|time_format} - match: {$query.total_found|default:''} elements - return: {$query.returned_rows|default:''} elements )</small></h3>
-		{if $query.error}<p class="query_error"><b>{$query.error}</b></p>{/if}
-		<table>
-			<tr>
-				<th>Query</th>
-				<th>Filter</th>
-				<th>Order</th>
-				<th>GroupBy</th>
-				<th>Indexs</th>
-				<th>Trace</th>
-			</tr>
-			<tr>
-				<td>{$query.query}</td>
-				<td>
-				{if isset($query.filters)}
-					{foreach name=fil from=$query.filters item=filter}
-					{$filter.attribute} = (
-						{if is_array($filter.values)}
-							{foreach name=val from=$filter.values item=value}
-								{$value}{if !$smarty.foreach.val.last}, {/if}
-							{/foreach}
-						{else}
-							{$filter.values}
-						{/if}
-						 ){if !$smarty.foreach.fil.last} && {/if}
-					{/foreach}
-				{/if}
-				</td>
-				<td>{if isset($query.sort.mode)}<em>{$query.sort.mode}</em>{/if} {if isset($query.sort.sortby)}- {$query.sort.sortby}{/if}</td>
-				<td>{if isset($query.group.attribute)}{$query.group.attribute}{/if} {if isset($query.group.func)}<em>- Func: {$query.group.func}</em>{/if} {if isset($query.group.groupsort)}- Groupsort: {$query.group.groupsort}{/if}</td>
-				<td>{$query.indexes}</td>
-				<td>{$query.controller}</td>
-			</tr>
-		</table>
-		<table>
-			<tr>
-				<th>WEIGHT</th>
-				<th>ID</th>
-{			foreach from=$query.resultset.attrs key=attribute item=values}
-				<th>{$attribute}</th>
-{			/foreach}
-			</tr>
-{if isset( $query.resultset.matches )}
-{			foreach from=$query.resultset.matches key=id item=match}
-			<tr>
-				<td>{$match.weight}</td>
-				<td>{$id}</td>
-{				foreach from=$match.attrs key=attribute item=values}
-				<td>{if is_array($values)}{$values|debug_print_var}{else}{$values}{/if}</td>
-{				/foreach}
-			</tr>
-{			/foreach}
-{/if}
-		</table>
-		{/foreach}
-	</div>
-{/foreach}
-{/if}
+{$debug_modules.search}
 
-{if is_array($debug.queries)}
-	<h1 id="db_queries">{t}DB Queries{/t}</h1>
-{foreach name=queries from=$debug.queries item=query}
-	<h2 class="queries {if false !== $query.error}query_error{else}query_{$query.type}{/if}{if $query.time >= 0.5 && $query.time < 1} query_slow{elseif $query.time >= 1} query_very_slow{/if}" id="queries_{$smarty.foreach.queries.index}">
-		<a class="debug_toggle_view" href="#" rel="queries_content_{$smarty.foreach.queries.index}">
-		{$smarty.foreach.queries.index+1}. {if $query.type=='read'}[R]{else}[W]{/if} {$query.tag}</a> <small>({$query.time|time_format} - rows:{$query.rows_num})</small></h2>
-	<div id="queries_content_{$smarty.foreach.queries.index}" class="debug_contents">
-		<pre>{$query.sql|escape}</pre>
-{		if false !== $query.error}
-		<pre style="color:red">
---
-{$query.error}
-		</pre>
-{		/if}
-		<table>
-			<tr>
-				<th>Host</th>
-				<th>Destination</th>
-				<th>Database</th>
-				<th>User</th>
-				<th>Controller</th>
-			</tr>
-			<tr>
-				<td>{$query.host}</td>
-				<td>{if isset($query.destination)}{$query.destination|upper}{/if}</td>
-				<td>{$query.database}</td>
-				<td>{$query.user}</td>
-				<td>{if isset($query.controller)}{$query.controller}{/if}</td>
-			</tr>
-		</table>
-{		if $query.rows_num > 0 }
-			<strong>{t}Resultset{/t}</strong>:
-			<table>
+{* Database queries *}
+{$debug_modules.database}
 
-{*		RESPONSE CONTAINS AN ARRAY WITH A SINGLE RECRODSET AND ITS PROPERTIES *}
-{			if is_array($query.resultset) && !isset($query.resultset[0])}
-			<tr>
-{			foreach from=$query.resultset item=value key=field}
-				<th>{$field}</th>
-{			/foreach}
-			</tr>
-			<tr>
-{			foreach from=$query.resultset item=value}
-				<td title="{$value|escape}">{$value|truncate:50:"..."|escape}</td>
-{			/foreach}
-			</tr>
-{			else}
-{*		RESPONSE CONTAINS AN ARRAY WITH ALL THE ROWS *}
-{			if is_array($query.resultset)}
-			<tr>
-{			foreach from=$query.resultset[0] item=value key=field}
-				<th>{$field}</th>
-{			/foreach}
-			</tr>
-{			foreach from=$query.resultset item=row}
-			<tr>
-{				foreach from=$row item=value}
-					<td title="{$value|escape}">{$value|truncate:50:"..."|escape}</td>
-	{				/foreach}
-				</tr>
-	{			/foreach}
-		{else}
-			{* STRANGE FORMAT OF DATA *}
-			<tr><td><pre>{$query.resultset|@var_dump}</pre></td></tr>
-		{/if}
-{			/if}
-			</table>
-{		else}
-			<strong>{t}Empty resultset{/t}</strong>
-{		/if}
-{if isset($query.trace) }<pre>{$query.trace}</pre>{/if}
-	</div>
-{/foreach}
-{/if}
+{* Log messages *}
+{$debug_modules.log_messages}
 
+{* Sessions and Cookies *}
 {if is_array($debug.session)}
 	<h1 id="session">{t}Session{/t}</h1>
 {foreach name=session from=$debug.session item=value key=session_key}
@@ -651,3 +417,4 @@ console.{$debug_message.type}( {$debug_message.message} );
 {/if}
 
 </div>
+{if isset($command_line_mode) && $command_line_mode}</body>{/if}

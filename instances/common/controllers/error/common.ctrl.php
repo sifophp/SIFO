@@ -43,7 +43,7 @@ class ErrorCommonController extends \Sifo\Controller
 		$this->assign( 'metadata', $this->getErrorMetadata() );
 
 		// The error controller should not load modules to prevent major disasters.
-		if ( $this->hasDebug() )
+		if ( \Sifo\Domains::getInstance()->getDebugMode() )
 		{
 			$this->assign( 'error', $params );
 		}

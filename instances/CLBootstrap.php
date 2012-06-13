@@ -24,7 +24,10 @@ class CLBootstrap extends Bootstrap
 		// Set paths:
 		self::$root = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
+
+		Benchmark::getInstance()->timingStart();
 		self::dispatch( self::$script_controller );
+		Benchmark::getInstance()->timingStop();
 	}
 
 	/**
@@ -47,6 +50,13 @@ class CLBootstrap extends Bootstrap
 			// This is the controller to use:
 			$ctrl = self::invokeController( $controller );
 			$ctrl->build();
+
+			// Debug:
+			if ( Domains::getInstance()->getDebugMode() )
+			{
+				$ctrl_debug = self::invokeController( 'DebugCommandLineDebug' );
+				$ctrl_debug->build();
+			}
 		}
 		catch ( \Exception $e )
 		{

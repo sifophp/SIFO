@@ -103,7 +103,7 @@ class Benchmark
 	 */
 	public function timingCurrentToRegistry ($name = 'default')
 	{
-		$num_elements = Registry::getInstance()->get( 'elements' );
+		$num_elements = Debug::get( 'elements' );
 		if ( isset( $num_elements[$name] ) )
 		{
 			$num_elements = $num_elements[$name] + 1;
@@ -113,9 +113,9 @@ class Benchmark
 			$num_elements = 1;
 		}
 
-		Registry::getInstance()->subSet( 'elements', $name, $num_elements );
+		Debug::subSet( 'elements', $name, $num_elements );
 
-		$total_times = Registry::getInstance()->get( 'times' );
+		$total_times = Debug::get( 'times' );
 
 		$actual_time = self::timingCurrent($name);
 
@@ -129,7 +129,7 @@ class Benchmark
 		}
 
 
-		Registry::getInstance()->subSet( 'times', $name, $total_times );
+		Debug::subSet( 'times', $name, $total_times );
 
 		unset( self::$start_times[$name] );
 		unset( self::$stop_times[$name] );

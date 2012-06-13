@@ -23,24 +23,45 @@ class FilterCookieDebug extends \Sifo\FilterCookie
 
 class DebugIndexController extends \Sifo\Controller
 {
+
+	protected $debug_modules = array();
+
 	public function build()
 	{
-		$this->setLayout( 'debug.tpl' );
-		$debug['traces']			= \Sifo\Registry::getInstance()->get( 'trace_messages' );
-		$debug['controllers']		= \Sifo\Registry::getInstance()->get( 'debug' );
-		$debug['benchmarks']		= \Sifo\Registry::getInstance()->get( 'benchmarks' );
-		$debug['elements']			= \Sifo\Registry::getInstance()->get( 'elements' );
-		$debug['times']				= \Sifo\Registry::getInstance()->get( 'times' );
-		$debug['queries']			= \Sifo\Registry::getInstance()->get( 'queries' );
-		$debug['queries_errors']	= \Sifo\Registry::getInstance()->get( 'queries_errors' );
-		$debug['searches']			= \Sifo\Registry::getInstance()->get( 'searches' );
-		$debug['debug_messages']  	= \Sifo\Registry::getInstance()->get( 'debug_messages' );
+		$this->setLayout( 'debug/debug.tpl' );
+
+		// Basic Debug data:
+		$debug['controllers']		= \Sifo\Debug::get( 'controllers' );
+		$debug['benchmarks']		= \Sifo\Debug::get( 'benchmarks' );
+		$debug['elements']			= \Sifo\Debug::get( 'elements' );
+		$debug['times']				= \Sifo\Debug::get( 'times' );
+		$this->renderDebugModule( $debug, 'basic_debug', 'debug/basic_debug.tpl' );
+
+		// Database debug.
+		$debug['queries']				= \Sifo\Debug::get( 'queries' );
+		$debug['queries_errors']		= \Sifo\Debug::get( 'queries_errors' );
+		$debug['queries_duplicated']	= \Sifo\Debug::get( 'duplicated_queries' );
+		$this->assign( 'debug', $debug );
+		$this->renderDebugModule( $debug, 'database', 'debug/database.tpl' );
+
+		// Search debug.
+		$debug['searches']				= \Sifo\Debug::get( 'searches' );
+		$this->assign( 'debug', $debug );
+		$this->renderDebugModule( $debug, 'search', 'debug/search.tpl' );
+
+		// Environment variables:
 		$debug['session']			= $this->getSessionData();
 		$debug['cookies']			= FilterCookieDebug::getCookiesArray();
 
-		$debug['rebuild_all']		= $this->isRebuildAllActive();
+		// Debug messages:
+		$debug['log_messages']  		= \Sifo\Debug::get( 'log_messages' );
+		$this->assign( 'log_messages', $debug['log_messages'] );
+		$this->renderDebugModule( $debug, 'log_messages', 'debug/log_messages.tpl' );
 
+		// Summary debug:
+		$debug['rebuild_all']		= $this->isRebuildAllActive();
 		$debug['times']['total']	= \Sifo\Benchmark::getInstance()->timingCurrent();
+
 		if ( !isset( $debug['times']['cache'] ) ) $debug['times']['cache'] = 0;
 		if ( !isset( $debug['times']['external'] ) ) $debug['times']['external'] = 0;
 		if ( !isset( $debug['times']['db_connections'] ) ) $debug['times']['db_connections'] = 0;
@@ -51,7 +72,21 @@ class DebugIndexController extends \Sifo\Controller
 
 		$debug['memory_usage']		= $this->getMemoryUsage();
 
+
+
+		$this->finalRender( $debug );
+	}
+
+	protected function renderDebugModule( $debug, $module_name, $template)
+	{
 		$this->assign( 'debug', $debug );
+		$this->debug_modules[$module_name] = $this->fetch( $template );
+	}
+
+	protected function finalRender( $debug )
+	{
+		$this->assign( 'debug', $debug );
+		$this->assign( 'debug_modules', $this->debug_modules );
 	}
 
 	private function getSessionData()
