@@ -16,6 +16,7 @@
  *           - subject       (required) - string
  *           - delimiter  (optional, defaults to '%' ) - string
  *			 - lower	  (optional, set to lower=no if you don't want lowercase) - string
+ *			 - normalize	  (optional, set to normalize=no to override \Sifo\Urls::$normalize_values setting and disable it) - string
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
  *           
  *           Examples of usage:
@@ -46,6 +47,27 @@ function smarty_function_fill($params, &$smarty)
         $_delimiter = '%';
     }
 
+	$_normalize = true;
+
+	if ( isset($params['normalize']) )
+	{
+		switch( $params['normalize'] )
+		{
+			case 'no':
+			case '0':
+			case 'false':
+				$_normalize = false;
+				break;
+				default:
+				$_normalize = true;
+		}
+	}
+	else
+	{
+		$params['normalize'] = true;
+	}
+
+
     if ( false !== strpos($_delimiter, '$' ) )
     {
          trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
@@ -66,7 +88,7 @@ function smarty_function_fill($params, &$smarty)
 		$_tmp_result = str_replace( $_delimiter . $_key . $_delimiter, (string)$_val, $_tmp_result);
 
 		// The UrlParse::normalize, amongs other things lowers the string. Check if plugin calls with lower=no to skip:
-		if ( true === \Sifo\Urls::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
+		if ( $_normalize && true === \Sifo\Urls::$normalize_values && ( !isset($params['lower'] ) || $params['lower'] != 'no' ) )
 		{
 			$_html_result = str_replace( $_delimiter . $_key . $_delimiter, \Sifo\Urls::normalize( (string)$_val ), $_html_result);
 		}
