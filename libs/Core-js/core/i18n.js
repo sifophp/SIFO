@@ -1,5 +1,5 @@
 
-// var _t = {} is stated in every messages_xx_XX.js file.
+var _t = _t ? _t : {};
 
 var I18N = {};
 $.extend ( I18N, {
