@@ -1006,4 +1006,15 @@ abstract class Controller
 
 		return 1;
 	}
+
+	/**
+	 * Returns whether the debug is available or not.
+	 *
+	 * @deprecated Please use Domains::getInstance()->getDebugMode() instead.
+	 * @return boolean
+	 */
+	public function hasDebug()
+	{
+		return Domains::getInstance()->getDebugMode();
+	}
 }
