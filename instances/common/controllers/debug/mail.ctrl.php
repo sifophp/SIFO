@@ -1,11 +1,11 @@
 <?php
-namespace Common;
 
 namespace Common;
+
 class DebugMailController extends \Sifo\Controller
 {
 	private $mail_data;
-	
+
 	/**
 	 * List of classes that will be autoloaded automatically.
 	 *
@@ -27,7 +27,7 @@ class DebugMailController extends \Sifo\Controller
 
 	public function build()
 	{
-		if ( !$this->hasDebug() )
+		if ( !\Sifo\Domains::getInstance()->getDebugMode() )
 		{
 			throw new \Sifo\Exception_404( 'Only in debug mode' );
 		}

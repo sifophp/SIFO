@@ -184,7 +184,7 @@ class DebugSearch extends Search
 		$this->query_debug['tag'] 			= $tag;
 
 
-		Registry::push( 'searches', $this->query_debug );
+		Debug::push( 'searches', $this->query_debug );
 		unset( $this->query_debug );
 		$this->query_context = array();
 		$this->query_debug['current_query'] = 0;
@@ -255,7 +255,7 @@ class DebugSearch extends Search
 		$this->query_debug['total_found'] 	= $sphinx_results['total_found'];
 		$this->query_debug['returned_rows'] = ( isset( $sphinx_results['matches'] ) ) ? count( $sphinx_results['matches'] ) : 0;
 
-		Registry::push( 'searches', $this->query_debug );
+		Debug::push( 'searches', $this->query_debug );
 		unset( $this->query_debug );
 		$this->query_debug['current_query'] = 0;
 

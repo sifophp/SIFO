@@ -71,7 +71,7 @@ class Search
 	{
 		if ( !isset ( self::$instance ) )
 		{
-			if ( Domains::getInstance()->getDevMode() !== true )
+			if ( Domains::getInstance()->getDebugMode() !== true )
 			{
 				self::$instance = new Search;
 			}

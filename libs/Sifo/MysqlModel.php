@@ -108,7 +108,7 @@ class MysqlModel
 	 */
 	protected function connectDb( $profile = 'default' )
 	{
-		if ( Bootstrap::$debug !== true )
+		if ( Domains::getInstance()->getDebugMode() !== true )
 		{
 			return Mysql::getInstance( $profile );
 		}

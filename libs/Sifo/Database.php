@@ -299,7 +299,7 @@ class Database
 	 */
 	protected function queryDebug( $resultset, $tag, $method, $read_operation, $error )
 	{
-		if ( !Domains::getInstance()->getDevMode() )
+		if ( !Domains::getInstance()->getDebugMode() )
 		{
 			return false;
 		}
@@ -319,7 +319,8 @@ class Database
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
 			"resultset"   => is_integer( $resultset ) ? array( array( $method => $resultset ) ) : $resultset,
 			"time"        => $query_time,
-			"error"       => ( isset( $error ) ? $error : false )
+			"error"			=> ( isset( $error ) ? $error : false ),
+			"duplicated"	=> false
 		);
 
 		if ( $debug_query['type'] == 'read' )
@@ -335,10 +336,20 @@ class Database
 			}
 		}
 
-		Registry::push( 'queries', $debug_query );
+		// Check duplicated queries.
+		$queries_executed = Debug::get( 'executed_queries' );
+		if ( !empty( $queries_executed ) && isset( $queries_executed[ $debug_query['sql'] ] ) )
+		{
+			$debug_query['duplicated'] = true;
+			Debug::push( 'duplicated_queries', 1 );
+		}
+		Debug::subSet( 'executed_queries', $debug_query['sql'], 1 );
+
+		// Save query info in debug and add query errors if it's necessary.
+		Debug::push( 'queries', $debug_query );
 		if ( isset( $error ) )
 		{
-			Registry::push( 'queries_errors', $error );
+			Debug::push( 'queries_errors', $error );
 		}
 	}
 

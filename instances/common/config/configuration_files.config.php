@@ -5,6 +5,7 @@ $config['cache'] = 'instances/common/config/cache.config.php';
 $config['classes'] = 'instances/common/config/classes.config.php';
 $config['css'] = 'instances/common/config/css.config.php';
 $config['db_profiles'] = 'instances/common/config/db_profiles.config.php';
+$config['debug_config'] = 'instances/common/config/debug_config.config.php';
 $config['domains'] = 'instances/common/config/domains.config.php';
 $config['forms/example.form'] = 'instances/common/config/forms/example.form.config.php';
 $config['js'] = 'instances/common/config/js.config.php';

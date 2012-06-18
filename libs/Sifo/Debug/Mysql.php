@@ -252,10 +252,10 @@ class DebugMysql extends Mysql
 		{
 			// Log mysql_errors to disk:
 			file_put_contents( ROOT_PATH . '/logs/errors_database.log', "================================\nDate: " . date( 'd-m-Y H:i:s') . "\nError:\n". $error . "\n ", FILE_APPEND );
-			Registry::push( 'queries_errors', $error );
+			Debug::push( 'queries_errors', $error );
 		}
 
-		Registry::push( 'queries', $debug_query );
+		Debug::push( 'queries', $debug_query );
 	}
 
 	/**

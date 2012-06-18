@@ -44,13 +44,6 @@ abstract class Controller
 	protected $debug_info = array();
 
 	/**
-	 * Whether the page has debug or not.
-	 *
-	 * @var boolean
-	 */
-	static private $has_debug = false;
-
-	/**
 	 * Associated modules being executed as dependencies.
 	 *
 	 * @var array
@@ -118,7 +111,6 @@ abstract class Controller
 		$this->language = Domains::getInstance()->getLanguage();
 
 		$this->url_definition = Urls::getInstance( $this->instance )->getUrlDefinition();
-		self::$has_debug = Bootstrap::$debug;
 
 		$urls = Urls::getInstance( $this->instance )->getUrlConfig();
 		$current_url = $this->getUrl( Urls::getInstance( Bootstrap::$instance )->getPath(), Urls::getInstance( $this->instance )->getParams() );
@@ -132,7 +124,7 @@ abstract class Controller
 				'path' => Urls::getInstance( $this->instance )->getPath(),
 				'path_parts' => Urls::getInstance( $this->instance )->getPathParts(),
 				'params' => Urls::getInstance( $this->instance )->getParams(),
-				'has_debug' => Bootstrap::$debug,
+				'has_debug' => Domains::getInstance()->getDebugMode(),
 				'lang' => $this->language,
 				'url' => $urls,
 
@@ -321,7 +313,7 @@ abstract class Controller
 	 */
 	public function dispatch()
 	{
-		if ( $this->hasDebug() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
+		if ( Domains::getInstance()->getDebugMode() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
 		{
 			@Session::getInstance()->destroy();
 		}
@@ -407,7 +399,8 @@ abstract class Controller
 		$this->assignCommonVars();
 
 		// Add another key inside the debug key:
-		Registry::getInstance()->subSet( 'debug', $class_name, $this->debug_info );
+		Debug::subSet( 'controllers', $class_name, $this->debug_info );
+
 		$content = $this->view->fetch( $this->layout );
 		$this->stopBench( "view_$class_name", "$class_name: Smarty fetch" );
 		return $content;
@@ -440,7 +433,7 @@ abstract class Controller
 		if ( $content )
 		{
 			// Add another key inside the debug key:
-			Registry::getInstance()->subSet( 'debug', get_class( $this ). ' <small>- Retrieved from ' . Cache::$cache_type . ' ['.$cache_key['name'] . ']</small>', $this->debug_info );
+			Debug::subSet( 'controllers', get_class( $this ). ' <small>- Retrieved from ' . Cache::$cache_type . ' ['.$cache_key['name'] . ']</small>', $this->debug_info );
 			return $content;
 		}
 
@@ -817,7 +810,7 @@ abstract class Controller
 	protected function addToDebug( $key, $value, $context = null)
 	{
 		// Store everything in the debug in the registry.
-		if ( $this->hasDebug() )
+		if ( Domains::getInstance()->getDebugMode() )
 		{
 			if (  null === $context )
 			{
@@ -844,7 +837,7 @@ abstract class Controller
 	 */
 	protected function stopBench( $key, $label )
 	{
-		Registry::getInstance()->subSet( 'benchmarks', $label, Benchmark::getInstance()->timingCurrent( $key ) );
+		Debug::subSet( 'benchmarks', $label, Benchmark::getInstance()->timingCurrent( $key ) );
 	}
 
 	/**
@@ -875,26 +868,6 @@ abstract class Controller
 		}
 
 		return Config::getInstance( $current_instance )->getConfig( $config_name );
-	}
-
-	/**
-	 * Returns whether the debug is available or not.
-	 *
-	 * @return boolean
-	 */
-	public function hasDebug()
-	{
-		return self::$has_debug && Bootstrap::$debug;
-	}
-
-	/**
-	 * Sets/unsets the debug as available.
-	 *
-	 * @param boolean $value True or false.
-	 */
-	public function setDebug( $value )
-	{
-		self::$has_debug = (bool) $value;
 	}
 
 	/**

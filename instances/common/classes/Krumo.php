@@ -10,7 +10,7 @@ namespace Common;
 function d( $var )
 {
 	// Enable Krumo only when debug is present.
-	if ( \Sifo\Domains::getInstance()->getDevMode() )
+	if ( \Sifo\Domains::getInstance()->getDebugMode() )
 	{
 		require_once( ROOT_PATH . '/libs/'.\Sifo\Config::getInstance()->getLibrary( 'krumo' ) .'/class.krumo.php' );
 		krumo( $var );
@@ -23,7 +23,7 @@ function d( $var )
 
 /**
  * Trace a content to be dump in the debug screen.
- *
+ * @depecrated: use Debug::log
  * @param mixed $message The messsage.
  */
 function trace( $message )
