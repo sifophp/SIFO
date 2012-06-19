@@ -107,8 +107,8 @@ class Browscap
 	public $timeout = 5;
 	public $updateInterval = 432000;  // 5 days
 	public $errorInterval = 7200;  // 2 hours
-	public $doAutoUpdate = true;
-	public $updateMethod = null;
+	public $doAutoUpdate = false;
+	public $updateMethod = false;
 
 	/**
 	 * The path of the local version of the browscap.ini file from which to
