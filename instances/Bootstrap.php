@@ -286,12 +286,12 @@ class Bootstrap
 				}
 				if ( 0 === FilterGet::getInstance()->getInteger( 'debug' ) )
 				{
-					Cookie::delete( 'debug' );
+					Cookie::set( 'debug', 0 );
 				}
 
-				if ( FilterCookie::getInstance()->getInteger( 'debug' ) || FilterGet::getInstance()->getInteger( 'debug' ) )
+				if ( false !== ( $debug = FilterCookie::getInstance()->getInteger( 'debug' ) ) )
 				{
-					Domains::getInstance()->setDebugMode( true );
+					Domains::getInstance()->setDebugMode( (bool)$debug );
 				}
 			}
 
