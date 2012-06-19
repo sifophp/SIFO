@@ -1,6 +1,12 @@
 <?php
 
+namespace phpbrowscap;
+
+use \Exception as BaseException;
+
 /**
+ * https://github.com/GaretJax/phpbrowscap/blob/master/src/phpbrowscap/Browscap.php
+ *
  * Browscap.ini parsing class with caching and update capabilities
  *
  * PHP version 5
@@ -27,6 +33,7 @@
  *
  * @package    Browscap
  * @author     Jonathan Stoppani <jonathan@stoppani.name>
+ * @author     Vítor Brandão <noisebleed@noiselabs.org>
  * @copyright  Copyright (c) 2006-2012 Jonathan Stoppani
  * @version    1.0
  * @license    http://www.opensource.org/licenses/MIT MIT License
@@ -100,8 +107,8 @@ class Browscap
 	public $timeout = 5;
 	public $updateInterval = 432000;  // 5 days
 	public $errorInterval = 7200;  // 2 hours
-	public $doAutoUpdate = false;
-	public $updateMethod = false;
+	public $doAutoUpdate = true;
+	public $updateMethod = null;
 
 	/**
 	 * The path of the local version of the browscap.ini file from which to
@@ -176,6 +183,28 @@ class Browscap
 	protected $_properties = array();
 
 	/**
+	 * An associative array of associative arrays in the format
+	 * `$arr['wrapper']['option'] = $value` passed to stream_context_create()
+	 * when building a stream resource.
+	 *
+	 * Proxy settings are stored in this variable.
+	 *
+	 * @see http://www.php.net/manual/en/function.stream-context-create.php
+	 *
+	 * @var array
+	 */
+	protected $_streamContextOptions = array();
+
+	/**
+	 * A valid context resource created with stream_context_create().
+	 *
+	 * @see http://www.php.net/manual/en/function.stream-context-create.php
+	 *
+	 * @var resource
+	 */
+	protected $_streamContext = null;
+
+	/**
 	 * Constructor class, checks for the existence of (and loads) the cache and
 	 * if needed updated the definitions
 	 *
@@ -187,7 +216,7 @@ class Browscap
 		date_default_timezone_set(date_default_timezone_get());
 
 		if (!isset($cache_dir)) {
-			throw new Browscap_Exception(
+			throw new Exception(
 				'You have to provide a path to read/store the browscap cache file'
 			);
 		}
@@ -196,7 +225,7 @@ class Browscap
 		$cache_dir = realpath($cache_dir);
 
 		if (false === $cache_dir) {
-			throw new Browscap_Exception(
+			throw new Exception(
 				sprintf('The cache path %s is invalid. Are you sure that it exists and that you have permission to access it?', $old_cache_dir)
 			);
 		}
@@ -217,7 +246,7 @@ class Browscap
 	 *
 	 * @param string $user_agent  the user agent string
 	 * @param bool $return_array  whether return an array or an object
-	 * @throws Browscap_Exception
+	 * @throws Exception
 	 * @return stdObject  the object containing the browsers details. Array if
 	 *                    $return_array is set to true.
 	 */
@@ -239,11 +268,11 @@ class Browscap
 			if (!file_exists($cache_file) || !file_exists($ini_file) || ($interval > $this->updateInterval)) {
 				try {
 					$this->updateCache();
-				} catch (Browscap_Exception $e) {
+				} catch (Exception $e) {
 					if (file_exists($ini_file)) {
 						// Adjust the filemtime to the $errorInterval
 						touch($ini_file, time() - $this->updateInterval + $this->errorInterval);
-					} else if ($this->silent) {
+					} elseif ($this->silent) {
 						// Return an array if silent mode is active and the ini db doesn't exsist
 						return array();
 					}
@@ -295,13 +324,114 @@ class Browscap
 		foreach ($browser as $key => $value) {
 			if ($value === 'true') {
 				$value = true;
-			} else if ($value === 'false') {
+			} elseif ($value === 'false') {
 				$value = false;
 			}
 			$array[$this->_properties[$key]] = $value;
 		}
 
 		return $return_array ? $array : (object) $array;
+	}
+
+	/**
+	 * Load (auto-set) proxy settings from environment variables.
+	 */
+	public function autodetectProxySettings()
+	{
+		$wrappers = array('http', 'https', 'ftp');
+
+		foreach ($wrappers as $wrapper) {
+			$url = getenv($wrapper.'_proxy');
+			if (!empty($url)) {
+				$params = array_merge(array(
+					'port'  => null,
+					'user'  => null,
+					'pass'  => null,
+				), parse_url($url));
+				$this->addProxySettings($params['host'], $params['port'], $wrapper, $params['user'], $params['pass']);
+			}
+		}
+	}
+
+	/**
+	 * Add proxy settings to the stream context array.
+	 *
+	 * @param string $server    Proxy server/host
+	 * @param int    $port      Port
+	 * @param string $wrapper   Wrapper: "http", "https", "ftp", others...
+	 * @param string $username  Username (when requiring authentication)
+	 * @param string $password  Password (when requiring authentication)
+	 *
+	 * @return Browscap
+	 */
+	public function addProxySettings($server, $port = 3128, $wrapper = 'http', $username = null, $password = null)
+	{
+		$settings = array($wrapper => array(
+			'proxy'             => sprintf('tcp://%s:%d', $server, $port),
+			'request_fulluri'   => true,
+		));
+
+		// Proxy authentication (optional)
+		if (isset($username) && isset($password)) {
+			$settings[$wrapper]['header'] = 'Proxy-Authorization: Basic '.base64_encode($username.':'.$password);
+		}
+
+		// Add these new settings to the stream context options array
+		$this->_streamContextOptions = array_merge(
+			$this->_streamContextOptions,
+			$settings
+		);
+
+		/* Return $this so we can chain addProxySettings() calls like this:
+* $browscap->
+*   addProxySettings('http')->
+*   addProxySettings('https')->
+*   addProxySettings('ftp');
+*/
+		return $this;
+	}
+
+	/**
+	 * Clear proxy settings from the stream context options array.
+	 *
+	 * @param string $wrapper Remove settings from this wrapper only
+	 *
+	 * @return array Wrappers cleared
+	 */
+	public function clearProxySettings($wrapper = null)
+	{
+		$wrappers = isset($wrapper) ? array($wrappers) : array_keys($this->_streamContextOptions);
+
+		$affectedProtocols = array();
+		$options = array('proxy', 'request_fulluri', 'header');
+		foreach ($wrappers as $wrapper) {
+
+			// remove wrapper options related to proxy settings
+			if (isset($this->_streamContextOptions[$wrapper]['proxy'])) {
+				foreach ($options as $option){
+					unset($this->_streamContextOptions[$wrapper][$option]);
+				}
+
+				// remove wrapper entry if there are no other options left
+				if (empty($this->_streamContextOptions[$wrapper])) {
+					unset($this->_streamContextOptions[$wrapper]);
+				}
+
+				$clearedWrappers[] = $wrapper;
+			}
+		}
+
+		return $clearedWrappers;
+	}
+
+	/**
+	 * Returns the array of stream context options.
+	 *
+	 * @return array
+	 */
+	public function getStreamContextOptions()
+	{
+		return $this->_streamContextOptions;
 	}
 
 	/**
@@ -355,10 +485,10 @@ class Browscap
 		foreach ($this->_userAgents as $user_agent) {
 			$pattern = preg_quote($user_agent, self::REGEX_DELIMITER);
 			$this->_patterns[] = self::REGEX_DELIMITER
-			                   . '^'
-			                   . str_replace($search, $replace, $pattern)
-			                   . '$'
-			                   . self::REGEX_DELIMITER;
+				. '^'
+				. str_replace($search, $replace, $pattern)
+				. '$'
+				. self::REGEX_DELIMITER;
 
 			if (!empty($browsers[$user_agent]['Parent'])) {
 				$parent = $browsers[$user_agent]['Parent'];
@@ -428,12 +558,26 @@ class Browscap
 	}
 
 	/**
+	 * Lazy getter for the stream context resource.
+	 *
+	 * @return resource
+	 */
+	protected function _getStreamContext($recreate = false)
+	{
+		if (!isset($this->_streamContext) || true === $recreate) {
+			$this->_streamContext = stream_context_create($this->_streamContextOptions);
+		}
+
+		return $this->_streamContext;
+	}
+
+	/**
 	 * Updates the local copy of the ini file (by version checking) and adapts
 	 * his syntax to the PHP ini parser
 	 *
 	 * @param string $url  the url of the remote server
 	 * @param string $path  the path of the ini file to update
-	 * @throws Browscap_Exception
+	 * @throws Exception
 	 * @return bool if the ini file was updated
 	 */
 	protected function _getRemoteIniFile($url, $path)
@@ -451,6 +595,7 @@ class Browscap
 			if ($remote_tmstp < $local_tmstp) {
 				// No update needed, return
 				touch($path);
+
 				return false;
 			}
 		}
@@ -462,10 +607,10 @@ class Browscap
 		$browscap = explode("\n", $browscap);
 
 		$pattern = self::REGEX_DELIMITER
-		         . '('
-		         . self::VALUES_TO_QUOTE
-		         . ')="?([^"]*)"?$'
-		         . self::REGEX_DELIMITER;
+			. '('
+			. self::VALUES_TO_QUOTE
+			. ')="?([^"]*)"?$'
+			. self::REGEX_DELIMITER;
 
 
 		// Ok, lets read the file
@@ -477,16 +622,17 @@ class Browscap
 
 		if ($url != $path) {
 			if (!file_put_contents($path, $content)) {
-				throw new Browscap_Exception("Could not write .ini content to $path");
+				throw new Exception("Could not write .ini content to $path");
 			}
 		}
+
 		return true;
 	}
 
 	/**
 	 * Gets the remote ini file update timestamp
 	 *
-	 * @throws Browscap_Exception
+	 * @throws Exception
 	 * @return int the remote modification timestamp
 	 */
 	protected function _getRemoteMTime()
@@ -495,7 +641,7 @@ class Browscap
 		$remote_tmstp = strtotime($remote_datetime);
 
 		if (!$remote_tmstp) {
-			throw new Browscap_Exception("Bad datetime format from {$this->remoteVerUrl}");
+			throw new Exception("Bad datetime format from {$this->remoteVerUrl}");
 		}
 
 		return $remote_tmstp;
@@ -504,13 +650,13 @@ class Browscap
 	/**
 	 * Gets the local ini file update timestamp
 	 *
-	 * @throws Browscap_Exception
+	 * @throws Exception
 	 * @return int the local modification timestamp
 	 */
 	protected function _getLocalMTime()
 	{
 		if (!is_readable($this->localFile) || !is_file($this->localFile)) {
-			throw new Browscap_Exception("Local file is not readable");
+			throw new Exception("Local file is not readable");
 		}
 
 		return filemtime($this->localFile);
@@ -532,7 +678,7 @@ class Browscap
 		foreach ($array as $key => $value) {
 			if (is_int($key)) {
 				$key = '';
-			} else if (ctype_digit((string) $key) || strpos($key, '.0')) {
+			} elseif (ctype_digit((string) $key) || strpos($key, '.0')) {
 				$key = intval($key) . '=>' ;
 			} else {
 				$key = "'" . str_replace("'", "\'", $key) . "'=>" ;
@@ -540,7 +686,7 @@ class Browscap
 
 			if (is_array($value)) {
 				$value = $this->_array2string($value);
-			} else if (ctype_digit((string) $value)) {
+			} elseif (ctype_digit((string) $value)) {
 				$value = intval($value);
 			} else {
 				$value = "'" . str_replace("'", "\'", $value) . "'";
@@ -564,11 +710,11 @@ class Browscap
 		if ($this->updateMethod === null) {
 			if ($this->localFile !== null) {
 				$this->updateMethod = self::UPDATE_LOCAL;
-			} else if (ini_get('allow_url_fopen') && function_exists('file_get_contents')) {
+			} elseif (ini_get('allow_url_fopen') && function_exists('file_get_contents')) {
 				$this->updateMethod = self::UPDATE_FOPEN;
-			} else if (function_exists('fsockopen')) {
+			} elseif (function_exists('fsockopen')) {
 				$this->updateMethod = self::UPDATE_FSOCKOPEN;
-			} else if (extension_loaded('curl')) {
+			} elseif (extension_loaded('curl')) {
 				$this->updateMethod = self::UPDATE_CURL;
 			} else {
 				$this->updateMethod = false;
@@ -582,7 +728,7 @@ class Browscap
 	 * Retrieve the data identified by the URL
 	 *
 	 * @param string $url the url of the data
-	 * @throws Browscap_Exception
+	 * @throws Exception
 	 * @return string the retrieved data
 	 */
 	protected function _getRemoteData($url)
@@ -596,10 +742,12 @@ class Browscap
 				if ($file !== false) {
 					return $file;
 				} else {
-					throw new Browscap_Exception('Cannot open the local file');
+					throw new Exception('Cannot open the local file');
 				}
 			case self::UPDATE_FOPEN:
-				$file = file_get_contents($url);
+				// include proxy settings in the file_get_contents() call
+				$context = $this->_getStreamContext();
+				$file = file_get_contents($url, false, $context);
 
 				if ($file !== false) {
 					return $file;
@@ -657,7 +805,7 @@ class Browscap
 					return $file;
 				} // else try with the next possibility
 			case false:
-				throw new Browscap_Exception('Your server can\'t connect to external resources. Please update the file manually.');
+				throw new Exception('Your server can\'t connect to external resources. Please update the file manually.');
 		}
 	}
 
@@ -685,6 +833,5 @@ class Browscap
  * @version    1.0
  * @license    http://www.opensource.org/licenses/MIT MIT License
  * @link       https://github.com/GaretJax/phpbrowscap/*/
-class Browscap_Exception extends Exception
+class Exception extends BaseException
 {}
-

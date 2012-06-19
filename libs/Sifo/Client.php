@@ -138,7 +138,7 @@ class Client
 		else
 		{
 			require_once ROOT_PATH . '/libs/Browscap/Browscap.php';
-			$bc = new \Browscap( ROOT_PATH . '/libs/Browscap/' );
+			$bc = new \phpbrowscap\Browscap( ROOT_PATH . '/libs/Browscap/' );
 			$browser = $bc->getBrowser( $useragent, $return_array );
 			Registry::set( 'Client_Browser', $browser );
 		}

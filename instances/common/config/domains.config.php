@@ -3,7 +3,8 @@
 	Syntax of the domains:
 
 	$config['domain.com'] = array(
-	'devel' => true,
+	'devel' => false,
+	'has_debug' => false,
 	'instance' => 'common',
 	'auth' => 'user,password',	// User and password requested by the browser, comment to disable
 	'trusted_ips' = 'ip1,ip2,...,ipn'; // When the auth directive is in use. Define here trusted user ip's for access without password.
@@ -59,7 +60,8 @@ $config['redirections'] = array(
 $config['instance_type'] = 'instantiable';
 
 $config['sifo.local'] = array(
-	'devel' => true,
+	'devel' => true, // Domain is marked as development
+	'has_debug' => true, // Domain shows the floating debug box.
 	'instance' => 'common',
 	'language' => 'en_US',
 	'language_domain' =>'messages',
