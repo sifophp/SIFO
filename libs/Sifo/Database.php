@@ -173,6 +173,9 @@ class Database
 			$tag = 'Query from ' . get_class( $this ) . ' (' . $this->__getMethodName( $this ) . ')';
 		}
 
+		// Clean '?' character from SQL Query TAG (to avoid problems with AdoDB bindings).
+		$tag = str_replace( '?', '', $tag );
+
 		$query = ''; // Methods like Affected_Rows that don't have a query associated nor $args.
 		$read_operation = false;
 
