@@ -42,6 +42,7 @@ class I18nStatusController extends \Sifo\Controller
 		$this->assign( 'curr_lang', $current_lang );
 		$this->assign( 'can_edit', $this->canEdit() );
 		$this->assign( 'isAdmin', $this->isAdmin() );
+		$this->assign( 'instance_name', $this->getParam( 'instance' ) );
 
 	}
 
