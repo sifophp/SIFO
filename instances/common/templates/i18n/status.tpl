@@ -113,49 +113,12 @@
 				<a href="{$url.translate|default:''}:{$l.lang|default:''}" title="Translate {$l.english_name|default:''}">{$l.english_name|default:''} ({$l.name|default:''})</a>
 			</td>
 			<td>{if $l.missing == 0}Translation complete{else}{$l.missing|default:''} strings missing{/if}</td>
-			<td class="fill_{if $l.percent >95}ok{elseif $l.percent > 70}warn{else}ko{/if}">{$l.percent|default:''}%</td>
+			<td class="btn-{if $l.percent >95}success{elseif $l.percent > 70}warning{else}danger{/if}">{$l.percent|default:''}%</td>
 		</tr>
 	{		/foreach}
 </table>
 {/if}
 {literal}
-<style>
-	<!--
-	.footer { margin-top: 45px; padding: 35px 0 36px; border-top: 1px solid #E5E5E5;}
-	#contents {
-		display: block;
-		min-height: 300px;
-	}
-
-	.save_ok {
-		background:#72C160 !important;
-		color: #fff !important;
-	}
-
-	.save_ko {
-		background:#C16060 !important;
-		color: #fff !important;
-	}
-
-	.fill_ok {
-		background-color: #72C160 !important;
-		color: #fff !important;
-	}
-
-	.fill_warn {
-		background-color: #E5C452 !important;
-		color: #333 !important;
-	}
-
-	.fill_ko {
-		background-color: #C16060 !important;
-		color: #fff !important;
-	}
-
-	/
-	/
-	-->
-</style>
 <script type="text/javascript">
 	<!--
 
@@ -209,10 +172,10 @@
 			dataType:'json',
 			success:function ( txt ) {
 				if ( txt['status'] == 'OK' ) {
-					$( obj ).parents( 'td' ).addClass( 'save_ok' );
+					$( obj ).parents( 'td' ).addClass( 'btn-success' );
 				}
 				else {
-					$( obj ).parents( 'td' ).addClass( 'save_ko' );
+					$( obj ).parents( 'td' ).addClass( 'btn-danger' );
 					alert( txt['msg'] );
 				}
 			}
@@ -223,7 +186,7 @@
 </script>
 {/literal}
 
-<footer class="footer">
+<footer class="footer" style="margin-top: 45px; padding: 35px 0 36px; border-top: 1px solid #E5E5E5;">
 	<p>Powered by Sifo, 2009-{$smarty.now|date_format:"%Y"}</p>
 </footer>
 
