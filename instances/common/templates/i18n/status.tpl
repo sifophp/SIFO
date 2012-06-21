@@ -36,17 +36,24 @@
 		<a class="btn btn-warning" href="#" id="rebuild" rel="{$url.translations_rebuild|default:''}"><i class="icon-refresh icon-white"></i> Rebuild translations</a>
 	</div>
 	<div class="btn-group">
-		<a class="btn btn-info" href="#" id="add-trans"><i class="icon-plus icon-white"></i> Add message</a>
-		<a class="btn btn-info" href="#" id="add-trans"><i class="icon-wrench icon-white"></i> Customize translation</a>
+		<a class="btn btn-info" href="#" id="add-message"><i class="icon-plus icon-white"></i> Add message</a>
+		<a class="btn btn-info" href="#" id="customize"><i class="icon-wrench icon-white"></i> Customize translation on {$instance_name|capitalize}</a>
 	</div>
 </div>
 
-<div id="add-trans-form" style="display:none">
-	<form class="form-horizontal" action="{$url.translations_add|default:''}">
-		<input type="text" value="" name="msgid"/>
-		<input type="text" value="" name="translation"/>
-		<input type="hidden" name="lang" value="{$curr_lang|default:''}"/>
-		<input class="add btn" type="submit" value="Add"/>
+<div id="add-message-form" style="display:none">
+	<form class="form-horizontal well" action="{$url.translations_add|default:''}">
+		<div class="input-append">
+			<input class="span7" type="text" value="" name="msgid" placeholder="New message to add to parent instance..." /><input class="add btn" type="submit" value="Add"/>
+		</div>
+	</form>
+</div>
+
+<div id="customize-form" style="display:none">
+	<form class="form-horizontal well" action="{$url.translations_add|default:''}">
+		<div class="input-append">
+			<input class="span7" type="text" value="" name="msgid" placeholder="Message to be customized on {$instance_name|capitalize}..." /><input class="add btn" type="submit" value="Customize"/>
+		</div>
 	</form>
 </div>
 {		/if}
@@ -154,8 +161,14 @@
 		} );
 	} );
 
-	$( '#add-trans' ).click( function () {
-		$( '#add-trans-form' ).toggle( 'fast' )
+	$( '#add-message' ).click( function () {
+		$( '#customize-form' ).hide( 'fast' )
+		$( '#add-message-form' ).toggle( 'fast' )
+	} );
+
+	$( '#customize' ).click( function () {
+		$( '#add-message-form' ).hide( 'fast' )
+		$( '#customize-form' ).toggle( 'fast' )
 	} );
 
 	function save( obj ) {
