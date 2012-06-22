@@ -6,7 +6,7 @@
 	url = git://github.com/facebook/php-sdk.git
 [submodule "libs/phpunit-skeleton-generator"]
 	path = libs/phpunit-skeleton-generator
-	url = git@github.com:alombarte/phpunit-skeleton-generator.git
+	url = git://github.com/alombarte/phpunit-skeleton-generator.git
 [submodule "libs/phpunit"]
 	path = libs/phpunit
-	url = git@github.com:alombarte/phpunit.git
+	url = git://github.com/alombarte/phpunit.git
