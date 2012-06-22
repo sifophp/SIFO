@@ -1,4 +1,6 @@
 <?php
+
+include_once( "SifoTest.php" );
 /**
  * ControllerTest.
  */
