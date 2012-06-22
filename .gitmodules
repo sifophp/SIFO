@@ -8,5 +8,5 @@
 	path = libs/phpunit-skeleton-generator
 	url = git@github.com:alombarte/phpunit-skeleton-generator.git
 [submodule "phpunit"]
-	path = phpunit
+	path = libs/phpunit
 	url = git@github.com:alombarte/phpunit.git
