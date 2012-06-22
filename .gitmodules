@@ -4,3 +4,9 @@
 [submodule "libs/Facebook-php-sdk"]
 	path = libs/Facebook-php-sdk
 	url = git://github.com/facebook/php-sdk.git
+[submodule "libs/phpunit-skeleton-generator"]
+	path = libs/phpunit-skeleton-generator
+	url = git@github.com:alombarte/phpunit-skeleton-generator.git
+[submodule "phpunit"]
+	path = phpunit
+	url = git@github.com:alombarte/phpunit.git
