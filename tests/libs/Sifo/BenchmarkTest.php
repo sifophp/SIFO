@@ -57,9 +57,18 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 	public function testTimer()
 	{
 		$this->object->timingStart();
-		$black_hole = fopen( '/dev/null', 'w' );
+		try
+		{
+			// Linux
+			$black_hole = fopen( '/dev/null', 'w' );
+		}
+		catch ( Exception $e )
+		{
+			// Windows
+			$black_hole = fopen( 'null', 'w' );
+		}
 
-		for ( $i = 0; $i < 50000; $i++ )
+		for ( $i = 0; $i < 500; $i++ )
 		{
 			fputs( $black_hole, $i );
 		}
@@ -70,7 +79,7 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 
 		$this->object->timingStart( 'test' );
 
-		for ( $i = 0; $i < 50000; $i++ )
+		for ( $i = 0; $i < 500; $i++ )
 		{
 			fputs( $black_hole, $i );
 		}
@@ -90,8 +99,18 @@ class BenchmarkTest extends PHPUnit_Extensions_ControllerTest
 	{
 		$this->object->timingStart( 'test' );
 
-		$black_hole = fopen( '/dev/null', 'w' );
-		for ( $i = 0; $i < 50000; $i++ )
+		try
+		{
+			// Linux
+			$black_hole = fopen( '/dev/null', 'w' );
+		}
+		catch ( Exception $e )
+		{
+			// Windows
+			$black_hole = fopen( 'null', 'w' );
+		}
+
+		for ( $i = 0; $i < 500; $i++ )
 		{
 			fputs( $black_hole, $i );
 		}
