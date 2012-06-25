@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>{$instance_name|capitalize} translation tool</title>
+	<title>{$instance|capitalize} translation tool</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 </head>
@@ -13,7 +13,13 @@
 <div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-			<a class="brand" href="#">{$instance_name|capitalize}</a>
+	{foreach from=$current_instance_inheritance item=instance_menu}
+		<ul class="nav">
+		{if $instance_menu != 'common'}
+			<li {if $instance_menu==$instance}class="active"{/if}><a class="brand" href="{$url.translate|default:''}:{$instance_menu}">{$instance_menu|capitalize}</a></li>
+		{/if}
+		</ul>
+	{/foreach}
 		</div>
 	</div>
 </div>
@@ -21,7 +27,7 @@
 {    $modules.system_messages}
 
 <div class="page-header">
-	<h1>Translation tool</h1>
+	<h1>Translation tool instance: {$instance|capitalize}</h1>
 </div>
 
 {        if $isAdmin}
@@ -29,20 +35,20 @@
 <div class="btn-toolbar">
 {	if $translations}
 	<div class="btn-group">
-		<a class="btn" href="{$url.translate|default:''}" title="Translation status"><i class="icon-chevron-left"></i> Back to languages list</a>
+		<a class="btn" href="{$url.translate|default:''}:{$instance}" title="Translation status"><i class="icon-chevron-left"></i> Back to languages list</a>
 	</div>
 {/if}
 	<div class="btn-group">
-		<a class="btn btn-warning" href="#" id="rebuild" rel="{$url.translations_rebuild|default:''}"><i class="icon-refresh icon-white"></i> Rebuild translations</a>
+		<a class="btn btn-warning" href="#" id="rebuild" rel="{$url.translations_rebuild|default:''}:{$instance}"><i class="icon-refresh icon-white"></i> Rebuild translations</a>
 	</div>
 	<div class="btn-group">
 		<a class="btn btn-info" href="#" id="add-message"><i class="icon-plus icon-white"></i> Add message</a>
-		<a class="btn btn-info" href="#" id="customize"><i class="icon-wrench icon-white"></i> Customize translation on {$instance_name|capitalize}</a>
+		<a class="btn btn-info" href="#" id="customize"><i class="icon-wrench icon-white"></i> Customize translation on {$instance|capitalize}</a>
 	</div>
 </div>
 
 <div id="add-message-form" style="display:none">
-	<form class="form-horizontal well" action="{$url.translations_add|default:''}">
+	<form class="form-horizontal well" action="{$url.translations_actions|default:''}:a:addMessage:i:{$instance}" id="add_message" onsubmit="add( this );return false;">
 		<div class="input-append">
 			<input class="span7" type="text" value="" name="msgid" placeholder="New message to add to parent instance..." /><input class="add btn" type="submit" value="Add"/>
 		</div>
@@ -50,9 +56,9 @@
 </div>
 
 <div id="customize-form" style="display:none">
-	<form class="form-horizontal well" action="{$url.translations_add|default:''}">
+	<form class="form-horizontal well" action="{$url.translations_actions|default:''}:a:customizeTranslation:i:{$instance}" id="customize_translate" onsubmit="add( this );return false;">
 		<div class="input-append">
-			<input class="span7" type="text" value="" name="msgid" placeholder="Message to be customized on {$instance_name|capitalize}..." /><input class="add btn" type="submit" value="Customize"/>
+			<input class="span7" type="text" value="" name="msgid" placeholder="Message to be customized on {$instance|capitalize}..." /><input class="add btn" type="submit" value="Customize"/>
 		</div>
 	</form>
 </div>
@@ -79,7 +85,7 @@
 			</td>
 			<td>
 				{if $can_edit}
-					<form class="form-horizontal" method="post" action="{$url.translations_save|default:''}" name="save_{$t.id|default:''}" onsubmit="save( this );return false;" accept-charset="UTF-8">
+					<form class="form-horizontal" method="post" action="{$url.translations_save|default:''}:{$instance}" name="save_{$t.id|default:''}" onsubmit="save( this );return false;" accept-charset="UTF-8">
 
 						<input type="hidden" name="id_message" value="{$t.id|default:''}"/>
 						<input type="hidden" name="lang" value="{$curr_lang|default:''}"/>
@@ -117,7 +123,7 @@
 	{        foreach from=$different_languages item=l key=key}
 		<tr>
 			<td>
-				<a href="{$url.translate|default:''}:{$l.lang|default:''}" title="Translate {$l.english_name|default:''}">{$l.english_name|default:''} ({$l.name|default:''})</a>
+				<a href="{$url.translate|default:''}:{$instance}:{$l.lang|default:''}" title="Translate {$l.english_name|default:''}">{$l.english_name|default:''} ({$l.name|default:''})</a>
 			</td>
 			<td>{if $l.missing == 0}Translation complete{else}{$l.missing|default:''} strings missing{/if}</td>
 			<td class="btn-{if $l.percent >95}success{elseif $l.percent > 70}warning{else}danger{/if}">{$l.percent|default:''}%</td>
@@ -193,7 +199,22 @@
 				}
 			}
 		} );
+	}
 
+	function add( obj )
+	{
+		var url_save = obj.action;
+		var data = $('#' + obj.id ).serialize();
+
+		$.ajax( {
+			type:"POST",
+			url:url_save,
+			data: data,
+			dataType:'json',
+			success:function ( txt ) {
+				alert( txt['msg'] );
+			}
+		} );
 	}
 	//-->
 </script>

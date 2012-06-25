@@ -12,6 +12,7 @@ $config['mail-continue'] = $base . '/mail-continue';
 $config['translate']			= $base . '/translate';
 $config['translations_save']	= $base . '/translation-save';
 $config['translations_rebuild']	= $base . '/translation-rebuild';
+$config['translations_add']		= $base . '/translations-add';
 
 $config["locales"]				= $base . '/locales';
 $config["locales_save"]			= $base . '/locales-save';

@@ -56,6 +56,7 @@ $config['DebugIndexController']['Common'] = 'instances/common/controllers/debug/
 $config['DebugMailController']['Common'] = 'instances/common/controllers/debug/mail.ctrl.php';
 $config['ErrorCommonController']['Common'] = 'instances/common/controllers/error/common.ctrl.php';
 $config['HomeIndexController']['Common'] = 'instances/common/controllers/home/index.ctrl.php';
+$config['I18nActionsController']['Common'] = 'instances/common/controllers/i18n/actions.ctrl.php';
 $config['I18nRebuildController']['Common'] = 'instances/common/controllers/i18n/rebuild.ctrl.php';
 $config['I18nSaveController']['Common'] = 'instances/common/controllers/i18n/save.ctrl.php';
 $config['I18nStatusController']['Common'] = 'instances/common/controllers/i18n/status.ctrl.php';

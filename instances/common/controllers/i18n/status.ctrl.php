@@ -1,8 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
 class I18nStatusController extends \Sifo\Controller
 {
 	public function build()
@@ -18,31 +16,56 @@ class I18nStatusController extends \Sifo\Controller
 		$this->addModule( 'system_messages', 'SharedSystemMessages' );
 
 		$this->setLayout( 'i18n/status.tpl' );
-		$translator = new I18nTranslatorModel();
 
-		$different_languages = $translator->getStats();
+		// Instance navigation.
+		$current_instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
+		$this->assign( 'current_instance_inheritance', $current_instance_inheritance );
 
-		$current_lang = false;
-		$translations = false;
-		$can_edit = false;
-		$isAdmin = false;
+
+		// Get instance name.
+		$params 	= $this->getParams();
+		$instance 	= $this->instance;
+
+		if ( isset( $params['params'][0] ) )
+		{
+			$instance = $params['params'][0];
+ 		}
+
+		// Get selected instance inheritance.
+		$instance_domains 		= $this->getConfig( 'domains', $instance );
+
+		$instance_inheritance = array();
+		if ( isset( $instance_domains['instance_inheritance'] ) )
+		{
+			$instance_inheritance 	=  $instance_domains['instance_inheritance'];
+		}
+
+		$is_parent_instance = false;
+		if ( empty( $instance_inheritance ) || ( count( $instance_inheritance ) == 1 && $instance_inheritance[0] == 'common' )  )
+		{
+			$is_parent_instance = true;
+		}
+
+		$translator 			= new I18nTranslatorModel();
+		$different_languages 	= $translator->getStats( $instance, $is_parent_instance );
+		$current_lang			= $this->getCurrentLang();
+		$translations 			= false;
 
 		$this->assign( 'langs', $different_languages );
-
-		$current_lang = $this->getCurrentLang();
 
 		// The languages are defined with 5 chars. E.g: es_ES
 		if ( $current_lang && 5 == strlen( $current_lang ) )
 		{
-			$translations = $translator->getTranslations( $current_lang );
+			$translations = $translator->getTranslations( $current_lang, $instance, $is_parent_instance );
 		}
 
+		$this->assign( 'instance', $instance );
+		$this->assign( 'instance_inheritance', $instance_inheritance );
 		$this->assign( 'different_languages', $different_languages );
 		$this->assign( 'translations', $translations );
 		$this->assign( 'curr_lang', $current_lang );
 		$this->assign( 'can_edit', $this->canEdit() );
 		$this->assign( 'isAdmin', $this->isAdmin() );
-		$this->assign( 'instance_name', $this->getParam( 'instance' ) );
 
 	}
 
@@ -53,7 +76,7 @@ class I18nStatusController extends \Sifo\Controller
 	 */
 	protected function getCurrentLang()
 	{
-		return $this->getUrlParam( 0 );
+		return $this->getUrlParam( 1 );
 	}
 
 	protected function canEdit()
