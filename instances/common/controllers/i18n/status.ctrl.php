@@ -61,6 +61,7 @@ class I18nStatusController extends \Sifo\Controller
 
 		$this->assign( 'instance', $instance );
 		$this->assign( 'instance_inheritance', $instance_inheritance );
+		$this->assign( 'is_parent_instance', $is_parent_instance );
 		$this->assign( 'different_languages', $different_languages );
 		$this->assign( 'translations', $translations );
 		$this->assign( 'curr_lang', $current_lang );

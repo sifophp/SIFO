@@ -43,7 +43,7 @@
 	</div>
 	<div class="btn-group">
 		<a class="btn btn-info" href="#" id="add-message"><i class="icon-plus icon-white"></i> Add message</a>
-		<a class="btn btn-info" href="#" id="customize"><i class="icon-wrench icon-white"></i> Customize translation on {$instance|capitalize}</a>
+		{if !$is_parent_instance}<a class="btn btn-info" href="#" id="customize"><i class="icon-wrench icon-white"></i> Customize translation on {$instance|capitalize}</a>{/if}
 	</div>
 </div>
 

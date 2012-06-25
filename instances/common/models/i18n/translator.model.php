@@ -151,4 +151,36 @@ TRANSLATIONS;
 
 		return $this->getOne( $sql, array( 'tag' => 'Get correct id message', $message, $id_message ) );
 	}
+
+	public function getMessageInInhertitance( $message, $instance_inheritance )
+	{
+		if ( !empty( $instance_inheritance ) )
+		{
+			foreach( $instance_inheritance as $instance )
+			{
+				if ( $instance != 'common' )
+				{
+					$instances[] = "'$instance'";
+				}
+			}
+			$instance_inheritance = implode( ', ', $instances );
+		}
+		else
+		{
+			// Is an instance parent.
+			return 0;
+		}
+
+		$sql = <<<SQL
+SELECT
+	COUNT(*)
+FROM
+	i18n_messages_copy
+WHERE
+	message = ? AND
+	( instance IN ( $instance_inheritance ) OR instance IS NULL )
+SQL;
+
+		return $this->getOne( $sql, array( 'tag' => 'Get message in inheritance', $message ) );
+	}
 }
