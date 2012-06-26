@@ -10,9 +10,6 @@ class I18nStatusController extends \Sifo\Controller
 			throw new \Sifo\Exception_404( 'Translation only available while in devel mode' );
 		}
 
-		$this->addModule( 'head', 'SharedHead' );
-		$this->addModule( 'header', 'SharedHeader' );
-		$this->addModule( 'footer', 'SharedFooter' );
 		$this->addModule( 'system_messages', 'SharedSystemMessages' );
 
 		$this->setLayout( 'i18n/status.tpl' );

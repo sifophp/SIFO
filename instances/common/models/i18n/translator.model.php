@@ -74,19 +74,17 @@ TRANSLATIONS;
 
 		$sql = <<<TRANSLATIONS
 SELECT
-	t.lang,
-	l.local_name as name,
 	l.english_name,
-	ROUND( ( count(*) / (SELECT COUNT( DISTINCT(m.id) ) FROM i18n_messages_copy m LEFT JOIN i18n_translations_copy tc2 ON m.id = tc2.id_message WHERE ( m.instance = ? OR tc2.instance = ?  $parent_instance_sub_sql  ) ) * 100 ), 2 ) as percent,
-	( ( SELECT COUNT( DISTINCT(m.id) ) FROM i18n_messages_copy m LEFT JOIN i18n_translations_copy tc2 ON m.id = tc2.id_message WHERE ( m.instance = ? OR tc2.instance = ?  $parent_instance_sub_sql  ) ) - COUNT(*) ) AS missing
+	l.lang,
+	lc.local_name AS name,
+	@lang 			:= l.lang AS lang,
+	@translated 	:= (SELECT COUNT(*) FROM i18n_translations_copy WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang ) AS total_translated,
+	@total 			:=  (SELECT COUNT(*) FROM i18n_messages_copy m LEFT JOIN i18n_translations_copy t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
+	ROUND( ( @translated / @total) * 100, 2 ) AS percent,
+	( @total - @translated ) AS missing
 FROM
-	i18n_translations_copy t
-	INNER JOIN i18n_language_codes l ON t.lang = l.l10n
-WHERE
-	instance = ?
-	$parent_instance_sql
-GROUP BY
-	t.lang
+	i18n_languages l
+	LEFT JOIN i18n_language_codes lc ON l.lang = lc.l10n
 ORDER BY
 	percent DESC, english_name ASC
 TRANSLATIONS;
