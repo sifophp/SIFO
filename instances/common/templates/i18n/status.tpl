@@ -13,10 +13,10 @@
 <div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-	{foreach from=$current_instance_inheritance item=instance_menu name=instances}
+	{foreach from=$current_instance_inheritance item=instance_menu}
 		<ul class="nav">
 		{if $instance_menu != 'common'}
-			<li {if $instance_menu==$instance}class="active"{/if}><a class="brand" href="{$url.translate|default:''}:{$instance_menu}">{$smarty.foreach.instances.index}. {$instance_menu|capitalize}</a></li>
+			<li {if $instance_menu==$instance}class="active"{/if}><a class="brand" href="{$url.translate|default:''}:{$instance_menu}">{$instance_menu|capitalize}</a></li>
 		{/if}
 		</ul>
 	{/foreach}

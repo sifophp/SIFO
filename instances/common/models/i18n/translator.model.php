@@ -15,12 +15,10 @@ class I18nTranslatorModel extends \Sifo\Model
 	 */
 	public function getTranslations( $language, $instance, $parent_instance = false )
 	{
-		$parent_instance_sql     = '';
-		$parent_instance_sub_sql = '';
+		$filter_sql = 'm.instance = ? OR t.instance = ?';
 		if ( $parent_instance )
 		{
-			$parent_instance_sql     = ' OR m.instance IS NULL ';
-			$parent_instance_sub_sql = ' OR t.instance IS NULL ';
+			$filter_sql = '( m.instance = ? OR m.instance IS NULL ) AND ( t.instance = ? OR t.instance IS NULL )';
 		}
 
 		$sql = <<<TRANSLATIONS
@@ -31,8 +29,7 @@ FROM
 LEFT JOIN
 	i18n_translations t ON m.id=t.id_message AND lang = ?
 WHERE
-	( m.instance = ? $parent_instance_sql ) AND
-	( t.instance = ? $parent_instance_sub_sql )
+    $filter_sql
 ORDER BY
 	t.translation ASC, m.message ASC
 TRANSLATIONS;
@@ -76,8 +73,8 @@ TRANSLATIONS;
 		$parent_instance_sub_sql = '';
 		if ( $parent_instance )
 		{
-			$parent_instance_sql     = ' OR m.instance IS NULL ';
-			$parent_instance_sub_sql = ' OR t.instance IS NULL ';
+			$parent_instance_sql     = ' OR instance IS NULL ';
+			$parent_instance_sub_sql = ' OR m.instance IS NULL ';
 		}
 
 		$sql = <<<TRANSLATIONS
@@ -85,18 +82,14 @@ SELECT
 	l.english_name,
 	l.lang,
 	lc.local_name AS name,
-	l.lang AS lang,
-	COUNT(m.id) AS total,
-	COUNT(t.id_message) AS total_translated,
-	ROUND( ( COUNT(t.id_message) / COUNT(m.id)) * 100, 2 ) AS percent,
-	( COUNT(m.id) - COUNT(t.id_message) ) AS missing
+	@lang 			:= l.lang AS lang,
+	@translated 	:= (SELECT COUNT(*) FROM i18n_translations WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang AND translation != '' AND translation IS NOT NULL ) AS total_translated,
+	@total 			:=  (SELECT COUNT(DISTINCT(m.id)) FROM i18n_messages m LEFT JOIN i18n_translations t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
+	ROUND( ( @translated / @total) * 100, 2 ) AS percent,
+	( @total - @translated ) AS missing
 FROM
 	i18n_languages l
 	LEFT JOIN i18n_language_codes lc ON l.lang = lc.l10n
-	LEFT JOIN i18n_messages m ON ( m.instance = ? $parent_instance_sql )
-	LEFT JOIN i18n_translations t ON m.id = t.id_message AND t.lang = l.lang AND ( t.instance = ? $parent_instance_sub_sql )
-GROUP BY
-	l.lang
 ORDER BY
 	percent DESC, english_name ASC
 TRANSLATIONS;
