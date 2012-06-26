@@ -34,7 +34,7 @@ class I18nSaveController extends \Sifo\Controller
 			// TODO: REMOVE this: Temporal fix until magic quotes is disabled:
 			$given_translation = str_replace( '\\', '', $given_translation );
 
-			$query = 'REPLACE i18n_translations_copy (id_message, lang, translation,author,instance) VALUES(?,?,?,?,?);';
+			$query = 'REPLACE i18n_translations (id_message, lang, translation,author,instance) VALUES(?,?,?,?,?);';
 
 			$result = \Sifo\Database::getInstance()->Execute( $query, array( $id_message, $lang, $given_translation, $translator_email, $instance ) );
 

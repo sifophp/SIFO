@@ -25,9 +25,9 @@ class I18nTranslatorModel extends \Sifo\Model
 SELECT
 	*
 FROM
-	`i18n_messages_copy` m
+	`i18n_messages` m
 LEFT JOIN
-	i18n_translations_copy t ON m.id=t.id_message AND lang = ?
+	i18n_translations t ON m.id=t.id_message AND lang = ?
 WHERE
 	( m.instance = ? OR t.instance = ? $parent_instance_sql )
 ORDER BY
@@ -78,8 +78,8 @@ SELECT
 	l.lang,
 	lc.local_name AS name,
 	@lang 			:= l.lang AS lang,
-	@translated 	:= (SELECT COUNT(*) FROM i18n_translations_copy WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang ) AS total_translated,
-	@total 			:=  (SELECT COUNT(*) FROM i18n_messages_copy m LEFT JOIN i18n_translations_copy t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
+	@translated 	:= (SELECT COUNT(*) FROM i18n_translations WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang AND translation != '' AND translation IS NOT NULL ) AS total_translated,
+	@total 			:=  (SELECT COUNT(*) FROM i18n_messages m LEFT JOIN i18n_translations t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
 	ROUND( ( @translated / @total) * 100, 2 ) AS percent,
 	( @total - @translated ) AS missing
 FROM
@@ -101,7 +101,7 @@ TRANSLATIONS;
 	{
 		$sql = <<<SQL
 INSERT INTO
-	i18n_messages_copy
+	i18n_messages
 SET
 	message 	= ?,
 	instance	= ?
@@ -120,7 +120,7 @@ SQL;
 	{
 		$sql = <<<SQL
 INSERT INTO
-	i18n_translations_copy
+	i18n_translations
 SELECT
 	?,
 	lang,
@@ -141,7 +141,7 @@ SQL;
 SELECT
 	id
 FROM
-	i18n_messages_copy
+	i18n_messages
 WHERE
 	message = ? OR
 	id 		= ?
@@ -173,7 +173,7 @@ TRANSLATIONS;
 SELECT
 	COUNT(*)
 FROM
-	i18n_messages_copy
+	i18n_messages
 WHERE
 	message = ? AND
 	( instance IN ( $instance_inheritance ) OR instance IS NULL )
