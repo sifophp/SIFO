@@ -14,11 +14,31 @@ class I18nRebuildController extends \Sifo\Controller
 		}
 
 		$translator = new I18nTranslatorModel();
-		$filter = \Sifo\Filter::getInstance();
 
-		$given_translation = $filter->getString( 'translation' );
-		$id_message = $filter->getString( 'id_message' );
+		// Get instance name.
+		$params 	= $this->getParams();
+		$instance 	= $this->instance;
+		if ( isset( $params['params'][0] ) )
+		{
+			$instance = $params['params'][0];
+		}
 
+		// Get selected instance inheritance.
+		$instance_domains 		= $this->getConfig( 'domains', $instance );
+
+		$instance_inheritance = array();
+		if ( isset( $instance_domains['instance_inheritance'] ) )
+		{
+			$instance_inheritance 	=  $instance_domains['instance_inheritance'];
+		}
+
+		$is_parent_instance = false;
+		if ( empty( $instance_inheritance ) || ( count( $instance_inheritance ) == 1 && $instance_inheritance[0] == 'common' )  )
+		{
+			$is_parent_instance = true;
+		}
+
+		// Get languages.
 		$langs_in_DB = $translator->getDifferentLanguages();
 
 		foreach ( $langs_in_DB as $l )
@@ -28,7 +48,7 @@ class I18nRebuildController extends \Sifo\Controller
 
 		foreach ( $language_list as $language )
 		{
-			$language_str = $translator->getTranslations( $language );
+			$language_str = $translator->getTranslations( $language, $instance, $is_parent_instance );
 
 			foreach ( $language_str as $str )
 			{
@@ -52,7 +72,7 @@ class I18nRebuildController extends \Sifo\Controller
 
 			foreach ( $translations as $msgid => $msgstr )
 			{
-				$msgstr[ $language ] = trim( $msgstr[ $language ] );
+				$msgstr[ $language ] = ( isset( $msgstr[ $language ] ) ) ? trim( $msgstr[ $language ] ) : null;
 				if ( !empty( $msgstr[ $language ] ) )
 				{
 					$item = $this->buildItem( $msgid, $msgstr[$language] );
@@ -65,10 +85,15 @@ class I18nRebuildController extends \Sifo\Controller
 					$empty_strings_buffer .= $item;
 				}
 			}
-			$buffer = "<?php
 
-namespace Common;\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
-			$path = ROOT_PATH . '/instances/' . \Sifo\Bootstrap::$instance . '/locale/messages_' .$language .'.php';
+			// Get instance inheritance.
+			$include_parent_instance = $this->getIncludeInheritance( $instance, $language );
+
+			$buffer = "<?php
+$include_parent_instance
+
+\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
+			$path = ROOT_PATH . '/instances/' . $instance . '/locale/messages_' .$language .'.php';
 			$write = @file_put_contents( $path, $buffer );
 
 			if ( !$write )
@@ -101,5 +126,23 @@ namespace Common;\n// Translations file, lang='$language'\n// Empty strings: $em
 		$item .= "\";\n";
 
 		return $item;
+	}
+
+	protected function getIncludeInheritance( $instance, $language )
+	{
+		$instance_domains 		= $this->getConfig( 'domains', $instance );
+		$instance_inheritance 	= array();
+		if ( isset( $instance_domains['instance_inheritance'] ) )
+		{
+			$instance_inheritance 	=  $instance_domains['instance_inheritance'];
+		}
+
+		$instance_parent = array_pop( $instance_inheritance );
+
+		if ( !empty( $instance_parent ) && $instance_parent != 'common' )
+		{
+			return "include ROOT_PATH . '/instances/{$instance_parent}/locale/messages_$language.php';";
+		}
+		return '';
 	}
 }

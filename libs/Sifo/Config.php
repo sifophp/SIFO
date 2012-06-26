@@ -48,7 +48,7 @@ class Config
 
     /**
      * Variables taken from the config are stored here in the class context.
-     * 
+     *
      * @var array
      */
     protected $config_values;
@@ -72,7 +72,7 @@ class Config
 			$this->config_path = ROOT_PATH . "/instances/" . $instance_name ."/config/";
 		}
 
-		include_once( $this->config_path . $this->configuration_files );
+		include( $this->config_path . $this->configuration_files );
 		$this->paths_to_configs = $config;
 	}
 
@@ -169,7 +169,7 @@ class Config
 		$classes = $this->getConfig( 'classes' );
 		$class_type = explode( '\\', $class_type );
         $path = null;
-        
+
 		if ( isset( $class_type[1] ) && $class_type[0] == '\\' . $class_type[1] )
 		{
 			unset( $class_type[1] );

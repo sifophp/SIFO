@@ -56,6 +56,7 @@ $config['DebugIndexController']['Common'] = 'instances/common/controllers/debug/
 $config['DebugMailController']['Common'] = 'instances/common/controllers/debug/mail.ctrl.php';
 $config['ErrorCommonController']['Common'] = 'instances/common/controllers/error/common.ctrl.php';
 $config['HomeIndexController']['Common'] = 'instances/common/controllers/home/index.ctrl.php';
+$config['I18nActionsController']['Common'] = 'instances/common/controllers/i18n/actions.ctrl.php';
 $config['I18nRebuildController']['Common'] = 'instances/common/controllers/i18n/rebuild.ctrl.php';
 $config['I18nSaveController']['Common'] = 'instances/common/controllers/i18n/save.ctrl.php';
 $config['I18nStatusController']['Common'] = 'instances/common/controllers/i18n/status.ctrl.php';
@@ -78,7 +79,6 @@ $config['SharedHeaderController']['Common'] = 'instances/common/controllers/shar
 $config['SharedSystemMessagesController']['Common'] = 'instances/common/controllers/shared/systemMessages.ctrl.php';
 $config['StaticIndexController']['Common'] = 'instances/common/controllers/static/index.ctrl.php';
 $config['UserLoginController']['Common'] = 'instances/common/controllers/user/login.ctrl.php';
-$config['I18nListModel']['Common'] = 'instances/common/models/i18n/list.model.php';
 $config['I18nTranslatorModel']['Common'] = 'instances/common/models/i18n/translator.model.php';
 $config['OAuthTwitterModel']['Common'] = 'instances/common/models/OAuth/twitter.model.php';
 

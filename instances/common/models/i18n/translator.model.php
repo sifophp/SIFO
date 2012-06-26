@@ -1,5 +1,4 @@
 <?php
-namespace Common;
 
 namespace Common;
 
@@ -14,20 +13,28 @@ class I18nTranslatorModel extends \Sifo\Model
 	 * @param string $language
 	 * @return array
 	 */
-	public function getTranslations( $language )
+	public function getTranslations( $language, $instance, $parent_instance = false )
 	{
+		$parent_instance_sql 		= '';
+		if ( $parent_instance )
+		{
+			$parent_instance_sql 		= ' OR t.instance IS NULL ';
+		}
+
 		$sql = <<<TRANSLATIONS
 SELECT
 	*
 FROM
 	`i18n_messages` m
 LEFT JOIN
-	i18n_translations t ON m.id=t.id_message AND lang =?
+	i18n_translations t ON m.id=t.id_message AND lang = ?
+WHERE
+	( m.instance = ? OR t.instance = ? $parent_instance_sql )
 ORDER BY
 	t.translation ASC, m.message ASC
 TRANSLATIONS;
 
-	return $this->GetArray( $sql, array( $language, 'tag' => 'Get all translations for current language' ) );
+	return $this->GetArray( $sql, array( $language, 'tag' => 'Get all translations for current language', $instance, $instance ) );
 	}
 
 	/**
@@ -55,25 +62,123 @@ TRANSLATIONS;
 	 *
 	 * @return array
 	 */
-	public function getStats()
+	public function getStats( $instance, $parent_instance )
 	{
+		$parent_instance_sql 		= '';
+		$parent_instance_sub_sql	= '';
+		if ( $parent_instance )
+		{
+			$parent_instance_sql 		= ' OR instance IS NULL ';
+			$parent_instance_sub_sql 	= ' OR m.instance IS NULL ';
+		}
+
 		$sql = <<<TRANSLATIONS
 SELECT
-	t.lang,
-	l.local_name as name,
 	l.english_name,
-	ROUND( ( count(*)/(SELECT count(*) FROM i18n_messages m) * 100 ), 2 ) as percent,
-	(SELECT count(*) FROM i18n_messages m) - count(*) as missing
+	l.lang,
+	lc.local_name AS name,
+	@lang 			:= l.lang AS lang,
+	@translated 	:= (SELECT COUNT(*) FROM i18n_translations WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang AND translation != '' AND translation IS NOT NULL ) AS total_translated,
+	@total 			:=  (SELECT COUNT(*) FROM i18n_messages m LEFT JOIN i18n_translations t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
+	ROUND( ( @translated / @total) * 100, 2 ) AS percent,
+	( @total - @translated ) AS missing
 FROM
-	i18n_translations t
-INNER JOIN
-	i18n_language_codes l ON t.lang = l.l10n
-GROUP BY
-	t.lang
+	i18n_languages l
+	LEFT JOIN i18n_language_codes lc ON l.lang = lc.l10n
 ORDER BY
 	percent DESC, english_name ASC
 TRANSLATIONS;
 
-	return $this->GetArray( $sql, array( 'tag' => 'Get current stats' ) );
+	return $this->GetArray( $sql, array( 'tag' => 'Get current stats', $instance, $instance, $instance, $instance, $instance ) );
+	}
+
+	/**
+	 * Add message in database.
+	 * @param $message
+	 * @return mixed
+	 */
+	public function addMessage( $message, $instance = null )
+	{
+		$sql = <<<SQL
+INSERT INTO
+	i18n_messages
+SET
+	message 	= ?,
+	instance	= ?
+SQL;
+
+		return $this->Execute( $sql, array( 'tag' => 'Add message', $message, $instance ) );
+	}
+
+	/**
+	 * Add translations for one message in an specific instance.
+	 * @param $message
+	 * @param $instance
+	 * @return mixed
+	 */
+	public function customizeTranslation( $id_message, $instance )
+	{
+		$sql = <<<SQL
+INSERT INTO
+	i18n_translations
+SELECT
+	?,
+	lang,
+	'',
+	'customize',
+	NOW(),
+	?
+FROM
+	i18n_languages;
+SQL;
+
+		return $this->Execute( $sql, array( 'tag' => 'Add message', $id_message, $instance ) );
+	}
+
+	public function getTranslation( $message, $id_message = null )
+	{
+		$sql = <<<TRANSLATIONS
+SELECT
+	id
+FROM
+	i18n_messages
+WHERE
+	message = ? OR
+	id 		= ?
+TRANSLATIONS;
+
+		return $this->getOne( $sql, array( 'tag' => 'Get correct id message', $message, $id_message ) );
+	}
+
+	public function getMessageInInhertitance( $message, $instance_inheritance )
+	{
+		if ( !empty( $instance_inheritance ) )
+		{
+			foreach( $instance_inheritance as $instance )
+			{
+				if ( $instance != 'common' )
+				{
+					$instances[] = "'$instance'";
+				}
+			}
+			$instance_inheritance = implode( ', ', $instances );
+		}
+		else
+		{
+			// Is an instance parent.
+			return 0;
+		}
+
+		$sql = <<<SQL
+SELECT
+	COUNT(*)
+FROM
+	i18n_messages
+WHERE
+	message = ? AND
+	( instance IN ( $instance_inheritance ) OR instance IS NULL )
+SQL;
+
+		return $this->getOne( $sql, array( 'tag' => 'Get message in inheritance', $message ) );
 	}
 }
