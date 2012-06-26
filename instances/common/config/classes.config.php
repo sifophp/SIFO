@@ -79,7 +79,6 @@ $config['SharedHeaderController']['Common'] = 'instances/common/controllers/shar
 $config['SharedSystemMessagesController']['Common'] = 'instances/common/controllers/shared/systemMessages.ctrl.php';
 $config['StaticIndexController']['Common'] = 'instances/common/controllers/static/index.ctrl.php';
 $config['UserLoginController']['Common'] = 'instances/common/controllers/user/login.ctrl.php';
-$config['I18nListModel']['Common'] = 'instances/common/models/i18n/list.model.php';
 $config['I18nTranslatorModel']['Common'] = 'instances/common/models/i18n/translator.model.php';
 $config['OAuthTwitterModel']['Common'] = 'instances/common/models/OAuth/twitter.model.php';
 
