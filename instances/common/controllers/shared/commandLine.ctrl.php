@@ -130,6 +130,16 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	}
 
 	/**
+	 * Private domain name property "getter".
+	 *
+	 * @return mixed
+	 */
+	protected function getDomainName()
+	{
+		return $this->_domain_name;
+	}
+
+	/**
 	 * Print a message on the console.
 	 *
 	 * Usage example:
