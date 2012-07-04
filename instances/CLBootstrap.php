@@ -64,6 +64,21 @@ class CLBootstrap extends Bootstrap
 			die;
 		}
 	}
+
+	public static function is_domain( $var )
+	{
+		return ( false !== strpos( $var, "." ) );
+	}
+
+	public static function get_available_domains()
+	{
+		$domain_configuration = Config::getInstance()->getConfig( 'domains' );
+		$configuration_keys = array_keys( $domain_configuration );
+		$available_domains = array_filter( $configuration_keys, "self::is_domain");
+
+		return $available_domains;
+	}
+
 }
 // Instance name (folder under instances):
 $cwd = $_SERVER['PWD'] . '/' . $_SERVER['PHP_SELF'];
@@ -80,6 +95,9 @@ if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 	// Dump help info:
 	require_once ROOT_PATH . '/instances/common/controllers/shared/commandLine.ctrl.php';
 	echo PHP_EOL . "Execute 'php $argv[0] <domain> --help' to read the help information." . PHP_EOL . PHP_EOL;
+	echo "Your available domains:" . PHP_EOL;
+	$available_domains = CLBootstrap::get_available_domains();
+	echo implode( $available_domains, PHP_EOL );
 	die;
 }
 CLBootstrap::$command_line_params = $argv;
