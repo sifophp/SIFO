@@ -101,5 +101,6 @@ if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 	die;
 }
 CLBootstrap::$command_line_params = $argv;
+
 // Setting the domain.
 FilterServer::getInstance()->setHost( $argv[1] );
