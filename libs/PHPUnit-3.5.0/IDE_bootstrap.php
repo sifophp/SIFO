@@ -23,5 +23,7 @@ foreach( $_SERVER['argv'] as $param )
 	}
 }
 
+$_SERVER["HTTP_HOST"] = 'unit.test';
+
 \Sifo\Bootstrap::$instance = $instance_name;
 \Sifo\Bootstrap::autoload();

@@ -40,4 +40,4 @@ GOTO RUN
 :USE_PEAR_PATH
 set PHPBIN=%PHP_PEAR_PHP_BIN%
 :RUN
-"%PHPBIN%" "M:\SIFO\libs\phpunit-skeleton-generator\phpunit-skelgen.php" %*
+"%PHPBIN%" "C:\code\SIFO\libs\phpunit-skeleton-generator\phpunit-skelgen.php" %*
