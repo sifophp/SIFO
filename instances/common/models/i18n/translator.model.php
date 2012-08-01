@@ -70,11 +70,11 @@ TRANSLATIONS;
 	public function getStats( $instance, $parent_instance )
 	{
 		$parent_instance_sql     = '';
-		$parent_instance_sub_sql = '';
+		$parent_instance_sub_sql = 'm.instance = ? OR t.instance = ?';
 		if ( $parent_instance )
 		{
-			$parent_instance_sql     = ' OR instance IS NULL ';
-			$parent_instance_sub_sql = ' OR m.instance IS NULL ';
+			$parent_instance_sql = ' OR instance IS NULL ';
+			$parent_instance_sub_sql = '( m.instance = ? OR m.instance IS NULL ) AND ( t.instance = ? OR t.instance IS NULL )';
 		}
 
 		$sql = <<<TRANSLATIONS
@@ -84,7 +84,7 @@ SELECT
 	lc.local_name AS name,
 	@lang 			:= l.lang AS lang,
 	@translated 	:= (SELECT COUNT(*) FROM i18n_translations WHERE ( instance = ? $parent_instance_sql ) AND lang = @lang AND translation != '' AND translation IS NOT NULL ) AS total_translated,
-	@total 			:=  (SELECT COUNT(DISTINCT(m.id)) FROM i18n_messages m LEFT JOIN i18n_translations t ON m.id=t.id_message AND t.lang = @lang WHERE ( m.instance = ? OR t.instance = ? $parent_instance_sub_sql ) ) AS total,
+	@total 			:=  (SELECT COUNT(DISTINCT(m.id)) FROM i18n_messages m LEFT JOIN i18n_translations t ON m.id=t.id_message AND t.lang = @lang WHERE $parent_instance_sub_sql ) AS total,
 	ROUND( ( @translated / @total) * 100, 2 ) AS percent,
 	( @total - @translated ) AS missing
 FROM
