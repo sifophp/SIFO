@@ -563,9 +563,15 @@ abstract class Controller
 	 */
 	public function execute()
 	{
-		$this->build();
+		$result = $this->build();
 		$controller_params = array_merge( array( 'layout' => $this->layout ), $this->getParams() );
 		$this->addToDebug( 'parameters', $controller_params, 'CONTROLLER' );
+
+		if ( $this->is_json )
+		{
+			return $result;
+		}
+
 		return $this->grabHtml();
 	}
 
