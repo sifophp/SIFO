@@ -28,37 +28,38 @@ class Search
 
 	protected $sphinx;
 
+	protected $sphinx_config;
+
 	/**
 	 * Initializes the class.
 	 */
 	protected function __construct()
 	{
-		$sphinx_active 	= Config::getInstance()->getConfig( 'sphinx', 'active' );
+		$this->sphinx_config = $this->getConnectionParams();
 
 		// Check if Sphinx is enabled by configuration:
-		if ( true === $sphinx_active )
+		if ( true === $this->sphinx_config['active'] )
 		{
 			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
 
-			$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
-
 			self::$search_engine 	= 'Sphinx';
 			$this->sphinx 			= new \SphinxClient();
-			$this->sphinx->SetServer( $sphinx_config['server'], $sphinx_config['port'] );
+			$this->sphinx->SetServer( $this->sphinx_config['server'], $this->sphinx_config['port'] );
 
 			// If it's defined a time out connection in config file:
-			if( isset( $sphinx_config['time_out'] ) )
+			if( isset( $this->sphinx_config['time_out'] ) )
 			{
-				$this->sphinx->SetConnectTimeout( $sphinx_config['time_out'] );
+				$this->sphinx->SetConnectTimeout( $this->sphinx_config['time_out'] );
 			}
 
 			// Check if Sphinx is listening:
-			if ( true ==! $this->sphinx->Open() )
+			if ( true !== $this->sphinx->Open() )
 			{
-				throw new \Sifo\Exception_500( 'Sphinx ('.$sphinx_config['server'].':'.$sphinx_config['port'].') is down!' );
+				throw new \Sifo\Exception_500( 'Sphinx (' . $this->sphinx_config['server'] . ':' . $this->sphinx_config['port'] . ') is down!' );
 			}
 		}
-		return $sphinx_config;
+
+		return $this->sphinx_config;
 	}
 
 	/**
@@ -82,6 +83,38 @@ class Search
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Get Sphinx connection params from config files.
+	 *
+	 * @return array
+	 * @throws Exception_500|Exception_Configuration
+	 */
+	protected function getConnectionParams()
+	{
+		// The domains.config file has priority, let's fetch it.
+		$sphinx_config = \Sifo\Domains::getInstance()->getParam( 'sphinx' );
+
+		if ( empty( $sphinx_config ) )
+		{
+			try
+			{
+				// If the domains.config doesn't define the params, we use the sphinx.config.
+				$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
+				$sphinx_config['config_file'] = 'sphinx';
+			}
+			catch ( Exception_Configuration $e )
+			{
+				throw new Exception_500( 'You must define the connection params in sphinx.config or domains.config file' );
+			}
+		}
+		else
+		{
+			$sphinx_config['config_file'] = 'domains';
+		}
+
+		return $sphinx_config;
 	}
 
 	/**
