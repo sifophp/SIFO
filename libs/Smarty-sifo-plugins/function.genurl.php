@@ -90,6 +90,8 @@ function smarty_function_genurl( $params, &$smarty )
 	unset( $params['params'] );
 	unset( $params['params_definition'] );
 	unset( $params['subject'] );
+	unset( $params['key'] );
+	unset( $params['value'] );
 
 	// Step 1: Fill $url_params with actual and new values.
 
