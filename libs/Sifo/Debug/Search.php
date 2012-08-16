@@ -210,6 +210,7 @@ class DebugSearch extends Search
 		$debug_sphinx = array(
 			"tag" 			=> $comment,
 			"query" 		=> $query,
+			"connection"    => $this->sphinx_config['config_file'],
 			"indexes" 		=> $index,
 			"controller" 	=> $this->getCallerClass(),
 			"time" 			=> $sphinx_time,
@@ -239,6 +240,7 @@ class DebugSearch extends Search
 		$debug_sphinx = array(
 			"tag" 			=> $comment,
 			"query" 		=> $query_filters,
+			"connection"    => $this->sphinx_config['config_file'],
 			"indexes" 		=> $sphinx_indexes,
 			"resultset" 	=> $sphinx_results,
 			"time" 			=> $sphinx_time,

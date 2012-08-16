@@ -30,7 +30,13 @@
 	//	'port'     => 6379,
 	//	'database' => 0
 	),
-
+    // Sphinx connection parameters.
+    // This definition has priority over the sphinx.config file, use it wisely.
+	'sphinx' => array(
+		'active' => true,
+		'server' => 'localhost',
+		'port' => 9312
+	),
 	'php_ini_sets' => array(  // Changes in php.ini conf. You'd better make changes in your php.ini and leave this array empty.
 		'log_errors' => 'On',
 		'error_log' => ROOT_PATH . '/logs/errors.log',
@@ -85,6 +91,13 @@ $config['sifo.local'] = array(
 		'host'     => '127.0.0.1',
 		'port'     => 6379,
 		'database' => 0
+	),
+    // Sphinx connection parameters.
+    // This definition has priority over the sphinx.config file, use it wisely.
+	'sphinx' => array(
+		'active' => true,
+		'server' => 'localhost',
+		'port' => 9312
 	),
 	 */
 	'php_ini_sets' => array( // Empty array if you don't want any php.ini overriden.

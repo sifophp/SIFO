@@ -13,6 +13,7 @@
 				<th>Order</th>
 				<th>GroupBy</th>
 				<th>Indexs</th>
+				<th>Connection</th>
 				<th>Trace</th>
 			</tr>
 			<tr>
@@ -35,6 +36,7 @@
 				<td>{if isset($query.sort.mode)}<em>{$query.sort.mode}</em>{/if} {if isset($query.sort.sortby)}- {$query.sort.sortby}{/if}</td>
 				<td>{if isset($query.group.attribute)}{$query.group.attribute}{/if} {if isset($query.group.func)}<em>- Func: {$query.group.func}</em>{/if} {if isset($query.group.groupsort)}- Groupsort: {$query.group.groupsort}{/if}</td>
 				<td>{$query.indexes}</td>
+				<td>{$query.connection}.config</td>
 				<td>{$query.controller}</td>
 			</tr>
 		</table>
