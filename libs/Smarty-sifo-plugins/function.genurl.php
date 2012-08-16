@@ -17,8 +17,10 @@
  *           - action				(required) - string (add|replace|remove)
  *           - params				(required) - array
  *           - params_definition	(optional) - array
- *           - delimiter  (optional, defaults to '%' ) - string
- *			 - normalize	  (optional, set to normalize=no if you don't want normalize) - string
+ *           - key                  (optional) - string
+ *           - value                (optional, but if "value" is defined, "key" is mandatory!) - string
+ *           - delimiter            (optional, defaults to '%' ) - string
+ *			 - normalize	        (optional, set to normalize=no if you don't want normalize) - string
  * Purpose:  Add URL params to URL given in 'subject' using given delimiter to separate them.
  *           If we pass a params_definition key7value pair for internal keys, we replace them with right key.
  *
@@ -30,6 +32,8 @@
  *           {genurl subject=$url.list action='add' params=$params params_definition=$params_definition show='medium'}
  *           Output: http://domain.com/list:o:big,medium
  *
+ *           {genurl subject="`$url.search`/`$keyword`" action='replace' key='country' value='sri-lanka' params=$params params_definition=$params_definition}
+ *           Output: http://domain.com/search/keyword:c:sri-lanka
  *
  * @author Albert Garcia
  * @param array
@@ -55,6 +59,13 @@ function smarty_function_genurl( $params, &$smarty )
 	}
 
 	$action = ( isset( $params['action'] ) ) ? $params['action'] : 'replace';
+
+	// You can also specify {genurl key='filter_name' value='filter_value'} instead of {genurl filter_name='filter_value'}.
+	// This is useful when you have dynamic filtering.
+	if ( !empty( $params['key'] ) && isset( $params['value'] ) )
+	{
+		$params['params'][$params['key']] = $params['value'];
+	}
 
 	$url_params = $params['params'];
 	$url_params_definition = $params['params_definition'];
