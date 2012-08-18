@@ -511,4 +511,39 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		$this->_stopScript();
 		$this->_sendMail();
 	}
+
+	protected function getCommandParam( $command_name )
+	{
+		$value = false;
+		foreach ( $this->command_options as $option )
+		{
+			$defined_command = false;
+			foreach ( $this->_shell_common_params as $command )
+			{
+				if ( $option[0] === $command['short_param_name'] || $option[0] === $command['long_param_name'] )
+				{
+					$defined_command = $command;
+					break;
+				}
+			}
+
+			if ( false !== $defined_command )
+			{
+				if ( $command_name === $defined_command['short_param_name'] || $command_name === $defined_command['long_param_name'] )
+				{
+					if ( !isset( $option[1] ) )
+					{
+						$value = true;
+					}
+					else
+					{
+						$value = $option[1];
+					}
+					break;
+				}
+			}
+		}
+
+		return $value;
+	}
 }
