@@ -505,6 +505,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 			$this->_common_exec();
 			if ( $this->_validateScriptRunning() )
 			{
+				$this->parseParams();
 				$this->exec();
 			}
 		}
@@ -512,24 +513,21 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		$this->_sendMail();
 	}
 
-	protected function getCommandParam( $command_name )
+	/**
+	 * Parse the input arguments and store them in a class property for later usage.
+	 *
+	 * @internal param array $params Get params.
+	 * @return array
+	 */
+	protected function parseParams()
 	{
-		$value = false;
-		foreach ( $this->command_options as $option )
+		$this->params['parsed_params'] = array();
+		foreach ( $this->_shell_common_params as $common_param )
 		{
-			$defined_command = false;
-			foreach ( $this->_shell_common_params as $command )
+			$value = false;
+			foreach ( $this->command_options as $option )
 			{
-				if ( $option[0] === $command['short_param_name'] || $option[0] === $command['long_param_name'] )
-				{
-					$defined_command = $command;
-					break;
-				}
-			}
-
-			if ( false !== $defined_command )
-			{
-				if ( $command_name === $defined_command['short_param_name'] || $command_name === $defined_command['long_param_name'] )
+				if ( $option[0] === $common_param['short_param_name'] || $option[0] === $common_param['long_param_name'] )
 				{
 					if ( !isset( $option[1] ) )
 					{
@@ -542,8 +540,9 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 					break;
 				}
 			}
-		}
 
-		return $value;
+			$this->params['parsed_params'][$common_param['short_param_name']] = $value;
+			$this->params['parsed_params'][$common_param['long_param_name']] = $value;
+		}
 	}
 }
