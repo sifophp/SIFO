@@ -24,6 +24,9 @@
  * Purpose:  Add URL params to URL given in 'subject' using given delimiter to separate them.
  *           If we pass a params_definition key7value pair for internal keys, we replace them with right key.
  *
+ * 			 Warning:
+ * 				The arguments "key" and "value" are reserved words. Please don't use them as URL definition parameters!.
+ *
  *           Examples of usage:
  *
  *           {genurl subject=$url.list action='replace' params=$params params_definition=$params_definition show='big'}
@@ -64,7 +67,7 @@ function smarty_function_genurl( $params, &$smarty )
 	// This is useful when you have dynamic filtering.
 	if ( !empty( $params['key'] ) && isset( $params['value'] ) )
 	{
-		$params['params'][$params['key']] = $params['value'];
+		$params[$params['key']] = $params['value'];
 	}
 
 	$url_params = $params['params'];
