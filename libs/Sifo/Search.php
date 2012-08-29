@@ -68,21 +68,21 @@ class Search
 	 * @param string $instance_name Instance Name, needed to determine correct paths.
 	 * @return object Config
 	 */
-	public static function getInstance( $profile = 'DEFAULT' )
+	public static function getInstance( $profile = 'default' )
 	{
-		if ( !isset ( self::$instance ) )
+		if ( !isset ( self::$instance[$profile] )  )
 		{
 			if ( Domains::getInstance()->getDebugMode() !== true )
 			{
-				self::$instance = new Search( $profile );
+				self::$instance[$profile] = new Search( $profile );
 			}
 			else
 			{
-				self::$instance = new DebugSearch( $profile );
+				self::$instance[$profile] = new DebugSearch( $profile );
 			}
 		}
 
-		return self::$instance;
+		return self::$instance[$profile];
 	}
 
 	/**
@@ -102,19 +102,29 @@ class Search
 			{
 				// If the domains.config doesn't define the params, we use the sphinx.config.
 				$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
+
 				if ( isset( $sphinx_config[$profile] ) )
 				{
 					$sphinx_config = $sphinx_config[$profile];
 				}
-				elseif ( isset( $sphinx_config['DEFAULT'] ) )
+				elseif ( isset( $sphinx_config['default'] ) )
 				{
-					$sphinx_config = $sphinx_config['DEFAULT'];
+					// Is using profiles but there isn't the required one.
+					throw new \Sifo\Exception_500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
+				}
+				// Deprecated:
+				else
+				{
+					if ( Domains::getInstance()->getDebugMode() === true )
+					{
+						trigger_error( "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at leat the 'default' one. (This message is only readable with the debug flag enabled)" );
+					}
 				}
 				$sphinx_config['config_file'] = 'sphinx';
 			}
 			catch ( Exception_Configuration $e )
 			{
-				throw new Exception_500( 'You must define the connection params in sphinx.config or domains.config file' );
+				throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config or domains.config file' );
 			}
 		}
 		else
