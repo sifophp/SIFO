@@ -1,7 +1,13 @@
 <?php
+
+// Use $config['profile_name'] to define a customized profile.
+
+$config['DEFAULT'] = array(
 // Sets if sphinx is active or not.
-$config['active'] = false;
+	'active' => false,
 
 // Connection to Sphinx server.
-$config['server'] = '127.0.0.1';
-$config['port'] = 9312;
+	'server' => '127.0.0.1',
+	'port' => 9312,
+);
+

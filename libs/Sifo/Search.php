@@ -33,9 +33,9 @@ class Search
 	/**
 	 * Initializes the class.
 	 */
-	protected function __construct()
+	protected function __construct( $profile )
 	{
-		$this->sphinx_config = $this->getConnectionParams();
+		$this->sphinx_config = $this->getConnectionParams( $profile );
 
 		// Check if Sphinx is enabled by configuration:
 		if ( true === $this->sphinx_config['active'] )
@@ -53,7 +53,7 @@ class Search
 			}
 
 			// Check if Sphinx is listening:
-			if ( true !== $this->sphinx->Open() )
+			if ( false === $this->sphinx->Status() )
 			{
 				throw new \Sifo\Exception_500( 'Sphinx (' . $this->sphinx_config['server'] . ':' . $this->sphinx_config['port'] . ') is down!' );
 			}
@@ -68,17 +68,17 @@ class Search
 	 * @param string $instance_name Instance Name, needed to determine correct paths.
 	 * @return object Config
 	 */
-	public static function getInstance()
+	public static function getInstance( $profile = 'DEFAULT' )
 	{
 		if ( !isset ( self::$instance ) )
 		{
 			if ( Domains::getInstance()->getDebugMode() !== true )
 			{
-				self::$instance = new Search;
+				self::$instance = new Search( $profile );
 			}
 			else
 			{
-				self::$instance = new DebugSearch;
+				self::$instance = new DebugSearch( $profile );
 			}
 		}
 
@@ -91,7 +91,7 @@ class Search
 	 * @return array
 	 * @throws Exception_500|Exception_Configuration
 	 */
-	protected function getConnectionParams()
+	protected function getConnectionParams( $profile )
 	{
 		// The domains.config file has priority, let's fetch it.
 		$sphinx_config = \Sifo\Domains::getInstance()->getParam( 'sphinx' );
@@ -102,6 +102,14 @@ class Search
 			{
 				// If the domains.config doesn't define the params, we use the sphinx.config.
 				$sphinx_config = Config::getInstance()->getConfig( 'sphinx' );
+				if ( isset( $sphinx_config[$profile] ) )
+				{
+					$sphinx_config = $sphinx_config[$profile];
+				}
+				elseif ( isset( $sphinx_config['DEFAULT'] ) )
+				{
+					$sphinx_config = $sphinx_config['DEFAULT'];
+				}
 				$sphinx_config['config_file'] = 'sphinx';
 			}
 			catch ( Exception_Configuration $e )

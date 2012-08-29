@@ -62,9 +62,9 @@ class DebugSearch extends Search
 	/**
 	 * Rewrite construct to init some debug parameters.
 	 */
-	protected function __construct()
+	protected function __construct( $profile )
 	{
-		$sphinx_config = parent::__construct();
+		$sphinx_config = parent::__construct( $profile );
 
 		// Init Debug:
 		$this->query_debug['current_query'] = 0;
