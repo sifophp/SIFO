@@ -35,7 +35,7 @@ namespace Sifo;
  * // Recursive list of all files including dirs:
  * $iterator = $dir->getRecursiveList( $path );
  *
- * // Recursive list of PHP and HTML files (hidding dirs)
+ * // Recursive list of PHP and HTML files (hiding dirs)
  * $iterator = $dir->getRecursiveList( $path, false, array( 'php', 'html' ) );
  *
  * // List of immediate files and dirs (non recursive):
@@ -82,16 +82,20 @@ class DirectoryList
 	 */
 	public function getList( $path, $valid_extensions = array( ) )
 	{
+		// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
+		$recursive_dir_iterator =  new \RecursiveDirectoryIterator( $path );
+		$recursive_dir_iterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
+
 		if ( !empty( $valid_extensions ) )
 		{
 			return new FilterFilesByExtensionIterator(
-							new \IteratorIterator( new \RecursiveDirectoryIterator( $path ) ),
+							new \IteratorIterator( $recursive_dir_iterator ),
 							$valid_extensions );
 		}
 		else
 		{
-			// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
-			return new \IteratorIterator( new \RecursiveDirectoryIterator( $path ) );
+
+			return new \IteratorIterator( $recursive_dir_iterator );
 		}
 
 	}
@@ -108,20 +112,21 @@ class DirectoryList
 	public function getRecursiveList( $path, $accept_directories = true, $valid_extensions = array( ) )
 	{
 		$mode = $this->_getIteratorMode( $accept_directories );
-		$dir_iterator = new \RecursiveDirectoryIterator( $path );
+		$recursive_dir_iterator =  new \RecursiveDirectoryIterator( $path );
+		$recursive_dir_iterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
 
 		if ( !empty( $valid_extensions ) )
 		{
 			return new FilterFilesByExtensionIterator(
 							new \RecursiveIteratorIterator(
-									$dir_iterator,
+									$recursive_dir_iterator,
 									$mode, \RecursiveIteratorIterator::CATCH_GET_CHILD
 							),
 							$valid_extensions );
 		}
 		else
 		{
-			return new \RecursiveIteratorIterator( $dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD );
+			return new \RecursiveIteratorIterator( $recursive_dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD );
 		}
 
 	}
