@@ -1,7 +1,5 @@
 <?php
 namespace Common;
-
-namespace Common;
 /**
  * Displays and advertisement block from the ads.config.php depending on how this controller was called.
  *
@@ -36,7 +34,7 @@ class SharedAdvertisingController extends \Sifo\Controller
 			$this->assign( 'ad', $ads_config );
 			
 		}
-		catch( Exception_Configuration $e )
+		catch( \Sifo\Exception_Configuration $e )
 		{
 			// The programmer is an asshole, but page should load anyway:
 			trigger_error( "Failed to load banners for module '$module', not present in ads.config.php" );
