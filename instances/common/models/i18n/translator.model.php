@@ -13,31 +13,27 @@ class I18nTranslatorModel extends \Sifo\Model
 	 * @param string $language
 	 * @return array
 	 */
-	public function getTranslations( $language, $instance, $parent_instance = false )
+	public function getTranslations( $language, $instance, $instance_parent_name )
 	{
-		$filter_sql = 'm.instance = ? OR t.instance = ?';
-		if ( $parent_instance )
-		{
-			$filter_sql = '( m.instance = ? OR m.instance IS NULL ) AND ( t.instance = ? OR t.instance IS NULL )';
-		}
-
 		$sql = <<<TRANSLATIONS
 SELECT
 	*
 FROM
-	`i18n_messages` m
-LEFT JOIN
-	i18n_translations t ON m.id=t.id_message AND lang = ?
+	i18n_messages m
+	LEFT JOIN i18n_translations t ON m.id=t.id_message AND lang = ?
 WHERE
-    $filter_sql
+    ( t.instance IS NULL OR t.instance = ? ) AND
+    ( m.instance = ? OR ( t.instance = ? AND ( m.instance IS NULL OR m.instance IN( ? ) ) ) )
 ORDER BY
 	t.translation ASC, m.message ASC
 TRANSLATIONS;
 
 		return $this->GetArray( $sql, array(
-		                                   $language,
-		                                   $instance,
-		                                   $instance,
+		                                   	$language,
+		                                   	$instance,
+		                                   	$instance,
+		                                   	$instance,
+											$instance_parent_name,
 		                                   'tag' => 'Get all translations for current language'
 		                              ) );
 	}
