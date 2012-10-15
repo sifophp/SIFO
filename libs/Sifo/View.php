@@ -22,6 +22,7 @@ namespace Sifo;
 
 include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'smarty' ).'/Smarty.class.php';
 
+
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */
@@ -63,6 +64,28 @@ class View extends \Smarty
 
 		// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
 		$this->auto_literal = false;
+
 	}
+
+	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
+	{
+		set_error_handler( array( $this, "customErrorHandler" ) );
+		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
+		restore_error_handler();
+
+		return $result;
+	}
+
+	protected function customErrorHandler( $errno, $errstr, $errfile, $errline )
+	{
+		// Smarty only write PHP USER errors to log:
+		if ( ( E_USER_ERROR <= $errno) && ( $raw_url = Urls::getUrl( "raw_url" ) ) )
+		{
+			error_log( "View error found requesting '{$raw_url}':" );
+		}
+
+		return false;
+	}
+
 }
 ?>
