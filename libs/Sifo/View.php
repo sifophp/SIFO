@@ -72,6 +72,9 @@ class View extends \Smarty
 		set_error_handler( array( $this, "customErrorHandler" ) );
 		self::muteExpectedErrors();
 		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
+
+		// The current method launch an set_error_handler but inside self::muteExpectedErrors() ther is one more.
+		// We need launch two restores to turn back to the preview expected behaviour.
 		restore_error_handler();
 		restore_error_handler();
 
