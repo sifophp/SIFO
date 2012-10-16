@@ -37,6 +37,11 @@ class DebugIndexController extends \Sifo\Controller
 		$debug['times']				= \Sifo\Debug::get( 'times' );
 		$this->renderDebugModule( $debug, 'basic_debug', 'debug/basic_debug.tpl' );
 
+		// Smarty Debug:
+		$debug['smarty_errors']		= \Sifo\Debug::get( 'smarty_errors' );
+		$this->assign( 'debug', $debug );
+		$this->renderDebugModule( $debug, 'smarty_errors', 'debug/smarty_errors.tpl' );
+
 		// Database debug.
 		$debug['queries']				= \Sifo\Debug::get( 'queries' );
 		$debug['queries_errors']		= \Sifo\Debug::get( 'queries_errors' );

@@ -70,6 +70,7 @@ class View extends \Smarty
 	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
 	{
 		set_error_handler( array( $this, "customErrorHandler" ) );
+		self::muteExpectedErrors();
 		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
 		restore_error_handler();
 
@@ -79,11 +80,20 @@ class View extends \Smarty
 	protected function customErrorHandler( $errno, $errstr, $errfile, $errline )
 	{
 		// Smarty only write PHP USER errors to log:
-		if ( ( E_USER_ERROR <= $errno) && ( $raw_url = Urls::getUrl( "raw_url" ) ) )
+		if ( ( $raw_url = Urls::$actual_url ) )
 		{
-			error_log( "View error found requesting '{$raw_url}':" );
+			error_log( "URL '{$raw_url}' launched the following Smarty error:" );
 		}
 
+		if( Domains::getInstance()->getDebugMode() )
+		{
+			$error_friendly = Debug::friendlyErrorType( $errno );
+			$error_string = "[{$error_friendly}]: {$errstr} in line {$errline}";
+			Debug::subSet( 'controllers',$errfile, array($error_friendly => $error_string) );
+			Debug::subSet( 'smarty_errors',$errfile, $error_string);
+		}
+
+		// Follow the error handling flow:
 		return false;
 	}
 
