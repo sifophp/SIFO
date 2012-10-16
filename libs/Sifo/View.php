@@ -73,6 +73,7 @@ class View extends \Smarty
 		self::muteExpectedErrors();
 		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
 		restore_error_handler();
+		restore_error_handler();
 
 		return $result;
 	}
