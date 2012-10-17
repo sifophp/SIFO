@@ -140,7 +140,7 @@ class Debug
 	 */
 	public static function subSet( $key, $sub_key, $value, $append = false  )
 	{
-		if ( !isset( self::$storage[$key][$sub_key] ) )
+		if ( !isset( self::$storage[$key][$sub_key] ) || false == $append )
 		{
 			self::$storage[$key][$sub_key] = $value;
 		}
