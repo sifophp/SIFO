@@ -28,6 +28,8 @@ include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'smarty' )
  */
 class View extends \Smarty
 {
+	protected $template;
+
 	/**
 	 * Constructor. Inherits all methods from Smarty.
 	 */
@@ -69,6 +71,8 @@ class View extends \Smarty
 
 	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
 	{
+		$this->template = $template;
+
 		set_error_handler( array( $this, "customErrorHandler" ) );
 		self::muteExpectedErrors();
 		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
@@ -83,18 +87,19 @@ class View extends \Smarty
 
 	protected function customErrorHandler( $errno, $errstr, $errfile, $errline )
 	{
-		// Smarty only write PHP USER errors to log:
-		if ( ( $raw_url = Urls::$actual_url ) )
-		{
-			error_log( "URL '{$raw_url}' launched the following Smarty error:" );
-		}
+		$error_friendly = Debug::friendlyErrorType( $errno );
+		$error_string = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
 		if( Domains::getInstance()->getDebugMode() )
 		{
-			$error_friendly = Debug::friendlyErrorType( $errno );
-			$error_string = "[{$error_friendly}]: {$errstr} in line {$errline}";
-			Debug::subSet( 'controllers',$errfile, array($error_friendly => $error_string) );
-			Debug::subSet( 'smarty_errors',$errfile, $error_string);
+			Debug::subSet( 'smarty_errors',$this->template, '<pre>'.$error_string.'</pre>', true);
+		}
+
+		// Smarty only write PHP USER errors to log:
+		if ( ( $raw_url = Urls::$actual_url ) )
+		{
+			error_log( "URL '{$raw_url}' launched the following Smarty error: {$error_string} fetching {$this->template}" );
+			return true;
 		}
 
 		// Follow the error handling flow:

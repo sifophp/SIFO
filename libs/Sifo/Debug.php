@@ -135,11 +135,19 @@ class Debug
 	 *
 	 * @param string $key Name you want to store the value with.
 	 * @param mixed $value The object to store in the array.
+	 * @param boolean $append When true append the value to the end if sub_key exists.
 	 * @return void
 	 */
-	public static function subSet( $key, $sub_key, $value  )
+	public static function subSet( $key, $sub_key, $value, $append = false  )
 	{
-		self::$storage[$key][$sub_key] = $value;
+		if ( !isset( self::$storage[$key][$sub_key] ) )
+		{
+			self::$storage[$key][$sub_key] = $value;
+		}
+		else
+		{
+			self::$storage[$key][$sub_key] = ( self::$storage[$key][$sub_key] . $value );
+		}
 	}
 
 	/**
