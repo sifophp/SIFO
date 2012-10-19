@@ -323,11 +323,11 @@ abstract class Controller
 			// Set headers before cache:
 			if ( $json_callback = FilterGet::getInstance()->getString( 'json_callback' ) )
 			{
-				header( 'Content-type: text/javascript' );
+				Headers::set( 'Content-type', 'text/javascript' );
 			}
 			else
 			{
-				header( 'Content-type: application/json' );
+				Headers::set( 'Content-type', 'application/json' );
 			}
 		}
 
@@ -374,6 +374,7 @@ abstract class Controller
 		}
 
 		$this->postDispatch();
+		Headers::write();
 		$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
 
 		$content = $this->_realTimeReplacement( $content );

@@ -89,7 +89,7 @@ abstract class ImageController extends Controller
 			$content_type ='Content-type: image/x-icon';
 		}
 
-		header( "Content-type: $content_type" );
+		Headers::set( 'Content-type', $content_type );
 	}
 
 	/**

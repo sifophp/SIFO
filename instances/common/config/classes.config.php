@@ -25,6 +25,7 @@ $config['Exceptions']['Sifo'] = 'libs/Sifo/Exceptions.php';
 $config['Filter']['Sifo'] = 'libs/Sifo/Filter.php';
 $config['FlashMessages']['Sifo'] = 'libs/Sifo/FlashMessages.php';
 $config['Form']['Sifo'] = 'libs/Sifo/Form.php';
+$config['Headers']['Sifo'] = 'libs/Sifo/Headers.php';
 $config['I18N']['Sifo'] = 'libs/Sifo/I18N.php';
 $config['ImageController']['Sifo'] = 'libs/Sifo/imageController.php';
 $config['Images']['Sifo'] = 'libs/Sifo/Images.php';
