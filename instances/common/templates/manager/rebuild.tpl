@@ -31,7 +31,7 @@ pre {
     padding: 10px;;
 }
 #container { padding: 10px; }
-#errors { padding: 10px; border-color: 1px solid #b43d3d; background-color: #FFCFD1; }
+#errors { padding: 10px; border: 1px solid #b43d3d; background-color: #FFCFD1; }
 #errors p { font-weight: bold; }
 .bgcolor1 { background-color: #cdf492; } .bgcolor1, .bordercolor1 { border: 1px solid #a2cb5b; border-left-width: 5px; }
 .bgcolor2 { background-color: #d7eff4; } .bgcolor2, .bordercolor2 { border: 1px solid #73a7b4; border-left-width: 5px; }
