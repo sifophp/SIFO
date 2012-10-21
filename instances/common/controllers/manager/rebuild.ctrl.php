@@ -17,6 +17,13 @@ class ManagerRebuildController extends \Sifo\Controller
 	);
 
 	/**
+	 * Saves files that couldn't be saved to disk.
+	 *
+	 * @var array
+	 */
+	protected $failed_files = array();
+
+	/**
 	 * Writes all the configurattion files to disk.
 	 *
 	 * Input expected is:
@@ -71,7 +78,12 @@ class ManagerRebuildController extends \Sifo\Controller
 				$this->assign( 'file_name', $this->filenames[$file] );
 
 				$configs_content = $this->grabHtml();
-				file_put_contents( ROOT_PATH . "/instances/" . $current_instance . "/config/" . $this->filenames[$file], $configs_content );
+				$file_destination = ROOT_PATH . "/instances/" . $current_instance . "/config/" . $this->filenames[$file];
+				$success = file_put_contents( $file_destination, $configs_content );
+				if ( !$success )
+				{
+					$this->failed_files[] = $file_destination;
+				}
 				$output[$current_instance][$file] = $configs_content;
 			}
 		}
@@ -96,31 +108,15 @@ class ManagerRebuildController extends \Sifo\Controller
 		) );
 
 		// Reset the layout and paste the content in the empty template:
-		$this->setLayout( 'empty.tpl' );
+		$this->setLayout( 'manager/rebuild.tpl' );
 		// Disable debug on this page.
 		\Sifo\Domains::getInstance()->setDebugMode( false );
 
-		$instance_inheritance 	= implode( ' > ', array_reverse( array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() ) ) );
+		$this->assign( 'inheritance', array_reverse( array_unique( \Sifo\Domains::getInstance()->getInstanceInheritance() ) ) );
 
-		$message = <<<MESG
-INSTANCE INHERITANCE: $instance_inheritance.
-REMEMBER: All this instances have changed their configurations files.
-
-MESG;
-		foreach( $files_output as $instance_name => $files_instance )
-		{
-			$message .= "\n************************** " . strtoupper( $instance_name ) . " ******************\n\n";
-			foreach ( $files_instance as $file => $output )
-			{
-				$message .= "\n==== {$this->filenames[$file]} ====\n$output\n";
-			}
-		}
-
-		$this->assign( 'content', $message );
-
-
-		header( 'Content-Type: text/plain' );
-
+		$this->assign( 'errors', $this->failed_files );
+		$this->assign( 'filenames', $this->filenames );
+		$this->assign( 'files_output', $files_output );
 	}
 
 	protected function getRunningInstances()

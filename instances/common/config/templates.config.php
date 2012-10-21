@@ -18,6 +18,7 @@ $config['home/pagination.tpl'] = 'instances/common/templates/home/pagination.tpl
 $config['i18n/status.tpl'] = 'instances/common/templates/i18n/status.tpl';
 $config['locales/index.tpl'] = 'instances/common/templates/locales/index.tpl';
 $config['manager/findi18n.tpl'] = 'instances/common/templates/manager/findi18n.tpl';
+$config['manager/rebuild.tpl'] = 'instances/common/templates/manager/rebuild.tpl';
 $config['manager/templates.tpl'] = 'instances/common/templates/manager/templates.tpl';
 $config['manager/tpl_launcher.tpl'] = 'instances/common/templates/manager/tpl_launcher.tpl';
 $config['shared/footer.tpl'] = 'instances/common/templates/shared/footer.tpl';
