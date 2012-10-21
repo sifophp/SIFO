@@ -35,8 +35,8 @@ pre {
 #errors p { font-weight: bold; }
 .bgcolor1 { background-color: #cdf492; } .bgcolor1, .bordercolor1 { border: 1px solid #a2cb5b; border-left-width: 5px; }
 .bgcolor2 { background-color: #d7eff4; } .bgcolor2, .bordercolor2 { border: 1px solid #73a7b4; border-left-width: 5px; }
-.bgcolor3 { background-color: #eef4c7; } .bgcolor3, .bordercolor3 { border: 1px solid #eff4bb; border-left-width: 5px; }
-.bgcolor4 { background-color: #eee1f4; } .bgcolor4, .bordercolor4 { border: 1px solid #e2daf4; border-left-width: 5px; }
+.bgcolor3 { background-color: #ebd5f4; } .bgcolor3, .bordercolor3 { border: 1px solid #c963f4; border-left-width: 5px; }
+.bgcolor4 { background-color: #f4e486; } .bgcolor4, .bordercolor4 { border: 1px solid #f4da43; border-left-width: 5px; }
 
 {/literal}
 </style>
