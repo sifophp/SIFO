@@ -125,7 +125,7 @@ class Form
 	{
 		if ( method_exists( $this->filter, $filter_rule ) === false )
 		{
-			throw new Exception_Form( "The method $method_name is not present in Filter" );
+			throw new Exception_Form( "The method $filter_rule is not present in Filter" );
 		}
 
 		if ( !$mandatory && ( !$this->filter->isSent( $name ) || $this->filter->isEmpty( $name ) ) )
@@ -166,7 +166,7 @@ class Form
 		$res = true;
 		foreach ( $names as $name )
 		{
-			$res = $res && $this->validateSingleElement( true, $name, $filter_rule, $parameters = array() );
+			$res = $res && $this->validateSingleElement( true, $name, $filter_rule, $parameters );
 		}
 	}
 
