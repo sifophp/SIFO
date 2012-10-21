@@ -25,7 +25,7 @@ class MysqlModel
 	protected $db;
 
 	/**
-	 * Use this method as constructor in chidren.
+	 * Use this method as constructor in children.
 	 *
 	 * @return unknown
 	 */
@@ -59,7 +59,7 @@ class MysqlModel
 	 */
 	protected function storeInRegistry( $key, $value )
 	{
-		$reg = Registry::getInstance()->set( $key, $value );
+		Registry::getInstance()->set( $key, $value );
 	}
 
 	/**

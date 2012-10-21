@@ -144,13 +144,20 @@ class Mysql
 	 */
 	public function __construct( $profile )
 	{
-		$params = Domains::getInstance()->getDatabaseParams();
-		$this->db_params = $params[$profile];
+		$this->db_params = Domains::getInstance()->getDatabaseParams();
+		$init_commands = array();
+
+		if ( !empty( $this->db_params['db_init_commands'] ) )
+		{
+			$init_commands = array( PDO::MYSQL_ATTR_INIT_COMMAND => implode( ';', $this->db_params['db_init_commands'] ) );
+		}
+
 		$this->pdo = new PDO(
 			"mysql:host={$this->db_params['db_host']};dbname={$this->db_params['db_name']}",
 			$this->db_params['db_user'],
 			$this->db_params['db_password'],
-			$this->db_params['db_init_commands']
+			$init_commands
+
 		);
 		$class = get_called_class();
 		$this->pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( $class::STATEMENT_CLASS, array( $this->pdo, $profile ) ) );
