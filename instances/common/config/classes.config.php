@@ -68,6 +68,7 @@ $config['ManagerRebuildController']['Common'] = 'instances/common/controllers/ma
 $config['ManagerRebuildRouterController']['Common'] = 'instances/common/controllers/manager/rebuildRouter.php';
 $config['ManagerRebuildi18nLocalController']['Common'] = 'instances/common/controllers/manager/rebuildi18nLocal.php';
 $config['ManagerTemplateLauncherController']['Common'] = 'instances/common/controllers/manager/templateLauncher.ctrl.php';
+$config['ScriptsAmazonS3UploaderController']['Common'] = 'instances/common/controllers/scripts/amazonS3Uploader.php';
 $config['ScriptsFlushCacheController']['Common'] = 'instances/common/controllers/scripts/flushCache.php';
 $config['ScriptsLoadAvgAutoswitchController']['Common'] = 'instances/common/controllers/scripts/loadAvgAutoswitch.php';
 $config['ScriptsSendLogController']['Common'] = 'instances/common/controllers/scripts/sendLog.php';
