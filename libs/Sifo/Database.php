@@ -62,6 +62,8 @@ class Database
 	 */
 	const TYPE_SINGLE_SERVER = 'single_server';
 
+	const QUERY_METHOD_PREPARE = 'Prepare';
+
 	/**
 	 * Dummy Singleton
 	 *
@@ -308,6 +310,12 @@ class Database
 		}
 
 		$query = self::$adodb[self::$destination_type]->_querySQL;
+
+		if ( self::QUERY_METHOD_PREPARE == $method )
+		{
+			$query = strtoupper( $method )." (".md5( $resultset ).")";
+		}
+
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
 		$debug_query = array(
