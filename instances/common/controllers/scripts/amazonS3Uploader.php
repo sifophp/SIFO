@@ -8,7 +8,7 @@ class ScriptsAmazonS3UploaderController extends SharedCommandLineController
 {
 	private $config_file;
 	private $source;
-	private $destination_uri = "";
+	private $destination_uri = "default";
 	private $destination_bucket;
 
 	private $ssl_default_value = false;
@@ -109,7 +109,7 @@ HELP_TEXT;
 		$this->setNewParam( 'C', 'config', 'Define the necessary config file access path.', true, true );
 		$this->setNewParam( 'S', 'source', 'Define the source file/directory.', true, true );
 		$this->setNewParam( 'B', 'destination_bucket', 'Define the destination bucket. If it is not defined uses the default_bucket defined in the config file.', true, false );
-		$this->setNewParam( 'U', 'destination_uri', 'Define the destination directory (in the bucket structure). Default: \'/\'', true, true );
+		$this->setNewParam( 'U', 'destination_uri', 'Define the destination directory (in the bucket structure). Default: \'/\'', true, false );
 
 		$acl_values = array( \S3::ACL_PRIVATE, \S3::ACL_AUTHENTICATED_READ, \S3::ACL_PUBLIC_READ, \S3::ACL_PUBLIC_READ_WRITE );
 		$acl_values = implode( "|", $acl_values );
