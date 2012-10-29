@@ -101,7 +101,7 @@ Is mandatoy define the config.
 Config file expected format ( eg: amazon.php.config ):
 <?php
 	\$config['S3']['awsAccessKey'] = '<ACCESS_KEY>'; // Required,
-	\$config['S3']['awsSecretKey'] = '<PUBLIC_KEY>'; // Required,
+	\$config['S3']['awsSecretKey'] = '<SECRET_KEY>'; // Required,
 	\$config['S3']['useSSL'] = 'true/false'; // Default:{$this->ssl_default_value},
 	\$config['S3']['defaultBucket'] = '<BUCKET_NAME>'; // Not required param.,
 HELP_TEXT;
