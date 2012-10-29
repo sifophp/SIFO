@@ -225,7 +225,7 @@ class Domains
 		// If a domain is not configured, we launch a 404 error.
 		if ( !isset( $this->instance ) && !isset( $this->redirect ) )
 		{
-			throw new Exception_404( 'The domain ' . $this->instance . ' is not configured in domains.config.php file.' );
+			throw new DomainsException( 'Unknown domain.' );
 		}
 	}
 
@@ -397,4 +397,5 @@ class Domains
 		return $this->instance_inheritance;
 	}
 }
-?>
+
+class DomainsException extends \Exception {}
