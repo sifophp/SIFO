@@ -135,11 +135,19 @@ class Debug
 	 *
 	 * @param string $key Name you want to store the value with.
 	 * @param mixed $value The object to store in the array.
+	 * @param boolean $append When true append the value to the end if sub_key exists.
 	 * @return void
 	 */
-	public static function subSet( $key, $sub_key, $value  )
+	public static function subSet( $key, $sub_key, $value, $append = false  )
 	{
-		self::$storage[$key][$sub_key] = $value;
+		if ( !isset( self::$storage[$key][$sub_key] ) || false == $append )
+		{
+			self::$storage[$key][$sub_key] = $value;
+		}
+		else
+		{
+			self::$storage[$key][$sub_key] = ( self::$storage[$key][$sub_key] . $value );
+		}
 	}
 
 	/**
@@ -169,5 +177,49 @@ class Debug
 	public static function getDebugInformation()
 	{
 		return self::$storage;
+	}
+
+	/**
+	 * Return a error type friendly string.
+	 *
+	 * @param $type Error code number.
+	 * @return string
+	 */
+	public static function friendlyErrorType( $type )
+	{
+		switch($type)
+		{
+			case E_ERROR: // 1 //
+				return 'E_ERROR';
+			case E_WARNING: // 2 //
+				return 'E_WARNING';
+			case E_PARSE: // 4 //
+				return 'E_PARSE';
+			case E_NOTICE: // 8 //
+				return 'E_NOTICE';
+			case E_CORE_ERROR: // 16 //
+				return 'E_CORE_ERROR';
+			case E_CORE_WARNING: // 32 //
+				return 'E_CORE_WARNING';
+			case E_CORE_ERROR: // 64 //
+				return 'E_COMPILE_ERROR';
+			case E_CORE_WARNING: // 128 //
+				return 'E_COMPILE_WARNING';
+			case E_USER_ERROR: // 256 //
+				return 'E_USER_ERROR';
+			case E_USER_WARNING: // 512 //
+				return 'E_USER_WARNING';
+			case E_USER_NOTICE: // 1024 //
+				return 'E_USER_NOTICE';
+			case E_STRICT: // 2048 //
+				return 'E_STRICT';
+			case E_RECOVERABLE_ERROR: // 4096 //
+				return 'E_RECOVERABLE_ERROR';
+			case E_DEPRECATED: // 8192 //
+				return 'E_DEPRECATED';
+			case E_USER_DEPRECATED: // 16384 //
+				return 'E_USER_DEPRECATED';
+		}
+		return "";
 	}
 }

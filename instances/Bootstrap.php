@@ -302,6 +302,13 @@ class Bootstrap
 				self::invokeController( 'debug/index' )->dispatch();
 			}
 		}
+		// Don't know what to do after Domain is evaluated. Goodbye:
+		catch( DomainsException $d )
+		{
+			header("HTTP/1.0 404 Not Found");
+			echo "<h1>{$d->getMessage()}</h1>";
+			die;
+		}
 		catch ( \Exception $e )
 		{
 			self::_dispatchErrorController( $e );

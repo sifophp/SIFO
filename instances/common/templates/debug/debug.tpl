@@ -329,6 +329,10 @@ LoadjQueryUI();
 			<dt class="query_duplicated">{t}Duplicated Queries{/t}</dt>
 			<dd class="query_duplicated"><strong>{$debug.queries_duplicated|@count}</strong></dd>
 {/if}
+{if $debug.smarty_errors}
+			<dt class="query_duplicated">{t}Smarty errors{/t}</dt>
+			<dd class="query_duplicated"><strong>{$debug.smarty_errors|@count}</strong></dd>
+{/if}
 {if $debug.times.search}
 			<dt>{t}Searches{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.search}%1 searches{/t}</a>)</small></dt>
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.search format="%.0f"}%</span>{$debug.times.search|time_format}</dd>
@@ -378,6 +382,9 @@ LoadjQueryUI();
 	</ul>
 	</div>
 {/if}
+
+{* Smarty Error: Compilation and runtime smarty errors*}
+{$debug_modules.smarty_errors}
 
 {* Basic debug: Benchmarks and controllers *}
 {$debug_modules.basic_debug}

@@ -22,11 +22,14 @@ namespace Sifo;
 
 include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'smarty' ).'/Smarty.class.php';
 
+
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */
 class View extends \Smarty
 {
+	protected $template;
+
 	/**
 	 * Constructor. Inherits all methods from Smarty.
 	 */
@@ -63,6 +66,45 @@ class View extends \Smarty
 
 		// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
 		$this->auto_literal = false;
+
 	}
+
+	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
+	{
+		$this->template = $template;
+
+		set_error_handler( array( $this, "customErrorHandler" ) );
+		self::muteExpectedErrors();
+		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
+
+		// The current method launch an set_error_handler but inside self::muteExpectedErrors() ther is one more.
+		// We need launch two restores to turn back to the preview expected behaviour.
+		restore_error_handler();
+		restore_error_handler();
+
+		return $result;
+	}
+
+	protected function customErrorHandler( $errno, $errstr, $errfile, $errline )
+	{
+		$error_friendly = Debug::friendlyErrorType( $errno );
+		$error_string = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
+
+		if( Domains::getInstance()->getDebugMode() )
+		{
+			Debug::subSet( 'smarty_errors',$this->template, '<pre>'.$error_string.'</pre>', true);
+		}
+
+		// Smarty only write PHP USER errors to log:
+		if ( ( $raw_url = Urls::$actual_url ) )
+		{
+			error_log( "URL '{$raw_url}' launched the following Smarty error: {$error_string} fetching {$this->template}" );
+			return true;
+		}
+
+		// Follow the error handling flow:
+		return false;
+	}
+
 }
 ?>
