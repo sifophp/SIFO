@@ -43,8 +43,6 @@ class I18nStatusController extends \Sifo\Controller
 			$is_parent_instance = true;
 		}
 
-		$instance_parent_name = isset( $instance_inheritance[1] ) ? $instance_inheritance[1] : null;
-
 		$translator 			= new I18nTranslatorModel();
 		$different_languages 	= $translator->getStats( $instance, $is_parent_instance );
 		$current_lang			= $this->getCurrentLang();
@@ -55,7 +53,7 @@ class I18nStatusController extends \Sifo\Controller
 		// The languages are defined with 5 chars. E.g: es_ES
 		if ( $current_lang && 5 == strlen( $current_lang ) )
 		{
-			$translations = $translator->getTranslations( $current_lang, $instance, $instance_parent_name, $is_parent_instance );
+			$translations = $translator->getTranslations( $current_lang, $instance, $is_parent_instance );
 		}
 
 		$this->assign( 'instance', $instance );

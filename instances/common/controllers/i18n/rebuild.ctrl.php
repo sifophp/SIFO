@@ -38,8 +38,6 @@ class I18nRebuildController extends \Sifo\Controller
 			$is_parent_instance = true;
 		}
 
-		$instance_parent_name = isset( $instance_inheritance[1] ) ? $instance_inheritance[1] : null;
-
 		// Get languages.
 		$langs_in_DB = $translator->getDifferentLanguages();
 
@@ -50,7 +48,7 @@ class I18nRebuildController extends \Sifo\Controller
 
 		foreach ( $language_list as $language )
 		{
-			$language_str = $translator->getTranslations( $language, $instance, $instance_parent_name, $is_parent_instance );
+			$language_str = $translator->getTranslations( $language, $instance, $is_parent_instance );
 
 			foreach ( $language_str as $str )
 			{
