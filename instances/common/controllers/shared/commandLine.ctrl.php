@@ -25,6 +25,13 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	public $force				= false;
 
 	/**
+	 * Send the STDOUT to the following recipients.
+	 *
+	 * @var array
+	 */
+	protected $recipient_list 	= array();
+
+	/**
 	 * Foreground colors for shell messages.
 	 *
 	 * @var array
@@ -441,15 +448,26 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 
 	private function _sendMail()
 	{
-		if ( isset( $this->_recipient ) )
+		if ( isset( $this->_recipient ) || !empty( $this->recipient_list ) )
 		{
+			if ( !empty( $this->_recipient ) && !in_array( $this->_recipient, $this->recipient_list ) )
+			{
+				$this->recipient_list[] = $this->_recipient;
+			}
+
 			if ( self::MAX_LINES_WITHOUT_SEND_MAIL < ( count( explode( PHP_EOL, $this->_stdout ) ) - 1 ) )
 			{
-				$this->showMessage( "Now I would try send an email with subject: '" . $this->getSubject() . "' to '" . $this->_recipient . "'", self::TEST );
-				if ( !$this->test )
+				$mail = new \Sifo\Mail();
+				$subject = $this->getSubject();
+				$content = $this->_reformatToEmail( $this->_stdout );
+
+				foreach ( $this->recipient_list as $recipient )
 				{
-					$mail = new \Sifo\Mail();
-					$mail->send( $this->_recipient, $this->getSubject(), $this->_reformatToEmail( $this->_stdout ) );
+					$this->showMessage( "Now I would try send an email with subject: '" . $subject . "' to '" . $recipient . "'", self::TEST );
+					if ( !$this->test )
+					{
+						$mail->send( $recipient, $subject, $content );
+					}
 				}
 			}
 			else
