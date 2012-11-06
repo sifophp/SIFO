@@ -94,7 +94,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		array(
 			'short_param_name'	=> 'r',
 			'long_param_name'	=> 'recipient',
-			'help_string'		=> 'Used with an email like -r user@server.com send to these mail the script execution result.',
+			'help_string'		=> 'Email address or addresses (separated by comma [,]) to send the output.',
 			'need_second_param'	=> true,
 			'is_required'		=> false,
 		),
@@ -389,7 +389,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 					break;
 				case "r":
 				case "recipient":
-					$this->_recipient = $option[1];
+					$this->_recipient = explode( ',', $option[1] );
 					break;
 				case "f":
 				case "force":
@@ -450,9 +450,9 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	{
 		if ( isset( $this->_recipient ) || !empty( $this->recipient_list ) )
 		{
-			if ( !empty( $this->_recipient ) && !in_array( $this->_recipient, $this->recipient_list ) )
+			if ( !empty( $this->_recipient ) )
 			{
-				$this->recipient_list[] = $this->_recipient;
+				$this->recipient_list = array_merge( $this->recipient_list, array_diff( $this->_recipient, $this->recipient_list ) );
 			}
 
 			if ( self::MAX_LINES_WITHOUT_SEND_MAIL < ( count( explode( PHP_EOL, $this->_stdout ) ) - 1 ) )
