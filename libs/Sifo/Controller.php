@@ -340,6 +340,7 @@ abstract class Controller
 		{
 			$this->postDispatch();
 			$cached_content = $this->_realTimeReplacement( $cached_content );
+			Headers::write();
 			echo $cached_content;
 			return;
 		}
