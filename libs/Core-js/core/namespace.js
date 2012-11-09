@@ -2,10 +2,11 @@ var CORE = {
 	utilities : {},
 	globals : {}, 
 	instance : {},
-	modules : {},
+	modules : [],
 	classes : {},
 	behaviour : {
 		page : {},
+		modules : {},
 		nullFunction : function(){} 
 	}
 };
