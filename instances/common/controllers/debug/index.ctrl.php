@@ -30,6 +30,11 @@ class DebugIndexController extends \Sifo\Controller
 	{
 		$this->setLayout( 'debug/debug.tpl' );
 
+		// Headers:
+		$debug['headers']	 		= \Sifo\Headers::getDebugInfo();
+		$this->renderDebugModule( $debug, 'headers', 'debug/headers.tpl' );
+
+
 		// Basic Debug data:
 		$debug['controllers']		= \Sifo\Debug::get( 'controllers' );
 		$debug['benchmarks']		= \Sifo\Debug::get( 'benchmarks' );

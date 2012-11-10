@@ -216,8 +216,9 @@ class Bootstrap
 
 			if ( !empty( $destination ) )
 			{
-				header( 'HTTP/1.0 301 Moved Permanently' );
-				header( "Location: " . $destination, true, 301 );
+				Headers::setResponseStatus( 301 );
+				Headers::set( 'Location', $destination, 301 );
+				Headers::send();
 				exit;
 			}
 
@@ -228,7 +229,8 @@ class Bootstrap
 				$filter_server = FilterServer::getInstance();
 				if ( $filter_server->isEmpty( 'PHP_AUTH_USER' ) || $filter_server->isEmpty( 'PHP_AUTH_PW' ) || $filter_server->getString( 'PHP_AUTH_USER' ) != $auth_data['user'] || $filter_server->getString( 'PHP_AUTH_PW' ) != $auth_data['password'] )
 				{
-					header( 'WWW-Authenticate: Basic realm="Protected page"' );
+					Headers::set( 'WWW-Authenticate', 'Basic realm="Protected page"' );
+					Headers::send();
 					throw new Exception_401( 'You should enter a valid credentials.' );
 				}
 
@@ -305,7 +307,8 @@ class Bootstrap
 		// Don't know what to do after Domain is evaluated. Goodbye:
 		catch( DomainsException $d )
 		{
-			header("HTTP/1.0 404 Not Found");
+			Headers::setResponseStatus( 404 );
+			Headers::send();
 			echo "<h1>{$d->getMessage()}</h1>";
 			die;
 		}
@@ -331,7 +334,8 @@ class Bootstrap
 			$e->redirect = false;
 		}
 
-		header( 'HTTP/1.0 ' . $e->http_code . ' ' . $e->http_code_msg );
+		Headers::setResponseStatus( $e->http_code );
+		Headers::send();
 
 		// Execute ErrorCommonController when an exception is captured.
 		$ctrl2 = self::invokeController( 'error/common' );
@@ -365,18 +369,23 @@ class Bootstrap
 			if ( empty( $new_location ) || false == $new_location )
 			{
 				trigger_error( "Exception " . $e->http_code . " raised with an empty location " . $e->getTraceAsString() );
-				header( 'HTTP/1.0 500 Internal Server Error' );
+				Headers::setResponseStatus( 500 );
+				Headers::send();
 				exit;
 			}
 
 			if ( !Domains::getInstance()->getDebugMode() )
 			{
-				header( "Location: " . $new_location, true, $e->http_code );
+				Headers::setResponseStatus( $e->http_code );
+				Headers::set( 'Location', $new_location, $e->http_code );
+				Headers::send();
 			}
 			else
 			{
 				$ctrl2->addParams( array( 'url_redirect' => $new_location ) );
 				$ctrl2->dispatch();
+				Headers::set( 'Location (paused)', $new_location );
+				Headers::send();
 				self::invokeController( 'debug/index' )->dispatch();
 				return;
 			}

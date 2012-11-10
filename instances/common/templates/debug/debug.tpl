@@ -383,6 +383,9 @@ LoadjQueryUI();
 	</div>
 {/if}
 
+{* Sent headers*}
+{$debug_modules.headers}
+
 {* Smarty Error: Compilation and runtime smarty errors*}
 {$debug_modules.smarty_errors}
 
