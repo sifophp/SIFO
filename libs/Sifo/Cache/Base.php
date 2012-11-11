@@ -93,10 +93,11 @@ class CacheBase
 	 * Returns the content of the cache "key".
 	 *
 	 * @param $key
+	 * @param boolean $use_lock  Apply lock/release to the cache flow.
 	 *
 	 * @return mixed Cache content or false.
 	 */
-	public function get( $key )
+	public function get( $key, $use_lock = true )
 	{
 		if ( $this->hasRebuild() )
 		{
@@ -104,8 +105,34 @@ class CacheBase
 		}
 		else
 		{
-			return $this->cache_object->get( $key );
+			if ( !( $content = $this->getChild( $key ) ) && $use_lock )
+			{
+				$lock = CacheLock::getInstance( $key, $this );
+				$is_locked = $lock->isLocked();
+
+				while( $is_locked && !$content )
+				{
+					usleep( CacheLock::LOCK_VALIDATION_TIME );
+					$content = $this->getChild( $key );
+				}
+
+				if ( !$content )
+				{
+					$lock->hold();
+				}
+			}
+
+			return $content;
 		}
+	}
+
+	public function set( $key, $content, $expiration )
+	{
+		$set_result =  $this->setChild( $key, $content, $expiration );
+
+		CacheLock::getInstance( $key, $this )->release();
+
+		return $set_result;
 	}
 
 	/**
@@ -124,7 +151,7 @@ class CacheBase
 
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
+			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ), false );
 			$cache_tag .= '/' . ( int )$pointer;
 		}
 
@@ -182,5 +209,60 @@ class CacheBase
 		return true;
 	}
 
+	public function setChild( $key, $content, $expire )
+	{
+		return $this->cache_object->set( $key, $content, $expire );
+	}
+
+	public function getChild( $key )
+	{
+		return $this->cache_object->get( $key );
+	}
+
+}
+
+class CacheLock
+{
+	const TIME_LIMIT = 10; // The Lock is autoreleased 10 secs after it was locked.
+	const LOCK_VALIDATION_TIME = 500000; // Validate the page generation every 0,5 secs.
+
+	protected $lock_id;
+	protected $key;
+	private static $instances;
+	protected $cache;
+
+	private function __construct( $key, $cache_instance )
+	{
+		$this->lock_id = rand( 0, 1000 ).'::'.time();
+		$this->key = 'LOCK::'.$key;
+
+		$this->cache = $cache_instance;
+	}
+
+	public static function getInstance( $key, $cache_instance )
+	{
+		if ( !isset( self::$instances[$key] ) )
+		{
+			self::$instances[$key] = new self( $key, $cache_instance );
+		}
+
+		return self::$instances[$key];
+	}
+
+	function isLocked()
+	{
+		// The flow is not locked if the current process is the lock holder.
+		return ( ( $value = $this->cache->get( $this->key, false ) ) && ( $value != $this->lock_id ) );
+	}
+
+	function hold()
+	{
+		$this->cache->set( $this->key, $this->lock_id, self::TIME_LIMIT );
+	}
+
+	function release()
+	{
+		return ( $this->cache->delete( $this->key ) );
+	}
 
 }

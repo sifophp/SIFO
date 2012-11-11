@@ -69,7 +69,7 @@ class CacheMemcache extends CacheBase
 	 *
 	 * @return boolean True on success or false on failure.
 	 */
-	public function set( $key, $content, $expire = 0 )
+	public function setChild( $key, $content, $expire = 0 )
 	{
 		// Compression parameter is not needed in the framework implementation, also it does not work well with small values.
 		$compress = 0; // or MEMCACHE_COMPRESSED for compression.

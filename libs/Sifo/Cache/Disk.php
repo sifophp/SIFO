@@ -103,7 +103,7 @@ class CacheDisk extends CacheBase
 	 *
 	 * @return boolean
 	 */
-	public function set( $key, $contents, $expire = 0 )
+	public function setChild( $key, $contents, $expire = 0 )
 	{
 		$source_file = $this->getCacheFilename( $key );
 
@@ -124,7 +124,7 @@ class CacheDisk extends CacheBase
 	 *
 	 * @return mixed Cached content or FALSE.
 	 */
-	public function get( $key )
+	public function getChild( $key )
 	{
 		if ( $this->hasRebuild() )
 		{
