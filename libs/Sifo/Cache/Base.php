@@ -108,12 +108,18 @@ class CacheBase
 			if ( !( $content = $this->getChild( $key ) ) && $use_lock )
 			{
 				$lock = CacheLock::getInstance( $key, $this );
-				$is_locked = $lock->isLocked();
 
-				while( $is_locked && !$content )
+				if ( $lock->isLocked() )
 				{
-					usleep( CacheLock::LOCK_VALIDATION_TIME );
-					$content = $this->getChild( $key );
+					do
+					{
+						usleep( CacheLock::LOCK_VALIDATION_TIME );
+					}
+					while( $lock->isLocked() );
+					if ( !( $content = $this->getChild( $key ) ) )
+					{
+						trigger_error( "Cache lock was tiemout released. Forget a 'set' cache? your script is too slow? (Cache lock limit: ".CacheLock::TIME_LIMIT." secs.)", E_USER_WARNING );
+					}
 				}
 
 				if ( !$content )
