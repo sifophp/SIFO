@@ -47,6 +47,13 @@ class CLBootstrap extends Bootstrap
 
 			self::$language = 'en_US';
 
+			if ( Domains::getInstance()->getDebugMode() )
+			{
+				$debug_file = ROOT_PATH . '/logs/cli_debug.html';
+				echo( "[INFO] You are running in DEBUG mode. This might be memory consuming\n");
+				echo( "[INFO] Disable it with parameter -nd 1\n");
+				echo( "[INFO] Open this file in the browser: $debug_file\n--\n");
+			}
 			// This is the controller to use:
 			$ctrl = self::invokeController( $controller );
 			$ctrl->build();
