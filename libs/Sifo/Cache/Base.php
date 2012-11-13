@@ -97,7 +97,7 @@ class CacheBase
 	 *
 	 * @return mixed Cache content or false.
 	 */
-	public function get( $key, $use_lock = true )
+	final function get( $key, $use_lock = true )
 	{
 		if ( $this->hasRebuild() )
 		{
@@ -131,7 +131,7 @@ class CacheBase
 		}
 	}
 
-	public function set( $key, $content, $expiration )
+	final function set( $key, $content, $expiration )
 	{
 		$set_result =  $this->setChild( $key, $content, $expiration );
 
