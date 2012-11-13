@@ -42,7 +42,7 @@ class CacheDisk extends CacheBase
 	 *
 	 * @param string $key
 	 * @param mixed $var
-	 * @param int $expire Time in seconds before expires.
+	 * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
 	 *
 	 * @return bool
 	 */
@@ -61,10 +61,11 @@ class CacheDisk extends CacheBase
 	 *
 	 * @param string $key
 	 * @param integer $value
+	 * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
 	 *
 	 * @return bool
 	 */
-	public function increment( $key, $value = 1 )
+	public function increment( $key, $value = 1, $expire = 0 )
 	{
 		if ( !is_numeric( $current_value = $this->get( $key ) ) )
 		{
@@ -72,7 +73,7 @@ class CacheDisk extends CacheBase
 		}
 
 		$new_value = $current_value + $value;
-		return ( $this->set( $key, $new_value ) ? $new_value : false );
+		return ( $this->set( $key, $new_value, $expire ) ? $new_value : false );
 	}
 
 	/**
@@ -80,10 +81,10 @@ class CacheDisk extends CacheBase
 	 *
 	 * @param string $key
 	 * @param integer $value
-	 *
+	 * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
 	 * @return bool
 	 */
-	public function decrement( $key, $value = 1 )
+	public function decrement( $key, $value = 1, $expire = 0 )
 	{
 		if ( !is_numeric( $current_value = $this->get( $key ) ) )
 		{
@@ -91,7 +92,7 @@ class CacheDisk extends CacheBase
 		}
 
 		$new_value = $current_value - $value;
-		return ( $this->set( $key, $new_value ) ? $new_value : false );
+		return ( $this->set( $key, $new_value, $expire ) ? $new_value : false );
 	}
 
 	/**
@@ -103,7 +104,7 @@ class CacheDisk extends CacheBase
 	 *
 	 * @return boolean
 	 */
-	public function setChild( $key, $contents, $expire = 0 )
+	public function set( $key, $contents, $expire = 0 )
 	{
 		$source_file = $this->getCacheFilename( $key );
 
@@ -120,11 +121,11 @@ class CacheDisk extends CacheBase
 	 *
 	 * Also deletes the cache file if has expired when checking it.
 	 *
-	 * @param string $key
-	 *
+	 * @param $key string
+	 * @param $lock null Parameter not used, maintained for inheritance.
 	 * @return mixed Cached content or FALSE.
 	 */
-	public function getChild( $key )
+	public function get( $key, $lock = null )
 	{
 		if ( $this->hasRebuild() )
 		{

@@ -6,6 +6,7 @@ $config['Benchmark']['Sifo'] = 'libs/Sifo/Benchmark.php';
 $config['Cache']['Sifo'] = 'libs/Sifo/Cache.php';
 $config['CacheBase']['Sifo'] = 'libs/Sifo/Cache/Base.php';
 $config['CacheDisk']['Sifo'] = 'libs/Sifo/Cache/Disk.php';
+$config['CacheLock']['Sifo'] = 'libs/Sifo/Cache/Lock.php';
 $config['CacheMemcache']['Sifo'] = 'libs/Sifo/Cache/Memcache.php';
 $config['CacheMemcached']['Sifo'] = 'libs/Sifo/Cache/Memcached.php';
 $config['Client']['Sifo'] = 'libs/Sifo/Client.php';
