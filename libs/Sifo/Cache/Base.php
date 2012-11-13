@@ -112,18 +112,18 @@ class CacheBase
 				{
 					do
 					{
-						usleep( CacheLock::WAITING_TIME );
+						usleep( CacheLock::WAIT_TIME );
 					}
 					while( $lock->isLocked() );
 
 					if ( !( $content = $this->cache_object->get( $key ) ) )
 					{
-						trigger_error( "Cache lock was tiemout released. Forget a 'set' cache? your script is too slow? (Cache lock limit: ".CacheLock::LIMIT." secs.)", E_USER_WARNING );
+						trigger_error( "Cache lock timeout. Lock not released after {CacheLock::TTL} seconds of script running.", E_USER_WARNING );
 					}
 				}
 				else
 				{
-					$lock->hold();
+					$lock->acquire();
 				}
 			}
 
@@ -131,6 +131,14 @@ class CacheBase
 		}
 	}
 
+	/**
+	 * Stores "$content" under "$key" for "$expiration" seconds.
+	 *
+	 * @param $key string
+	 * @param $content mixed
+	 * @param $expiration integer
+	 * @return boolean
+	 */
 	public function set( $key, $content, $expiration )
 	{
 		$set_result =  $this->cache_object->set( $key, $content, $expiration );

@@ -22,9 +22,20 @@ namespace Sifo;
 
 class CacheLock
 {
-	const LIMIT = 8; // The Lock timeout.
-	const WAITING_TIME = 100000; // Validate the page generation every 0,1 secs.
-	const PREFIX = '::LOCK::';
+	/**
+	 * Maximum time a lock is effective.
+	 */
+	const TTL = 8;
+
+	/**
+	 * Time until the next locking check is performed (in microseconds).
+	 */
+	const WAIT_TIME = 100000; // 10 per second
+
+	/**
+	 * Cache key prefix.
+	 */
+	const KEY_PREFIX = '$LOCK$';
 
 	protected $lock_id;
 	protected $key;
@@ -33,8 +44,8 @@ class CacheLock
 
 	private function __construct( $key, $cache_instance )
 	{
-		$this->lock_id = uniqid();
-		$this->key = self::PREFIX.$key;
+		$this->lock_id =  uniqid();
+		$this->key = self::KEY_PREFIX . $key;
 
 		$this->cache_object = $cache_instance;
 	}
@@ -49,18 +60,34 @@ class CacheLock
 		return self::$instances[$key];
 	}
 
-	function isLocked()
+	/**
+	 * Returns if another cache calculation is in progress.
+	 *
+	 * @return bool
+	 */
+	public function isLocked()
 	{
 		// The flow is not locked if the current process is the lock holder.
 		return ( ( $value = $this->cache_object->get( $this->key ) ) && ( $value != $this->lock_id ) );
 	}
 
-	function hold()
+
+	/**
+	 * Acquire lock.
+	 *
+	 *return @boolean
+	 */
+	public function acquire()
 	{
-		$this->cache_object->set( $this->key, $this->lock_id, self::LIMIT );
+		$this->cache_object->set( $this->key, $this->lock_id, self::TTL );
 	}
 
-	function release()
+	/**
+	 * Releases the lock.
+	 *
+	 * @return boolean
+	 */
+	public function release()
 	{
 		return ( $this->cache_object->delete( $this->key ) );
 	}
