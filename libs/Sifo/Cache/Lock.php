@@ -23,7 +23,7 @@ namespace Sifo;
 class CacheLock
 {
 	const TIME_LIMIT = 10; // The Lock is autoreleased 10 secs after it was locked.
-	const LOCK_VALIDATION_TIME = 500000; // Validate the page generation every 0,5 secs.
+	const LOCK_VALIDATION_TIME = 100000; // Validate the page generation every 0,1 secs.
 
 	protected $lock_id;
 	protected $key;
