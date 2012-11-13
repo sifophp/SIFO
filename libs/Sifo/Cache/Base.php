@@ -121,8 +121,7 @@ class CacheBase
 						trigger_error( "Cache lock was tiemout released. Forget a 'set' cache? your script is too slow? (Cache lock limit: ".CacheLock::TIME_LIMIT." secs.)", E_USER_WARNING );
 					}
 				}
-
-				if ( !$content )
+				else
 				{
 					$lock->hold();
 				}
