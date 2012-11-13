@@ -93,11 +93,10 @@ class CacheBase
 	 * Returns the content of the cache "key".
 	 *
 	 * @param $key
-	 * @param boolean $use_lock  Apply lock/release to the cache flow.
 	 *
 	 * @return mixed Cache content or false.
 	 */
-	final function get( $key, $use_lock = true )
+	public function get( $key )
 	{
 		if ( $this->hasRebuild() )
 		{
@@ -105,20 +104,21 @@ class CacheBase
 		}
 		else
 		{
-			if ( !( $content = $this->getChild( $key ) ) && $use_lock )
+			if ( !( $content = $this->cache_object->get( $key ) ) )
 			{
-				$lock = CacheLock::getInstance( $key, $this );
+				$lock = CacheLock::getInstance( $key, $this->cache_object );
 
 				if ( $lock->isLocked() )
 				{
 					do
 					{
-						usleep( CacheLock::LOCK_VALIDATION_TIME );
+						usleep( CacheLock::WAITING_TIME );
 					}
 					while( $lock->isLocked() );
-					if ( !( $content = $this->getChild( $key ) ) )
+
+					if ( !( $content = $this->cache_object->get( $key ) ) )
 					{
-						trigger_error( "Cache lock was tiemout released. Forget a 'set' cache? your script is too slow? (Cache lock limit: ".CacheLock::TIME_LIMIT." secs.)", E_USER_WARNING );
+						trigger_error( "Cache lock was tiemout released. Forget a 'set' cache? your script is too slow? (Cache lock limit: ".CacheLock::LIMIT." secs.)", E_USER_WARNING );
 					}
 				}
 				else
@@ -131,11 +131,11 @@ class CacheBase
 		}
 	}
 
-	final function set( $key, $content, $expiration )
+	public function set( $key, $content, $expiration )
 	{
-		$set_result =  $this->setChild( $key, $content, $expiration );
+		$set_result =  $this->cache_object->set( $key, $content, $expiration );
 
-		CacheLock::getInstance( $key, $this )->release();
+		CacheLock::getInstance( $key, $this->cache_object )->release();
 
 		return $set_result;
 	}
@@ -156,7 +156,7 @@ class CacheBase
 
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ), false );
+			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
 			$cache_tag .= '/' . ( int )$pointer;
 		}
 
@@ -213,15 +213,4 @@ class CacheBase
 
 		return true;
 	}
-
-	public function setChild( $key, $content, $expire )
-	{
-		return $this->cache_object->set( $key, $content, $expire );
-	}
-
-	public function getChild( $key )
-	{
-		return $this->cache_object->get( $key );
-	}
-
 }
