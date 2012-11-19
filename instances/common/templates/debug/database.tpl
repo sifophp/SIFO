@@ -2,9 +2,9 @@
 	<h1 id="db_queries">{t}DB Queries{/t}</h1>
 {foreach name=queries from=$debug.queries item=query}
 	<h2 class="queries {if false !== $query.error}query_error{else}query_{$query.type}{/if} {if $query.duplicated}query_duplicated{/if}{if $query.time >= 0.5 && $query.time < 1} query_slow{elseif $query.time >= 1} query_very_slow{/if}" id="queries_{$smarty.foreach.queries.index}">
-		<a class="debug_toggle_view" href="#" rel="queries_content_{$smarty.foreach.queries.index}">
+		<a class="debug_toggle_view" href="#" rel="queries_content_{$smarty.foreach.queries.index}{$execution_key}">
 		{$smarty.foreach.queries.index+1}. {if $query.type=='read'}[R]{else}[W]{/if} {$query.tag}</a> <small>({$query.time|time_format} - rows:{$query.rows_num})</small></h2>
-	<div id="queries_content_{$smarty.foreach.queries.index}" class="debug_contents">
+	<div id="queries_content_{$smarty.foreach.queries.index}{$execution_key}" class="debug_contents">
 		<pre>{$query.sql|escape}</pre>
 {		if false !== $query.error}
 		<pre style="color:red">
