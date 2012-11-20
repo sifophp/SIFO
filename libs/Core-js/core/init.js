@@ -30,10 +30,13 @@ $(document).ready(function() {
 		}
 	}
 
+    // Always execute the common behaviour
+    CP['common']();
+
 	// To execute behaviours based on pages
 	if (typeof CP[document.body.id] != "undefined")
 	{
-		CP[document.body.id]();
+        CP[document.body.id]();
 	} else {
 		CP.unset();
 	}

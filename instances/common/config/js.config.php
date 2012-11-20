@@ -18,7 +18,7 @@
 $config['default'] = array(
 	10 => array(
 		'name' => 'jquery',
-		'filename' => 'libs/Core-js/libs/jquery/jquery-1.6.4.min.js',
+		'filename' => 'libs/Core-js/libs/jquery/jquery-1.8.3.min.js',
 	),
 	20 => array(
 		'name' => 'labs',
@@ -36,6 +36,14 @@ $config['default'] = array(
 		'name' => 'page_behaviours',
 		'filename' => 'libs/Core-js/core/page-behaviours.js',
 	),
+    60 => array(
+        'name' => 'modernizr',
+        'filename' => 'libs/Core-js/libs/modernizr/modernizr-custom.js',
+    ),
+    70 => array(
+   		'name' => 'polyfiller',
+   		'filename' => 'libs/Core-js/libs/modernizr/polyfills/polyfiller.js'
+   	),
 	100000 => array(
 		'name' => 'init',
 		'filename' => 'libs/Core-js/core/init.js',
