@@ -36,7 +36,7 @@ $config['default'] = array(
 		'name' => 'page_behaviours',
 		'filename' => 'libs/Core-js/core/page-behaviours.js',
 	),
-	1000 => array(
+	100000 => array(
 		'name' => 'init',
 		'filename' => 'libs/Core-js/core/init.js',
 	)

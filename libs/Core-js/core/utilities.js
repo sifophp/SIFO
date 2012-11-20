@@ -5,7 +5,7 @@ CORE.globals.isMSIE = /*@cc_on!@*/false;
 // COMMON FUNCTIONS
 CORE.utilities.example = function()
 {
-	
+
 };
 /**
  * Return the time since in the format "X time ago" for a given date string
@@ -121,6 +121,7 @@ CORE.utilities.placeUrlContent = function(sUrl, sTargetId, fpCallback) {
  * @param aReferences Array of elements to check if are visible
  * @param fpCallback Function to execute when the elements are visible
  */
+/*
 CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
 	$(window).scroll(function()
 	{
@@ -189,4 +190,59 @@ CORE.utilities.isVisible = function (oElement) {
 		);
 	}
 }
+*/
+// Avoid `console` errors in browsers that lack a console.
+(function() {
+    var method;
+    var noop = function noop() {};
+    var methods = [
+        'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+        'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+        'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+        'timeStamp', 'trace', 'warn'
+    ];
+    var length = methods.length;
+    var console = (window.console = window.console || {});
 
+    while (length--) {
+        method = methods[length];
+
+        // Only stub undefined methods.
+        if (!console[method]) {
+            console[method] = noop;
+        }
+    }
+}());
+
+// GLOBAL VARIABLES
+CORE.globals.isIE6 = false /*@cc_on || @_jscript_version < 5.7 @*/;
+CORE.globals.isMSIE = /*@cc_on!@*/false;
+
+/* COMMON FUNCTIONS */
+
+// Return true if string is an email, else return false.
+CORE.utilities.IsEmail = function(sMail) {
+    var sAt = "@";
+    var sDot = ".";
+    var sLat = sMail.indexOf(sAt);
+    var sLstr = sMail.length;
+    var sLdot = sMail.indexOf(sDot);
+
+    if ( sLat == -1) {
+        return false;
+    } else if ( sLat == -1 || sLat ==0 || sLat == sLstr ) {
+        return false;
+    } else if ( sLdot == -1 || sLdot == 0 || sLdot == sLstr) {
+        return false;
+    } else if ( sMail.indexOf(sAt,( sLat + 1 ) )!=-1) {
+        return false;
+    } else if ( sMail.substring(sLat-1,sLat) == sDot || sMail.substring(sLat+1,sLat+2) == sDot ) {
+        return false;
+    } else if ( sMail.indexOf(sDot,(sLat+2)) == -1) {
+        return false;
+    } else if ( sMail.indexOf(" ") != -1) {
+        return false;
+    } else {
+        return true;
+    }
+};
