@@ -39,6 +39,7 @@ $config['rebuild-router'] = 'manager/rebuildRouter';
 $config['translate'] = 'i18n/status';
 $config['translation-save'] = 'i18n/save';
 $config['translation-rebuild'] = 'i18n/rebuild';
+$config['translation-actions'] = 'i18n/actions';
 
 // Used in debug mode Mail Interception.
 $config['mail-continue'] = 'debug/mail';

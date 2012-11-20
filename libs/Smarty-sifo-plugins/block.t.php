@@ -64,14 +64,11 @@ function smarty_block_t($params, $text, &$smarty)
 		unset($params['plural']);
 
 		// set count
-		if (isset($params['count'])) {
-			$count = $params['count'];
+		if (isset($params['count']) && ( 1 != $params['count'] ) ) {
+			$text = $plural;
 			unset($params['count']);
 		}
 	}
-
-	// use plural if required parameters are set
-	//$text = gettext($text);
 
 	$text = \Sifo\I18N::getTranslation( $text );
 

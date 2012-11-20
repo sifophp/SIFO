@@ -178,6 +178,7 @@ TRANSLATIONS;
 	{
 		if ( !empty( $instance_inheritance ) )
 		{
+			$instances = array();
 			foreach ( $instance_inheritance as $instance )
 			{
 				if ( $instance != 'common' )
