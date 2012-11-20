@@ -72,16 +72,17 @@ class JsPacker extends MediaPacker
 	protected function getBasePathConfig( Array $media_list )
 	{
 		$base_code = <<<CODE
-sHostStatic = window.sHostStatic ? window.sHostStatic : "{$this->instance_static_host}";
-Hash = window.Hash ? window.Hash : "unset";
-var basePathConfig = {\n
+var	sHostStatic = window.sHostStatic ? window.sHostStatic : "{$this->instance_static_host}",
+	Hash = window.Hash ? window.Hash : "unset",
+	sInstance = window.sInstance ? window.sInstance : '',
+	basePathConfig = {\n\t
 CODE;
 		foreach ( $media_list as $group => $media_data )
 		{
-			$base_array[] = "\t'$group': sHostStatic + '/{$this->generated_files_public_path}/$group.js?rev=' + Hash";
+			$base_array[] = "\t'$group': sHostStatic + '/{$this->generated_files_public_path}/' + sInstance + '$group.js?rev=' + Hash";
 		}
 
-		$base_code .= implode( ",\n", $base_array ) . "\n};\n";
+		$base_code .= implode( ",\n", $base_array ) . "\n\t};\n";
 
 		return $base_code;
 
