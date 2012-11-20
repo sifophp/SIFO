@@ -11,7 +11,8 @@ class ManagerTemplateLauncherController extends \Sifo\Controller
 	/**
 	 * Return the found in use vars in tpl.
 	 *
-	 * @param array $template
+	 * @param $template_identifier
+	 * @return array
 	 */
 	private function _getRequiredVars( $template_identifier )
 	{
@@ -32,7 +33,12 @@ class ManagerTemplateLauncherController extends \Sifo\Controller
 			trigger_error( "Not found in use vars in the tpl source.", E_USER_WARNING );
 		}
 
-		return array_unique( $matchs[1] );
+		$required_vars = array_unique( $matchs[1] );
+
+		// Remove url.
+		unset( $required_vars[array_search( 'url', $required_vars )] );
+
+		return $required_vars;
 	}
 
 	/**
@@ -81,6 +87,8 @@ class ManagerTemplateLauncherController extends \Sifo\Controller
 					$this->assign( $key, $var );
 				}
 			}
+
+			$this->assign( 'url', $this->getParam( 'url' ) );
 		}
 		else
 		{
