@@ -60,6 +60,7 @@ class DebugIndexController extends \Sifo\Controller
 		$this->renderDebugModule( $debug, 'search', 'debug/search.tpl' );
 
 		// Environment variables:
+		$debug['post']				= $this->getPostData();
 		$debug['session']			= $this->getSessionData();
 		$debug['cookies']			= FilterCookieDebug::getCookiesArray();
 
@@ -97,6 +98,11 @@ class DebugIndexController extends \Sifo\Controller
 	{
 		$this->assign( 'debug', $debug );
 		$this->assign( 'debug_modules', $this->debug_modules );
+	}
+
+	private function getPostData()
+	{
+		return \Sifo\FilterPost::getInstance()->getRawRequest();
 	}
 
 	private function getSessionData()
