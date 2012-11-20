@@ -1,13 +1,13 @@
 var CORE = {
 	utilities : {},
-	globals : {},
+	globals : {}, 
 	instance : {},
-	modules : {},
+	modules : [],
 	classes : {},
 	behaviour : {
 		page : {},
-        modules : {},
-		nullFunction : function(){}
+		modules : {},
+		nullFunction : function(){} 
 	}
 };
 var SITE = {
@@ -18,7 +18,6 @@ var SITE = {
 	classes : {},
 	behaviour : {
 		page : {},
-        modules : {},
 		nullFunction : function(){}
 	}
 };

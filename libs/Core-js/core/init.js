@@ -9,6 +9,11 @@ $LAB.setOptions(
 	BasePath: ""
 });
 
+CORE.behaviour.modules.isset = function( sId ) {
+
+};
+
+
 $(document).ready(function() {
 	var CP = CORE.behaviour.page,
 		sId = '';
@@ -19,7 +24,9 @@ $(document).ready(function() {
 		if ( document.getElementById( sId ) !== null )
 		{
 			CORE.behaviour.modules[ sId ].init();
-			console.log( sId );
+			if ( console ) {
+				console.log( sId );
+			}
 		}
 	}
 
