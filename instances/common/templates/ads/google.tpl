@@ -16,6 +16,9 @@
 	google_color_link = "{$ad.colors.link}";
 	google_color_url = "{$ad.colors.url}";
 	google_color_text = "{$ad.colors.text}";
+{if isset($test_mode)}
+	google_adtest = 'on';
+{/if}
 	//-->
 	</script>
 	<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>

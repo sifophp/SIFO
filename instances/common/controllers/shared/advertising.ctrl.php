@@ -31,6 +31,11 @@ class SharedAdvertisingController extends \Sifo\Controller
 		{
 			$ads_config = \Sifo\Config::getInstance()->getConfig( 'ads', $module );
 			$this->setLayout( $ads_config['layout'] );
+			if ( \Sifo\Domains::getInstance()->getDevMode() )
+			{
+				$this->assign( 'test_mode', true );
+			}
+
 			$this->assign( 'ad', $ads_config );
 			
 		}
