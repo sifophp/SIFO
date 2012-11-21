@@ -1187,4 +1187,8 @@
 	}
 }));
 
+$.webshims.setOptions({
+    basePath: sHostStatic  + "/js/libs/webshims/shims/"
+});
+
 $.webshims.polyfill();
