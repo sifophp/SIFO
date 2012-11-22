@@ -402,7 +402,7 @@ LoadjQueryUI();
 {$debug_modules.log_messages}
 
 {* Post *}
-{if is_array($debug.post)}
+{if is_array($debug.post) && !empty($debug.post)}
 	<h1 id="post">{t}Post{/t}</h1>
 {foreach name=post from=$debug.post item=value key=post_key}
 	<h2 id="post_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="post_content_{$smarty.foreach.post.index}" href="#">{$smarty.foreach.post.index+1}. {$post_key}</a></h2>
