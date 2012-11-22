@@ -164,7 +164,12 @@ class CacheBase
 
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
+			if ( !( $pointer = $this->get( $key_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) ) ) )
+			{
+				// Default declaration when the tag is not initialized.
+				// This code piece is required to the cache lock release.
+				$this->set( $key_tag, 0, 0 ); // $expiration = 0 => Unexpirable.
+			}
 			$cache_tag .= '/' . ( int )$pointer;
 		}
 
