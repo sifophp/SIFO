@@ -118,7 +118,7 @@ class CacheBase
 
 					if ( !( $content = $this->cache_object->get( $key ) ) )
 					{
-						trigger_error( "Cache lock timeout. Lock not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
+						trigger_error( "Cache lock timeout.Lock for {$key} has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
 					}
 				}
 				else
