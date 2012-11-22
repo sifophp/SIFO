@@ -19,7 +19,7 @@
 	color:#2E79D0;
 }
 
-#debug h1, #debug h2, #debug h3  {
+#debug h1, #debug h2, #debug h3, #debug h4  {
 	font-family:Arial, sans-serif;
 	color:#444;
 	display: block;
@@ -27,28 +27,41 @@
 	top:auto;
 }
 
-#debug h1 a, #debug h2 a, #debug h3 a {
+#debug h1 a, #debug h2 a, #debug h3 a, #debug h4 a {
 	color:#fff;
 	text-decoration: none;
 }
 
-#debug h1 a:after, #debug h2 a:after, #debug h3 a:after {
+#debug h1 a { color:#333; }
+
+#debug h1 a:after, #debug h2 a:after, #debug h3 a:after, #debug h4 a:after {
 	content:" »";
 }
 
 #debug h1 {
-	font-size: 24px;
+	font-size: 30px;
 	line-height: 36px;
 	margin-top: 18px;
 }
 
 #debug h2 {
-	font-size: 18px;
-	line-height: 18px;
-	margin-bottom: 18px;
+    font-size: 24px;
+    line-height: 36px;
+    margin-top: 18px;
 }
 
 #debug h3 {
+	font-size: 18px;
+	line-height: 18px;
+	margin-bottom: 18px;
+    background:#555;
+    color:#fff;
+    padding:9px;
+    margin:0;
+    border-bottom:1px solid #333;
+}
+
+#debug h4 {
 	background-color:#A69600;
 	font-size:15px;
 	padding:10px;
@@ -60,14 +73,6 @@
 	list-style-type:disc;
 }
 /* @endgroup DEBUG reset */
-
-#debug h2 {
-	background:#555;
-	color:#fff;
-	padding:9px;
-	margin:0;
-	border-bottom:1px solid #333;
-}
 
 #debug div.debug_contents {
 	background:#efefef;
@@ -198,10 +203,7 @@
 	color: #2E79D0;
 }
 
-.ajax_title{
-	background-color: darkBlue;
-	color: white;
-}
+#debug_timers .ajax_calls { display:none; }
 /* @endgroup TIMER */
 
 #debug .benchmark_contents { float: left; width: 70% }
@@ -210,9 +212,6 @@
 	font-weight:bold;
 	color:#FF0000;
 }
-
-
-
 </style>
 <script type="text/javascript">
 function waitingForScript(url, obj) {
@@ -356,7 +355,7 @@ LoadjQueryUI();
 			<dt>{t}Used memory{/t}</dt>
 			<dd>{$debug.memory_usage}</dd>
 {/if}
-			<dt class="ajax_calls">{t}AJAX calls{/t} <small>(<a href="#ajax_debug">details</a>)</small></dt>
+			<dt class="ajax_calls">{t}AJAX{/t} <small>(<a href="#ajax_debug"><span class="num_calls"></span> calls</a>)</small></dt>
 			<dd class="ajax_calls">0</dd>
 {if !isset($command_line_mode) || !$command_line_mode}
 			<dt>{t}Automatic rebuild{/t}</dt>
@@ -377,7 +376,7 @@ LoadjQueryUI();
 {/if}
 
 {if isset($debug.traces) && is_array($debug.traces)}
-	<h2 id="traces_title"><a class="debug_toggle_view" rel="traces_content" href="#">{t}Show traces{/t}</a></h2>
+	<h3 id="sess_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="traces_content" href="#">{t}Show traces{/t}</a><h3 id="sess_{$smarty.foreach.session.index}">
 	<div id="traces_content" class="debug_contents">
 	<ul>
 {		foreach from=$debug.traces item=trace}
@@ -410,9 +409,9 @@ LoadjQueryUI();
 
 {* Sessions and Cookies *}
 {if is_array($debug.session)}
-	<h1 id="session">{t}Session{/t}</h1>
+	<h2 id="session">{t}Session{/t}</h2>
 {foreach name=session from=$debug.session item=value key=session_key}
-	<h2 id="sess_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="sess_content_{$smarty.foreach.session.index}{$execution_key}" href="#">{$smarty.foreach.session.index+1}. {$session_key}</a></h2>
+	<h3 id="sess_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="sess_content_{$smarty.foreach.session.index}{$execution_key}" href="#">{$smarty.foreach.session.index+1}. {$session_key}</a></h3>
 	<div id="sess_content_{$smarty.foreach.session.index}{$execution_key}" class="debug_contents">
 		<pre>
 {			$value|debug_print_var}
@@ -422,9 +421,9 @@ LoadjQueryUI();
 {/if}
 
 {if is_array($debug.cookies)}
-	<h1 id="cookies">{t}Cookies{/t}</h1>
+	<h2 id="cookies">{t}Cookies{/t}</h2>
 {foreach name=cookies from=$debug.cookies item=value key=cookies_key}
-	<h2 id="cook_{$smarty.foreach.cookies.index}"><a class="debug_toggle_view" rel="cook_content_{$smarty.foreach.cookies.index}{$execution_key}" href="#">{$smarty.foreach.cookies.index+1}. {$cookies_key}</a></h2>
+	<h3 id="cook_{$smarty.foreach.cookies.index}"><a class="debug_toggle_view" rel="cook_content_{$smarty.foreach.cookies.index}{$execution_key}" href="#">{$smarty.foreach.cookies.index+1}. {$cookies_key}</a></h3>
 	<div id="cook_content_{$smarty.foreach.cookies.index}{$execution_key}" class="debug_contents">
 		<pre>
 {			$value|debug_print_var}
@@ -432,9 +431,10 @@ LoadjQueryUI();
 	</div>
 {/foreach}
 {/if}
-</div>
 
-<div id="ajax_debug"></div>
+    <div id="ajax_debug"></div>
+
+</div>
 
 {if $show_timers|default:true}
 <script>
@@ -448,6 +448,7 @@ LoadjQueryUI();
 
 			if ( typeof response.debug_content != 'undefined' )
 			{
+				$('#debug_timers .ajax_calls').show();
 				if ( num_ajax_calls % 2 == 0)
                 {
                     response.debug_content = response.debug_content.replace( '<div id="debug">', '<div id="debug" style="background-color: rgba(239, 239, 239, 0.84);">')
@@ -457,6 +458,7 @@ LoadjQueryUI();
 
 				num_ajax_calls++;
 				$("#debug_timers dd.ajax_calls").html( num_ajax_calls + ' <small>(<a href="#ajax_debug_' + ( num_ajax_calls - 1 ) + '">Go last one</a>)</small>' );
+                $("#debug_timers dt.ajax_calls .num_calls" ).html( num_ajax_calls );
             }
         }
 		catch( e )

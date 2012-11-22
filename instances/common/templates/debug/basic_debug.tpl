@@ -1,5 +1,5 @@
-<h1 id="benchmarks">{t}Benchmarks{/t}</h1>
-<h2 id="bench"><a class="debug_toggle_view" rel="benchmarks_content{$execution_key}" href="#">Times of execution</a></h2>
+<h2 id="benchmarks">{t}Benchmarks{/t}</h2>
+<h3 id="bench"><a class="debug_toggle_view" rel="benchmarks_content{$execution_key}" href="#">Times of execution</a></h3>
 <div id="benchmarks_content{$execution_key}" class="debug_contents">
 	<table class="benchmark_contents">
 { if isset($debug.benchmarks)}
@@ -42,13 +42,13 @@
 	</div>
 
 </div>
-	<h1 id="controllers">{t}Controllers{/t}</h1>
+	<h2 id="controllers">{t}Controllers{/t}</h2>
 {foreach name=controllers from=$debug.controllers item=controller key=controller_name}
-	<h2 id="cont_{$smarty.foreach.controllers.index}"><a class="debug_toggle_view" rel="cont_content_{$smarty.foreach.controllers.index}{$execution_key}" href="#">{$smarty.foreach.controllers.index+1}. {$controller_name}</a></h2>
+	<h3 id="cont_{$smarty.foreach.controllers.index}"><a class="debug_toggle_view" rel="cont_content_{$smarty.foreach.controllers.index}{$execution_key}" href="#">{$smarty.foreach.controllers.index+1}. {$controller_name}</a></h3>
 	<div id="cont_content_{$smarty.foreach.controllers.index}{$execution_key}" class="debug_contents">
 {	foreach from=$controller item=content key=key name=controllerparams}
 {		if $key == "CONTROLLER"}
-	<h3><a class="debug_toggle_view" rel="params_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" href="#">Controller parameters</a></h3>
+	<h4><a class="debug_toggle_view" rel="params_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" href="#">Controller parameters</a></h4>
 	<div id="params_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" class="debug_contents">
 	<ul>
 {		foreach from=$content.parameters item=content1 key=key1}
@@ -69,9 +69,9 @@
 {		else}
 
 {*	TEMPLATES AND OTHER FUTURE ELEMENTS *}
-	<h3><a class="debug_toggle_view" rel="assigns_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" href="#">
+	<h4><a class="debug_toggle_view" rel="assigns_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" href="#">
 {			if $key == "assigns"}Template assigns{else}{$key}{/if}
-		</a></h3>
+		</a></h4>
 	<div  id="assigns_cont_content_{$smarty.foreach.controllers.index}_{$smarty.foreach.controllerparams.index}{$execution_key}" class="debug_contents">
 	<ul>
 {		foreach from=$content item=content1 key=key1}
