@@ -21,7 +21,7 @@
 				<td>
 				{if isset($query.filters)}
 					{foreach name=fil from=$query.filters item=filter}
-					{$filter.attribute} = (
+					{$filter.attribute} {if $filter.exclude}!{/if}= (
 						{if is_array($filter.values)}
 							{foreach name=val from=$filter.values item=value}
 								{$value}{if !$smarty.foreach.val.last}, {/if}
