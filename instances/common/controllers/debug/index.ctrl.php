@@ -26,9 +26,13 @@ class DebugIndexController extends \Sifo\Controller
 
 	protected $debug_modules = array();
 
+	protected $execution_key;
+
 	public function build()
 	{
 		$this->setLayout( 'debug/debug.tpl' );
+
+		$this->execution_key = md5( time() . rand() );
 
 		// Headers:
 		$debug['headers']	 		= \Sifo\Headers::getDebugInfo();
@@ -83,7 +87,9 @@ class DebugIndexController extends \Sifo\Controller
 
 		$debug['memory_usage']		= $this->getMemoryUsage();
 
-
+		$params = $this->getParams();
+		$this->assign( 'show_timers', isset( $params['show_debug_timers'] ) ? $params['show_debug_timers'] : true );
+		$this->assign( 'execution_key', $this->execution_key );
 
 		$this->finalRender( $debug );
 	}
@@ -91,6 +97,7 @@ class DebugIndexController extends \Sifo\Controller
 	protected function renderDebugModule( $debug, $module_name, $template)
 	{
 		$this->assign( 'debug', $debug );
+		$this->assign( 'execution_key', $this->execution_key );
 		$this->debug_modules[$module_name] = $this->fetch( $template );
 	}
 

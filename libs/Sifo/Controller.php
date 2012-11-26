@@ -361,6 +361,16 @@ abstract class Controller
 
 		if ( $this->is_json )
 		{
+			// Json Debug.
+			if ( Domains::getInstance()->getDebugMode() && is_array( $return ) )
+			{
+				$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
+				Debug::subSet( 'controllers', get_class( $this ), $this->debug_info );
+
+				$return['debug_content'] 	= $this->dispatchSingleController( 'DebugIndex', array( 'show_debug_timers' => false ) );
+				$return['debug_total_time']	= \Sifo\Benchmark::getInstance()->timingCurrent();
+			}
+
 			$json_callback = FilterGet::getInstance()->getString( 'json_callback' );
 			$content = ( $json_callback ? $json_callback . '(' . json_encode( $return ) . ')':	json_encode( $return ) );
 		}

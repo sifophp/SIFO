@@ -1,12 +1,12 @@
 {* HTML messages *}
 {if isset( $log_messages.html )}
-	<h1 id="benchmarks">{t}Log Messages{/t}</h1>
+	<h2 id="benchmarks">{t}Log Messages{/t}</h2>
 	{foreach from=$log_messages.html item=value name=html_log}
-	<h2 id="html_log_{$smarty.foreach.html_log.index}" class="{if $value.type=='error'}query_error{/if}{if $value.type=='warn'}query_duplicated{/if}">
+	<h3 id="html_log_{$smarty.foreach.html_log.index}" class="{if $value.type=='error'}query_error{/if}{if $value.type=='warn'}query_duplicated{/if}">
 		<a class="debug_toggle_view" rel="html_log_content_{$smarty.foreach.html_log.index}" href="#">
 			{$smarty.foreach.html_log.index+1}. Message {$value.type}
 		</a>
-	</h2>
+	</h3>
 	<div id="html_log_content_{$smarty.foreach.html_log.index}" class="debug_contents">
 			<pre>
 	{			$value.message|debug_print_var}
