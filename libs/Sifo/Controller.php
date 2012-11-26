@@ -375,10 +375,10 @@ abstract class Controller
 		}
 
 		$this->postDispatch();
-		Headers::send();
 		$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
 
 		$content = $this->_realTimeReplacement( $content );
+		Headers::send();
 
 		echo $content;
 	}
