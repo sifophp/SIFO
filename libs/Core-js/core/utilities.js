@@ -121,7 +121,6 @@ CORE.utilities.placeUrlContent = function(sUrl, sTargetId, fpCallback) {
  * @param aReferences Array of elements to check if are visible
  * @param fpCallback Function to execute when the elements are visible
  */
-/*
 CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
 	$(window).scroll(function()
 	{
@@ -153,14 +152,15 @@ CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
 			$(window).unbind("scroll");
 		}
 	});
-}
+};
 
 
-CORE.utilities.isVisible = function (oElement) {
+CORE.utilities.isVisible = function(oElement) {
 
 	if (jQuery) {
 		var docViewTop = $(window).scrollTop();
 	    var docViewBottom = docViewTop + $(window).height();
+		var oElement = oElement ? oElement : null;
 
 	    var elemTop = $(oElement).offset().top;
 	    var elemBottom = elemTop + $(oElement).height();
@@ -189,8 +189,8 @@ CORE.utilities.isVisible = function (oElement) {
 			(nLeft + nWidth) <= (nWindowPageXOffset + nWindowInnerWidth )
 		);
 	}
-}
-*/
+};
+
 // Avoid `console` errors in browsers that lack a console.
 (function() {
     var method;
@@ -213,10 +213,6 @@ CORE.utilities.isVisible = function (oElement) {
         }
     }
 }());
-
-// GLOBAL VARIABLES
-CORE.globals.isIE6 = false /*@cc_on || @_jscript_version < 5.7 @*/;
-CORE.globals.isMSIE = /*@cc_on!@*/false;
 
 /* COMMON FUNCTIONS */
 
