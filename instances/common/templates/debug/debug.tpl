@@ -439,7 +439,8 @@ LoadjQueryUI();
 {if $show_timers|default:true}
 <script>
 {literal}
-	var num_ajax_calls = 0;
+	var num_ajax_calls 	= 0;
+	var total_time 		= 0;
 	$('#debug').ajaxComplete(function( e, xhr, settings )
 	{
 		try
@@ -457,8 +458,27 @@ LoadjQueryUI();
 				$("#ajax_debug").append( '<div id="ajax_debug_' + num_ajax_calls + '">' + response.debug_content + '</div>' );
 
 				num_ajax_calls++;
-				$("#debug_timers dd.ajax_calls").html( num_ajax_calls + ' <small>(<a href="#ajax_debug_' + ( num_ajax_calls - 1 ) + '">Go last one</a>)</small>' );
                 $("#debug_timers dt.ajax_calls .num_calls" ).html( num_ajax_calls );
+
+				// Timing.
+				total_time = total_time + parseFloat( response.debug_total_time );
+
+				// Format timing:
+				var time = total_time * 1000;
+
+				if ( time < 100 )
+				{
+					// Miliseconds.
+					$formatted_time = time.toFixed(2)  + ' milisec';
+				}
+				else
+				{
+					// Seconds.
+					time = time / 1000;
+					$formatted_time = time.toFixed(2)  + ' sec';
+				}
+
+				$("#debug_timers dd.ajax_calls").html( $formatted_time + ' <small>(<a href="#ajax_debug_' + ( num_ajax_calls - 1 ) + '">Go to last one</a>)</small>' );
             }
         }
 		catch( e )

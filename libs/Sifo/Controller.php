@@ -367,7 +367,8 @@ abstract class Controller
 				$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
 				Debug::subSet( 'controllers', get_class( $this ), $this->debug_info );
 
-				$return['debug_content'] = $this->dispatchSingleController( 'DebugIndex', array( 'show_debug_timers' => false ) );
+				$return['debug_content'] 	= $this->dispatchSingleController( 'DebugIndex', array( 'show_debug_timers' => false ) );
+				$return['debug_total_time']	= \Sifo\Benchmark::getInstance()->timingCurrent();
 			}
 
 			$json_callback = FilterGet::getInstance()->getString( 'json_callback' );
