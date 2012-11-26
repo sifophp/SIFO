@@ -340,6 +340,7 @@ abstract class Controller
 		{
 			$this->postDispatch();
 			$cached_content = $this->_realTimeReplacement( $cached_content );
+			Headers::send();
 			echo $cached_content;
 			return;
 		}
@@ -374,7 +375,7 @@ abstract class Controller
 		}
 
 		$this->postDispatch();
-		Headers::write();
+		Headers::send();
 		$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
 
 		$content = $this->_realTimeReplacement( $content );

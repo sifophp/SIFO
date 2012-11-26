@@ -122,8 +122,8 @@ class Registry
 	/**
 	 * Adds another element to the end of the array.
 	 *
-	 * @param unknown_type $key
-	 * @param unknown_type $value
+	 * @param string $key
+	 * @param mixed $value
 	 * @return int New number of elements in the array.
 	 */
 	public static function push( $key, $value )

@@ -21,17 +21,60 @@
 namespace Sifo;
 
 /**
- * Control of the HTTP headers sent to the browser before the output.
+ * Stack of HTTP headers to be sent to the browser just before the output.
+ *
+ * Use "set" method to add headers to the stack.
+ * Use "setResponseStatus" for HTTP codes only.
+ * Use "send" to send all the headers to the browser.
+ *
+ * Examples:
+ *
+ * // Set several headers with the same key ('replace' parameter at the end set to false)
+ * Headers::set( 'WWW-Authenticate', 'Negotiate' )
+ * Headers::set( 'WWW-Authenticate', 'NTLM', false )
+ *
+ * // Will send:
+ * WWW-Authenticate: Negotiate
+ * WWW-Authenticate: NTLM
+ *
+ * Headers::set( 'Content-Type', 'application/pdf' )
+ * Headers::set( 'Content-Type', 'application/json' )
+ *
+ * // Will send:
+ * Content-Type: application/json
+ * (pdf is ignored because the "replace" is true by default)
+ *
+ * The headers won't be sent until you execute:
+ * Headers::send();
  */
 
 class Headers
 {
+	/**
+	 * Headers that are status codes. E.g: "HTTP/1.0 404 Not Found"
+	 */
+	const FORMAT_TYPE_STATUS = 'HTTP/1.0 %s %s';
+
+	/**
+	 * Headers made of a key and a value. E.g: "WWW-Authenticate: Negotiate"
+	 */
+	const FORMAT_KEY_VALUE = '%s: %s';
+
 	/**
 	 * List of all the headers sent by the application so far.
 	 *
 	 * @var array
 	 */
 	protected static $headers = array();
+
+	/**
+	 * Headers history.
+	 *
+	 * @var array
+	 */
+	protected static $history = array();
+
+
 
 	/**
 	 * Known HTTP codes by this framework.
@@ -85,9 +128,55 @@ class Headers
 		self::set( 'Content-Type', 'text/html; charset=UTF-8' );
 	}
 
-	public static function set( $key, $value )
+	/**
+	 * Creates a new header with the key and values passed.
+	 *
+	 * @param $key string The header name (e.g: Content-Type)
+	 * @param $value string The value for the header (e.g: application/json)
+	 * @param bool $replace Adds an additional value to any existing key.
+	 */
+	public static function set( $key, $value, $replace = true, $http_code = false )
 	{
-		 self::$headers[$key] = $value;
+		self::pushHeader( $key, $value, $replace, self::FORMAT_KEY_VALUE, $http_code );
+	}
+
+	/**
+	 * Creates the status header with the HTTP code that will be sent to the client.
+	 *
+	 * @param $http_code integer Http status code (e.g: 404)
+	 */
+	public static function setResponseStatus( $http_code )
+	{
+		if ( isset( self::$http_codes[$http_code] ) )
+		{
+			$msg = self::$http_codes[$http_code];
+			self::pushHeader( ( string ) $http_code, $msg, true, self::FORMAT_TYPE_STATUS, false );
+		}
+		else
+		{
+			throw new Headers_Exception( "Unknown status code requested $http_code" );
+		}
+
+	}
+
+	/**
+	 * It formats the header and adds it to the stack.
+	 *
+	 * @param $key string Header name
+	 * @param $value string Header value
+	 * @param $replace boolean If the header overwrites any similar existing header.
+	 * @param $format string The sprintf format used to format the content.
+	 * @param $http_code integer Additional set of HTTP status code with the header. Suitable for "Location" header.
+	 */
+	protected static function pushHeader( $key, $value, $replace, $format, $http_code )
+	{
+		$header = array(
+			'content' => sprintf( $format, $key, $value ),
+			'replace' => $replace,
+			'http_code' => $http_code
+		);
+
+		array_push( self::$headers, $header );
 	}
 
 	public static function get( $key )
@@ -106,13 +195,36 @@ class Headers
 	}
 
 	/**
-	 * Writes all the headers so they become effective.
+	 * Sends all the headers to the browser.
 	 */
-	public static function write()
+	public static function send()
 	{
-		foreach( self::$headers as $header => $value )
+		foreach( self::$headers as $header => $values )
 		{
-			header( "$header: $value" );
+			if ( $values['http_code'] )
+			{
+				header( $values['content'], $values['replace'], $values['http_code'] );
+			}
+			else
+			{
+				header( $values['content'], $values['replace'] );
+			}
 		}
+
+		// Clear the stack after writing:
+		self::$history[] = self::$headers;
+		self::$headers = array();
+	}
+
+	/**
+	 * Returns all the blocks of headers written so far.
+	 *
+	 * @return array
+	 */
+	public static function getDebugInfo()
+	{
+		return self::$history;
 	}
 }
+
+class Headers_Exception extends \Exception {}

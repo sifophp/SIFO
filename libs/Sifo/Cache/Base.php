@@ -104,8 +104,48 @@ class CacheBase
 		}
 		else
 		{
-			return $this->cache_object->get( $key );
+			if ( !( $content = $this->cache_object->get( $key ) ) )
+			{
+				$lock = CacheLock::getInstance( $key, $this->cache_object );
+
+				if ( $lock->isLocked() )
+				{
+					do
+					{
+						usleep( CacheLock::WAIT_TIME );
+					}
+					while( $lock->isLocked() );
+
+					if ( !( $content = $this->cache_object->get( $key ) ) )
+					{
+						trigger_error( "Cache lock timeout.Lock for {$key} has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
+					}
+				}
+				else
+				{
+					$lock->acquire();
+				}
+			}
+
+			return $content;
 		}
+	}
+
+	/**
+	 * Stores "$content" under "$key" for "$expiration" seconds.
+	 *
+	 * @param $key string
+	 * @param $content mixed
+	 * @param $expiration integer
+	 * @return boolean
+	 */
+	public function set( $key, $content, $expiration )
+	{
+		$set_result =  $this->cache_object->set( $key, $content, $expiration );
+
+		CacheLock::getInstance( $key, $this->cache_object )->release();
+
+		return $set_result;
 	}
 
 	/**
@@ -124,7 +164,12 @@ class CacheBase
 
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			$pointer = $this->get( sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) );
+			if ( !( $pointer = $this->get( $key_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) ) ) )
+			{
+				// Default declaration when the tag is not initialized.
+				// This code piece is required to the cache lock release.
+				$this->set( $key_tag, 0, 0 ); // $expiration = 0 => Unexpirable.
+			}
 			$cache_tag .= '/' . ( int )$pointer;
 		}
 
@@ -181,6 +226,4 @@ class CacheBase
 
 		return true;
 	}
-
-
 }

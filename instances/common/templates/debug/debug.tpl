@@ -383,6 +383,9 @@ LoadjQueryUI();
 	</div>
 {/if}
 
+{* Sent headers*}
+{$debug_modules.headers}
+
 {* Smarty Error: Compilation and runtime smarty errors*}
 {$debug_modules.smarty_errors}
 
@@ -397,6 +400,20 @@ LoadjQueryUI();
 
 {* Log messages *}
 {$debug_modules.log_messages}
+
+{* Post *}
+{if is_array($debug.post) && !empty($debug.post)}
+	<h1 id="post">{t}Post{/t}</h1>
+{foreach name=post from=$debug.post item=value key=post_key}
+	<h2 id="post_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="post_content_{$smarty.foreach.post.index}" href="#">{$smarty.foreach.post.index+1}. {$post_key}</a></h2>
+	<div id="post_content_{$smarty.foreach.post.index}" class="debug_contents">
+		<pre>
+{			$value|debug_print_var}
+		</pre>
+	</div>
+{/foreach}
+{/if}
+
 
 {* Sessions and Cookies *}
 {if is_array($debug.session)}

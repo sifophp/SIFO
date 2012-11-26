@@ -134,6 +134,19 @@ class Session
 		return isset( $_SESSION[$key] );
 	}
 
+	/**
+	 * Remove all the session saved data. And the Session continue started.
+	 *
+	 * @return bool
+	 */
+	public function reset()
+	{
+		$this->destroy();
+		session_start();
+
+		return true;
+	}
+
 	public function destroy()
 	{
 		if ( isset( $_SESSION ) )

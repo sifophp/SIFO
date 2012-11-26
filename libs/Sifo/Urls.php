@@ -145,9 +145,6 @@ class Urls
 		self::$base_url = self::$scheme . '://' . $filter_server->getString( 'HTTP_HOST' );
 		self::$url_definition = Config::getInstance( $instance_name )->getConfig( 'url_definition' );
 
-		// Default url.config for all languages.
-		self::$url_config = Config::getInstance( $instance_name )->getConfig( 'url' );
-
 		$original_path = $filter_server->getString( 'REQUEST_URI' );
 		$query_string = $filter_server->getString( 'QUERY_STRING' );
 		$path = urldecode( str_replace( '?' . $query_string, '', $original_path ) );
@@ -181,6 +178,9 @@ class Urls
 		}
 
 		self::$path_parts = explode( self::$url_definition['context_separator'], self::$path );
+
+		// Default url.config for all languages.
+		self::$url_config = Config::getInstance( $instance_name )->getConfig( 'url' );
 	}
 
 	/**
