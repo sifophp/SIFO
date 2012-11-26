@@ -362,7 +362,7 @@ abstract class Controller
 		if ( $this->is_json )
 		{
 			// Json Debug.
-			if ( Domains::getInstance()->getDebugMode() )
+			if ( Domains::getInstance()->getDebugMode() && is_array( $return ) )
 			{
 				$this->stopBench( $benchmark_key, "----- TOTAL " .get_class( $this ) . " + PREVIOUS MODULES -----" );
 				Debug::subSet( 'controllers', get_class( $this ), $this->debug_info );
