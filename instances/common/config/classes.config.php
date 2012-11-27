@@ -19,6 +19,7 @@ $config['CssPacker']['Sifo'] = 'libs/Sifo/CssPacker.php';
 $config['Database']['Sifo'] = 'libs/Sifo/Database.php';
 $config['Debug']['Sifo'] = 'libs/Sifo/Debug.php';
 $config['DebugMysql']['Sifo'] = 'libs/Sifo/Debug/Mysql.php';
+$config['DebugPredisProxyClient']['Sifo'] = 'libs/Sifo/Debug/PredisProxyClient.php';
 $config['DebugSearch']['Sifo'] = 'libs/Sifo/Debug/Search.php';
 $config['Dir']['Sifo'] = 'libs/Sifo/Dir.php';
 $config['DirectoryList']['Sifo'] = 'libs/Sifo/DirectoryList.php';
