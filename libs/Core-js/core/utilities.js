@@ -154,7 +154,6 @@ CORE.utilities.launchCallbackOnScroll = function (aReferences , fpCallback) {
 	});
 };
 
-
 CORE.utilities.isVisible = function(oElement) {
 
 	if (jQuery) {
@@ -183,10 +182,10 @@ CORE.utilities.isVisible = function(oElement) {
 			nLeft += oElement.offsetLeft;
 		}
 		return (
+			(nWindowPageYOffset + nWindowInnerHeight ) <= (nTop + nHeight) &&
 			nTop >= nWindowPageYOffset &&
 			nLeft >= nWindowPageXOffset &&
-			(nTop + nHeight) <= (nWindowPageYOffset + nWindowInnerHeight ) &&
-			(nLeft + nWidth) <= (nWindowPageXOffset + nWindowInnerWidth )
+			(nWindowPageXOffset + nWindowInnerWidth ) <= (nLeft + nWidth)
 		);
 	}
 };
