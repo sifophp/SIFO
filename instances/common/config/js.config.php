@@ -75,7 +75,7 @@ $config['graphs'] = array(
 $config['modal'] = array(
 	10 => array(
 		'name' => 'jquery_nyro_Modal',
-		'filename' => 'libs/Core-js/libs/jquery-nyroModal/js/jquery.nyroModal-1.6.2.min.js',
+		'filename' => 'libs/Core-js/libs/jquery-nyroModal-v2/js/jquery.nyroModal.custom.min.js',
 	),
 	20 => array(
 		'name' => 'modals_class',
