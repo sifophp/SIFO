@@ -40,7 +40,7 @@ $config['default'] = array(
         'name' => 'modernizr',
         'filename' => 'libs/Core-js/libs/modernizr/modernizr-custom.js',
     ),
-    70 => array(
+    99999 => array(
    		'name' => 'polyfiller',
    		'filename' => 'libs/Core-js/libs/modernizr/polyfills/polyfiller.js'
    	),

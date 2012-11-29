@@ -1187,8 +1187,15 @@
 	}
 }));
 
-$.webshims.setOptions({
-    basePath: sHostStatic  + "/js/libs/webshims/shims/"
-});
 
-$.webshims.polyfill();
+var bPolyfill = bPolyfill ? bPolyfill : false;
+
+if ( bPolyfill ) {
+
+	$.webshims.setOptions({
+	    basePath: sHostStatic  + "/js/libs/webshims/shims/"
+	});
+
+	$.webshims.polyfill();
+
+}
