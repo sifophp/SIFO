@@ -407,6 +407,9 @@ LoadjQueryUI();
 {* Database queries *}
 {$debug_modules.database}
 
+{* Redis callstack *}
+{$debug_modules.redis}
+
 {* Log messages *}
 {$debug_modules.log_messages}
 
