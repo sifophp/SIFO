@@ -62,7 +62,15 @@ class Database
 	 */
 	const TYPE_SINGLE_SERVER = 'single_server';
 
-	const QUERY_METHOD_PREPARE = 'Prepare';
+	// Methods capable to be marked as duplicates:
+	// Input in lower case:
+	private $methods_whitout_duplicated_validation = array(
+		'prepare',
+		'affected_rows',
+		'insert_id',
+		'errorno',
+		'errormsg',
+	);
 
 	/**
 	 * Dummy Singleton
@@ -311,16 +319,11 @@ class Database
 
 		$query = self::$adodb[self::$destination_type]->_querySQL;
 
-		if ( self::QUERY_METHOD_PREPARE == $method )
-		{
-			$query = strtoupper( $method )." (".md5( $resultset ).")";
-		}
-
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
 		$debug_query = array(
 			"tag"         => $tag,
-			"sql"         => in_array( $method, array( 'Affected_Rows', 'Insert_ID' ) ) ? $method : $query,
+			"sql"         => in_array( strtolower($method), $this->methods_whitout_duplicated_validation ) ? $method : $query,
 			"type"        => ( $read_operation ? 'read' : 'write' ),
 			"destination" => self::$destination_type,
 			"host"        => self::$adodb[self::$destination_type]->host,
@@ -348,11 +351,14 @@ class Database
 		}
 
 		// Check duplicated queries.
-		$queries_executed = Debug::get( 'executed_queries' );
-		if ( !empty( $queries_executed ) && isset( $queries_executed[ $debug_query['sql'] ] ) )
+		if ( !in_array( strtolower( $method), $this->methods_whitout_duplicated_validation ) )
 		{
-			$debug_query['duplicated'] = true;
-			Debug::push( 'duplicated_queries', 1 );
+			$queries_executed = Debug::get( 'executed_queries' );
+			if ( !empty( $queries_executed ) && isset( $queries_executed[ $debug_query['sql'] ] ) )
+			{
+				$debug_query['duplicated'] = true;
+				Debug::push( 'duplicated_queries', 1 );
+			}
 		}
 		Debug::subSet( 'executed_queries', $debug_query['sql'], 1 );
 

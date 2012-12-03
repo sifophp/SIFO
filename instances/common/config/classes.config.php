@@ -42,6 +42,7 @@ $config['Metadata']['Sifo'] = 'libs/Sifo/Metadata.php';
 $config['Model']['Sifo'] = 'libs/Sifo/Model.php';
 $config['Mysql']['Sifo'] = 'libs/Sifo/Mysql.php';
 $config['MysqlModel']['Sifo'] = 'libs/Sifo/MysqlModel.php';
+$config['Password']['Sifo'] = 'libs/Sifo/Password.php';
 $config['PaypalNotifier']['Sifo'] = 'libs/Sifo/PaypalNotifier.php';
 $config['RedisModel']['Sifo'] = 'libs/Sifo/RedisModel.php';
 $config['Registry']['Sifo'] = 'libs/Sifo/Registry.php';

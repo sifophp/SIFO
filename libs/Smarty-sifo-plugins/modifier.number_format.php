@@ -19,7 +19,7 @@
  * @param string
  * @return string
  */
-function smarty_modifier_number_format($string, $decimals=2)
+function smarty_modifier_number_format( $string, $decimals = 2 )
 {
 	// Numeric locale vars.
 	// Remember to change the size_format modifier if you change the locales management here.
@@ -29,7 +29,7 @@ function smarty_modifier_number_format($string, $decimals=2)
 	$thousand_separator = ( $locale['thousands_sep'] == '' ) ? '.' : $locale['thousands_sep'];
 	$decimal_separator = $locale['decimal_point'];
 
-	return @number_format( $string, $decimals, $decimal_separator, $thousand_separator );
+	return @utf8_encode(number_format( $string, $decimals, $decimal_separator, $thousand_separator ));
 }
 
 /* vim: set expandtab: */
