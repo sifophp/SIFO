@@ -6,6 +6,7 @@ $config['debug/debug.tpl'] = 'instances/common/templates/debug/debug.tpl';
 $config['debug/headers.tpl'] = 'instances/common/templates/debug/headers.tpl';
 $config['debug/log_messages.tpl'] = 'instances/common/templates/debug/log_messages.tpl';
 $config['debug/mail.tpl'] = 'instances/common/templates/debug/mail.tpl';
+$config['debug/redis.tpl'] = 'instances/common/templates/debug/redis.tpl';
 $config['debug/search.tpl'] = 'instances/common/templates/debug/search.tpl';
 $config['debug/smarty_errors.tpl'] = 'instances/common/templates/debug/smarty_errors.tpl';
 $config['empty.tpl'] = 'instances/common/templates/empty.tpl';

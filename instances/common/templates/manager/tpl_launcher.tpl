@@ -1,7 +1,8 @@
 <html>
 <head>
 	<title>Templates Test Launcher</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset={$charset}" />
+	
 <body>
 	<h1>Templates Test Launcher</h1>
 {	if isset( $error ) }

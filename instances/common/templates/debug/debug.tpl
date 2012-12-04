@@ -407,14 +407,17 @@ LoadjQueryUI();
 {* Database queries *}
 {$debug_modules.database}
 
+{* Redis callstack *}
+{$debug_modules.redis}
+
 {* Log messages *}
 {$debug_modules.log_messages}
 
 {* Post *}
 {if is_array($debug.post) && !empty($debug.post)}
-	<h1 id="post">{t}Post{/t}</h1>
+	<h2 id="post">{t}Post{/t}</h2>
 {foreach name=post from=$debug.post item=value key=post_key}
-	<h2 id="post_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="post_content_{$smarty.foreach.post.index}" href="#">{$smarty.foreach.post.index+1}. {$post_key}</a></h2>
+	<h3 id="post_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="post_content_{$smarty.foreach.post.index}" href="#">{$smarty.foreach.post.index+1}. {$post_key}</a></h3>
 	<div id="post_content_{$smarty.foreach.post.index}" class="debug_contents">
 		<pre>
 {			$value|debug_print_var}

@@ -63,6 +63,11 @@ class DebugIndexController extends \Sifo\Controller
 		$this->assign( 'debug', $debug );
 		$this->renderDebugModule( $debug, 'search', 'debug/search.tpl' );
 
+		// Redis debug.
+		$debug['redis']				= \Sifo\Debug::get( 'redis' );
+		$this->assign( 'debug', $debug );
+		$this->renderDebugModule( $debug, 'redis', 'debug/redis.tpl' );
+
 		// Environment variables:
 		$debug['post']				= $this->getPostData();
 		$debug['session']			= $this->getSessionData();
