@@ -53,8 +53,6 @@ abstract class Controller
 	/**
 	 * Flag controlling if the controller should behave like a normal HTML or as json response.
 	 *
-	 * By setting this value to true, the debug will be disabled (would break the json format).
-	 *
 	 * @var boolean
 	 */
 	public $is_json = false;
@@ -86,6 +84,13 @@ abstract class Controller
 	 * @var Cache
 	 */
 	protected $cache;
+
+	/**
+	 * Stores the cache definition once is calculated for the next queries.
+	 *
+	 * @var string
+	 */
+	protected $cache_definition;
 
 	/**
 	 * I18n object
@@ -461,27 +466,33 @@ abstract class Controller
 	 */
 	protected function parseCache()
 	{
-		$cache_key = $this->getCacheDefinition();
-
-		if ( false === $cache_key || '' === $cache_key  )
+		if ( isset( $this->cache_definition ) )
 		{
-			return false;
+			return $this->cache_definition;
 		}
 
-		if ( !is_array( $cache_key ) )
+		$this->cache_definition = $this->getCacheDefinition();
+
+		if ( false === $this->cache_definition || '' === $this->cache_definition  )
 		{
-			$cache_key = array( 'name' => $cache_key );
+			return $this->cache_definition = false;
+
 		}
 
-		if ( empty( $cache_key['expiration'] ) )
+		if ( !is_array( $this->cache_definition ) )
 		{
-			$cache_key['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
+			$this->cache_definition = array( 'name' => $this->cache_definition );
+		}
+
+		if ( empty( $this->cache_definition['expiration'] ) )
+		{
+			$this->cache_definition['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
 		}
 
 		// Prepend necessary values to cache:
-		$cache_key['name'] = $this->_getFinalCacheKeyName( $cache_key );
+		$this->cache_definition['name'] = $this->_getFinalCacheKeyName( $this->cache_definition );
 
-		return $cache_key;
+		return $this->cache_definition;
 	}
 
 	/**

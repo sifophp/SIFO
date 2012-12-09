@@ -38,7 +38,7 @@ class FlashMessages
 	 *
 	 * @param mixed $message The message string or an error list (array).
 	 * @param string $type The class associated to this message, depending on the result.
-	 * @param boolean $store_in_session Wether the message is stored in registry or in session.
+	 * @param boolean $store_in_session Whether the message is stored in registry or in session.
 	 */
 	static public function set( $message, $type = self::MSG_OK, $storage_engine = self::STORAGE_REGISTRY )
 	{
