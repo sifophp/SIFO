@@ -449,8 +449,14 @@ abstract class Controller
 
 		if ( $content )
 		{
+			if ( false !== strpos( Cache::$cache_type, 'MEMCACHE' ) )
+			{
+				$this->addToDebug( 'Stored in Memcache as', sha1( $cache_key['name'] ), 'Cache properties' );
+			}
 			// Add another key inside the debug key:
-			Debug::subSet( 'controllers', get_class( $this ). ' <small>- Retrieved from ' . Cache::$cache_type . ' ['.$cache_key['name'] . ']</small>', $this->debug_info );
+			$this->addToDebug( 'Cache definition', $cache_key, 'Cache properties' );
+
+			Debug::subSet( 'controllers', get_class( $this ). ' <small>- ' . Cache::$cache_type . ' HIT</small>', $this->debug_info );
 			return $content;
 		}
 

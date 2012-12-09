@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	 http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -104,9 +104,10 @@ class CacheBase
 		}
 		else
 		{
-			if ( !( $content = $this->cache_object->get( $key ) ) )
+			$sha1 = sha1( $key );
+			if ( !( $content = $this->cache_object->get( $sha1 ) ) )
 			{
-				$lock = CacheLock::getInstance( $key, $this->cache_object );
+				$lock = CacheLock::getInstance( $sha1, $this->cache_object );
 
 				if ( $lock->isLocked() )
 				{
@@ -116,9 +117,9 @@ class CacheBase
 					}
 					while( $lock->isLocked() );
 
-					if ( !( $content = $this->cache_object->get( $key ) ) )
+					if ( !( $content = $this->cache_object->get( $sha1 ) ) )
 					{
-						trigger_error( "Cache lock timeout.Lock for {$key} has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
+						trigger_error( "Cache lock timeout.Lock for {$sha1} has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
 					}
 				}
 				else
@@ -127,7 +128,13 @@ class CacheBase
 				}
 			}
 
-			return $content;
+			// Check for any possible SHA1 collisions:
+			if ( isset( $content['content'] ) && $content['key'] == $key )
+			{
+				return $content['content'];
+			}
+
+			return false;
 		}
 	}
 
@@ -141,6 +148,14 @@ class CacheBase
 	 */
 	public function set( $key, $content, $expiration )
 	{
+		$content = array(
+			'key' => $key,
+			'content' => $content,
+			//'expiration' => $expiration,
+			//'time' => time()
+		);
+
+		$key = sha1( $key );
 		$set_result =  $this->cache_object->set( $key, $content, $expiration );
 
 		CacheLock::getInstance( $key, $this->cache_object )->release();
@@ -164,13 +179,13 @@ class CacheBase
 
 		if ( isset( $cache_config['cache_tags'] ) && in_array( $tag, $cache_config['cache_tags'] ) )
 		{
-			if ( !( $pointer = $this->get( $key_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) ) ) )
+			if ( !( $pointer = $this->cache_object->get( $key_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value ) ) ) )
 			{
 				// Default declaration when the tag is not initialized.
 				// This code piece is required to the cache lock release.
-				$this->set( $key_tag, 0, 0 ); // $expiration = 0 => Unexpirable.
+				$this->cache_object->set( $key_tag, 0, 0 ); // $expiration = 0 => Unexpirable.
 			}
-			$cache_tag .= '/' . ( int )$pointer;
+			$cache_tag .= '/' . ( int ) $pointer;
 		}
 
 		return $cache_tag;
