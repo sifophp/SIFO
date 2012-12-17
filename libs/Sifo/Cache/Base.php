@@ -119,7 +119,7 @@ class CacheBase
 
 					if ( !( $content = $this->cache_object->get( $sha1 ) ) )
 					{
-						trigger_error( "Cache lock timeout.Lock for {$sha1} has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
+						trigger_error( "Cache lock timeout.Lock for $key (SHA1: $sha1) has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
 					}
 				}
 				else
