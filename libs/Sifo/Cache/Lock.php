@@ -45,7 +45,7 @@ class CacheLock
 	private function __construct( $key, $cache_instance )
 	{
 		$this->lock_id =  uniqid();
-		$this->key = self::KEY_PREFIX . $key;
+		$this->key = $this->getLockCacheKey( $key );
 
 		$this->cache_object = $cache_instance;
 	}
@@ -87,8 +87,47 @@ class CacheLock
 	 *
 	 * @return boolean
 	 */
-	public function release()
+	public function release( $key = null )
 	{
-		return ( $this->cache_object->delete( $this->key ) );
+		if ( empty( $key ) )
+		{
+			$key = $this->key;
+		}
+		unset( self::$instances[$key] );
+		return $this->cache_object->delete( $key );
 	}
+
+	/**
+	 * Releases all existing cache locks.
+	 */
+	protected function releaseAll()
+	{
+		foreach( self::$instances as $key => $lock )
+		{
+			$lock->release( $this->getLockCacheKey( $key ) );
+		}
+	}
+
+	/**
+	 * Release all cache locks before at object's destruction.
+	 *
+	 * If Exceptions, reDispatch, exit() or other hacks interfere with the normal workflow the cache locks have to be released.
+	 */
+	public function __destruct()
+	{
+		 $this->releaseAll();
+	}
+
+	/**
+	 * Returns the cache key name used to store the lock.
+	 *
+	 * @param $key
+	 * @return string
+	 */
+	protected function getLockCacheKey( $key )
+	{
+		return self::KEY_PREFIX . $key;
+	}
+
+
 }
