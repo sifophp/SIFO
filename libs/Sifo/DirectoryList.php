@@ -78,7 +78,8 @@ class DirectoryList
 	 * Non-recursive function.
 	 *
 	 * @param string $path Directory where you want to start parsing.
-	 * @return IteratorIterator
+	 * @param array $valid_extensions
+	 * @return \IteratorIterator
 	 */
 	public function getList( $path, $valid_extensions = array( ) )
 	{
@@ -105,9 +106,9 @@ class DirectoryList
 	 * passed only matching files will be returned (do not pass the dot in the extensions)
 	 *
 	 * @param string $path Directory where you want to start parsing.
+	 * @param bool $accept_directories
 	 * @param array $valid_extensions List of accepted extensions in the list, empty array for no filtering.
-	 * @return
-	 * ratorIterator of RecursiveDirectoryIterator
+	 * @return \RecursiveIteratorIterator|\Sifo\FilterFilesByExtensionIterator ratorIterator of RecursiveDirectoryIterator
 	 */
 	public function getRecursiveList( $path, $accept_directories = true, $valid_extensions = array( ) )
 	{
