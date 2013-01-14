@@ -167,3 +167,11 @@ $config['prettify'] = array(
 		'filename' => 'libs/Core-js/libs/code-prettifier/prettify.js',
 	)
 );
+
+/* Prettify: Color source code */
+$config['pulldown'] = array(
+	10 => array(
+		'name' => 'pulldown_class',
+		'filename' => 'libs/Core-js/classes/pulldown.js',
+	)
+);
