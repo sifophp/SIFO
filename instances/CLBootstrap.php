@@ -80,6 +80,10 @@ class CLBootstrap extends Bootstrap
 	}
 
 }
+
+// Disable whatever buffering default config.
+@ob_end_flush();
+
 // Instance name (folder under instances):
 $cwd = $_SERVER['PWD'] . '/' . $_SERVER['PHP_SELF'];
 preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
