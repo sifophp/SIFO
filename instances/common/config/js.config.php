@@ -40,13 +40,17 @@ $config['default'] = array(
         'name' => 'modernizr',
         'filename' => 'libs/Core-js/libs/modernizr/modernizr-custom.js',
     ),
-    99999 => array(
-   		'name' => 'polyfiller',
-   		'filename' => 'libs/Core-js/libs/modernizr/polyfills/polyfiller.js'
-   	),
 	100000 => array(
 		'name' => 'init',
 		'filename' => 'libs/Core-js/core/init.js',
+	)
+);
+
+/* Modal windows */
+$config['polyfills'] = array(
+	10 => array(
+		'name' => 'polyfiller',
+		'filename' => 'libs/Core-js/libs/modernizr/polyfills/polyfiller.js'
 	)
 );
 
