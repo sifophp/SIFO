@@ -16,34 +16,41 @@
 
 /* Default group, also known as CORE. */
 $config['default'] = array(
+	5 => array(
+		'name' => 'labs',
+		'filename' => 'libs/Core-js/core/ready.js',
+	),
+	10 => array(
+		'name' => 'labs',
+		'filename' => 'libs/Core-js/libs/labjs/LAB.js',
+	),
+	15 => array(
+		'name' => 'device_detection',
+		'filename' => 'libs/Core-js/core/device_detection.js',
+	),
+	20 => array(
+		'name' => 'namespace',
+		'filename' => 'libs/Core-js/core/namespace.js',
+	),
+	30 => array(
+		'name' => 'utilities_common',
+		'filename' => 'libs/Core-js/core/utilities.js',
+	),
+	100000 => array(
+		'name' => 'init',
+		'filename' => 'libs/Core-js/core/init.js',
+	)
+);
+
+$config['desktop'] = array(
 	10 => array(
 		'name' => 'jquery',
 		'filename' => 'libs/Core-js/libs/jquery/jquery-1.8.3.min.js',
 	),
 	20 => array(
-		'name' => 'labs',
-		'filename' => 'libs/Core-js/libs/labjs/LAB.js',
-	),
-	30 => array(
-		'name' => 'namespace',
-		'filename' => 'libs/Core-js/core/namespace.js',
-	),
-	40 => array(
-		'name' => 'utilities_common',
-		'filename' => 'libs/Core-js/core/utilities.js',
-	),
-	50 => array(
-		'name' => 'page_behaviours',
-		'filename' => 'libs/Core-js/core/page-behaviours.js',
-	),
-    60 => array(
-        'name' => 'modernizr',
-        'filename' => 'libs/Core-js/libs/modernizr/modernizr-custom.js',
-    ),
-	100000 => array(
-		'name' => 'init',
-		'filename' => 'libs/Core-js/core/init.js',
-	)
+     'name' => 'modernizr',
+     'filename' => 'libs/Core-js/libs/modernizr/modernizr-custom.js',
+    )
 );
 
 /* Modal windows */
