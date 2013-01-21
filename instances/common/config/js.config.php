@@ -17,7 +17,7 @@
 /* Default group, also known as CORE. */
 $config['default'] = array(
 	5 => array(
-		'name' => 'labs',
+		'name' => 'DOM_ready',
 		'filename' => 'libs/Core-js/core/ready.js',
 	),
 	10 => array(
@@ -85,8 +85,8 @@ $config['graphs'] = array(
 /* Modal windows */
 $config['modal'] = array(
 	10 => array(
-		'name' => 'jquery_nyro_Modal',
-		'filename' => 'libs/Core-js/libs/jquery-nyroModal-v2/js/jquery.nyroModal.custom.min.js',
+		'name' => 'colorbox',
+		'filename' => 'libs/Core-js/libs/jquery-colorbox/jquery.colorbox.js',
 	),
 	20 => array(
 		'name' => 'modals_class',
