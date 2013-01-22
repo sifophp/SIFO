@@ -260,13 +260,15 @@ function LoadjQueryUI()
 	var domain_parts = document.domain.split('.');
 	var cookie_domain = document.domain.replace( domain_parts[0], '');
 
-	if ( typeof jQuery != 'function' && waitingForScript( (("https:" == document.location.protocol) ? "https" : "http") + '://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js', 'jQuery') ) return;
+	if ( typeof jQuery != 'function' && waitingForScript( (("https:" == document.location.protocol) ? "https" : "http") + '://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js', 'jQuery')  ) return;
 
 	// If cookie plugin is not loaded, we declare it
 	if ( typeof jQuery.cookie != 'function' )
 	{
 		jQuery.cookie=function(name,value,options){if(typeof value!='undefined'){options=options||{};if(value===null){value='';options.expires=-1;}var expires='';if(options.expires&&(typeof options.expires=='number'||options.expires.toUTCString)){var date;if(typeof options.expires=='number'){date=new Date();date.setTime(date.getTime()+(options.expires*24*60*60*1000));}else{date=options.expires;}expires='; expires='+date.toUTCString();}var path=options.path?'; path='+(options.path):'';var domain=options.domain?'; domain='+(options.domain):'';var secure=options.secure?'; secure':'';document.cookie=[name,'=',encodeURIComponent(value),expires,path,domain,secure].join('');}else{var cookieValue=null;if(document.cookie&&document.cookie!=''){var cookies=document.cookie.split(';');for(var i=0;i<cookies.length;i++){var cookie=jQuery.trim(cookies[i]);if(cookie.substring(0,name.length+1)==(name+'=')){cookieValue=decodeURIComponent(cookie.substring(name.length+1));break;}}}return cookieValue;}};
 	}
+
+
 
 	(function($) {
 		$.fn.drags = function(opt) {
@@ -311,7 +313,17 @@ function LoadjQueryUI()
 	})(jQuery);
 
 	$(document).ready( function(){
-		$('#debug_timers').drags();
+
+		if (parseFloat(jQuery.fn.jquery) >= 1.8) {
+			$.getScript('http://code.jquery.com/jquery-migrate-1.0.0.js' ).done( debugBehaviours );
+		} else {
+			debugBehaviours();
+		}
+
+
+		function debugBehaviours() {
+
+			$('#debug_timers').drags();
 
 		$('#debug_timers a.slide').click( function() {
 			if ( $('#debug_timers dd:last').is(':visible') )
@@ -329,7 +341,7 @@ function LoadjQueryUI()
 			return false;
 		});
 
-		$('#debug a.debug_toggle_view,#ajax_debug a.debug_toggle_view').unbind('click').on( 'click', function() {
+		$('#debug a.debug_toggle_view,#ajax_debug a.debug_toggle_view').unbind('click').live( 'click', function() {
 			dest_el = $(this).attr('rel');
 			if ( $('#'+dest_el).is(':visible') )
 				$('#'+dest_el).slideUp();
@@ -342,6 +354,63 @@ function LoadjQueryUI()
 		{
 			$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').hide();
 		}
+
+		{/literal}
+
+		{if $show_timers|default:true}
+
+		{literal}
+			var num_ajax_calls 	= 0;
+			var total_time 		= 0;
+			$('#debug').ajaxComplete(function( e, xhr, settings )
+			{
+				try
+				{
+					var response = jQuery.parseJSON( xhr.responseText );
+
+					if ( typeof response.debug_content != 'undefined' )
+					{
+						$('#debug_timers .ajax_calls').show();
+						if ( num_ajax_calls % 2 == 0)
+		                {
+		                    response.debug_content = response.debug_content.replace( '<div id="debug">', '<div id="debug" style="background-color: rgba(239, 239, 239, 0.84);">')
+		                }
+						$("#ajax_debug").append( '<h1 class="ajax_title"><a class="debug_toggle_view" rel="ajax_debug_' + num_ajax_calls + '" href="#">' + ( num_ajax_calls + 1 ) + '.- AJAX call: ' + settings.url + '</a></h1>' );
+						$("#ajax_debug").append( '<div id="ajax_debug_' + num_ajax_calls + '">' + response.debug_content + '</div>' );
+
+						num_ajax_calls++;
+		                $("#debug_timers dt.ajax_calls .num_calls" ).html( num_ajax_calls );
+
+						// Timing.
+						total_time = total_time + parseFloat( response.debug_total_time );
+
+						// Format timing:
+						var time = total_time * 1000;
+
+						if ( time < 100 )
+						{
+							// Miliseconds.
+							$formatted_time = time.toFixed(2)  + ' milisec';
+						}
+						else
+						{
+							// Seconds.
+							time = time / 1000;
+							$formatted_time = time.toFixed(2)  + ' sec';
+						}
+
+						$("#debug_timers dd.ajax_calls").html( $formatted_time + ' <small>(<a href="#ajax_debug_' + ( num_ajax_calls - 1 ) + '">Go to last one</a>)</small>' );
+		            }
+		        }
+				catch( e )
+				{
+					// Do nothing. Only supported for JSON responses.
+				}
+			});
+		{/literal}
+		{/if}
+		{literal}
+		};
 	});
 }
 
@@ -497,57 +566,5 @@ LoadjQueryUI();
 
 </div>
 
-{if $show_timers|default:true}
-<script>
-{literal}
-	var num_ajax_calls 	= 0;
-	var total_time 		= 0;
-	$('#debug').ajaxComplete(function( e, xhr, settings )
-	{
-		try
-		{
-			var response = jQuery.parseJSON( xhr.responseText );
 
-			if ( typeof response.debug_content != 'undefined' )
-			{
-				$('#debug_timers .ajax_calls').show();
-				if ( num_ajax_calls % 2 == 0)
-                {
-                    response.debug_content = response.debug_content.replace( '<div id="debug">', '<div id="debug" style="background-color: rgba(239, 239, 239, 0.84);">')
-                }
-				$("#ajax_debug").append( '<h1 class="ajax_title"><a class="debug_toggle_view" rel="ajax_debug_' + num_ajax_calls + '" href="#">' + ( num_ajax_calls + 1 ) + '.- AJAX call: ' + settings.url + '</a></h1>' );
-				$("#ajax_debug").append( '<div id="ajax_debug_' + num_ajax_calls + '">' + response.debug_content + '</div>' );
-
-				num_ajax_calls++;
-                $("#debug_timers dt.ajax_calls .num_calls" ).html( num_ajax_calls );
-
-				// Timing.
-				total_time = total_time + parseFloat( response.debug_total_time );
-
-				// Format timing:
-				var time = total_time * 1000;
-
-				if ( time < 100 )
-				{
-					// Miliseconds.
-					$formatted_time = time.toFixed(2)  + ' milisec';
-				}
-				else
-				{
-					// Seconds.
-					time = time / 1000;
-					$formatted_time = time.toFixed(2)  + ' sec';
-				}
-
-				$("#debug_timers dd.ajax_calls").html( $formatted_time + ' <small>(<a href="#ajax_debug_' + ( num_ajax_calls - 1 ) + '">Go to last one</a>)</small>' );
-            }
-        }
-		catch( e )
-		{
-			// Do nothing. Only supported for JSON responses.
-		}
-	});
-{/literal}
-</script>
-{/if}
 {if isset($command_line_mode) && $command_line_mode}</body>{/if}
