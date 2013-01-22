@@ -14,8 +14,8 @@ CORE.behaviour.modules.isset = function( sId ) {
 };
 
 
-$(document).ready(function() {
-
+onDomReady(function(){
+	var sConsoleMessage = 'DEVICE: ';
 	// polyfill for querySelector
 	if (!document.querySelectorAll) {
 		document.querySelectorAll = function(selector) {
@@ -32,38 +32,55 @@ $(document).ready(function() {
 		}
 	}
 
-	var sId = '',
-		oModules = document.querySelectorAll("[id]"),
-		sLoadedModules = 'LAUNCH MODULES: ';
 
-	// To Execute behaviours based on modular elements
-	for ( var nCounter = 0; nCounter < oModules.length; nCounter++  ) {
-		sId = oModules[nCounter].id;
+	if( isMobile.any() ) {
+		$LAB.script(basePathConfig.mobile).wait( function() {
+			sConsoleMessage += 'Mobile'  + '\n';
+			loadModules();
+		});
+	} else {
+		$LAB.script(basePathConfig.desktop).wait(function() {
+			sConsoleMessage += 'Desktop'  + '\n';
+			loadModules();
+		});
+	}
 
-		if ( CORE.behaviour.modules[ sId ] !== undefined )
+	function loadModules() {
+		var sId = '',
+			oModules = document.querySelectorAll("[id]");
+
+		sConsoleMessage += 'LAUNCH MODULES: ';
+
+		// To Execute behaviours based on modular elements
+		for ( var nCounter = 0; nCounter < oModules.length; nCounter++  ) {
+
+			sId = oModules[nCounter].id;
+
+			if ( CORE.behaviour.modules[ sId ] !== undefined )
+			{
+				CORE.behaviour.modules[ sId ].init();
+				sConsoleMessage += sId + ' | ';
+			}
+		}
+
+		// Returns performance and development info
+		if ( console ) {
+			console.log( sConsoleMessage + '\n' + 'TOTAL ID ELEMENTS:' + nCounter );
+		}
+
+		// Always execute the common behaviour (if exist)
+		if ( CORE.behaviour.common !== undefined ) {
+			CORE.behaviour.common();
+		}
+
+		// To execute behaviours based on pages
+		if ( typeof CORE.behaviour.page[document.body.id] != "undefined" )
 		{
-			CORE.behaviour.modules[ sId ].init();
-			sLoadedModules += sId + ' | ';
+			CORE.behaviour.page[document.body.id]();
 		}
 	}
 
-	// Returns performance and development info
-	if ( console ) {
-		console.log( sLoadedModules + '\n' + 'TOTAL ID ELEMENTS:' + nCounter );
-	}
 
-	// Always execute the common behaviour (if exist)
-	if ( CORE.behaviour.common !== undefined ) {
-		CORE.behaviour.common();
-	}
-
-	// To execute behaviours based on pages
-	if ( typeof CORE.behaviour.page[document.body.id] != "undefined" )
-	{
-		CORE.behaviour.page[document.body.id]();
-	} else {
-		CORE.behaviour.page.unset();
-	}
 
 
 });
