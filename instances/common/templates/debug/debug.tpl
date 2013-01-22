@@ -329,7 +329,7 @@ function LoadjQueryUI()
 			return false;
 		});
 
-		$('#debug a.debug_toggle_view,#ajax_debug a.debug_toggle_view').unbind('click').live( 'click', function() {
+		$('#debug a.debug_toggle_view,#ajax_debug a.debug_toggle_view').unbind('click').on( 'click', function() {
 			dest_el = $(this).attr('rel');
 			if ( $('#'+dest_el).is(':visible') )
 				$('#'+dest_el).slideUp();
