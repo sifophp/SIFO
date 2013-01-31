@@ -31,9 +31,13 @@ CORE.classes.modal.init = function (oOptions){
 };
 
 CORE.classes.modal.autobind = function (oTarget){
-
-	$(oTarget).colorbox();
-
+	$(oTarget).each(function() {
+		if ( this.className.indexOf('group') !== -1) {
+			$(this).colorbox({rel: this.className.split(' ')[0] });
+		} else {
+			$(this).colorbox();
+		}
+	});
 };
 
 CORE.classes.modal.open = function (oOptions){

@@ -1,6 +1,6 @@
 {if !empty( $css_groups )}
 {	foreach from=$css_groups item=css_group}
-		<link rel="stylesheet" type="text/css" media="{$media.$css_group.media}" href="{$url.static}/css/generated/{$css_group}.css?rev={$static_rev|default:'unset'}" />
+		<link rel="stylesheet" type="text/css" media="{$media.$css_group.media}" class="cssfx" href="{$url.static}/css/generated/{$css_group}.css?rev={$static_rev|default:'unset'}" />
 {	/foreach}
 {/if}
 

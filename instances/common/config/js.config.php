@@ -53,11 +53,15 @@ $config['desktop'] = array(
     )
 );
 
-/* Modal windows */
+/* Polyfills */
 $config['polyfills'] = array(
 	10 => array(
 		'name' => 'polyfiller',
 		'filename' => 'libs/Core-js/libs/modernizr/polyfills/polyfiller.js'
+	),
+	20 => array(
+		'name' => 'cssfx',
+		'filename' => 'libs/Core-js/libs/modernizr/polyfills/cssfx.js'
 	)
 );
 

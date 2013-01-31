@@ -42,6 +42,23 @@ onDomReady(function(){
 		$LAB.script(basePathConfig.desktop).wait(function() {
 			sConsoleMessage += 'Desktop'  + '\n';
 			loadModules();
+		}).wait( function() {
+				var bPolyfills = bPolyfills || true;
+
+				if ( bPolyfills ) {
+
+					$LAB.script(basePathConfig.polyfills).wait( function() {
+
+						$.webshims.setOptions({
+						    basePath: sHostStatic  + "/js/libs/webshims/shims/"
+						});
+
+						$.webshims.polyfill();
+
+					});
+
+
+				}
 		});
 	}
 
