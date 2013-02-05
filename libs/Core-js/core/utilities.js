@@ -77,6 +77,42 @@ CORE.utilities.deleteById = function(sTargetId) {
 	}
 };
 
+CORE.utilities.getUrlContent = function(sUrl, fpCallback) {
+	var aUrl = sUrl.split('#');
+	var sContainerUrl = aUrl[0] + '';
+	var sContainerId = aUrl[1] + '';
+	var oContainer = null;
+	var sTempContainerId = 'getUrlContent';
+	var oBody = null;
+
+	if ( document.getElementById(sContainerId) == null){
+		$.get(
+			sContainerUrl,
+			function(sHtml) {
+
+				oBody = document.createElement('div');
+				oBody.id = sTempContainerId;
+				oBody.innerHTML = sHtml;
+				oBody.style.display = 'none';
+				document.body.appendChild(oBody);
+
+				oContainer = document.getElementById(sContainerId) ? document.getElementById(sContainerId) : null;
+
+				CORE.utilities.deleteById(sTempContainerId);
+
+				if (oContainer)
+				{
+					fpCallback( oContainer );
+				}
+				else
+				{
+					return false;
+				}
+			}
+		);
+	}
+};
+
 CORE.utilities.placeUrlContent = function(sUrl, sTargetId, fpCallback) {
 	var aUrl = sUrl.split('#');
 	var sContainerUrl = aUrl[0] + '';
