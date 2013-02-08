@@ -316,6 +316,7 @@ function LoadjQueryUI()
 									} else {
 										$(this).removeClass('active-handle').parent().removeClass('draggable');
 									}
+									$.cookie("DEBUG_timer_style", $('#debug_timers').attr('style'),{ expires:7, domain: cookie_domain });
 								});
 
 					}
@@ -352,6 +353,9 @@ function LoadjQueryUI()
 			{
 				$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').hide();
 			}
+			if (sStyle = $.cookie("DEBUG_timer_style")){
+				$('#debug_timers').attr('style', sStyle);
+       		}
 
 		{/literal}
 
