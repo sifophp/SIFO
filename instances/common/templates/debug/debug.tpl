@@ -501,25 +501,25 @@ LoadjQueryUI();
 {/if}
 
 {* Sent headers*}
-{$debug_modules.headers}
+{$debug_modules.headers nofilter}
 
 {* Smarty Error: Compilation and runtime smarty errors*}
-{$debug_modules.smarty_errors}
+{$debug_modules.smarty_errors nofilter}
 
 {* Basic debug: Benchmarks and controllers *}
-{$debug_modules.basic_debug}
+{$debug_modules.basic_debug nofilter}
 
 {* Sphinx and other search-related queries *}
-{$debug_modules.search}
+{$debug_modules.search nofilter}
 
 {* Database queries *}
-{$debug_modules.database}
+{$debug_modules.database nofilter}
 
 {* Redis callstack *}
-{$debug_modules.redis}
+{$debug_modules.redis nofilter}
 
 {* Log messages *}
-{$debug_modules.log_messages}
+{$debug_modules.log_messages nofilter}
 
 {* Post *}
 {if is_array($debug.post) && !empty($debug.post)}

@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$url.lang}">
-{$modules.head}
+{$modules.head nofilter}
 <body>
 {literal}
 <script type="text/javascript" charset="utf-8">
@@ -93,7 +93,7 @@
 </script>
 {/literal}
 <div id="wrapper">
-{	$modules.system_messages}
+{	$modules.system_messages nofilter}
 	<div id="contents" class="translation_page">
 		<div id="header" class="header" style="background-color:#999999">
 			<h1>Translator {if $current_instance && $current_language}| Translating {$current_language} of instance '{$current_instance}' {/if}</h1>
@@ -169,7 +169,7 @@
 {		/if}
 {	/if}
 </div>
-{$modules.footer}
+{$modules.footer nofilter}
 </div>
 </body>
 </html>

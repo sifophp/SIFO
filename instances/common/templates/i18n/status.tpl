@@ -24,7 +24,7 @@
 	</div>
 </div>
 
-{    $modules.system_messages}
+{    $modules.system_messages nofilter}
 
 <div class="page-header">
 	<h1>Translation tool instance: {$instance|capitalize}</h1>

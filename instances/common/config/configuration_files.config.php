@@ -27,4 +27,5 @@ $config['templates'] = 'instances/common/config/templates.config.php';
 $config['twitter_oauth'] = 'instances/common/config/twitter_oauth.config.php';
 $config['url'] = 'instances/common/config/url.config.php';
 $config['url_definition'] = 'instances/common/config/url_definition.config.php';
+$config['views'] = 'instances/common/config/views.config.php';
 

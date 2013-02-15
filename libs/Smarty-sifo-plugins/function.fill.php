@@ -17,6 +17,7 @@
  *           - delimiter  (optional, defaults to '%' ) - string
  *			 - lower	  (optional, set to lower=no if you don't want lowercase) - string
  *			 - normalize	  (optional, set to normalize=no to override \Sifo\Urls::$normalize_values setting and disable it) - string
+ * 			 - escapevar (Set to no for avoid html escaping when the smarty escape_html attribute is true).
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
  *           
  *           Examples of usage:
@@ -77,6 +78,12 @@ function smarty_function_fill($params, &$smarty)
         trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
     }
 
+	$escapevar = $smarty->escape_html;
+	if ( isset( $params['escapevar'] ) )
+	{
+		$escapevar = ( $smarty->escape_html && ( $params['escapevar'] != 'no') );
+		unset( $params['escapevar'] );
+	}
 
    	$_html_result = $params['subject'];
 	$_tmp_result = $_html_result;
@@ -84,6 +91,10 @@ function smarty_function_fill($params, &$smarty)
 
 	foreach( $params as $_key => $_val )
 	{
+		if( $escapevar )
+		{
+			$_val = htmlspecialchars($_val, ENT_QUOTES, SMARTY_RESOURCE_CHAR_SET );
+		}
 		$_val = (string)$_val;
 		$_tmp_result = str_replace( $_delimiter . $_key . $_delimiter, (string)$_val, $_tmp_result);
 

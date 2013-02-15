@@ -37,14 +37,7 @@ class View extends \Smarty
 	{
 		parent::__construct();
 
-		// Paths definition:
-		$templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
-		$this->setTemplateDir( ROOT_PATH . '/' );  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
-		$this->setCompileDir( $templates_path . '_smarty/compile/' );
-		$this->setConfigDir( $templates_path . '_smarty/configs/' );
-		$this->setCacheDir( $templates_path . '_smarty/cache/' );
-
-	 	// Get the instances inheritance.
+		// Get the instances inheritance.
 		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
 		// If there is inheritance.
@@ -64,9 +57,40 @@ class View extends \Smarty
 		// Last path is the default smarty plugins directory.
 		$this->addPluginsDir( ROOT_PATH . '/libs/Smarty-sifo-plugins' );
 
-		// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
-		$this->auto_literal = false;
+		$this->setTemplateDir( ROOT_PATH . '/' );  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
 
+		// Paths definition:
+		$templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
+		$this->setCompileDir( $templates_path . '_smarty/compile/' );
+		$this->setConfigDir( $templates_path . '_smarty/configs/' );
+		$this->setCacheDir( $templates_path . '_smarty/cache/' );
+
+		if ( ( $view_setting = Config::getInstance()->getConfig('views') ) && ( isset( $view_setting['smarty'] ) ) )
+		{
+			$smarty_settings = $view_setting['smarty'];
+
+			if ( isset( $smarty_settings['custom_plugins_dir'] ) )
+			{
+				// If is set, this path will be the default smarty plugins directory.
+				$this->addPluginsDir( $smarty_settings['custom_plugins_dir'] );
+			}
+			// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
+			$this->auto_literal = $smarty_settings['auto_literal'];
+			$this->escape_html = $smarty_settings['escape_html'];
+		}
+		else
+		{
+			// OLD Style view settings. DEPRECATED:
+			if( Domains::getInstance()->getDevMode() )
+			{
+				trigger_error( "You are using deprecated code in the View constructor. Please, validate your views.config file. (Warning readable only in dev mode)", E_USER_WARNING );
+			}
+
+			// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
+			$this->auto_literal = false;
+			$this->escape_html = false;
+			// /Deprecate.
+		}
 	}
 
 	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)

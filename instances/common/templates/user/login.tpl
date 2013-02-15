@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$url.lang}">
-{$modules.head}
+{$modules.head nofilter}
 <body>
 <div id="wrapper" class="lang_{$url.lang}{if $links_new_window} new_window{/if}{if $rtl} rtl{/if}">
-{	$modules.header}
+{	$modules.header nofilter}
 <div id="contents" class="clearfix">
 {if isset($errors)}
 <div class="msg_ko">
@@ -41,7 +41,7 @@
 	<a title="{t}Back to the dashboard{/t}" href="{$url.base}">{t}Back to the dashboard{/t}</a>
 {/if}
 </div>
-{$modules.footer}
+{$modules.footer nofilter}
 </div>
 </body>
 </html>
