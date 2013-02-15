@@ -78,18 +78,14 @@ class View extends \Smarty
 			$this->auto_literal = $smarty_settings['auto_literal'];
 			$this->escape_html = $smarty_settings['escape_html'];
 		}
+
+		// Deprecated code:
 		else
 		{
-			// OLD Style view settings. DEPRECATED:
-			if( Domains::getInstance()->getDevMode() )
-			{
-				trigger_error( "You are using deprecated code in the View constructor. Please, validate your views.config file. (Warning readable only in dev mode)", E_USER_WARNING );
-			}
-
-			// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
+						// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
 			$this->auto_literal = false;
 			$this->escape_html = false;
-			// /Deprecate.
+			// end Deprecated code.
 		}
 	}
 
