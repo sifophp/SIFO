@@ -41,11 +41,13 @@ function smarty_gettext_strarg($str)
  * Any parameter that is sent to the function will be represented as %n in the translation text,
  * where n is 1 for the first parameter. The following parameters are reserved:
  *   - escape - sets escape mode (only available when the smarty escape_html attribute is false):
+ *
  *       - 'html' for HTML escaping, this is the default.
  *       - 'js' for javascript escaping.
  *       - 'url' for url escaping.
  *       - 'no'/'off'/0 - turns off escaping
  *   - escapevar (Set to no for avoid html escaping when the smarty escape_html attribute is true).
+ *       Prevents escaping of the variables passed. DANGEROUS if variables might be originated using user input (XSS)
  *   - plural - The plural version of the text (2nd parameter of ngettext())
  *   - count - The item count for plural mode (3rd parameter of ngettext())
  * 	 - nofilter To avoid apply the htmlentities filter to the used vars values.
