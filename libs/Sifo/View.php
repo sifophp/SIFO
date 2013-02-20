@@ -78,15 +78,6 @@ class View extends \Smarty
 			$this->auto_literal = $smarty_settings['auto_literal'];
 			$this->escape_html = $smarty_settings['escape_html'];
 		}
-
-		// Deprecated code:
-		else
-		{
-						// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
-			$this->auto_literal = false;
-			$this->escape_html = false;
-			// end Deprecated code.
-		}
 	}
 
 	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
