@@ -57,7 +57,7 @@ function smarty_block_t($params, $text, &$smarty)
 	$text = stripslashes($text);
 
 	// set escape mode (Escape use is not available when your have to set to true the escape_html flag)
-	if( !$smarty->escape_html )
+	if( !isset( $smarty->escape_html ) || !$smarty->escape_html )
 	{
 		// In the don't protected configuration, the expectd behaviour is escapeing html:
 		$escape = ( isset($params['escape'] ) )? $params['escape'] : "html";
