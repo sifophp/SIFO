@@ -78,10 +78,10 @@ function smarty_function_fill($params, &$smarty)
         trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
     }
 
-	$escapevar = isset( $smarty->escape_html ) && $smarty->escape_html;
+	$escapevar = $smarty->escape_html;
 	if ( isset( $params['escapevar'] ) )
 	{
-		$escapevar = ( isset( $smarty->escape_html ) && $smarty->escape_html && ( $params['escapevar'] != 'no') );
+		$escapevar = ( $smarty->escape_html && ( $params['escapevar'] != 'no') );
 		unset( $params['escapevar'] );
 	}
 
