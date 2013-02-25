@@ -312,9 +312,9 @@ class Bootstrap
 			echo "<h1>{$d->getMessage()}</h1>";
 			die;
 		}
-		catch ( \Exception $e )
+		catch ( ControllerException $e )
 		{
-			self::_dispatchErrorController( $e );
+			self::_dispatchErrorController( $e->getPrevious() );
 		}
 	}
 
@@ -414,3 +414,5 @@ class Bootstrap
 		}
 	}
 }
+
+class ControllerException extends \Exception{}

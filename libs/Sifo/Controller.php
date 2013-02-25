@@ -343,6 +343,10 @@ abstract class Controller
 		$cached_content = $this->grabCache();
 		if ( false !== $cached_content )
 		{
+			if ( is_a( $cached_content, "Exception" ) )
+			{
+				throw new ControllerException( "Controller Build has generated an exception (cached).", null, $cached_content );
+			}
 			$this->postDispatch();
 			$cached_content = $this->_realTimeReplacement( $cached_content );
 			Headers::send();
@@ -358,8 +362,19 @@ abstract class Controller
 			$this->addToDebug( 'expiration', $cache_key['expiration'], 'Cache properties' );
 		}
 
+		try
+		{
+			$return = $this->build();
+		}
+		catch ( \Exception $e )
+		{
+			if ( false !== $cache_key )
+			{
+				$this->cache->set( $cache_key['name'], $e, $cache_key['expiration'] );
+			}
+			throw new ControllerException( "Controller Build has generated an exception.", null, $e );
+		}
 
-		$return = $this->build();
 		$controller_params = array_merge( array( 'layout' => $this->layout ), $this->getParams() );
 		$this->addToDebug( 'parameters', $controller_params, 'CONTROLLER' );
 		$this->executeNestedModules();
@@ -660,6 +675,10 @@ abstract class Controller
 
 		if ( false !== $cached_content )
 		{
+			if ( is_a( $cached_content, "Exception" ) )
+			{
+				throw new ControllerException( "Module Execute has generated an exception (cached).", null, $cached_content );
+			}
 			$module_content = $cached_content;
 		}
 		else
@@ -670,7 +689,18 @@ abstract class Controller
 				$module->addToDebug( 'name', $cache_key['name'], 'Cache properties' );
 				$module->addToDebug( 'expiration', $cache_key['expiration'], 'Cache properties' );
 			}
-			$module_content = $module->execute();
+			try
+			{
+				$module_content = $module->execute();
+			}
+			catch ( \Exception $e )
+			{
+				if ( false !== $cache_key )
+				{
+					$this->cache->set( $cache_key['name'], $e, $cache_key['expiration'] );
+				}
+				throw new ControllerException( "Module Execute has generated an exception.", null, $e );
+			}
 		}
 
 		$cache_key = $module->parseCache();
