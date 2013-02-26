@@ -22,6 +22,11 @@ namespace Sifo;
 
 abstract class Controller
 {
+     /**
+	 * Cache expiration time default for exceptions.
+	 */
+	const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
+
 	/**
 	 * Cache expiration for this controller, by default set to 4 hours (expressed in seconds).
 	 *
@@ -314,6 +319,22 @@ abstract class Controller
 	}
 
 	/**
+	 * Cache a resulting exception when a cache_key is defined and hasn't any Post vars.
+	 * Use the CACHE_DEFAULT_EXPIRATION_EXCEPTIONS for all the exception less 301,302 and 404.
+	 *
+	 * @param $e Catched exception.
+	 * @param $cache_key
+	 */
+	protected function cacheException( $e, $cache_key )
+	{
+		if ( ( false !== $cache_key ) && ( !FilterPost::getInstance()->countVars() ) )
+		{
+			$expiration = in_array( $e->http_code, array( 301, 302, 404 ) ) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
+			$this->cache->set( $cache_key['name'], $e, $expiration );
+		}
+	}
+
+	/**
 	 * Dispatch the controller.
 	 */
 	public function dispatch()
@@ -341,6 +362,7 @@ abstract class Controller
 
 		$this->preDispatch();
 		$cached_content = $this->grabCache();
+
 		if ( false !== $cached_content )
 		{
 			if ( is_a( $cached_content, "Exception" ) )
@@ -366,12 +388,9 @@ abstract class Controller
 		{
 			$return = $this->build();
 		}
-		catch ( \Exception $e )
+		catch ( SEO_Exception $e )
 		{
-			if ( false !== $cache_key )
-			{
-				$this->cache->set( $cache_key['name'], $e, $cache_key['expiration'] );
-			}
+			$this->cacheException( $e, $cache_key );
 			throw new ControllerException( "Controller Build has generated an exception.", null, $e );
 		}
 
@@ -693,12 +712,9 @@ abstract class Controller
 			{
 				$module_content = $module->execute();
 			}
-			catch ( \Exception $e )
+			catch ( SEO_Exception $e )
 			{
-				if ( false !== $cache_key )
-				{
-					$this->cache->set( $cache_key['name'], $e, $cache_key['expiration'] );
-				}
+				$this->cacheException( $e, $cache_key );
 				throw new ControllerException( "Module Execute has generated an exception.", null, $e );
 			}
 		}
@@ -1083,3 +1099,5 @@ abstract class Controller
 		return Domains::getInstance()->getDebugMode();
 	}
 }
+
+class ControllerException extends \Exception{}

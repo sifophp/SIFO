@@ -316,6 +316,10 @@ class Bootstrap
 		{
 			self::_dispatchErrorController( $e->getPrevious() );
 		}
+		catch ( \Exception $e )
+		{
+			self::_dispatchErrorController( $e );
+		}
 	}
 
 	/**
@@ -414,5 +418,3 @@ class Bootstrap
 		}
 	}
 }
-
-class ControllerException extends \Exception{}
