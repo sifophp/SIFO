@@ -6,7 +6,8 @@ var isMobile = {
         return navigator.userAgent.match(/BlackBerry/i);
     },
     iOS: function() {
-        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        return navigator.userAgent.match(/iPhone|iPod/i);
+//        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
     },
     Opera: function() {
         return navigator.userAgent.match(/Opera Mini/i);
