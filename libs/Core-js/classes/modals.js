@@ -32,7 +32,26 @@ CORE.classes.modal.init = function (oOptions){
 
 CORE.classes.modal.autobind = function (oTarget){
 
-	$(oTarget).colorbox();
+	var sRel,
+		aClasses;
+
+	$(oTarget).each( function() {
+
+		if ( this.className.indexOf('group') != -1 ) {
+			aClasses = this.className.split(' ');
+
+			sRel = '';
+
+			for( var nCounter = 0; nCounter < aClasses.length; nCounter++) {
+				if ( aClasses[nCounter].indexOf('group') != -1 ){
+					sRel = aClasses[nCounter];
+				}
+			}
+		}
+
+		$(this).colorbox({rel: sRel});
+
+	});
 
 };
 
