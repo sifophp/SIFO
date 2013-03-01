@@ -365,7 +365,7 @@ abstract class Controller
 
 		if ( false !== $cached_content )
 		{
-			if ( is_a( $cached_content, "Exception" ) )
+			if ( $cached_content instanceof \Exception )
 			{
 				throw new ControllerException( "Controller Build has generated an exception (cached).", null, $cached_content );
 			}
@@ -694,7 +694,7 @@ abstract class Controller
 
 		if ( false !== $cached_content )
 		{
-			if ( is_a( $cached_content, "Exception" ) )
+			if ( $cached_content instanceof \Exception )
 			{
 				throw new ControllerException( "Module Execute has generated an exception (cached).", null, $cached_content );
 			}
