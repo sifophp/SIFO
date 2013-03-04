@@ -53,6 +53,13 @@ $config['desktop'] = array(
     )
 );
 
+$config['mobile'] = array(
+    10 => array(
+        'name' => 'jquery',
+        'filename' => 'libs/Core-js/libs/zepto/zepto.js'
+    )
+);
+
 /* Polyfills */
 $config['polyfills'] = array(
 	10 => array(
