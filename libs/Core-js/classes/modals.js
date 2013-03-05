@@ -79,5 +79,5 @@ CORE.classes.modal.open = function (oOptions){
 };
 
 CORE.classes.modal.close = function(){
-	//$.nmTop().close();
+	$.colorbox.close()
 };
