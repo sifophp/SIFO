@@ -47,6 +47,13 @@ class CacheBase
 	protected $cache_object = null;
 
 	/**
+	 * Controls whether this instance makes use of cache locking or not.
+	 *
+	 * @var bool
+	 */
+	public $use_locking = true;
+
+	/**
 	 * Keeps a copy of all the tags versions.
 	 *
 	 * @var array
@@ -107,6 +114,11 @@ class CacheBase
 			$sha1 = sha1( $key );
 			if ( !( $content = $this->cache_object->get( $sha1 ) ) )
 			{
+				if ( !$this->use_locking )
+				{
+					return false;
+				}
+
 				$lock = CacheLock::getInstance( $sha1, $this->cache_object );
 
 				if ( $lock->isLocked() )
@@ -158,7 +170,10 @@ class CacheBase
 		$key = sha1( $key );
 		$set_result =  $this->cache_object->set( $key, $content, $expiration );
 
-		CacheLock::getInstance( $key, $this->cache_object )->release();
+		if(  $this->use_locking )
+		{
+			CacheLock::getInstance( $key, $this->cache_object )->release();
+		}
 
 		return $set_result;
 	}
