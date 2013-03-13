@@ -212,6 +212,11 @@
 	font-weight:bold;
 	color:#FF0000;
 }
+
+#debug .actions_options li{
+	text-align: left;
+	list-style-type: none;
+}
 </style>
 <script type="text/javascript">
 function waitingForScript(url, obj) {
@@ -479,8 +484,24 @@ LoadjQueryUI();
 				<label for="rebuild_all_inactive">Inactive</label></dd>
 {/if}
 			<dt>{t}ACTIONS{/t}</dt>
-			<dd><a href="?kill_session=1">{t}Kill session{/t}</a> -
-				<a href="?rebuild=1">{t}Rebuild{/t}</a><br/><a href="#debug">{t}Debug{/t}&raquo;</a>
+			<dd>
+				<ol class="actions_options">
+					<li>
+						<a href="?kill_session=1">{t}Kill session{/t}</a>
+					</li>
+					<li>
+						<a href="?rebuild=1">{t}Rebuild{/t}</a>
+					</li>
+					<li>
+						<a href="#debug">{t}Debug{/t}&raquo;</a>
+					</li>
+					<li>
+						<a href="?rebuild=1&clean_compile=1">{t}Clean compile{/t}</a>
+					</li>
+
+				</ol>
+
+
 			</dd>
 {/if}
 		</dl>

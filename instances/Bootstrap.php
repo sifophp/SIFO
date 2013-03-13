@@ -273,6 +273,12 @@ class Bootstrap
 			// Active/deactive auto-rebuild option:
 			if ( $domain->getDevMode() )
 			{
+				if ( FilterGet::getInstance()->getInteger( 'clean_compile' ) )
+				{
+					$smarty_compiles_dir=ROOT_PATH."/instances/".self::$instance."/templates/_smarty/compile/*";
+					system( 'rm -rf '.$smarty_compiles_dir );
+				}
+
 				$ctrl->getClass( 'Cookie' );
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
 				{
