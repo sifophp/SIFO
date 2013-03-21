@@ -22,7 +22,9 @@ CORE.classes.tags = {
 		imageTag: false, //Optionally adds an image to the output.
 		imageTagUrl: '', //The url of the optional image.
 		continuousOutputBuild: true, //Set to true to continuously append data to the hidden field that is to be posted with the form.
-		pathCss : ''
+		pathCss : '',
+		nMaxItems: 100,
+		errorMax : 'No more tags allowed'
 	}
 };
 

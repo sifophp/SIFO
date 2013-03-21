@@ -48,13 +48,16 @@ Joost Elfering
             className: 'tagEditor',
             confirmRemoval: false,
             confirmRemovalText: 'Do you really want to remove the tag?',
+	        errorMax : 'No more tags allowed',
             completeOnSeparator: false,
             completeOnBlur: false,
             tagsBeforeField: false,
             initialParse: true,
             imageTag: false,
             imageTagUrl: '',
-            continuousOutputBuild: false
+            continuousOutputBuild: false,
+	        nMaxItems: 100,
+	        nItems: 0
         };
 
         options = jQuery.extend(defaults, options);
@@ -84,12 +87,20 @@ Joost Elfering
                             return;
                         }
                     }
-
                     item.remove();
+	                if (options.nItems !== 0) {
+		                options.nItems--;
+	                }
                     parse();
                 });
 
-                listBase.append(item);
+	            if (options.nItems < options.nMaxItems) {
+		            listBase.append(item);
+		            options.nItems++;
+	            } else {
+		            alert(options.errorMax);
+	            }
+
                 return true;
             }
 
