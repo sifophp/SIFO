@@ -31,6 +31,9 @@ class Cache extends CacheBase
 	const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
 	const CACHE_TYPE_DISK = 'DISK';
 
+	const CACHE_LOCKING_ENABLED = 1;
+	const CACHE_LOCKING_DISABLED = 0;
+
 	static private $instance;
 	static public $cache_type;
 
@@ -43,7 +46,7 @@ class Cache extends CacheBase
 	 *
 	 * @return Cache
 	 */
-	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER )
+	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER, $lock_enabled = self::CACHE_LOCKING_ENABLED )
 	{
 
 		if ( !isset ( self::$instance[$type] ) )
@@ -58,15 +61,15 @@ class Cache extends CacheBase
 				case self::CACHE_TYPE_MEMCACHED:
 					// http://php.net/manual/en/book.memcached.php
 					// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
-					self::$instance[$type] = new CacheMemcached();
+					self::$instance[$type][$lock_enabled] = new CacheMemcached();
 					break;
 				case self::CACHE_TYPE_MEMCACHE:
 					// http://php.net/manual/en/book.memcache.php:
-					self::$instance[$type] = new CacheMemcache();
+					self::$instance[$type][$lock_enabled] = new CacheMemcache();
 					break;
 				case self::CACHE_TYPE_DISK:
 					// Use cache disk instead:
-					self::$instance[$type] = new CacheDisk();
+					self::$instance[$type][$lock_enabled] = new CacheDisk();
 					break;
 				default:
 					throw new Exception_500( 'Unknown cache type requested' );
@@ -75,18 +78,20 @@ class Cache extends CacheBase
 			self::$cache_type = $type;
 
 			// Memcache is down, we cache on disk to handle this dangerous situation:
-			if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !self::$instance[$type]->isActive() )
+			if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !self::$instance[$type][$lock_enabled]->isActive() )
 			{
 				trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
 
 				// Use cache disk instead:
-				self::$instance[$type] = new CacheDisk();
+				self::$instance[$type][$lock_enabled] = new CacheDisk();
 				self::$cache_type = self::CACHE_TYPE_DISK;
 			}
 
 		}
 
-		return self::$instance[$type];
+		self::$instance[$type][$lock_enabled]->lock_enabled = $lock_enabled;
+
+		return self::$instance[$type][$lock_enabled];
 	}
 
 	/**
