@@ -4,3 +4,6 @@
 [submodule "libs/Facebook-php-sdk"]
 	path = libs/Facebook-php-sdk
 	url = git://github.com/facebook/php-sdk.git
+[submodule "libs/sifojs"]
+	path = libs/sifojs
+	url = https://github.com/tonipinel/sifojs
