@@ -6,4 +6,4 @@
 	url = git://github.com/facebook/php-sdk.git
 [submodule "libs/sifojs"]
 	path = libs/sifojs
-	url = https://github.com/tonipinel/sifojs
+	url = git://github.com/tonipinel/sifojs.git
