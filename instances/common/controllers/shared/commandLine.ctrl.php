@@ -14,7 +14,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	const MAX_LINES_WITHOUT_SEND_MAIL = 2; // Thes start and end time.
 
 	private $_verbose			= false;
-	private $_recipient;
+	protected $recipient;
 	private $_stdout			= '';
 	private $_script_name;
 	private $_domain_name;
@@ -389,7 +389,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 					break;
 				case "r":
 				case "recipient":
-					$this->_recipient = explode( ',', $option[1] );
+					$this->recipient = explode( ',', $option[1] );
 					break;
 				case "f":
 				case "force":
@@ -446,13 +446,13 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		return str_replace( "\t", "&nbsp;&nbsp;&nbsp;&nbsp;", $reformated_content ); //indent and return it
 	}
 
-	private function _sendMail()
+	protected function sendMail()
 	{
-		if ( isset( $this->_recipient ) || !empty( $this->recipient_list ) )
+		if ( isset( $this->recipient ) || !empty( $this->recipient_list ) )
 		{
-			if ( !empty( $this->_recipient ) )
+			if ( !empty( $this->recipient ) )
 			{
-				$this->recipient_list = array_merge( $this->recipient_list, array_diff( $this->_recipient, $this->recipient_list ) );
+				$this->recipient_list = array_merge( $this->recipient_list, array_diff( $this->recipient, $this->recipient_list ) );
 			}
 
 			if ( self::MAX_LINES_WITHOUT_SEND_MAIL < ( count( explode( PHP_EOL, $this->_stdout ) ) - 1 ) )
@@ -530,7 +530,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 			}
 		}
 		$this->_stopScript();
-		$this->_sendMail();
+		$this->sendMail();
 	}
 
 	/**
