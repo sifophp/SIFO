@@ -173,7 +173,7 @@ class I18N
 	/**
 	 * Returns the translated message.
 	 *
-	 * @param $message Message in source language (usually English)
+	 * @param $message string Message in source language (usually English)
 	 * @param array $params If the message needs replacement of variables pass them here, in the format "%1" => $param1, "%2" => $param2
 	 * @return <type>
 	 */
