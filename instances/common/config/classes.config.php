@@ -76,6 +76,7 @@ $config['ScriptsAmazonS3UploaderController']['Common'] = 'instances/common/contr
 $config['ScriptsFlushCacheController']['Common'] = 'instances/common/controllers/scripts/flushCache.php';
 $config['ScriptsLoadAvgAutoswitchController']['Common'] = 'instances/common/controllers/scripts/loadAvgAutoswitch.php';
 $config['ScriptsSendLogController']['Common'] = 'instances/common/controllers/scripts/sendLog.php';
+$config['ScriptsSendMailController']['Common'] = 'instances/common/controllers/scripts/sendMail.php';
 $config['SharedAdvertisingController']['Common'] = 'instances/common/controllers/shared/advertising.ctrl.php';
 $config['SharedCommandLineController']['Common'] = 'instances/common/controllers/shared/commandLine.ctrl.php';
 $config['SharedFirstLevelController']['Common'] = 'instances/common/controllers/shared/firstLevel.ctrl.php';
