@@ -7,6 +7,7 @@ class ScriptsSendMailController extends SharedCommandLineController
 {
 	private $_subject;
 	private $_body;
+	private $_html_mode = false;
 
 	protected function sendMail()
 	{
@@ -20,6 +21,8 @@ class ScriptsSendMailController extends SharedCommandLineController
 			$mail = new \Sifo\Mail();
 			$subject = $this->_subject;
 			$content = $this->_body;
+
+			$mail->IsHTML( $this->_html_mode );
 
 			foreach ( $this->recipient_list as $recipient )
 			{
@@ -39,6 +42,7 @@ class ScriptsSendMailController extends SharedCommandLineController
 
 		$this->setNewParam( 'S', 'subject', 'Mail subject.', true, true );
 		$this->setNewParam( 'F', 'filecontent', 'Mail body. Don\'t define this params to send  the stdin', true, true );
+		$this->setNewParam( 'H', 'html', 'Use this flag to send the mail with html code. Text is default.', false, false );
 	}
 	
 	public function exec()
@@ -55,6 +59,10 @@ class ScriptsSendMailController extends SharedCommandLineController
 				case "F":
 				case "filecontent":
 					$content_path = $option[1];
+					break;
+				case "H":
+				case "html":
+					$this->_html_mode = true;
 					break;
 			}
 		}
