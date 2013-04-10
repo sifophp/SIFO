@@ -4,7 +4,7 @@ namespace Common;
 
 class SharedHeaderController extends \Sifo\Controller
 {
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'shared/header.tpl' );
 	}

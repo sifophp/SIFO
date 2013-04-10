@@ -11,7 +11,7 @@ class ManagerRebuildi18nLocalController extends \Sifo\Controller
 {
 	const MASTER_LANGUAGE = 'en_US';
 
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'manager/findi18n.tpl' );
 

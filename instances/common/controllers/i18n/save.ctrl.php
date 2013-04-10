@@ -6,7 +6,7 @@ class I18nSaveController extends \Sifo\Controller
 {
 	public $is_json = true;
 
-	public function build()
+	public function indexAction()
 	{
 		if ( !\Sifo\Domains::getInstance()->getDevMode() )
 		{

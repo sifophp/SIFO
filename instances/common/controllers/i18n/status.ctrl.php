@@ -3,7 +3,7 @@ namespace Common;
 
 class I18nStatusController extends \Sifo\Controller
 {
-	public function build()
+	public function indexAction()
 	{
 		if ( !\Sifo\Domains::getInstance()->getDevMode() )
 		{

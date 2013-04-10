@@ -28,7 +28,7 @@ class DebugIndexController extends \Sifo\Controller
 
 	protected $execution_key;
 
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'debug/debug.tpl' );
 

@@ -22,7 +22,7 @@ namespace Common;
  */
 class SharedAdvertisingController extends \Sifo\Controller
 {
-	public function build()
+	public function indexAction()
 	{
 		
 		$module = $this->getParam( 'module_name' );

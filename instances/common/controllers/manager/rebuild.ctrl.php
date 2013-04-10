@@ -92,7 +92,7 @@ class ManagerRebuildController extends \Sifo\Controller
 
 	}
 
-	public function build()
+	public function indexAction()
 	{
 		if ( true !== \Sifo\Domains::getInstance()->getDevMode() )
 		{

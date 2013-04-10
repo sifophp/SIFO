@@ -24,6 +24,7 @@
         <h1>Hello, world!</h1>
         <p>{t 1=$mood}This is how i feel... %1{/t}</p>
         <p><a class="btn primary large" href="http://sifo.me">Learn more &raquo;</a></p>
+         {if !empty($user_id)}This value was just passed by the URL to the newRoutingAction as an argument: {$user_id} {/if}
       </div>
 
       <!-- Example row of columns -->

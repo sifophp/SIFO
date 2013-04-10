@@ -51,3 +51,23 @@ $config['template-launcher'] = 'manager/templateLauncher';
 // Your new routes below:
 $config["locales"]			= 'locales/index';
 $config["locales-save"]		= 'locales/save';
+
+/**
+//These are several examples of how to use the NEW POSSIBILITIES it allows
+ the SIFO routing system
+*/
+
+//Current way of accessing a controller
+$config['demo'] = 'home/index';
+
+//.. and this is the way!!
+$config['demo'] = array(
+    'controller'=>'home/index::newRoutingAction',
+    'request_method'=>array('GET','POST')
+);
+
+$config['demo/{user_id}/profile'] = array(
+    'controller'=> 'home/index::newRoutingAction',
+    'request_method'=> array('GET','POST','DELETE'),
+    'placeholders'=> array( 'user_id' => '/^\d+$/')
+);

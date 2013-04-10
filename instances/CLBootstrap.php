@@ -49,13 +49,13 @@ class CLBootstrap extends Bootstrap
 
 			// This is the controller to use:
 			$ctrl = self::invokeController( $controller );
-			$ctrl->build();
+			$ctrl->indexAction();
 
 			// Debug:
 			if ( Domains::getInstance()->getDebugMode() )
 			{
 				$ctrl_debug = self::invokeController( 'DebugCommandLineDebug' );
-				$ctrl_debug->build();
+				$ctrl_debug->indexAction();
 			}
 		}
 		catch ( \Exception $e )

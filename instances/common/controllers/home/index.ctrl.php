@@ -135,7 +135,10 @@ class HomeIndexController extends SharedFirstLevelController
 
 	}
 
-	public function getCacheDefinition()
+    /**
+     * @return array|bool|mixed|string
+     */
+    public function getCacheDefinition()
 	{
 		// No caching:
 		return false;
@@ -149,5 +152,14 @@ class HomeIndexController extends SharedFirstLevelController
 		// Caching with custom expiration , 900 seconds.
 		return array( 'name' => $cache_name, 'expiration' => 900 );
 	}
+
+    /**
+     * Method demonstrating the new routing technique.
+     * @param $user_id
+     */
+    public function newRoutingAction($user_id=NULL){
+
+        $this->assign('user_id',$user_id);
+        $this->indexAction();
+    }
 }
-?>

@@ -515,7 +515,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 		return true;
 	}
 
-	public function build()
+	public function indexAction()
 	{
 		$this->_startScript();
 		$this->init();

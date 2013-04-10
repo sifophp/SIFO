@@ -119,7 +119,7 @@ class ManagerFindi18nController extends \Sifo\Controller
 		return $final_literals;
 	}
 
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'manager/findi18n.tpl' );
 

@@ -25,7 +25,7 @@ class DebugMailController extends \Sifo\Controller
 		return $mail->send( $this->mail_data['to'], $this->mail_data['subject'], $this->mail_data['body'] );
 	}
 
-	public function build()
+	public function indexAction()
 	{
 		if ( !\Sifo\Domains::getInstance()->getDebugMode() )
 		{

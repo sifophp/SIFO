@@ -14,7 +14,7 @@ class localesSaveController extends \Sifo\Controller
 	 * Main of controller.
 	 * @return unknown_type
 	 */
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'locales/index.tpl' );
 		$this->addModule( 'head', 'SharedHead' );

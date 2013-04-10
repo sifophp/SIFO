@@ -8,7 +8,7 @@ abstract class SharedFirstLevelController extends \Sifo\Controller
 {
 	abstract public function buildCommon();
 
-	public function build()
+	public function indexAction()
 	{
 		// Common actions go here:
 		if ( $this->requiresAuth() )

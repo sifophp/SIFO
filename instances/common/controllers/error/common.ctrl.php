@@ -5,7 +5,7 @@ namespace Common;
 class ErrorCommonController extends \Sifo\Controller
 {
 
-	public function build()
+	public function indexAction()
 	{
 
 		$params = $this->getParams();

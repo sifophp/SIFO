@@ -11,7 +11,7 @@ class SharedHeadController extends \Sifo\Controller
 	protected $css_groups = array( 'default', 'print' );
 	protected $js_groups = array( 'default' );
 
-	public function build()
+	public function indexAction()
 	{
 		$this->setLayout( 'shared/head.tpl' );
 

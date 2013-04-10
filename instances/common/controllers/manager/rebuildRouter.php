@@ -10,7 +10,7 @@ class ManagerRebuildRouterController extends \Sifo\Controller
 {
 	const MASTER_LANGUAGE = 'en_US';
 
-	public function build()
+	public function indexAction()
 	{
 		header( 'Content-Type: text/plain' );
 
