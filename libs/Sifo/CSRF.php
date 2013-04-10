@@ -149,6 +149,6 @@ class CSRF
      */
     public function isCsrfTokenValid($intention, $token) {
 
-        return ($token == $this->generateCsrfToken($this->csrf_secret,$intention));
+        return ($token == $this->generateCsrfToken($this->csrf_secret,base64_encode($intention)));
     }
 }
