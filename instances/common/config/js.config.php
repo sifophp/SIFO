@@ -13,3 +13,4 @@
  *		'name' => 'A NAME TO IDENTIFY THIS JS FILE',
  *		'filename' => 'PATH TO FILENAME, EXCLUDING ROOT PATH'
  */
+$config = array();
