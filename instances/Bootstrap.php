@@ -133,13 +133,13 @@ class Bootstrap
 	 */
 	public static function invokeController( $controller )
 	{
-		$controller_path = explode( '/', $controller );
+        $c = explode('::',$controller);
+		$controller_path = explode('/',$c[0]);
 
 		$class = '';
-		foreach ( $controller_path as $part )
-		{
-			$class .= ucfirst( $part );
-		}
+        do{
+            $class .= ucfirst( array_shift($controller_path) );
+        }while(!empty($controller_path));
 
 		$class .= 'Controller';
 
@@ -261,13 +261,18 @@ class Bootstrap
 					$controller = $router->getController();
 				}
 			}
-
+            $c = explode('::',$controller);
+            if(!isset($c[1]))
+            {
+                $c[1] = 'build';
+            }
 			// This is the controller to use:
-			$ctrl = self::invokeController( $controller );
+			$ctrl = self::invokeController( implode('::',$c) );
 
 			// Save in params for future references:
 			$ctrl->addParams( array(
-				'controller_route' => $controller,
+				'controller_route' => $c[0],
+                'controller_method'=> $c[1],
 			) );
 
 			// Active/deactive auto-rebuild option:
