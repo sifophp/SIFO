@@ -257,7 +257,7 @@ class Bootstrap
 			{
 				if ( null === $controller )
 				{
-					$router = new Router( $path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode );
+					$router = new Router( implode('/',$path_parts), self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode );
 					$controller = $router->getController();
 				}
 			}
