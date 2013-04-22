@@ -98,6 +98,8 @@ class Urls
 	 */
 	static private $url_config = array( );
 
+	private $url_instance_config = array( );
+
 	/**
 	 * Singleton for managing URLs. Use this static method instead of construct.
 	 *
@@ -180,7 +182,7 @@ class Urls
 		self::$path_parts = explode( self::$url_definition['context_separator'], self::$path );
 
 		// Default url.config for all languages.
-		self::$url_config = Config::getInstance( $instance_name )->getConfig( 'url' );
+		self::$url_config = $this->url_instance_config = Config::getInstance( $instance_name )->getConfig( 'url' );
 	}
 
 	/**
@@ -266,7 +268,7 @@ class Urls
 	 */
 	public function getUrlConfig()
 	{
-		return self::$url_config;
+		return $this->url_instance_config;
 	}
 
 	/**

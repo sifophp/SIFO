@@ -1098,6 +1098,22 @@ abstract class Controller
 	{
 		return Domains::getInstance()->getDebugMode();
 	}
+
+	/**
+	 * Change instance environment. It changes the hole instance configuration in runtime process.
+	 * @param $instance
+	 * @param $domain
+	 * @param $language
+	 * @param string $i18n_messages
+	 */
+	public function changeInstanceEnvironment( $instance, $domain, $language, $i18n_messages = 'messages' )
+	{
+		\Sifo\Bootstrap::$instance = $instance;
+		\Sifo\Domains::getInstance()->changeDomainData( $domain );
+		\Sifo\I18N::setDomain( $i18n_messages, $language, $instance );
+		$this->__construct();
+	}
+
 }
 
 class ControllerException extends \Exception{}

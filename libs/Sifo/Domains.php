@@ -60,13 +60,20 @@ class Domains
 		return self::$singleton;
 	}
 
-	private function __construct()
+	private function __construct( $force_host = null )
 	{
 		$filter_server = FilterServer::getInstance();
 
-		$host_data = explode( ':', $filter_server->getString( "HTTP_HOST" ) ); // Explode hostname and port.
-		$this->http_host = $host_data[0];
-		$this->port = isset( $host_data[1] ) ? $host_data[1] : null;
+		// If the host is defined by user we use it.
+		$this->http_host = $force_host;
+
+		// In other case we use the server host.
+		if ( null === $force_host )
+		{
+			$host_data = explode( ':', $filter_server->getString( "HTTP_HOST" ) ); // Explode hostname and port.
+			$this->http_host = $host_data[0];
+			$this->port = isset( $host_data[1] ) ? $host_data[1] : null;
+		}
 
 		$this->domain_configuration = Config::getInstance()->getConfig( 'domains' );
 
@@ -227,6 +234,15 @@ class Domains
 		{
 			throw new DomainsException( 'Unknown domain.' );
 		}
+	}
+
+	/**
+	 * Changes Domain data in execution time.
+	 * @param $domain string Domain which you want to load.
+	 */
+	public function changeDomainData( $domain )
+	{
+		$this->__construct( $domain );
 	}
 
 	public function getAuthData()
