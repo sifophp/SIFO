@@ -60,15 +60,15 @@ class Domains
 		return self::$singleton;
 	}
 
-	private function __construct( $force_host = null )
+	private function __construct( $host = null )
 	{
 		$filter_server = FilterServer::getInstance();
 
 		// If the host is defined by user we use it.
-		$this->http_host = $force_host;
+		$this->http_host = $host;
 
 		// In other case we use the server host.
-		if ( null === $force_host )
+		if ( null === $host )
 		{
 			$host_data = explode( ':', $filter_server->getString( "HTTP_HOST" ) ); // Explode hostname and port.
 			$this->http_host = $host_data[0];
@@ -240,7 +240,7 @@ class Domains
 	 * Changes Domain data in execution time.
 	 * @param $domain string Domain which you want to load.
 	 */
-	public function changeDomainData( $domain )
+	public function changeDomain( $domain )
 	{
 		$this->__construct( $domain );
 	}

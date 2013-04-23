@@ -1109,7 +1109,7 @@ abstract class Controller
 	public function changeInstanceEnvironment( $instance, $domain, $language, $i18n_messages = 'messages' )
 	{
 		\Sifo\Bootstrap::$instance = $instance;
-		\Sifo\Domains::getInstance()->changeDomainData( $domain );
+		\Sifo\Domains::getInstance()->changeDomain( $domain );
 		\Sifo\I18N::setDomain( $i18n_messages, $language, $instance );
 		$this->__construct();
 	}
