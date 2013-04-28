@@ -635,7 +635,7 @@ abstract class Controller
 	{
             	$vars = Router::getControllerVars();
 
-            	if( isset( $this->params['controller_method'] ) ) {
+            	if( isset( $this->params['controller_method'] ) && method_exists( $this, $this->params['controller_method'] ) ) {
                             $method = $this->params['controller_method'];
            	} else {
                             $method = 'build';
