@@ -33,6 +33,13 @@ abstract class Controller
 	 * @var integer
 	 */
 	const CACHE_DEFAULT_EXPIRATION = 14400;
+	
+	/**
+	 * String used for template extension
+	 *
+	 * @var string
+	 */
+	const STRING_TEMPLATE_EXTENSION = 'extends:';
 
 	/**
 	 * List of classes that will be auto-loaded automatically.
@@ -274,12 +281,26 @@ abstract class Controller
 
 	/**
 	 * Returns the absolute path to a template. Customized templates are specified in the configuration files.
-	 *
+	 * If the template start with extends, the we considered that the next part is a parent template and a child template
+	 * This works in smarty
+	 * 
+	 * Sintax: "extends:parent.tpl|children.tpl"
+	 * 
 	 * @param string $template
      * @return string
      */
 	public function getTemplate( $template )
 	{
+
+		if ( strpos( $template, self::STRING_TEMPLATE_EXTENSION ) !== false ) {
+			$parts = explode( '|', substr( $template, strlen( self::STRING_TEMPLATE_EXTENSION ) ) );
+			$parent = $parts[0];
+			$child = $parts[1];
+
+			$template = 'extends:' . $this->getTemplate( $parent ) . '|' . $this->getTemplate( $child );
+			
+			return $template;
+		}
 		return ROOT_PATH . '/' . Config::getInstance( $this->instance )->getConfig( 'templates', $template ) ;
 	}
 
