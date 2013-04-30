@@ -33,6 +33,13 @@ abstract class Controller
 	 * @var integer
 	 */
 	const CACHE_DEFAULT_EXPIRATION = 14400;
+	
+	/**
+	 * String used for template extension
+	 *
+	 * @var string
+	 */
+	const STRING_TEMPLATE_EXTENSION = 'extends:';
 
 	/**
 	 * List of classes that will be auto-loaded automatically.
@@ -284,10 +291,9 @@ abstract class Controller
      */
 	public function getTemplate( $template )
 	{
-		$extends_string = 'extends:';
 
-		if ( strpos( $template, $extends_string ) !== false ) {
-			$parts = explode( '|', substr( $template, strlen( $extends_string ) ) );
+		if ( strpos( $template, self::STRING_TEMPLATE_EXTENSION ) !== false ) {
+			$parts = explode( '|', substr( $template, strlen( self::STRING_TEMPLATE_EXTENSION ) ) );
 			$parent = $parts[0];
 			$child = $parts[1];
 
