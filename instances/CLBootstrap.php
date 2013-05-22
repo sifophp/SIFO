@@ -48,13 +48,7 @@ class CLBootstrap extends Bootstrap
 			self::$language = 'en_US';
 
 			// This is the controller to use:
-            $c = explode('::',$controller);
-            if(!isset($c[1]))
-            {
-                $c[1] = 'build';
-            }
-            // This is the controller to use:
-            $ctrl = self::invokeController( implode('::',$c) );
+			$ctrl = self::invokeController( $controller );
 			$ctrl->build();
 
 			// Debug:
