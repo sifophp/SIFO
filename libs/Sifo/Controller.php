@@ -386,14 +386,7 @@ abstract class Controller
 
 		try
 		{
-	            	$vars = Router::getControllerVars();
-	
-	            	if( isset( $this->params['controller_method'] ) ) {
-	                            $method = $this->params['controller_method'];
-	           	} else {
-	                            $method = 'build';
-	            	}
-			$return = call_user_func_array (array( $this, $method ) , $vars );			
+			$return = $this->build();
 		}
 		catch ( SEO_Exception $e )
 		{
@@ -633,15 +626,7 @@ abstract class Controller
 	 */
 	public function execute()
 	{
-            	$vars = Router::getControllerVars();
-
-            	if( isset( $this->params['controller_method'] ) ) {
-                            $method = $this->params['controller_method'];
-           	} else {
-                            $method = 'build';
-            	}
-		$result = call_user_func_array (array( $this, $method ) , $vars );		
-		
+		$result = $this->build();
 		$controller_params = array_merge( array( 'layout' => $this->layout ), $this->getParams() );
 		$this->addToDebug( 'parameters', $controller_params, 'CONTROLLER' );
 
