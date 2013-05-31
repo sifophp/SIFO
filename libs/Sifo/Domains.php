@@ -368,7 +368,8 @@ class Domains
 	{
 		$filter_server = FilterServer::getInstance();
 
-		if ( $filter_server->getString( 'HTTPS' ) )
+		// Fix for hostings where the HTTPS server value is not empty but "off" (like Webfaction).
+		if ( $filter_server->getString( 'HTTPS' ) && ( 'off' !== $filter_server->getString( 'HTTPS' ) ) )
 		{
 			return str_replace( 'http://', 'https://', $this->static_host );
 		}
