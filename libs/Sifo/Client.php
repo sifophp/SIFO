@@ -197,58 +197,34 @@ class Client
 	}
 
 	/**
-	 * Get real client IP.
+	 * Returns the real client IP after checking a lot of server vars in 99% of cases.
+	 *
+	 * Caution: This function allows private IPs and reserved ranges. If you don't want this the use of
+	 * FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE in filter_var is recommended.
+	 *
+	 * @return bool|string
 	 */
 	public static function getIP()
 	{
-		$client_ip = "";
-
 		$server = FilterServer::getInstance();
+		$options['flags'] = FILTER_FLAG_IPV4; // Same options as in Filter::getIp
 
-		if ( $server->getIp( "HTTP_X_FORWARDED_FOR" ) )
+		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $server_header )
 		{
-			$ip = $server->getIp( "HTTP_X_FORWARDED_FOR" );
-		}
-		elseif ( $server->getIp( "HTTP_CLIENT_IP" ) )
-		{
-			$ip = $server->getIp( "HTTP_CLIENT_IP" );
-		}
-		else
-		{
-			$ip = $server->getIp( "REMOTE_ADDR" );
-		}
-
-		// From http://www.eslomas.com/index.php/archives/2005/04/26/obtencion-ip-real-php/
-		$entries = preg_split( '/[,\s]/', $ip );
-
-		reset( $entries );
-
-		while ( list ( , $entry ) = each( $entries ) )
-		{
-			$entry = trim( $entry );
-
-			if ( preg_match( "/^([0-9]+.[0-9]+.[0-9]+.[0-9]+)/", $entry, $ip_list ) )
+			if ( $ip_list = $server->getIp( $server_header ) )
 			{
-				// http://www.faqs.org/rfcs/rfc1918.html
-				$private_ip = array(
-					'/^0./',
-					'/^127.0.0.1/',
-					'/^192.168..*/',
-					'/^172.((1[6-9])|(2[0-9])|(3[0-1]))..*/',
-					'/^10..*/'
-				);
-
-				$found_ip = preg_replace( $private_ip, $client_ip, $ip_list[1] );
-
-				if ( $client_ip != $found_ip )
+				foreach ( explode( ',', $ip_list ) as $ip )
 				{
-					$ip = $found_ip;
-					break;
+					$ip = trim( $ip );
+					if ( filter_var( $ip, FILTER_VALIDATE_IP, $options ) !== false )
+					{
+						return $ip;
+					}
 				}
 			}
 		}
 
-		return trim( $ip );
+		return false;
 	}
 
 	/**

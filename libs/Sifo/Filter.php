@@ -247,9 +247,10 @@ class Filter
 	/**
 	 * Returns the IP value of the var or false.
 	 *
-	 * @param string $var_name
-	 * @param boolean $decimal
-	 * @return integer
+	 * @param string $var_name Name of the variable
+	 * @param string $min_range Minimum value accepted
+	 * @param sting $max_range Maximum value accepted
+	 * @return bool|mixed
 	 */
 	public function getIP( $var_name, $min_range = null, $max_range = null )
 	{
