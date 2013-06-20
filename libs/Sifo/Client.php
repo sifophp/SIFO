@@ -197,10 +197,12 @@ class Client
 	}
 
 	/**
-	 * Returns the real client IP after checking a lot of server vars in 99% of cases.
+	 * Returns the client IP by checking client ip and several forwarded headers (proxies), returning the first public
+	 * IP found. A private IP might be returned if no other public IP is found. False otherwise.
+	 * Use this information carefully since these headers are easy to forge.
 	 *
-	 * Caution: This function allows private IPs and reserved ranges. If you don't want this the use of
-	 * FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE in filter_var is recommended.
+	 * Caution: This function allows private IPs and reserved ranges. If you don't want this use the flags
+	 * FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE in the options passed to filter_var.
 	 *
 	 * @return bool|string
 	 */
@@ -208,23 +210,31 @@ class Client
 	{
 		$server = FilterServer::getInstance();
 		$options['flags'] = FILTER_FLAG_IPV4; // Same options as in Filter::getIp
+		$found_ip = false;
 
 		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $server_header )
 		{
 			if ( $ip_list = $server->getIp( $server_header ) )
 			{
+				// The X-Forwarded-For format is **in most cases**: client, proxy1, proxy2, ...
 				foreach ( explode( ',', $ip_list ) as $ip )
 				{
 					$ip = trim( $ip );
+					// Is ANY valid IP, public, private or range:
 					if ( filter_var( $ip, FILTER_VALIDATE_IP, $options ) !== false )
 					{
-						return $ip;
+						$found_ip = $ip;
+						if ( !self::isPrivateIP( $ip ) )
+						{
+							// If an IP is public return it right away, otherwise keep looping for another IP.
+							return $ip;
+						}
 					}
 				}
 			}
 		}
 
-		return false;
+		return $found_ip;
 	}
 
 	/**
@@ -284,7 +294,7 @@ class Client
 	 * Returns true if an IP belongs to a private range.
 	 *
 	 * @static
-	 * @param $ip IP you want to check or null for current user's IP.
+	 * @param $ip string IP you want to check or null for current user's IP.
 	 * @return bool
 	 */
 	public static function isPrivateIP( $ip = null )
