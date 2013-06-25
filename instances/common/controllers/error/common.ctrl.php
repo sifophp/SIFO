@@ -24,6 +24,7 @@ class ErrorCommonController extends \Sifo\Controller
 			case 401:
 			case 403:
 				$this->setLayout( 'error/40x.tpl' );
+				\Sifo\Domains::getInstance()->setDebugMode( false );
 
 				// Pass the referer for coming back after login:
 				$this->assign( 'referer', $this->params['current_url'] );
