@@ -515,7 +515,7 @@ LoadjQueryUI();
 {		foreach from=$debug.traces item=trace}
 		<li>
 {			if is_array($trace)}
-{				$trace|debug_print_var}
+{				$trace|debug_print_var nofilter}
 {			else}
 "{				$trace}"
 {			/if}
@@ -553,7 +553,7 @@ LoadjQueryUI();
 	<h3 id="post_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="post_content_{$smarty.foreach.post.index}" href="#">{$smarty.foreach.post.index+1}. {$post_key}</a></h3>
 	<div id="post_content_{$smarty.foreach.post.index}" class="debug_contents">
 		<pre>
-{			$value|debug_print_var}
+{			$value|debug_print_var nofilter}
 		</pre>
 	</div>
 {/foreach}
@@ -567,7 +567,7 @@ LoadjQueryUI();
 	<h3 id="sess_{$smarty.foreach.session.index}"><a class="debug_toggle_view" rel="sess_content_{$smarty.foreach.session.index}{$execution_key}" href="#">{$smarty.foreach.session.index+1}. {$session_key}</a></h3>
 	<div id="sess_content_{$smarty.foreach.session.index}{$execution_key}" class="debug_contents">
 		<pre>
-{			$value|debug_print_var}
+{			$value|debug_print_var nofilter}
 		</pre>
 	</div>
 {/foreach}
@@ -579,7 +579,7 @@ LoadjQueryUI();
 	<h3 id="cook_{$smarty.foreach.cookies.index}"><a class="debug_toggle_view" rel="cook_content_{$smarty.foreach.cookies.index}{$execution_key}" href="#">{$smarty.foreach.cookies.index+1}. {$cookies_key}</a></h3>
 	<div id="cook_content_{$smarty.foreach.cookies.index}{$execution_key}" class="debug_contents">
 		<pre>
-{			$value|debug_print_var}
+{			$value|debug_print_var nofilter}
 		</pre>
 	</div>
 {/foreach}

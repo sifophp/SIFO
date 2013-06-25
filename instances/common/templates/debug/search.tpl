@@ -54,7 +54,7 @@
 				<td>{$match.weight}</td>
 				<td>{$id}</td>
 {				foreach from=$match.attrs key=attribute item=values}
-				<td>{if is_array($values)}{$values|debug_print_var}{else}{$values}{/if}</td>
+				<td>{if is_array($values)}{$values|debug_print_var nofilter}{else}{$values}{/if}</td>
 {				/foreach}
 			</tr>
 {			/foreach}

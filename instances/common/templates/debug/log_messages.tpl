@@ -9,7 +9,7 @@
 	</h3>
 	<div id="html_log_content_{$smarty.foreach.html_log.index}" class="debug_contents">
 			<pre>
-	{			$value.message|debug_print_var}
+	{			$value.message|debug_print_var nofilter}
 			</pre>
 		</div>
 

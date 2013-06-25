@@ -21,7 +21,7 @@
 					<strong>Array</strong>
 					{foreach from=$value.args item=arr key=k}
 					<ul>
-						<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
+						<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var nofilter}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
 					</ul>
 					{/foreach}
 					{else}
@@ -33,11 +33,11 @@
 					<strong>Array</strong>
 					{foreach from=$value.results item=arr key=k}
 						<ul>
-							<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
+							<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var nofilter}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
 						</ul>
 					{/foreach}
 					{else}
-					{$value.results|debug_print_var}
+					{$value.results|debug_print_var nofilter}
 					{/if}
 				</td>
 				<td>{$value.controller}</td>

@@ -1,6 +1,6 @@
 {if isset( $mail_sent )}
 	<h3>Mail sent!</h3><BR/>
-	Result: {$result|@debug_print_var}
+	Result: {$result|@debug_print_var nofilter}
 	<BR/><BR/>
 	{if isset( $return_page )}
 		<a href="{$return_page}">Return...</a>

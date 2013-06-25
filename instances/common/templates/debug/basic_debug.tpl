@@ -56,7 +56,7 @@
 			<li class="array"><strong>{$key1}: Array</strong>
 {				foreach from=$content1 item=arr key=k}
 				<ul>
-					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
+					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var nofilter}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
 				</ul>
 {				/foreach}
 			</li>
@@ -79,7 +79,7 @@
 			<li class="array"><strong>{$key1}: Array</strong>
 {				foreach from=$content1 item=arr key=k}
 				<ul>
-					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
+					<li><strong>{$k}</strong>: {if is_array($arr)}<pre>{$arr|debug_print_var nofilter nofilter}</pre>{else}<code>{$arr|escape}</code>{/if}</li>
 				</ul>
 {				/foreach}
 			</li>
