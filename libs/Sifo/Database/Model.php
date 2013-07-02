@@ -6,8 +6,6 @@
 
 namespace Sifo;
 
-require_once ROOT_PATH . '/libs/adodb5/adodb.inc.php';
-
 use PDO;
 
 /**
