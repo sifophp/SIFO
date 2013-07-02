@@ -56,7 +56,7 @@ class Config
 	/**
 	 * Content inside the $configuration_files file specififying in which instance is found every config.
 	 *
-	 * @var unknown_type
+	 * @var array
 	 */
 	protected $paths_to_configs = array();
 

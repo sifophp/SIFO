@@ -17,6 +17,9 @@ $config['Cookie']['Sifo'] = 'libs/Sifo/Cookie.php';
 $config['Crypt']['Sifo'] = 'libs/Sifo/Crypt.php';
 $config['CssPacker']['Sifo'] = 'libs/Sifo/CssPacker.php';
 $config['Database']['Sifo'] = 'libs/Sifo/Database.php';
+$config['DatabaseConnection']['Sifo'] = 'libs/Sifo/Database/Connection.php';
+$config['DatabaseModel']['Sifo'] = 'libs/Sifo/Database/Model.php';
+$config['DatabaseStatement']['Sifo'] = 'libs/Sifo/Database/Statement.php';
 $config['Debug']['Sifo'] = 'libs/Sifo/Debug.php';
 $config['DebugMysql']['Sifo'] = 'libs/Sifo/Debug/Mysql.php';
 $config['DebugPredisProxyClient']['Sifo'] = 'libs/Sifo/Debug/PredisProxyClient.php';
@@ -87,5 +90,6 @@ $config['SharedSystemMessagesController']['Common'] = 'instances/common/controll
 $config['StaticIndexController']['Common'] = 'instances/common/controllers/static/index.ctrl.php';
 $config['UserLoginController']['Common'] = 'instances/common/controllers/user/login.ctrl.php';
 $config['I18nTranslatorModel']['Common'] = 'instances/common/models/i18n/translator.model.php';
+$config['MigrationMainModel']['Common'] = 'instances/common/models/migration/main.model.php';
 $config['OAuthTwitterModel']['Common'] = 'instances/common/models/OAuth/twitter.model.php';
 
