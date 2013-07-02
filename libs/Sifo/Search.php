@@ -22,16 +22,29 @@ namespace Sifo;
 
 class Search
 {
+	/**
+	 * @var Current instance.
+	 */
 	static protected $instance;
 
+	/**
+	 * @var string Singleton search engine object.
+	 */
 	static public $search_engine;
 
+	/**
+	 * @var \SphinxClient Sphinx object.
+	 */
 	protected $sphinx;
 
+	/**
+	 * @var array Config used to load this connection.
+	 */
 	protected $sphinx_config;
 
 	/**
-	 * Initializes the class.
+	 * Initialize this class.
+	 * @param $profile
 	 */
 	protected function __construct( $profile )
 	{
@@ -40,32 +53,17 @@ class Search
 		// Check if Sphinx is enabled by configuration:
 		if ( true === $this->sphinx_config['active'] )
 		{
-			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
-
 			self::$search_engine 	= 'Sphinx';
-			$this->sphinx 			= new \SphinxClient();
-			$this->sphinx->SetServer( $this->sphinx_config['server'], $this->sphinx_config['port'] );
-
-			// If it's defined a time out connection in config file:
-			if( isset( $this->sphinx_config['time_out'] ) )
-			{
-				$this->sphinx->SetConnectTimeout( $this->sphinx_config['time_out'] );
-			}
-
-			// Check if Sphinx is listening:
-			if ( false === $this->sphinx->Status() )
-			{
-				throw new \Sifo\Exception_500( 'Sphinx (' . $this->sphinx_config['server'] . ':' . $this->sphinx_config['port'] . ') is down!' );
-			}
+			$this->sphinx = self::connect( $this->sphinx_config );
 		}
 
 		return $this->sphinx_config;
 	}
 
 	/**
-	 * Singleton of config class.
+	 * Singleton get instance. Return one search engine object.
 	 *
-	 * @param string $instance_name Instance Name, needed to determine correct paths.
+	 * @param string $profile
 	 * @return object Config
 	 */
 	public static function getInstance( $profile = 'default' )
@@ -88,8 +86,9 @@ class Search
 	/**
 	 * Get Sphinx connection params from config files.
 	 *
+	 * @param $profile
+	 * @throws Exception_500
 	 * @return array
-	 * @throws Exception_500|Exception_Configuration
 	 */
 	protected function getConnectionParams( $profile )
 	{
@@ -105,7 +104,7 @@ class Search
 
 				if ( isset( $sphinx_config[$profile] ) )
 				{
-					$sphinx_config = $sphinx_config[$profile];
+					$sphinx_config = $this->checkBalancedProfile( $sphinx_config[$profile] );
 				}
 				elseif ( isset( $sphinx_config['default'] ) )
 				{
@@ -117,7 +116,7 @@ class Search
 				{
 					if ( Domains::getInstance()->getDebugMode() === true )
 					{
-						trigger_error( "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at leat the 'default' one. (This message is only readable with the debug flag enabled)" );
+						trigger_error( "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)" );
 					}
 				}
 				$sphinx_config['config_file'] = 'sphinx';
@@ -130,6 +129,24 @@ class Search
 		else
 		{
 			$sphinx_config['config_file'] = 'domains';
+		}
+
+		return $sphinx_config;
+	}
+
+	/**
+	 * Check if one profile has balanced servers or single server. Returns the connection to use.
+	 * @param $sphinx_config
+	 * @return array
+	 */
+	private function checkBalancedProfile( $sphinx_config )
+	{
+		if ( isset( $sphinx_config[0] ) && is_array( $sphinx_config[0] ) )
+		{
+			$lb = new LoadBalancerSearch();
+			$lb->setNodes( $sphinx_config );
+			$selected_server = $lb->get();
+			$sphinx_config = $sphinx_config[$selected_server];
 		}
 
 		return $sphinx_config;
@@ -149,5 +166,58 @@ class Search
 			return call_user_func_array( array( $this->sphinx, $method ), $args );
 		}
 		return null;
+	}
+
+	/**
+	 * Use this method to connect to Sphinx.
+	 * @param $node_properties
+	 * @return \SphinxClient
+	 * @throws Exception_500
+	 */
+	static function connect( $node_properties )
+	{
+		if ( true === $node_properties['active'] )
+		{
+			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
+
+			$sphinx 			= new \SphinxClient();
+			$sphinx->SetServer( $node_properties['server'], $node_properties['port'] );
+
+			// If it's defined a time out connection in config file:
+			if( isset( $node_properties['time_out'] ) )
+			{
+				$sphinx->SetConnectTimeout( $node_properties['time_out'] );
+			}
+
+			// Check if Sphinx is listening:
+			if ( false === $sphinx->Status() )
+			{
+				throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+			}
+		}
+
+		return $sphinx;
+	}
+}
+
+class LoadBalancerSearch extends LoadBalancer
+{
+	/**
+	 * Name of the cache where the results of server status are stored.
+	 * @var string
+	 */
+	public $loadbalancer_cache_key = '__sphinx_loadbalancer_available_nodes';
+
+	protected function addNodeIfAvailable( $index, $node_properties )
+	{
+		try
+		{
+			Search::connect( $node_properties );
+			$this->addServer( $index, $node_properties['weight'] );
+		}
+		catch( \Sifo\Exception_500 $e )
+		{
+			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+		}
 	}
 }

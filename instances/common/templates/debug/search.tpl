@@ -3,6 +3,22 @@
 {foreach name=search from=$debug.searches item=value}
 	<h3 class="queries query_read" id="search_{$smarty.foreach.search.index}"><a class="debug_toggle_view" rel="search_content_{$smarty.foreach.search.index}{$execution_key}" href="#">{$smarty.foreach.search.index+1}. [R] {$value.tag}</a> <small>({$value.time|time_format} - match: {$value.total_found|default:''} elements - return: {$value.returned_rows|default:''} elements )</small></h3>
 	<div id="search_content_{$smarty.foreach.search.index}{$execution_key}" class="debug_contents">
+
+		<table>
+			<tr>
+				<th>Host</th>
+				<th>Port</th>
+				{if !empty( $value.connection_data.weight )}<th>Weight</th>{/if}
+				<th>Connection</th>
+			</tr>
+			<tr>
+				<td>{$value.connection_data.server|default:''}</td>
+				<td>{$value.connection_data.port|default:''}</td>
+				{if !empty( $value.connection_data.weight )}<td>{$value.connection_data.weight}</td>{/if}
+				<td>{$value.queries[0].connection|default:'?'}.config</td>
+			</tr>
+		</table>
+
 		{foreach name=search_query from=$value.queries item=query}
 		<h4 class="{if $query.error}query_error{/if}">{$smarty.foreach.search_query.index}. {$query.tag} <small>({$query.time|time_format} - match: {$query.total_found|default:''} elements - return: {$query.returned_rows|default:''} elements )</small></h4>
 		{if $query.error}<p class="query_error"><b>{$query.error}</b></p>{/if}
@@ -13,7 +29,6 @@
 				<th>Order</th>
 				<th>GroupBy</th>
 				<th>Indexs</th>
-				<th>Connection</th>
 				<th>Trace</th>
 			</tr>
 			<tr>
@@ -36,7 +51,6 @@
 				<td>{if isset($query.sort.mode)}<em>{$query.sort.mode}</em>{/if} {if isset($query.sort.sortby)}- {$query.sort.sortby}{/if}</td>
 				<td>{if isset($query.group.attribute)}{$query.group.attribute}{/if} {if isset($query.group.func)}<em>- Func: {$query.group.func}</em>{/if} {if isset($query.group.groupsort)}- Groupsort: {$query.group.groupsort}{/if}</td>
 				<td>{$query.indexes}</td>
-				<td>{$query.connection}.config</td>
 				<td>{$query.controller}</td>
 			</tr>
 		</table>

@@ -2,6 +2,8 @@
 {if $show_timers|default:true}
 {literal}
 <style type="text/css">
+pre.debug, .xdebug-error, .xe-notice{ z-index: 10000; font-family: 'courier new' monospaced; border: 1px solid #CCC; padding: 9px; background: #EFEFEF; position: relative; margin: 1px;}
+
 /* @group DEBUG reset */
 #debug {
 	text-align:left;

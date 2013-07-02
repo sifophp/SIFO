@@ -69,6 +69,8 @@ class DebugSearch extends Search
 		// Init Debug:
 		$this->query_debug['current_query'] = 0;
 		$this->query_debug = array_merge( $this->query_debug, $sphinx_config);
+
+		$this->query_debug['connection_data'] = $this->sphinx_config;
 	}
 
 	/**
@@ -148,7 +150,7 @@ class DebugSearch extends Search
 	}
 
 	/**
-	 * Delete group by in debug information.
+		* Delete group by in debug information.
 	 */
 	public function ResetGroupBy()
 	{
