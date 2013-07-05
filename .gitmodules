@@ -3,7 +3,7 @@
 	url = git://github.com/nrk/predis.git
 [submodule "libs/Facebook-php-sdk"]
 	path = libs/Facebook-php-sdk
-	url = git://github.com/facebook/php-sdk.git
+url=git://github.com/facebook/facebook-php-sdk.git
 [submodule "libs/sifojs"]
 	path = libs/sifojs
 	url = git://github.com/tonipinel/sifojs.git
