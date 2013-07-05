@@ -320,9 +320,23 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 					break;
 				}
 			}
+
 			if ( !$found )
 			{
-				$this->showMessage( "Error in options. Option '$option[0]' undefinded." );
+                $message = "Error in command options. Unknown option: '$option[0]'.";
+
+                // Check if there are any other similar options and suggest them
+                if ( false != $closest_option = $this->_getClosestOptions( $option[0] ) )
+                {
+                    $message .= " Did you mean one of the following available options?:";
+
+                    foreach ( $closest_option as $option )
+                    {
+                        $message .= "\n$option";
+                    }
+                }
+
+                $this->showMessage( $message );
 				$this->showHelp();
 				return false;
 			}
@@ -565,4 +579,56 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 			$this->params['parsed_params'][$common_param['long_param_name']] = $value;
 		}
 	}
+
+    /**
+     * Returns the closest options to the received $undefined_option based on the $this->_shell_common_params array
+     * Script example call: .../scripts/amazon-s3-uploader.php your.instance --dest
+     * Method input: dest
+     * Return: [test, destination_uri, destination_bucket]
+     *
+     * @param $undefined_option string
+     *
+     * @return array
+     */
+    private function _getClosestOptions( $undefined_option )
+    {
+        $long_param_names = array();
+
+        // TODO: Substitute this loop by an array_column() method call in PHP5.5 happy environments
+        foreach ( $this->_shell_common_params as $option )
+        {
+            $long_param_names[] = $option['long_param_name'];
+        }
+
+        return $this->_getClosestWords( $undefined_option, $long_param_names );
+    }
+
+    /**
+     * Returns similar words to $unknown_word among $possible_words.
+     * Input example: dest, [help, test, verbose, ..., destination_bucket, destination_uri, acl]
+     * Return: [test, destination_uri, destination_bucket]
+     *
+     * @param $unknown_word string
+     * @param $possible_words array
+     *
+     * @return array
+     */
+    private function _getClosestWords( $unknown_word, $possible_words )
+    {
+        $alternatives = array();
+
+        foreach ( $possible_words as $possible_value )
+        {
+            $levenshtein_score = levenshtein( $unknown_word, $possible_value );
+
+            if ( $levenshtein_score <= strlen( $unknown_word ) / 2 || false !== strpos( $possible_value, $unknown_word ) )
+            {
+                $alternatives[$possible_value] = $levenshtein_score;
+            }
+        }
+
+        asort( $alternatives );
+
+        return array_keys( $alternatives );
+    }
 }
