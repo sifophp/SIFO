@@ -40,17 +40,15 @@ class CLBootstrap extends Bootstrap
 	/**
 	 * Sets the controller and view properties and executes the controller, sending the output buffer.
 	 *
-	 * @param string $controller Dispatches a specific controller.
+	 * @param string $controller Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
 	 */
-	public static function dispatch( $controller )
+	public static function dispatch( $controller = null )
 	{
 		// Set Timezone as required by php 5.1+
 		date_default_timezone_set('Europe/Madrid');
 
 		try
 		{
-			$config = Config::getInstance( self::$instance );
-			$domain = Domains::getInstance();
 
 			self::$language = 'en_US';
 
