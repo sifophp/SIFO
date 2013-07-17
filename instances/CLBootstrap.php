@@ -15,9 +15,16 @@ class CLBootstrap extends Bootstrap
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
+	 * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
+	 * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
 	 */
-	public static function execute()
+	public static function execute( $instance_name = null, $controller_name = null )
 	{
+		if ( !isset( $controller_name ) )
+		{
+			$controller_name = self::$script_controller;
+		}
+
 		// Register autoloader:
 		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
 
@@ -26,7 +33,7 @@ class CLBootstrap extends Bootstrap
 		self::$application = dirname( __FILE__ );
 
 		Benchmark::getInstance()->timingStart();
-		self::dispatch( self::$script_controller );
+		self::dispatch( $controller_name );
 		Benchmark::getInstance()->timingStop();
 	}
 
