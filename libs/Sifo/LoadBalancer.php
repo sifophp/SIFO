@@ -61,6 +61,7 @@ abstract class LoadBalancer
 
 	public function __construct()
 	{
+		$this->loadbalancer_cache_key = Bootstrap::$instance . $this->loadbalancer_cache_key;
 	}
 
 	/**
