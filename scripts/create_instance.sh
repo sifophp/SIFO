@@ -27,6 +27,7 @@ fi
 clear
 echo "An instance named '$1' with '$2' domain name will be created. Press ENTER to continue or CTRL-C to abort."
 read keypress
+cd "`dirname \"$0\"`"
 cd ../instances
 echo ""
 echo "--> Creating tree..."
