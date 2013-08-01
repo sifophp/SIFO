@@ -27,6 +27,8 @@ fi
 clear
 echo "An instance named '$1' with '$2' domain name will be created. Press ENTER to continue or CTRL-C to abort."
 read keypress
+
+ORIGINAL_PATH=$PWD
 cd "`dirname \"$0\"`"
 cd ../instances
 echo ""
@@ -72,7 +74,7 @@ chmod 777 config/templates.config.php
 chmod 777 config/classes.config.php
 echo "(you should apply proper permissions according to your users later)"
 
-cd ../..
+cd $ORIGINAL_PATH
 echo ""
 echo "Finished."
 echo "1)  You can edit now instances/$1/config/domains.config.php"
