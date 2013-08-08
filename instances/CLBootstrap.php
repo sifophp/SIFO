@@ -15,9 +15,16 @@ class CLBootstrap extends Bootstrap
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
+	 * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
+	 * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
 	 */
-	public static function execute()
+	public static function execute( $instance_name = null, $controller_name = null )
 	{
+		if ( !isset( $controller_name ) )
+		{
+			$controller_name = self::$script_controller;
+		}
+
 		// Register autoloader:
 		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
 
@@ -26,24 +33,22 @@ class CLBootstrap extends Bootstrap
 		self::$application = dirname( __FILE__ );
 
 		Benchmark::getInstance()->timingStart();
-		self::dispatch( self::$script_controller );
+		self::dispatch( $controller_name );
 		Benchmark::getInstance()->timingStop();
 	}
 
 	/**
 	 * Sets the controller and view properties and executes the controller, sending the output buffer.
 	 *
-	 * @param string $controller Dispatches a specific controller.
+	 * @param string $controller Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
 	 */
-	public static function dispatch( $controller )
+	public static function dispatch( $controller = null )
 	{
 		// Set Timezone as required by php 5.1+
 		date_default_timezone_set('Europe/Madrid');
 
 		try
 		{
-			$config = Config::getInstance( self::$instance );
-			$domain = Domains::getInstance();
 
 			self::$language = 'en_US';
 

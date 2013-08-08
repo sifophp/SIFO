@@ -7,6 +7,7 @@ class DebugCommandLineDebugController extends \Common\DebugIndexController
 	protected function renderDebugModule( $debug, $module_name, $template )
 	{
 		$view = new \Sifo\View();
+		$view->assign( 'execution_key', $this->execution_key );
 		$view->assign( 'debug', $debug );
 
 		$template_route = ROOT_PATH . '/' . \Sifo\Config::getInstance()->getConfig( 'templates', $template );
@@ -19,6 +20,7 @@ class DebugCommandLineDebugController extends \Common\DebugIndexController
 		$view->assign( 'debug_modules', $this->debug_modules );
 		$view->assign( 'debug', $debug );
 		$view->assign( 'command_line_mode', true );
+		$view->assign( 'execution_key', $this->execution_key );
 
 		$content = $view->fetch( ROOT_PATH . '/' . \Sifo\Config::getInstance()->getConfig( 'templates', 'debug/debug.tpl' ) );
 

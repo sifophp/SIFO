@@ -5,8 +5,6 @@ namespace phpbrowscap;
 use \Exception as BaseException;
 
 /**
- * https://github.com/GaretJax/phpbrowscap/blob/master/src/phpbrowscap/Browscap.php
- *
  * Browscap.ini parsing class with caching and update capabilities
  *
  * PHP version 5
@@ -344,10 +342,10 @@ class Browscap
 			$url = getenv($wrapper.'_proxy');
 			if (!empty($url)) {
 				$params = array_merge(array(
-					'port'  => null,
-					'user'  => null,
-					'pass'  => null,
-				), parse_url($url));
+				                           'port'  => null,
+				                           'user'  => null,
+				                           'pass'  => null,
+				                      ), parse_url($url));
 				$this->addProxySettings($params['host'], $params['port'], $wrapper, $params['user'], $params['pass']);
 			}
 		}
@@ -383,11 +381,11 @@ class Browscap
 		);
 
 		/* Return $this so we can chain addProxySettings() calls like this:
-* $browscap->
-*   addProxySettings('http')->
-*   addProxySettings('https')->
-*   addProxySettings('ftp');
-*/
+		 * $browscap->
+		 *   addProxySettings('http')->
+		 *   addProxySettings('https')->
+		 *   addProxySettings('ftp');
+		 */
 		return $this;
 	}
 
@@ -485,10 +483,10 @@ class Browscap
 		foreach ($this->_userAgents as $user_agent) {
 			$pattern = preg_quote($user_agent, self::REGEX_DELIMITER);
 			$this->_patterns[] = self::REGEX_DELIMITER
-				. '^'
-				. str_replace($search, $replace, $pattern)
-				. '$'
-				. self::REGEX_DELIMITER;
+					. '^'
+					. str_replace($search, $replace, $pattern)
+					. '$'
+					. self::REGEX_DELIMITER;
 
 			if (!empty($browsers[$user_agent]['Parent'])) {
 				$parent = $browsers[$user_agent]['Parent'];
@@ -607,10 +605,10 @@ class Browscap
 		$browscap = explode("\n", $browscap);
 
 		$pattern = self::REGEX_DELIMITER
-			. '('
-			. self::VALUES_TO_QUOTE
-			. ')="?([^"]*)"?$'
-			. self::REGEX_DELIMITER;
+				. '('
+				. self::VALUES_TO_QUOTE
+				. ')="?([^"]*)"?$'
+				. self::REGEX_DELIMITER;
 
 
 		// Ok, lets read the file
