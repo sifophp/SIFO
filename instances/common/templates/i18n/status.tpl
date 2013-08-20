@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>{$instance|capitalize} translation tool</title>
-	<link rel="stylesheet" type="text/css" media="screen" href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" />
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 </head>
 <body style="margin-top:40px;">
