@@ -11,6 +11,7 @@ class CLBootstrap extends Bootstrap
 {
 	static $script_controller;
 	static $command_line_params ;
+	static $controller = null ;
 
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
@@ -54,6 +55,7 @@ class CLBootstrap extends Bootstrap
 
 			// This is the controller to use:
 			$ctrl = self::invokeController( $controller );
+			self::$controller = $controller;
 			$ctrl->build();
 
 			// Debug:
