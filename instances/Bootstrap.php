@@ -57,6 +57,13 @@ class Bootstrap
 	public static $language;
 
 	/**
+	 * The executed controller.
+	 *
+	 * @var string
+	 */
+	public static $controller = null;
+
+	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
 	 * to parse code. This array can be replaced in your libraries.config under
 	 * the key $config['classes_always_preloaded']
@@ -264,6 +271,7 @@ class Bootstrap
 
 			// This is the controller to use:
 			$ctrl = self::invokeController( $controller );
+			self::$controller = $controller;
 
 			// Save in params for future references:
 			$ctrl->addParams( array(

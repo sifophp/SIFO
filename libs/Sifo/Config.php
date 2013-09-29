@@ -218,17 +218,11 @@ class Config
 	/**
 	 * Returns the library assigned to the given alias.
 	 *
-	 * @param string $alias Alias of the librar, e.g: 'smarty'
+	 * @param string $alias Alias of the library, e.g: 'smarty'
      * @return string Effective name of the folder with the library
      */
 	public function getLibrary( $alias )
 	{
-		// Delete this condition when everyone has rebuild their projects (Max: Jan 2011).
-		if ( !isset( $this->paths_to_configs['libraries'] ) )
-		{
-			$this->paths_to_configs['libraries'] = "/instances/common/config/libraries.config.php";
-		}
-
 		$libraries = $this->getConfig( 'libraries', 'default' );
 
 		// User requested a different profile, combine with default for missing attributes.
