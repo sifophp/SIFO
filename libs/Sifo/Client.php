@@ -39,8 +39,6 @@ class Client
 	/**
 	 * Singleton of Client class.
 	 *
-	 * @param string $instance_name Instance Name, needed to determine correct paths.
-	 *
 	 * @return object Client
 	 */
 	public static function getInstance()
@@ -209,19 +207,18 @@ class Client
 	public static function getIP()
 	{
 		$server = FilterServer::getInstance();
-		$options['flags'] = FILTER_FLAG_IPV4; // Same options as in Filter::getIp
 		$found_ip = false;
 
 		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $server_header )
 		{
-			if ( $ip_list = $server->getIp( $server_header ) )
+			if ( $ip_list = $server->getString( $server_header ) )
 			{
 				// The X-Forwarded-For format is **in most cases**: client, proxy1, proxy2, ...
 				foreach ( explode( ',', $ip_list ) as $ip )
 				{
-					$ip = trim( $ip );
+					$custom_filter = new FilterCustom( array( 'ip' => trim( $ip ) ) );
 					// Is ANY valid IP, public, private or range:
-					if ( filter_var( $ip, FILTER_VALIDATE_IP, $options ) !== false )
+					if ( $ip = $custom_filter->getIP( 'ip' ) )
 					{
 						$found_ip = $ip;
 						if ( !self::isPrivateIP( $ip ) )
@@ -304,20 +301,10 @@ class Client
 			$ip = self::getIP();
 		}
 
-		$private_ip_patterns = array(
-			'/^192\.168\..*/',
-			'/^172\.((1[6-9])|(2[0-9])|(3[0-1]))\..*/',
-			'/^10\..*/',
-			'/^0\./',
-			'/^127\.0\.0\.1/'
-		);
-
-		foreach ( $private_ip_patterns as $pattern )
+		// Based on https://gist.github.com/cballou/2201933
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false)
 		{
-			if ( preg_match( $pattern, $ip ) )
-			{
-				return true;
-			}
+			return true;
 		}
 
 		return false;

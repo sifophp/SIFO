@@ -76,6 +76,7 @@ class Filter
 	 * Checks if a var has been sent in the request.
 	 *
 	 * @param string $var_name
+	 * @return bool
 	 */
 	public function isSent( $var_name )
 	{
@@ -333,6 +334,7 @@ class Filter
 	 * Returns an array on the post UNFILTERED.
 	 *
 	 * @param unknown_type $var_name
+	 * @param null $filter_function
 	 * @return unknown
 	 */
 	public function getArray( $var_name, $filter_function = null )
@@ -680,7 +682,7 @@ class FilterCustom extends Filter
 	/**
 	 * Filters variables passed in the array and empties original input.
 	 *
-	 * @param array $array Array with filtration purposes.
+	 * @throws FilterException
 	 * @return Filter
 	 */
 	public static function getInstance()
