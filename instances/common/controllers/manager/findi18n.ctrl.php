@@ -3,15 +3,184 @@ namespace Common;
 
 class ManagerFindi18nController extends \Sifo\Controller
 {
-	public function extractStringsForTranslation( $path, $instance, $in_templates = false )
+	/**
+	 * @var \Sifo\FilterPost
+	 */
+	private $filter_post;
+
+	public function build()
+	{
+		$this->setLayout( 'manager/findi18n.tpl' );
+
+		if ( !\Sifo\Domains::getInstance()->getDevMode() )
+		{
+			throw new \Sifo\Exception_404( 'Translation only available while in devel mode' );
+		}
+
+		$available_instances = $this->getFileSystemFiles( 'instances', true );
+		$this->assign( 'available_instances', $available_instances );
+
+		$available_locales = array();
+		foreach ( $available_instances as $instance )
+		{
+			$available_locales[$instance] = $this->getFilesystemFiles( "instances/$instance/locale" );
+		}
+		$this->assign( 'available_locales', $available_locales );
+
+		$this->filter_post = \Sifo\FilterPost::getInstance();
+		if ( $this->filter_post->isSent( 'instance' ) )
+		{
+			$this->getI18nStats();
+		}
+		else
+		{
+			$this->assign( 'selected_instance', 'common' );
+			$this->assign( 'selected_charset', 'utf-8' );
+		}
+	}
+
+	/**
+	 * Extracts from the filesystem all the files under a path.
+	 * If the flag only_dirs is set to true returns only the directories names.
+	 *
+	 * @param string $relative_path
+	 * @param bool $only_dirs
+	 * @return array
+	 */
+	public function getFileSystemFiles( $relative_path, $only_dirs = false )
+	{
+		$files = array();
+
+		// Extract directories:
+		$iterator = new \DirectoryIterator( ROOT_PATH . "/$relative_path" );
+
+		foreach ( $iterator as $file_info )
+		{
+			$file = $file_info->getFilename();
+
+			// Exclude .svn, .cache and any other file starting with .
+			if ( 0 !== strpos( $file, '.' ) )
+			{
+				if ( !$only_dirs || $file_info->isDir() )
+				{
+					$files[] = $file;
+				}
+			}
+		}
+
+		return $files;
+	}
+
+	/**
+	 * Gets the selected parameters (instance, locale and charset), parses all literals (message used in translation method) inside this instance
+	 * and computes which of them exists in the materialized translations file in order to assign them to the view.
+	 */
+	private function getI18nStats()
+	{
+		$selected_instance   = $this->filter_post->getString( 'instance' );
+		$selected_raw_locale = $this->filter_post->getString( 'locale' );
+
+		list( $file_type, $language_code, $country_code_and_extension ) = explode( '_', $selected_raw_locale );
+		$this->assign( 'language', $language_code );
+		$locale = $language_code . '_' . $country_code_and_extension[0] . $country_code_and_extension[1];
+
+		$literals = $this->getLiterals( $selected_instance );
+		$this->assign( 'literals', $literals );
+
+		try
+		{
+			\Sifo\I18N::setDomain( $file_type, $locale, $selected_instance );
+			$translations_i18 = \Sifo\I18N::$translations;
+
+			$missing_messages  = array_diff_key( $literals, $translations_i18[$file_type . '_' . $locale] );
+			$leftover_messages = array_diff_key( $translations_i18[$file_type . '_' . $locale], $literals );
+
+			$this->assign( 'selected_instance', $selected_instance );
+			$this->assign( 'missing_messages', $missing_messages );
+			$this->assign( 'leftover_messages', $leftover_messages );
+			$this->assign( 'selected_locale', $selected_raw_locale );
+			$this->assign( 'selected_charset', $this->filter_post->getString( 'charset' ) );
+		}
+		catch ( \Sifo\Exception_500 $exception )
+		{
+			$this->assign( 'error', $exception->getMessage() );
+		}
+	}
+
+	/**
+	 * Parses all templates, models, controllers, configs and Smarty plugins searching for strings used inside translation methods and returns them structured in an array.
+	 *
+	 * @param string $instance Sifo instance to search in
+	 * @return array structured array where:
+	 *      array key: The string to be translated (message).
+	 *      array value: The different files which uses this message separated by commas.
+	 */
+	public function getLiterals( $instance )
+	{
+		$path = \Sifo\Bootstrap::$application . "/$instance";
+
+		// Parse all templates
+		$literals_groups['tpl'] = $this->extractStringsForTranslation( "$path/templates", $instance, true );
+
+		// Parse all models:
+		$literals_groups['models'] = $this->extractStringsForTranslation( "$path/models", $instance, false );
+
+		// Parse all controllers:
+		$literals_groups['controllers'] = $this->extractStringsForTranslation( "$path/controllers", $instance, false );
+
+		// Parse all form configs:
+		$literals_groups['forms'] = $this->extractStringsForTranslation( "$path/config", $instance, false );
+
+		// Smarty plugins:
+		$libs_path = ROOT_PATH . \Sifo\Config::getInstance()->getLibrary( 'smarty' ) . '/plugins';
+		$literals_groups['smarty'] = $this->extractStringsForTranslation( $libs_path, 'libs', false );
+
+		// Your instance plugins:
+		$instance_plugins = $path . '/templates/_smarty/plugins';
+		if ( is_dir( $instance_plugins ) )
+		{
+			$literals_groups['smarty'] = array_merge( $literals_groups['smarty'], $this->extractStringsForTranslation( $instance_plugins, $instance, false ) );
+		}
+
+		$final_literals = array();
+
+		foreach ( $literals_groups as $group )
+		{
+			foreach ( $group as $literal => $relative_path )
+			{
+				if ( array_key_exists( $literal, $final_literals ) )
+				{
+					$final_literals[$literal] = ( $final_literals[$literal] . ", " . $relative_path );
+				}
+				else
+				{
+					$final_literals[$literal] = $relative_path;
+				}
+			}
+		}
+
+		return $final_literals;
+	}
+
+	/**
+	 * Search for all literals/strings used in translation methods inside a $path
+	 *
+	 * @param string $path
+	 * @param string $instance
+	 * @param bool $in_templates
+	 * @return array structured array where:
+	 *      array key: The string to be translated (message).
+	 *      array value: The different files which uses this message separated by commas.
+	 */
+	private function extractStringsForTranslation( $path, $instance, $in_templates = false )
 	{
 		// Parse .php files:
-		$literals = array();
+		$literals  = array();
+		$file_list = array();
 
 		if ( !$in_templates )
 		{
 			exec( "find * $path |grep .php$", $file_list );
-
 		}
 		else
 		{
@@ -52,9 +221,9 @@ class ManagerFindi18nController extends \Sifo\Controller
 				$file_literals = array_unique( $matches[2] );
 			}
 
-			if ( preg_match("/{$instance}\/(.+)$/", $file_path, $matchs) )
+			if ( preg_match( "/{$instance}\/(.+)$/", $file_path, $matches ) )
 			{
-				$file_relative_path = $matchs[1];
+				$file_relative_path = $matches[1];
 			}
 
 			foreach ( $file_literals as $literal )
@@ -71,150 +240,4 @@ class ManagerFindi18nController extends \Sifo\Controller
 		}
 		return $literals;
 	}
-
-	public function getLiterals( $instance )
-	{
-		$path = \Sifo\Bootstrap::$application . "/$instance";
-
-		// Parse all templates
-		$literals_groups['tpl'] = $this->extractStringsForTranslation( "$path/templates", $instance, true );
-
-		// Parse all models:
-		$literals_groups['models'] = $this->extractStringsForTranslation( "$path/models", $instance, false );
-
-		// Parse all controllers:
-		$literals_groups['controllers'] = $this->extractStringsForTranslation( "$path/controllers", $instance, false );
-
-		// Parse all form configs:
-		$literals_groups['forms'] = $this->extractStringsForTranslation( "$path/config", $instance, false );
-
-		// Smarty plugins:
-		$libs_path = ROOT_PATH . \Sifo\Config::getInstance()->getLibrary( 'smarty' ) . '/plugins';
-		$literals_groups['smarty'] = $this->extractStringsForTranslation( $libs_path, 'libs', false );
-
-		// Your instance plugins:
-		$instance_plugins = $path . '/templates/_smarty/plugins';
-		if ( is_dir( $instance_plugins ) )
-		{
-			$literals_groups['smarty'] = array_merge( $literals_groups['smarty'], $this->extractStringsForTranslation( $instance_plugins, $instance, false ) );
-		}
-
-		$final_literals = array();
-
-		foreach ( $literals_groups as $group )
-		{
-			foreach ( $group as $literal=>$relative_path )
-			{
-				if ( array_key_exists( $literal, $final_literals ) )
-				{
-					$final_literals[$literal] = ( $final_literals[$literal] . ", " . $relative_path );
-				}
-				else
-				{
-					$final_literals[$literal] = $relative_path;
-				}
-			}
-		}
-
-		return $final_literals;
-	}
-
-	public function build()
-	{
-		$this->setLayout( 'manager/findi18n.tpl' );
-
-		if ( !\Sifo\Domains::getInstance()->getDevMode() )
-		{
-			throw new \Sifo\Exception_404( 'Translation only available while in devel mode' );
-		}
-
-		$post = \Sifo\Filter::getInstance();
-		$available_instances = $this->getFileSystemFiles( 'instances', true );
-		$locales_available = array();
-		foreach ( $available_instances as $inst )
-		{
-			$locales_available[$inst] = $this->getFilesystemFiles( "instances/$inst/locale" );
-		}
-
-		$this->assign( 'instances', $available_instances );
-		$this->assign( 'locales', $locales_available );
-
-
-		$charset = $post->getString( 'charset' );
-		$this->assign( 'charset', ( $charset ? $charset : 'utf-8' ) );
-
-		$this->assign( 'instance', 'common' );
-
-		if ( $post->isSent( 'instance' ) )
-		{
-			$instance = $post->getString( 'instance' );
-			$locale = $post->getString( 'locale' );
-
-			$temp_lang = explode ( '_', $locale );
-			$this->assign( 'language', $temp_lang[1] );
-
-			$literals = $this->getLiterals( $instance );
-			$this->assign( 'literals', $literals );
-
-			$path = \Sifo\Bootstrap::$application . "/$instance";
-			$translations_file = "$path/locale/$locale";
-			if ( file_exists( $translations_file ) )
-			{
-				include "$translations_file";
-
-				$missing = array();
-
-				foreach( $literals as $key=>$relative_path )
-				{
-					if ( !isset( $translations[$key] ) )
-					{
-						$missing[$key]= $relative_path;
-					}
-				}
-
-				$this->assign( 'missing', $missing );
-				$this->assign( 'instance', $instance );
-				$this->assign( 'locale', $locale );
-			}
-			else
-			{
-				$this->assign( 'error', "File $locale not available for <strong>$instance</strong>" );
-			}
-		}
-
-	}
-
-	/**
-	 * Extracts from the filesystem all the files under a path.
-	 * If the flag only_dirs is set to true returns only the directories names.
-	 *
-	 * @return array
-	 */
-	public function getFileSystemFiles( $relative_path, $only_dirs = false )
-	{
-		$files = array();
-
-		// Extract directories:
-		$iterator = new \DirectoryIterator( ROOT_PATH . "/$relative_path" );
-
-		foreach ( $iterator as $fileinfo )
-		{
-			$file = $fileinfo->getFilename();
-			// Exclude .svn, .cache and any other file starting with .
-			if ( 0 !== strpos( $file, '.' ) )
-			{
-				if ( $only_dirs )
-				{
-					if ( $fileinfo->isDir() ) $files[] = $file;
-				}
-				else
-				{
-					$files[] = $file;
-				}
-			}
-		}
-		return $files;
-
-	}
-
 }
