@@ -202,8 +202,8 @@ class ManagerFindi18nController extends \Sifo\Controller
 				preg_match_all( "/getTranslation\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $i18n_translate_double_quotes );
 
 				// \Sifo\FlashMessages
-				preg_match_all( "/FlasMessages::set\s*\(\s*\'([^\']+)\'[^\)]*\)/", $tpl_text, $flash_translate_single_quotes );
-				preg_match_all( "/FlasMessages::set\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $flash_translate_double_quotes );
+				preg_match_all( "/FlashMessages::set\s*\(\s*\'([^\']+)\'[^\)]*\)/", $tpl_text, $flash_translate_single_quotes );
+				preg_match_all( "/FlashMessages::set\s*\(\s*\"([^\"]+)\"[^\)]*\)/", $tpl_text, $flash_translate_double_quotes );
 
 				$file_literals = array_unique( array_merge(
 						$translate_single_quotes[1],
