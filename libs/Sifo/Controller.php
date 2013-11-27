@@ -372,6 +372,12 @@ abstract class Controller
 			$this->postDispatch();
 			$cached_content = $this->_realTimeReplacement( $cached_content );
 			Headers::send();
+
+			if ( extension_loaded( 'newrelic' ) )
+			{
+				newrelic_name_transaction( $this->params['controller'] );
+			}
+
 			echo $cached_content;
 			return;
 		}
@@ -429,12 +435,18 @@ abstract class Controller
 		$content = $this->_realTimeReplacement( $content );
 		Headers::send();
 
+		if ( extension_loaded( 'newrelic' ) )
+		{
+			newrelic_name_transaction( $this->params['controller'] );
+		}
+
 		echo $content;
 	}
 
 	/**
 	 * Grabs the HTML for a smarty template.
 	 *
+	 * @throws Exception_500
 	 * @return string html
 	 */
 	protected function grabHtml()
@@ -679,6 +691,7 @@ abstract class Controller
 	 *
 	 * @param string $controller Name of controller to execute.
 	 * @param array $params Additional parameters needed by the controller
+	 * @throws ControllerException
 	 * @return string
 	 */
 	public function dispatchSingleController( $controller, $params = array() )
@@ -851,6 +864,7 @@ abstract class Controller
 	/**
 	 * Adds a module in the battery to be executed later.
 	 *
+	 * @param $name
 	 * @param string $controller
 	 */
 	public function addModule( $name, $controller )
@@ -968,13 +982,13 @@ abstract class Controller
 		return array();
 	}
 
-    /**
-     * Parse the url params in params array searching for some expected params. If someone is found modify the array.
-     * $params array is referenced.
-     *
-     * @internal param array $params Get params.
-     * @return array
-     */
+	/**
+	 * Parse the url params in params array searching for some expected params. If someone is found modify the array.
+	 * $params array is referenced.
+	 *
+	 * @throws Exception_404
+	 * @return array
+	 */
 	protected function parseParams()
 	{
 		$expected_params = array();

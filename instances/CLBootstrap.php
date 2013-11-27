@@ -98,6 +98,11 @@ preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
 // Set the real and active instance name.
 CLBootstrap::$instance = $matchs[1];
 
+if ( extension_loaded( 'newrelic' ) && isset( CLBootstrap::$instance ) )
+{
+	newrelic_set_appname( ucfirst( CLBootstrap::$instance ) );
+}
+
 // Include required SIFO classes.
 CLBootstrap::includeRequiredFiles();
 

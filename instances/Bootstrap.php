@@ -21,6 +21,11 @@
 
 namespace Sifo;
 
+if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
+{
+	newrelic_set_appname( ucfirst( $instance ) );
+}
+
 /**
  * Class Bootstrap
  */

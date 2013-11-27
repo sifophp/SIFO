@@ -130,6 +130,11 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 			'lang' => $this->language,
 		);
 
+		if ( extension_loaded( 'newrelic' ) )
+		{
+			newrelic_name_transaction( get_class( $this ) );
+		}
+
 		$this->debug_mode = \Sifo\Domains::getInstance()->getDebugMode();
 
 		// Init i18n configuration.
@@ -154,8 +159,9 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	 * $this->showMessage( 'Example message', self::VERBOSE, array( 'background' => 'red', 'indent' => 4 ) );
 	 *
 	 * @param string $message
-	 * @param object $in_mode (by default: self::ALL)
+	 * @param object|string $in_mode (by default: self::ALL)
 	 * @param array $params (optional array keys: indent, foreground and background)
+	 * @throws \OutOfBoundsException
 	 */
 	protected function showMessage( $message, $in_mode = self::ALL, $params = NULL )
 	{
@@ -227,6 +233,7 @@ abstract class SharedCommandLineController extends \Sifo\Controller
 	 * @param string $help_string The help string.
 	 * @param boolean $need_second_param True if needs a param.
 	 * @param boolean $is_required Must be set.
+	 * @throws \RuntimeException
 	 */
 	protected function setNewParam( $short_param_name, $long_param_name, $help_string, $need_second_param, $is_required )
 	{
