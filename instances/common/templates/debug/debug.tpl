@@ -462,6 +462,10 @@ LoadjQueryUI();
 			<dt>{t}Searches{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.search}%1 searches{/t}</a>)</small></dt>
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.search format="%.0f"}%</span>{$debug.times.search|time_format}</dd>
 {/if}
+{if $debug.times.sphinxql}
+			<dt>{t}SphinxQL{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.sphinxql}%1 searches{/t}</a>)</small></dt>
+			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.sphinxql format="%.0f"}%</span>{$debug.times.sphinxql|time_format}</dd>
+{/if}
 {if $debug.times.cache}
 			<dt>{t}Cache{/t} <small>(<a href="#controllers">{t 1=$debug.elements.cache}%1 blocks{/t}</a>)</small></dt>
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.cache format="%.0f"}%</span>{$debug.times.cache|time_format}</dd>
@@ -535,6 +539,9 @@ LoadjQueryUI();
 
 {* Basic debug: Benchmarks and controllers *}
 {$debug_modules.basic_debug nofilter}
+
+{* SphinxQl and other search-related queries *}
+{$debug_modules.sphinxql nofilter}
 
 {* Sphinx and other search-related queries *}
 {$debug_modules.search nofilter}

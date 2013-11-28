@@ -9,6 +9,7 @@ $config['debug/mail.tpl'] = 'instances/common/templates/debug/mail.tpl';
 $config['debug/redis.tpl'] = 'instances/common/templates/debug/redis.tpl';
 $config['debug/search.tpl'] = 'instances/common/templates/debug/search.tpl';
 $config['debug/smarty_errors.tpl'] = 'instances/common/templates/debug/smarty_errors.tpl';
+$config['debug/sphinxql.tpl'] = 'instances/common/templates/debug/sphinxql.tpl';
 $config['empty.tpl'] = 'instances/common/templates/empty.tpl';
 $config['error/30x_redirect.tpl'] = 'instances/common/templates/error/30x_redirect.tpl';
 $config['error/404.tpl'] = 'instances/common/templates/error/404.tpl';

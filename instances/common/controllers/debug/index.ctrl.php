@@ -63,6 +63,11 @@ class DebugIndexController extends \Sifo\Controller
 		$this->assign( 'debug', $debug );
 		$this->renderDebugModule( $debug, 'search', 'debug/search.tpl' );
 
+		// SphinxQl debug.
+		$debug['sphinxql']				= \Sifo\Debug::get( 'sphinxql' );
+		$this->assign( 'debug', $debug );
+		$this->renderDebugModule( $debug, 'sphinxql', 'debug/sphinxql.tpl' );
+
 		// Redis debug.
 		$debug['redis']				= \Sifo\Debug::get( 'redis' );
 		$this->assign( 'debug', $debug );
