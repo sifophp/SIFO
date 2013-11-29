@@ -31,8 +31,9 @@ class Filter
 {
 	/**
 	 * Regular expression for email validation.
+	 * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
 	 */
-	const VALID_EMAIL_REGEXP = '/^[A-Z0-9._%\-+]+@(?:[A-Z0-9\-]+\.)+(?:[A-Z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil)$/i';
+	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
 
 	/**
 	 * Singleton object.
