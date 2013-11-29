@@ -144,7 +144,7 @@ class Sphinxql
 	{
 		$mysqli = mysqli_connect( $node_properties['server'], '', '', '', $node_properties['port'] );
 
-		if ( $mysqli->connect_error )
+		if ( !$mysqli || $mysqli->connect_error )
 		{
 			throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 		}

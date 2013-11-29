@@ -92,8 +92,9 @@ class DebugIndexController extends \Sifo\Controller
 		if ( !isset( $debug['times']['db_connections'] ) ) $debug['times']['db_connections'] = 0;
 		if ( !isset( $debug['times']['db_queries'] ) ) $debug['times']['db_queries'] = 0;
 		if ( !isset( $debug['times']['search'] ) ) $debug['times']['search'] = 0;
+		if ( !isset( $debug['times']['sphinxql'] ) ) $debug['times']['sphinxql'] = 0;
 
-		$debug['times']['scripts']	= $debug['times']['total'] - ( $debug['times']['db_connections'] + $debug['times']['db_queries'] + $debug['times']['search'] + $debug['times']['cache'] + $debug['times']['external'] );
+		$debug['times']['scripts']	= $debug['times']['total'] - ( $debug['times']['db_connections'] + $debug['times']['db_queries'] + $debug['times']['search'] + $debug['times']['cache'] + $debug['times']['external'] + $debug['times']['sphinxql'] );
 
 		$debug['memory_usage']		= $this->getMemoryUsage();
 
