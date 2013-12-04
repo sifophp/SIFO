@@ -36,37 +36,6 @@ class DebugSphinxql extends Sphinxql
 	private $queries;
 
 	/**
-	 * Redefines query method adding debug information.
-	 * @param $query
-	 * @param $tag
-	 * @return ResultIterator
-	 */
-	public function query( $query, $tag = null )
-	{
-		Benchmark::getInstance()->timingStart( 'sphinxql' );
-
-		$sphinx_results = parent::query( $query, $tag );
-
-		$sphinx_time 	= Benchmark::getInstance()->timingCurrentToRegistry( 'sphinxql' );
-
-		$query_info['query']            = $query;
-		$query_info['resultset']        = ( $sphinx_results ) ? iterator_to_array( $sphinx_results ) : array();
-		$query_info['returned_rows']    = ( $sphinx_results ) ? count( $query_info['resultset'] ) : 0;
-		$this->query_debug['queries'][] = $query_info;
-
-		$this->query_debug['controller']      = $this->getCallerClass();
-		$this->query_debug['time']            = $sphinx_time;
-		$this->query_debug['error']           = ( $sphinx_results ) ? '' : $this->sphinxql->error;;
-		$this->query_debug['tag']             = $tag;
-		$this->query_debug['connection_data'] = $this->sphinx_config;
-
-		Debug::push( 'sphinxql', $this->query_debug );
-		unset( $this->query_debug );
-
-		return $sphinx_results;
-	}
-
-	/**
 	 * Redefines multiQuery method adding debug information.
 	 * @param null $tag
 	 * @return array|bool
@@ -104,10 +73,10 @@ class DebugSphinxql extends Sphinxql
 	 * @param $query
 	 * @param null $tag
 	 */
-	public function addQuery( $query, $tag )
+	public function addQuery( $query, $tag = null, $parameters = array() )
 	{
-		parent::addQuery( $query, $tag );
-		$this->queries[] = array( 'query' => $query . ';', 'tag' => $tag );
+		parent::addQuery( $query, $tag, $parameters );
+		$this->queries[] = array( 'query' => $this->prepareQuery( $query, $parameters ) . ';', 'tag' => $tag );
 	}
 
 	/**
@@ -116,13 +85,39 @@ class DebugSphinxql extends Sphinxql
 	 */
 	public function getCallerClass()
 	{
-		$trace = debug_backtrace();
-		foreach( $trace as $steps )
-		{
-			$classes[$steps['class']] = $steps['class'];
-		}
+		$array_debug = debug_backtrace();
 
-		return implode( ' > ', array_slice( $classes, 0, 4 ) );
+		$trace = '';
+		$step = 0;
+		foreach ( array_reverse( $array_debug ) as $debug_step )
+		{
+			if ( !isset( $debug_step['class'] ) )
+			{
+				$debug_step['class'] = '';
+			}
+			if ( !isset( $debug_step['function'] ) )
+			{
+				$debug_step['function'] = '';
+			}
+			if ( !isset( $debug_step['file'] ) )
+			{
+				$debug_step['file'] = '';
+			}
+			if ( !isset( $debug_step['line'] ) )
+			{
+				$debug_step['line'] = '';
+			}
+
+			++$step;
+			$trace .= "$step - ".$debug_step['class'].'::'.$debug_step['function']
+				.' - '.basename ( $debug_step['file'] )
+				.':'.$debug_step['line']." [".dirname( $debug_step['file'] )."]<br />\n";
+			if ( 'query' == $debug_step['function'] )
+			{
+				break;
+			}
+		}
+		return $trace;
 	}
 
 	/**

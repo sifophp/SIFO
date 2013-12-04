@@ -158,10 +158,20 @@ class Sphinxql
 	 * @param $tag
 	 * @return array|boolean
 	 */
-	public function query( $query, $tag = null )
+	public function query( $query, $tag = null, $parameters = array() )
 	{
-		$this->addQuery( $query, $tag );
-		return $this->multiQuery( $tag );
+		$this->addQuery( $query, $tag, $parameters );
+
+		$results = $this->multiQuery( $tag );
+
+		// If we called this method we expect only one result...
+		if ( !empty( $results ) )
+		{
+			// ...so we pop it from the resultset.
+			return array_pop( $results );
+		}
+
+		return $results;
 	}
 
 	/**
@@ -169,11 +179,11 @@ class Sphinxql
 	 * @param $query
 	 * @param null $tag
 	 */
-	public function addQuery( $query, $tag = null )
+	public function addQuery( $query, $tag = null, $parameters = array() )
 	{
 		// Delete final ; because is the query separator for multi queries.
 		$query = preg_replace( '/;+$/', '', $query );
-		$this->multi_query .= $query . ';';
+		$this->multi_query .= $this->prepareQuery( $query, $parameters ) . ';';
 	}
 
 	/**
@@ -207,6 +217,50 @@ class Sphinxql
 		$this->multi_query = '';
 
 		return $final_result;
+	}
+
+	/**
+	 * Some kind of PDO prepared statements simulation.
+	 *
+	 * Autodetects the parameter type, escapes them and replace the keys in the query. Example:
+	 *
+	 * 	$sql = 'SELECT * FROM index WHERE tag = :tag_name';
+	 * 	$results = $sphinx->query( $sql, 'label', array( ':tag_name' => 'some-tag' ) );
+	 *
+	 * @param string $query SphinxQL query.
+	 * @param array $parameters List of parameters.
+	 *
+	 * @return string Prepared query.
+	 */
+	protected function prepareQuery( $query, $parameters )
+	{
+		if ( empty( $parameters ) )
+		{
+			return $query;
+		}
+
+		foreach ( $parameters as &$parameter )
+		{
+			if ( is_null( $parameter ) )
+			{
+				$parameter = 'NULL';
+			}
+			elseif ( is_int( $parameter ) || is_float( $parameter ) )
+			{
+				// Locale unaware number representation.
+				$parameter = sprintf( '%.12F', $parameter );
+				if ( false !== strpos( $parameter, '.' ) )
+				{
+					$parameter = rtrim( rtrim( $parameter, '0' ), '.' );
+				}
+			}
+			else
+			{
+				$parameter = "'" . $this->sphinxql->real_escape_string( $parameter ) . "'";
+			}
+		}
+
+		return strtr( $query, $parameters );
 	}
 
 	/**
