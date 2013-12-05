@@ -65,6 +65,7 @@ class DebugIndexController extends \Sifo\Controller
 
 		// SphinxQl debug.
 		$debug['sphinxql']				= \Sifo\Debug::get( 'sphinxql' );
+		$debug['sphinxql_errors']		= \Sifo\Debug::get( 'sphinxql_errors' );
 		$this->assign( 'debug', $debug );
 		$this->renderDebugModule( $debug, 'sphinxql', 'debug/sphinxql.tpl' );
 

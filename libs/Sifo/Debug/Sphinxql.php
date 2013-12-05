@@ -62,6 +62,12 @@ class DebugSphinxql extends Sphinxql
 		$this->query_debug['connection_data'] = $this->sphinx_config;
 
 		Debug::push( 'sphinxql', $this->query_debug );
+
+		if ( $this->sphinxql->errno )
+		{
+			Debug::push( 'sphinxql_errors', $this->sphinxql->error );
+		}
+
 		unset( $this->query_debug );
 		unset( $this->queries );
 
@@ -72,6 +78,7 @@ class DebugSphinxql extends Sphinxql
 	 * Redefines addQuery method adding debug information.
 	 * @param $query
 	 * @param null $tag
+	 * @param array $parameters
 	 */
 	public function addQuery( $query, $tag = null, $parameters = array() )
 	{

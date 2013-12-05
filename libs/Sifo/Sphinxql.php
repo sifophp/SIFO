@@ -57,7 +57,7 @@ class Sphinxql
 		// Check if Sphinx is enabled by configuration:
 		if ( true === $this->sphinx_config['active'] )
 		{
-			$this->sphinxql = self::connect( $this->sphinx_config );
+			$this->sphinxql = $this->connect( $this->sphinx_config );
 		}
 
 		return $this->sphinx_config;
@@ -156,6 +156,7 @@ class Sphinxql
 	 * Executes one query (selects) into sphinxQl.
 	 * @param $query
 	 * @param $tag
+	 * @param array $parameters
 	 * @return array|boolean
 	 */
 	public function query( $query, $tag = null, $parameters = array() )
@@ -178,6 +179,7 @@ class Sphinxql
 	 * Add query to be executed using the multi query feature.
 	 * @param $query
 	 * @param null $tag
+	 * @param array $parameters
 	 */
 	public function addQuery( $query, $tag = null, $parameters = array() )
 	{

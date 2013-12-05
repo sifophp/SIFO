@@ -466,6 +466,10 @@ LoadjQueryUI();
 			<dt>{t}SphinxQL{/t} <small>(<a href="#search_queries">{t 1=$debug.elements.sphinxql}%1 searches{/t}</a>)</small></dt>
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.sphinxql format="%.0f"}%</span>{$debug.times.sphinxql|time_format}</dd>
 {/if}
+{if $debug.sphinxql_errors|default:false}
+			<dt class="query_error">{t}SphinxQL errors{/t}</dt>
+			<dd class="query_error"><strong>{$debug.sphinxql_errors|@count}</strong></dd>
+{/if}
 {if $debug.times.cache}
 			<dt>{t}Cache{/t} <small>(<a href="#controllers">{t 1=$debug.elements.cache}%1 blocks{/t}</a>)</small></dt>
 			<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.cache format="%.0f"}%</span>{$debug.times.cache|time_format}</dd>
