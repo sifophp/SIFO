@@ -55,7 +55,7 @@ class DebugSphinxql extends Sphinxql
 			$this->query_debug['queries'][] = $query_info;
 		}
 
-		$this->query_debug['controller']      = $this->getCallerClass();
+		$this->query_debug['backtrace']      = $this->getCallerClass();
 		$this->query_debug['time']            = $sphinx_time;
 		$this->query_debug['error']           = ( $this->sphinxql->errno ) ? $this->sphinxql->error : '';
 		$this->query_debug['tag']             = $tag;
@@ -79,11 +79,15 @@ class DebugSphinxql extends Sphinxql
 	 * @param $query
 	 * @param null $tag
 	 * @param array $parameters
+	 *
+	 * @return string The query after being prepared.
 	 */
 	public function addQuery( $query, $tag = null, $parameters = array() )
 	{
-		parent::addQuery( $query, $tag, $parameters );
-		$this->queries[] = array( 'query' => $this->prepareQuery( $query, $parameters ) . ';', 'tag' => $tag );
+		$prepared_query = parent::addQuery( $query, $tag, $parameters );
+		$this->queries[] = array( 'query' => $prepared_query . ';', 'tag' => $tag );
+
+		return $prepared_query;
 	}
 
 	/**
@@ -94,7 +98,7 @@ class DebugSphinxql extends Sphinxql
 	{
 		$array_debug = debug_backtrace();
 
-		$trace = '';
+		$trace = array();
 		$step = 0;
 		foreach ( array_reverse( $array_debug ) as $debug_step )
 		{
@@ -116,14 +120,16 @@ class DebugSphinxql extends Sphinxql
 			}
 
 			++$step;
-			$trace .= "$step - ".$debug_step['class'].'::'.$debug_step['function']
+			$trace[] = "$step > ".$debug_step['class'].'::'.$debug_step['function']
 				.' - '.basename ( $debug_step['file'] )
-				.':'.$debug_step['line']." [".dirname( $debug_step['file'] )."]<br />\n";
-			if ( 'query' == $debug_step['function'] )
+				.':'.$debug_step['line']." [".dirname( $debug_step['file'] )."]";
+
+			if ( in_array( $debug_step['function'], array( 'query', 'multiQuery' ) ) )
 			{
 				break;
 			}
 		}
+
 		return $trace;
 	}
 

@@ -47,6 +47,40 @@ class Sphinxql
 	private $multi_query = '';
 
 	/**
+	 * Query options.
+	 *
+	 * Defines the options in the OPTION SphinxQL clause.
+	 *
+	 * @var array
+	 */
+	protected $options = array();
+
+	/**
+	 * Allowed query options.
+	 *
+	 * @see http://sphinxsearch.com/docs/current.html#sphinxql-select for more information.
+	 * @var array
+	 */
+	protected $allowed_options = array(
+		'agent_query_timeout', // integer, max time in milliseconds to wait for remote queries to complete.
+		'boolean_simplify', // 0 or 1, enables simplifying the query to speed it up.
+		'comment', // string, user comment that gets copied to a query log file.
+		'cutoff', // integer, max found matches threshold.
+		'field_weights', // a named integer list, per-field user weights for ranking, pe: "( title = 10, body = 5 )".
+		'index_weights', // a named integer list, per-index user weights for ranking.
+		'max_matches', // integer, per-query max matches value.
+		'max_query_time', // integer, max search time threshold in msec.
+		'max_predicted_time', // integer, max predicted search time.
+		'ranker', // any of 'proximity_bm25', 'bm25', 'none', 'wordcount', 'proximity', 'matchany', 'fieldmask', 'sph04', 'expr', or 'export'.
+		'retry_count', // integer distributed retries count.
+		'retry_delay', // integer distributed retry delay in msec.
+		'reverse_scan', // 0 or 1, lets you control the order in which full-scan query processes the rows.
+		'global_idf', // use global statistics (frequencies) from the global_idf file for IDF computations, >= 2.1.1-beta.
+		'idf', // a quoted, comma-separated list of IDF computation flags, >= 2.1.1-beta.
+		'sort_method' // 'pq' priority queue (set by default) or 'kbuffer' gives faster sorting for already pre-sorted data, >= 2.1.1-beta.
+	);
+
+	/**
 	 * Initialize this class.
 	 * @param $profile
 	 */
@@ -180,12 +214,21 @@ class Sphinxql
 	 * @param $query
 	 * @param null $tag
 	 * @param array $parameters
+	 *
+	 * @return string The query after being prepared.
 	 */
 	public function addQuery( $query, $tag = null, $parameters = array() )
 	{
 		// Delete final ; because is the query separator for multi queries.
 		$query = preg_replace( '/;+$/', '', $query );
-		$this->multi_query .= $this->prepareQuery( $query, $parameters ) . ';';
+
+		$query = $this->appendOptionsToQuery( $query, $this->options );
+		$query = $this->prepareQuery( $query, $parameters );
+
+		$this->multi_query .= $query . ';';
+		$this->resetOptions();
+
+		return $query;
 	}
 
 	/**
@@ -263,6 +306,58 @@ class Sphinxql
 		}
 
 		return strtr( $query, $parameters );
+	}
+
+	/**
+	 * Append the OPTION clause to the end of the query if an option list is defined.
+	 *
+	 * @param string $query The SphinxQL query.
+	 * @param array $options Option list.
+	 *
+	 * @return string
+	 */
+	protected function appendOptionsToQuery( $query, array $options )
+	{
+		if ( empty( $options ) )
+		{
+			return $query;
+		}
+
+		$options_list = array();
+		foreach ( $options as $option => $value )
+		{
+			$options_list[] = $option . ' = ' . $value;
+		}
+
+		return $query . "\n" . 'OPTION ' . implode( ', ', $options_list );
+	}
+
+	/**
+	 * Set query options. Triggers a warning if the option is not allowed or implemented.
+	 *
+	 * @param array $options
+	 */
+	public function setOptions( array $options )
+	{
+		foreach ( $options as $option => $value )
+		{
+			if ( !in_array( $option, $this->allowed_options ) )
+			{
+				trigger_error( 'SphinxQL - The defined option "' . $option . '" is not allowed', E_USER_WARNING );
+			}
+			else
+			{
+				$this->options[$option] = $value;
+			}
+		}
+	}
+
+	/**
+	 * Empty the query options list.
+	 */
+	public function resetOptions()
+	{
+		$this->options = array();
 	}
 
 	/**

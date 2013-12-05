@@ -9,13 +9,20 @@
 				<th>Host</th>
 				<th>Port</th>
 				{if !empty( $value.connection_data.weight )}<th>Weight</th>{/if}
-				<th>Trace</th>
+				<th>Trace <a href="#" class="debug_toggle_view" rel="sphinxql_backtrace_{$smarty.foreach.search.index}{$execution_key}">(show/collapse full trace)</a></th>
 			</tr>
 			<tr>
 				<td>{$value.connection_data.server|default:''}</td>
 				<td>{$value.connection_data.port|default:''}</td>
 				{if !empty( $value.connection_data.weight )}<td>{$value.connection_data.weight}</td>{/if}
-				<td>{$value.controller}</td>
+				<td>
+                    <div id="sphinxql_backtrace_{$smarty.foreach.search.index}{$execution_key}" class="debug_contents">
+                    {foreach from=$value.backtrace item=step name=backtrace_iterator}
+                        {if !$smarty.foreach.backtrace_iterator.last}{$step}<br />{/if}
+                    {/foreach}
+                    </div>
+                    {$value.backtrace[$value.backtrace|count - 1]}
+                </td>
 			</tr>
 		</table>
 
