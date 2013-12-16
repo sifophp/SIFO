@@ -225,7 +225,12 @@ class Sphinxql
 		$query = $this->appendOptionsToQuery( $query, $this->options );
 		$query = $this->prepareQuery( $query, $parameters );
 
-		$this->multi_query .= $query . ';';
+		$this->multi_query .= $query;
+		if ( !preg_match( '/^CALL/i', $query ) )
+		{
+			$this->multi_query .= ';';
+		}
+
 		$this->resetOptions();
 
 		return $query;
