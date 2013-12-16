@@ -33,7 +33,7 @@ class Benchmark
 	/**
 	 * Singleton of benchmark class.
 	 *
-	 * @return object Benchmark
+	 * @return Benchmark
 	 */
 	public static function getInstance()
 	{

@@ -107,9 +107,9 @@ class Bootstrap
 	public static function execute( $instance_name, $controller_name = null )
 	{
 		// Set paths:
-		self::$root = ROOT_PATH;
+		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
-		self::$instance = $instance_name;
+		self::$instance    = $instance_name;
 
 		// Include files:
 		self::includeRequiredFiles();
@@ -131,9 +131,9 @@ class Bootstrap
 	{
 		// Register autoloader:
 		return spl_autoload_register( array(
-			'\\Sifo\Bootstrap',
-			'includeFile'
-		) );
+		                                   '\\Sifo\Bootstrap',
+		                                   'includeFile'
+		                              ) );
 	}
 
 	/**
@@ -166,6 +166,7 @@ class Bootstrap
 	 *
 	 * @param string $classname
 	 *
+	 * @throws Exception_500
 	 * @return string The classname you asked for.
 	 */
 	public static function includeFile( $classname )
@@ -195,6 +196,7 @@ class Bootstrap
 	 * @param string $class Class name you want to get
 	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
 	 *
+	 * @throws Exception_500
 	 * @return Object|void
 	 */
 	public static function getClass( $class, $call_constructor = true )
@@ -223,7 +225,7 @@ class Bootstrap
 	{
 		try
 		{
-			$domain = Domains::getInstance();
+			$domain      = Domains::getInstance();
 			$destination = $domain->getRedirect();
 
 			if ( !empty( $destination ) )
@@ -251,14 +253,14 @@ class Bootstrap
 			}
 
 			self::$language = $domain->getLanguage();
-			$php_inis = $domain->getPHPInis();
+			$php_inis       = $domain->getPHPInis();
 
 			if ( $php_inis )
 			{
 				self::_overWritePHPini( $php_inis );
 			}
 
-			$url = Urls::getInstance( self::$instance );
+			$url        = Urls::getInstance( self::$instance );
 			$path_parts = $url->getPathParts();
 
 			if ( !$domain->valid_domain )
@@ -269,27 +271,27 @@ class Bootstrap
 			{
 				if ( null === $controller )
 				{
-					$router = new Router( $path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode );
+					$router     = new Router( $path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode );
 					$controller = $router->getController();
 				}
 			}
 
 			// This is the controller to use:
-			$ctrl = self::invokeController( $controller );
+			$ctrl             = self::invokeController( $controller );
 			self::$controller = $controller;
 
 			// Save in params for future references:
 			$ctrl->addParams( array(
-				'controller_route' => $controller,
-			) );
+			                       'controller_route' => $controller,
+			                  ) );
 
 			// Active/deactive auto-rebuild option:
 			if ( $domain->getDevMode() )
 			{
 				if ( FilterGet::getInstance()->getInteger( 'clean_compile' ) )
 				{
-					$smarty_compiles_dir=ROOT_PATH."/instances/".self::$instance."/templates/_smarty/compile/*";
-					system( 'rm -rf '.$smarty_compiles_dir );
+					$smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
+					system( 'rm -rf ' . $smarty_compiles_dir );
 				}
 
 				$ctrl->getClass( 'Cookie' );
@@ -323,8 +325,8 @@ class Bootstrap
 				self::invokeController( 'debug/index' )->dispatch();
 			}
 		}
-		// Don't know what to do after Domain is evaluated. Goodbye:
-		catch( DomainsException $d )
+			// Don't know what to do after Domain is evaluated. Goodbye:
+		catch ( DomainsException $d )
 		{
 			Headers::setResponseStatus( 404 );
 			Headers::send();
@@ -352,9 +354,9 @@ class Bootstrap
 	{
 		if ( !isset( $e->http_code ) )
 		{
-			$e->http_code = 503;
+			$e->http_code     = 503;
 			$e->http_code_msg = 'Exception!';
-			$e->redirect = false;
+			$e->redirect      = false;
 		}
 
 		Headers::setResponseStatus( $e->http_code );
@@ -365,17 +367,17 @@ class Bootstrap
 
 		// Set params:
 		$ctrl2->addParams( array(
-			'code' => $e->http_code,
-			'code_msg' => $e->http_code_msg,
-			'msg' => $e->getMessage(),
-			'trace' => $e->getTraceAsString(),
-		) );
+		                        'code'     => $e->http_code,
+		                        'code_msg' => $e->http_code_msg,
+		                        'msg'      => $e->getMessage(),
+		                        'trace'    => $e->getTraceAsString(),
+		                   ) );
 
 		// All the SEO_Exceptions with need of redirection have this attribute:
 		if ( $e->redirect )
 		{
 			// Path is passed via message:
-			$path = trim( $e->getMessage(), '/' );
+			$path         = trim( $e->getMessage(), '/' );
 			$new_location = '';
 			// Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
 			if ( false !== strpos( $path, '://' ) )
@@ -402,6 +404,7 @@ class Bootstrap
 				Headers::setResponseStatus( $e->http_code );
 				Headers::set( 'Location', $new_location, $e->http_code );
 				Headers::send();
+				return;
 			}
 			else
 			{
