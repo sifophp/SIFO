@@ -1,11 +1,11 @@
 Flexible PHP5 framework for real-world web applications
 =======================================================
-[SIFO] is a well-proben open source PHP5 framework currently running on several
+[SIFO] is a well-proven open source PHP5 framework currently running on several
 sites, from small installations to large websites with multiple servers.
 
 SIFO is free and very easy to use. Contains a lot of libraries and classes that resolve your basic problems and allow you to focus in your business logic, at a very low learning curve. If there is a curve :)
 
-It comes with several technologies *ready to use* such as Memcached, Sphinx, Mysql, Redis...
+It comes with several technologies *ready to use* such as Memcached, Sphinx, Mysql, Redis... and all the debugging tools.
 
 You can get the code by cloning this [project] [GH] or downloading the most recent [ZIP file] [ZIP]
 
