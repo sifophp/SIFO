@@ -1,7 +1,7 @@
 <?php
 namespace Common;
 
-include_once ROOT_PATH . '/instances/common/controllers/shared/commandLine.ctrl.php';
+include_once ROOT_PATH . '/instances/common/controllers/shared/commandLine.php';
 include_once ROOT_PATH . '/libs/Amazon/S3.php';
 
 class ScriptsAmazonS3UploaderController extends SharedCommandLineController

@@ -1,10 +1,6 @@
 <?php
 namespace Common;
 
-namespace Common;
-
-include_once ROOT_PATH . '/instances/common/controllers/shared/firstLevel.ctrl.php';
-
 class StaticIndexController extends SharedFirstLevelController
 {
 	public function buildCommon()

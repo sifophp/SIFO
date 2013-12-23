@@ -1,7 +1,6 @@
 <?php
 namespace Common;
 
-include_once ROOT_PATH . '/instances/common/controllers/shared/firstLevel.ctrl.php';
 
 class HomeIndexController extends SharedFirstLevelController
 {
