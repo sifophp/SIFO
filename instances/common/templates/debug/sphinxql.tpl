@@ -26,15 +26,15 @@
 			</tr>
 		</table>
 
-		{if $value.error}
+		{if !empty( $value.error )}
 		<h4 class="query_error">{$value.error}</h4>
 		{/if}
 
 		{foreach name=sphinxql_query from=$value.queries item=query}
 		{if count( $value.queries ) > 1}
-			<h4 class="{if $query.error}query_error{/if}">{$smarty.foreach.sphinxql_query.index}. {$query.tag} <small>({$query.time|time_format} - match: {$query.total_found|default:''} elements - return: {$query.returned_rows|default:''} elements )</small></h4>
+			<h4 class="{if !empty( $query.error )}query_error{/if}">{$smarty.foreach.sphinxql_query.index}. {$query.tag} <small>({$query.time|time_format|default:''} - match: {$query.total_found|default:''} elements - return: {$query.returned_rows|default:''} elements )</small></h4>
 		{/if}
-		{if $query.error}<p class="query_error"><b>{$query.error}</b></p>{/if}
+		{if !empty( $query.error )}<p class="query_error"><b>{$query.error}</b></p>{/if}
 		<pre>{$query.query|escape}</pre>
 
 		<table>
