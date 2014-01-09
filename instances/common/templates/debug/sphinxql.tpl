@@ -37,11 +37,13 @@
 		{if !empty( $query.error )}<p class="query_error"><b>{$query.error}</b></p>{/if}
 		<pre>{$query.query|escape}</pre>
 
+	{if !empty( $query.resultset[0] )}
 		<table>
 			<tr>
 {			foreach from=$query.resultset[0] key=attribute item=values}
 				<th>{$attribute}</th>
 {			/foreach}
+
 			</tr>
 {if isset( $query.resultset )}
 {			foreach from=$query.resultset key=id item=match}
@@ -53,6 +55,9 @@
 {			/foreach}
 {/if}
 		</table>
+	{else}
+		<h5>No results.</h5>
+	{/if}
 		{/foreach}
 	</div>
 {/foreach}
