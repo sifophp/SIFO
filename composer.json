@@ -1,0 +1,27 @@
+{
+    "name": "sifophp/SIFO",
+    "description": "SIFO Framework 3.0",
+    "keywords": [],
+    "homepage": "https://github.com/sifophp/SIFO",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Albert Lombarte",
+            "email": "alombarte@gmail.com",
+            "homepage": "http://sifo.me"
+        },
+        {
+            "name": "SIFO PHP Contributors",
+            "homepage": "https://github.com/sifophp?tab=members"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "phpunit/phpunit": "3.7.28"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sifo\\": "src/Sifo"
+        }
+    }
+}
