@@ -11,18 +11,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-----------------------------------------------------------------------
-This license applies to all the folders of this project excluding the
-folders located under libs/ not named "SIFO". See their original
-license file (included in the source code) for more information.
-----------------------------------------------------------------------
-
-Some SIFO files are licensed (because they created the files for SIFO) to:
-
-Albert Garcia
-Sergio Ambel
-Pablo Ros
-Jorge Tarrero
-Carlos Soriano
-Manel Fernández
