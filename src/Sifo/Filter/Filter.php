@@ -456,5 +456,3 @@ class Filter
 		return $this->request;
 	}
 }
-
-class FilterException extends \Exception {}

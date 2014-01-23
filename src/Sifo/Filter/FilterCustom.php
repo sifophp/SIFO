@@ -20,6 +20,8 @@
 
 namespace Sifo\Filter;
 
+use Sifo\Exception\FilterException;
+
 class FilterCustom extends Filter
 {
     /**
