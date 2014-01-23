@@ -457,29 +457,6 @@ class Filter
 	}
 }
 
-class FilterCookie extends Filter
-{
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
-
-	/**
-	 * Filters variables passed inside Cookies.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_COOKIE );
-		}
-		return self::$instance;
-	}
-}
-
 class FilterSession extends Filter
 {
 	/**

@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Sifo\Filter\FilterGet;
+use Sifo\Filter\FilterCookie;
 
 abstract class ImageController extends Controller
 {
