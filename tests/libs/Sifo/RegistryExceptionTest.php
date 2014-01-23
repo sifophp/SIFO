@@ -1,12 +1,14 @@
 <?php
 
+use Sifo\Exception\RegistryException;
+
 /**
- * Test class for Exception_Registry.
+ * Test class for RegistryException.
  */
-class Exception_RegistryTest extends \PHPUnit_Framework_TestCase
+class RegistryExceptionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Exception_Registry
+     * @var RegistryException
      */
     protected $object;
 
@@ -16,7 +18,7 @@ class Exception_RegistryTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Exception_Registry;
+        $this->object = new RegistryException();
     }
 
     /**
