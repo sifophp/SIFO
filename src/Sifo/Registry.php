@@ -135,7 +135,7 @@ class Registry
 
 		if ( !is_array( self::$storage[$key] ) )
 		{
-			throw new Exception_Registry( 'Failed to PUSH an element in the registry because the given key is not an array.' );
+			throw new RegistryException( 'Failed to PUSH an element in the registry because the given key is not an array.' );
 		}
 
 		return array_push( self::$storage[$key], $value );
@@ -152,5 +152,3 @@ class Registry
 	}
 
 }
-
-class Exception_Registry extends \Exception {};
