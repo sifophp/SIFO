@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LICENSE
  *
@@ -18,7 +19,7 @@
  *
  */
 
-
+namespace Sifo\Cache;
 use \Memcache;
 
 /**

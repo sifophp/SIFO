@@ -18,7 +18,7 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
 
 /**
  * Common methods available to every Cache instance.
