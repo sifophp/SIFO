@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\FormException;
+
 /**
  * Form utilites to manage data validation.
  *
@@ -125,7 +127,7 @@ class Form
 	{
 		if ( method_exists( $this->filter, $filter_rule ) === false )
 		{
-			throw new Exception_Form( "The method $filter_rule is not present in Filter" );
+			throw new FormException( "The method $filter_rule is not present in Filter" );
 		}
 
 		if ( !$mandatory && ( !$this->filter->isSent( $name ) || $this->filter->isEmpty( $name ) ) )
@@ -211,7 +213,7 @@ class Form
 		{
 			if ( !isset( $element['name'] ) || !isset( $element['filter'] ) )
 			{
-				throw new Exception_Form( 'A form element was passed without the minimum required definition parameters. Element was: ' . var_export( $element, true) );
+				throw new FormException( 'A form element was passed without the minimum required definition parameters. Element was: ' . var_export( $element, true) );
 			}
 
 			$single_element_validation = $this->validateSingleElement(
@@ -316,11 +318,6 @@ class Form
 		return true;
 	}
 
-
-}
-
-class Exception_Form extends \Exception
-{
 
 }
 ?>
