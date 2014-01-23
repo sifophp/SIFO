@@ -18,7 +18,7 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
 
 /**
  * Provides an interface to communicate with the Memcached server.
