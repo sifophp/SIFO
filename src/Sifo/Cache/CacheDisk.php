@@ -18,7 +18,7 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
 
 /**
  * Caching system based on Disk. Only TEXT objects can be cached.
