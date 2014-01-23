@@ -22,6 +22,7 @@
 namespace Sifo;
 
 use Sifo\Filter\FilterServer;
+use Sifo\Filter\FilterCustom;
 
 /**
  * Class for extracting info from application client: IP, origin country, region & city, browser (version, capabilities, preferences...), SO.
