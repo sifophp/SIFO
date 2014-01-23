@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterServer;
+
 /**
  * Parses all the URLs.
  *

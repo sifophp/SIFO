@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterServer;
+
 /**
  * Maps an URL with a controller
  *

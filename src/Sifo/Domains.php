@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterServer;
+
 class Domains
 {
 	protected $domain;
