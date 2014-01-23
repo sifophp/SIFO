@@ -22,6 +22,7 @@ namespace Sifo;
 
 use Sifo\Filter\FilterPost;
 use Sifo\Filter\FilterGet;
+use Sifo\Exception\SEO\SEOException;
 
 abstract class Controller
 {
@@ -397,7 +398,7 @@ abstract class Controller
 		{
 			$return = $this->build();
 		}
-		catch ( SEO_Exception $e )
+		catch ( SEOException $e )
 		{
 			$this->cacheException( $e, $cache_key );
 			throw new ControllerException( "Controller Build has generated an exception.", null, $e );
@@ -728,7 +729,7 @@ abstract class Controller
 			{
 				$module_content = $module->execute();
 			}
-			catch ( SEO_Exception $e )
+			catch ( SEOException $e )
 			{
 				$this->cacheException( $e, $cache_key );
 				throw new ControllerException( "Module Execute has generated an exception.", null, $e );
