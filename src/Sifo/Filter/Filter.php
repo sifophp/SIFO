@@ -18,7 +18,7 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Filter;
 
 /**
  * Filters the request array checking that the values accomplish the given filters.
@@ -454,35 +454,6 @@ class Filter
 	public function getRawRequest()
 	{
 		return $this->request;
-	}
-}
-
-/**
- * Filter is FilterPost by default.
- */
-class FilterPost extends Filter { }
-
-class FilterGet extends Filter
-{
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
-
-	/**
-	 * Filters variables passed by Get
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_GET );
-			$_GET = array();
-		}
-		return self::$instance;
 	}
 }
 
