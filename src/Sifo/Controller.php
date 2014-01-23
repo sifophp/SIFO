@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterPost;
+
 abstract class Controller
 {
      /**
