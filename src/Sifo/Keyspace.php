@@ -2,6 +2,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\KeyspaceException;
+
 /**
  * A Keyspace is a structured definition on how you will store your keys
  * in a Key/Value storage system.
@@ -23,7 +25,7 @@ class Keyspace
 	 *
 	 * @param string $key_name
 	 * @param array $parameters
-	 * @throws KeySpace_Exception
+	 * @throws KeySpaceException
 	 */
 	static public function get( $key_name, $parameters = null )
 	{
@@ -34,7 +36,7 @@ class Keyspace
 
 		if ( !isset( self::$keyspace[$key_name] ) )
 		{
-			throw new KeySpace_Exception( "Key named '$key_name' is not available in the key space." );
+			throw new KeyspaceException( "Key named '$key_name' is not available in the key space." );
 		}
 
 
@@ -52,15 +54,10 @@ class Keyspace
 		// Remove any missing parameters:
 		if ( false !== strpos( $key, '<' ) )
 		{
-			throw new KeySpace_Exception( "The key contains undeclared parameters for replacement" );
+			throw new KeyspaceException( "The key contains undeclared parameters for replacement" );
 		}
 
 		return $key;
 	}
-
-}
-
-class KeySpace_Exception extends \Exception
-{
 
 }
