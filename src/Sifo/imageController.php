@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterGet;
+
 abstract class ImageController extends Controller
 {
 	/**

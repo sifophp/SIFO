@@ -20,6 +20,8 @@
 
 namespace Sifo\Cache;
 
+use Sifo\Filter\FilterGet;
+
 /**
  * Common methods available to every Cache instance.
  */

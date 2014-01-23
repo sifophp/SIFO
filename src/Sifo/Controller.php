@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Sifo\Filter\FilterPost;
+use Sifo\Filter\FilterGet;
 
 abstract class Controller
 {
