@@ -137,4 +137,3 @@ class Benchmark
 		return $actual_time;
 	}
 }
-?>

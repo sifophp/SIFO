@@ -118,4 +118,3 @@ class View extends \Smarty
 	}
 
 }
-?>

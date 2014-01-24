@@ -130,4 +130,3 @@ class Model extends Database
 	 * When Database response is bad you can use $this->CacheExecute($seconds, "SELECT..'");. Writes to /cache are done.
 	 */
 }
-?>

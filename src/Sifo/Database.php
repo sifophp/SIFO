@@ -419,4 +419,3 @@ class LoadBalancer_ADODB extends LoadBalancer
 	}
 }
 
-?>
