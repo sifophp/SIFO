@@ -1,14 +1,14 @@
 <?php
 
-use Sifo\Exception\RegistryException;
+use Sifo\Exception\ConfigurationException;
 
 /**
- * Test class for RegistryException.
+ * Test class for ConfigurationException.
  */
-class RegistryExceptionTest extends \PHPUnit_Framework_TestCase
+class ConfigurationExceptionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var RegistryException
+     * @var ConfigurationException
      */
     protected $object;
 
@@ -18,7 +18,7 @@ class RegistryExceptionTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new RegistryException();
+        $this->object = new ConfigurationException();
     }
 
     /**
@@ -27,6 +27,14 @@ class RegistryExceptionTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+    }
+    
+    /**
+     * Object is an exception.
+     */
+    public function testIsException()
+    {
+        $this->assertTrue( $this->object instanceof \Exception );
     }
 }
 

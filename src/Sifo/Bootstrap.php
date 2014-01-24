@@ -24,6 +24,7 @@ namespace Sifo;
 use Sifo\Exception\SEO\Exception401;
 use Sifo\Exception\SEO\Exception404;
 use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\ConfigurationException;
 
 if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
@@ -188,7 +189,7 @@ class Bootstrap
 		{
 			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $classname );
 		}
-		catch ( Exception_Configuration $e )
+		catch ( ConfigurationException $e )
 		{
             throw new Exception500( $e->getMessage() );
 		}

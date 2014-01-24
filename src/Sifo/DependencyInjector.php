@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Symfony\Component\Yaml\Yaml;
+use Sifo\Exception\ConfigurationException;
 
 /**
  * Handles the dependency injection.
@@ -132,7 +133,7 @@ class DependencyInjector
             $environment_suffix  = Domains::getInstance()->getDevMode() ? '_dev' : '';
             $service_definitions = Config::getInstance()->getConfig('services/definition' . $environment_suffix);
         }
-        catch (Exception_Configuration $e) {
+        catch (ConfigurationException $e) {
             $service_definitions = Config::getInstance()->getConfig('services/definition');
         }
 
@@ -153,7 +154,7 @@ class DependencyInjector
         try {
             Config::getInstance()->getConfig('services/definition', $service);
         }
-        catch (Exception_Configuration $e) {
+        catch (ConfigurationException $e) {
             $service_exists = false;
         }
 

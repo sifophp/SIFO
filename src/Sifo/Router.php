@@ -112,7 +112,7 @@ class Router
 					self::$reversal_map[$destiny] = $translated_route;
 				}
 			}
-			catch ( Exception_Configuration $e )
+			catch ( ConfigurationException $e )
 			{
 				// trigger_error( "Failed to load url config profile for language '$language'" );
 			}
