@@ -69,33 +69,6 @@ class Bootstrap
 	public static $controller = null;
 
 	/**
-	 * This classes will be loaded in this order and ALWAYS before starting
-	 * to parse code. This array can be replaced in your libraries.config under
-	 * the key $config['classes_always_preloaded']
-	 *
-	 * @var array
-	 */
-	public static $required_classes = array(
-		'Exceptions',
-		'Filter',
-		'Domains',
-		'Urls',
-		'Router',
-		'Controller'
-	);
-
-	/**
-	 * Include the minimum necessary files to run SIFO.
-	 */
-	public static function includeRequiredFiles()
-	{
-		foreach ( self::$required_classes as $class )
-		{
-			self::includeFile( $class );
-		}
-	}
-
-	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
 	 * @param $instance_name

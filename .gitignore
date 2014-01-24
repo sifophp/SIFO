@@ -7,3 +7,5 @@ logs/*
 !logs/.gitignore
 instances/*/
 !instances/common
+/vendor/*
+composer.lock
