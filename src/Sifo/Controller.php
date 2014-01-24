@@ -23,6 +23,7 @@ namespace Sifo;
 use Sifo\Filter\FilterPost;
 use Sifo\Filter\FilterGet;
 use Sifo\Exception\SEO\SEOException;
+use Sifo\Exception\ControllerException;
 
 abstract class Controller
 {
@@ -628,7 +629,7 @@ abstract class Controller
 			$this->assignCommonVars();
 			return $this->view->fetch( $template );
 		}
-		catch( Exception_Configuration $e )
+		catch( ConfigurationException $e )
 		{
 			return false;
 		}
@@ -1133,5 +1134,3 @@ abstract class Controller
 	}
 
 }
-
-class ControllerException extends \Exception{}

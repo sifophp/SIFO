@@ -117,7 +117,7 @@ class MediaGenerator
 				$instance_config = Config::getInstance( $instance )->getConfig( $this->media_type );
 				$this->media_config = array_merge( $this->media_config, $instance_config );
 			}
-			catch( Exception_Configuration $e )
+			catch( ConfigurationException $e )
 			{
 				// Config not found. This is OK.
 			}

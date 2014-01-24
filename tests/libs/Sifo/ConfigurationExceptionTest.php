@@ -1,12 +1,14 @@
 <?php
 
+use Sifo\Exception\ConfigurationException;
+
 /**
- * Test class for Exception_Configuration.
+ * Test class for ConfigurationException.
  */
-class Exception_ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationExceptionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Exception_Configuration
+     * @var ConfigurationException
      */
     protected $object;
 
@@ -16,7 +18,7 @@ class Exception_ConfigurationTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Exception_Configuration;
+        $this->object = new ConfigurationException();
     }
 
     /**

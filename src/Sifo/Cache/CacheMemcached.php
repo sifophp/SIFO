@@ -20,6 +20,8 @@
 
 namespace Sifo\Cache;
 
+use Sifo\Exception\ConfigurationException;
+
 /**
  * Provides an interface to communicate with the Memcached server.
  *
@@ -42,7 +44,7 @@ class CacheMemcached extends CacheBase
 		{
 			$servers = Config::getInstance()->getConfig( 'cache', 'servers' );
 		}
-		catch ( Exception_Configuration $e )
+		catch ( ConfigurationException $e )
 		{
 			// Default memcached address and listening port.
 			$servers = array( array( '127.0.0.1' => 11211 ) );

@@ -74,7 +74,7 @@ class RedisModel
 					// Load "default" profile from redis.config.php:
 					$db_params = Config::getInstance()->getConfig( 'redis', 'default' );
 				}
-				catch( Exception_Configuration $e )
+				catch( ConfigurationException $e )
 				{
 					// Connection taken from domains.config.php:
 					$db_params = Domains::getInstance()->getParam( 'redis' );
