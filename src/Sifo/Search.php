@@ -121,7 +121,7 @@ class Search
 				}
 				$sphinx_config['config_file'] = 'sphinx';
 			}
-			catch ( Exception_Configuration $e )
+			catch ( ConfigurationException $e )
 			{
 				throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config or domains.config file' );
 			}

@@ -20,6 +20,9 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterServer;
+use Sifo\Exception\DomainsException;
+
 class Domains
 {
 	protected $domain;
@@ -414,5 +417,3 @@ class Domains
 		return $this->instance_inheritance;
 	}
 }
-
-class DomainsException extends \Exception {}

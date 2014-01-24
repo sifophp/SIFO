@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterCookie;
+
 /**
  * This class is used to update the runtime filter with the cookies changes.
  * @author Albert Lombarte, Sergio Ambel

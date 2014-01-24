@@ -141,7 +141,7 @@ class Sphinxql
 
 			$sphinx_config = $this->checkBalancedProfile( $sphinx_config[$profile] );
 		}
-		catch ( Exception_Configuration $e )
+		catch ( ConfigurationException $e )
 		{
 			throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config' );
 		}

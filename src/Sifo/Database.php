@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Filter\FilterServer;
+
 include_once 'LoadBalancer.php';
 
 // Some stuff needed by ADODb:

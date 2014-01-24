@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\HeadersException;
+
 /**
  * Stack of HTTP headers to be sent to the browser just before the output.
  *
@@ -47,7 +49,6 @@ namespace Sifo;
  * The headers won't be sent until you execute:
  * Headers::send();
  */
-
 class Headers
 {
 	/**
@@ -154,7 +155,7 @@ class Headers
 		}
 		else
 		{
-			throw new Headers_Exception( "Unknown status code requested $http_code" );
+			throw new HeadersException( "Unknown status code requested $http_code" );
 		}
 
 	}
@@ -226,5 +227,3 @@ class Headers
 		return self::$history;
 	}
 }
-
-class Headers_Exception extends \Exception {}
