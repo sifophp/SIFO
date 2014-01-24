@@ -1,12 +1,14 @@
 <?php
 
+use Sifo\Exception\SEO\Exception503;
+
 /**
- * Test class for SEO_Exception.
+ * Test class for Exception503.
  */
-class SEO_ExceptionTest extends \PHPUnit_Framework_TestCase
+class Exception503Test extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var SEO_Exception
+     * @var Exception503
      */
     protected $object;
 
@@ -16,7 +18,7 @@ class SEO_ExceptionTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new SEO_Exception;
+        $this->object = new Exception503;
     }
 
     /**
