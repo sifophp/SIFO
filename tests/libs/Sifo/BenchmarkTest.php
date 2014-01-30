@@ -1,5 +1,7 @@
 <?php
 
+use Sifo\Benchmark;
+
 /**
  * Test class for Benchmark.
  */
@@ -16,7 +18,7 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new \Sifo\Benchmark;
+        $this->object = new Benchmark;
     }
 
     /**
@@ -33,7 +35,7 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof \Sifo\Benchmark );
+		$this->assertTrue( $this->object instanceof Benchmark );
 	}
 
 	/**
@@ -41,10 +43,10 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testGetInstance()
 	{
-		$object = \Sifo\Benchmark::getInstance();
-		$this->assertTrue( $object instanceof \Sifo\Benchmark );
+		$object = Benchmark::getInstance();
+		$this->assertTrue( $object instanceof Benchmark );
 
-		$singleton = \Sifo\Benchmark::getInstance();
+		$singleton = Benchmark::getInstance();
 		$this->assertEquals( $object, $singleton );
 	}
 

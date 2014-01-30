@@ -1,12 +1,14 @@
 <?php
 
+use Sifo\Exception\SEO\Exception302;
+
 /**
- * Test class for Exception_302.
+ * Test class for Exception302.
  */
 class Exception_302Test extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Exception_302
+     * @var Exception302
      */
     protected $object;
 
@@ -16,7 +18,7 @@ class Exception_302Test extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Exception_302;
+        $this->object = new Exception302;
     }
 
     /**

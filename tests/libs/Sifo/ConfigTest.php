@@ -1,10 +1,11 @@
 <?php
 
+use Sifo\Config;
 
 /**
  * Yea, a mock to override the constructor, truly great.
  */
-class ConfigMock extends \Sifo\Config
+class ConfigMock extends Config
 {
 	public function __construct( $instance_name )
 	{
@@ -46,7 +47,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof \Sifo\Config );
+		$this->assertTrue( $this->object instanceof Config );
 	}
 }
 
