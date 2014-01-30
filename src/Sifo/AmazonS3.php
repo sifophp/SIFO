@@ -39,4 +39,3 @@ class AmazonS3 extends \S3
 	}
 }
 
-?>

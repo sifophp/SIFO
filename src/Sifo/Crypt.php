@@ -79,4 +79,3 @@ class Crypt
 		return self::decrypt( $string );
 	}
 }
-?>

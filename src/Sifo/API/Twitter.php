@@ -811,4 +811,3 @@ class APITwitter {
 	Method(s): GET
 	*/
 }
-?>

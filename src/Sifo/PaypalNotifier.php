@@ -41,4 +41,3 @@ class PaypalNotifier extends \IpnListener
 		);
 	}
 }
-?>
