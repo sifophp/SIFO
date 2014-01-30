@@ -18,7 +18,12 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\LoadBalancer;
+
+use LoadBalancerException;
+use Sifo\Bootstrap;
+use Sifo\Cache;
+use Sifo\Exception\SEO\Exception500;
 
 /**
  * Determines where to send the data based on server capabilities.
@@ -100,7 +105,7 @@ abstract class LoadBalancer
 			// This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
 			$message = "No available servers in profile";
 			trigger_error( $message );
-			throw new Exception_500( $message );
+			throw new Exception500( $message );
 		}
 
 		return $num_nodes;
@@ -132,7 +137,7 @@ abstract class LoadBalancer
 	{
 		if ( !isset( $this->nodes ) )
 		{
-			throw new LoadBalancer_Exception( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
+			throw new LoadBalancerException( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
 		}
 
 		$x = round( mt_rand( 0, $this->total_weights ) );
@@ -162,5 +167,3 @@ abstract class LoadBalancer
 		}
 	}
 }
-
-class LoadBalancer_Exception extends \Exception {}

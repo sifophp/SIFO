@@ -20,9 +20,9 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SEO\Exception500;
 use Sifo\Filter\FilterServer;
-
-include_once 'LoadBalancer.php';
+use Sifo\LoadBalancer\LoadBalancerADODB;
 
 // Some stuff needed by ADODb:
 $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
@@ -131,7 +131,7 @@ class Database
 					}
 					else
 					{
-						$lb = new LoadBalancer_ADODB();
+						$lb = new LoadBalancerADODB();
 						$lb->setNodes( $db_profiles['slaves'] );
 						$selected_slave = $lb->get();
 						$db_params = $db_profiles['slaves'][$selected_slave];
@@ -151,7 +151,7 @@ class Database
 				// If connection to database fails throw a SIFO 500 error.
 			catch ( \ADODB_Exception $e )
 			{
-				throw new Exception_500( $e->getMessage(), $e->getCode() );
+				throw new Exception500( $e->getMessage(), $e->getCode() );
 			}
 
 			Benchmark::getInstance()->timingCurrentToRegistry( 'db_connections' );
@@ -395,27 +395,6 @@ Error: $error
 MESSAGE;
 
 		file_put_contents( ROOT_PATH . '/logs/errors_database.log', $message, FILE_APPEND );
-	}
-}
-
-class LoadBalancer_ADODB extends LoadBalancer
-{
-	protected function addNodeIfAvailable( $index, $node_properties )
-	{
-		try
-		{
-			$db = \NewADOConnection( $node_properties['db_driver'] );
-			$result = $db->Connect( $node_properties['db_host'], $node_properties['db_user'], $node_properties['db_password'], $node_properties['db_name'] );
-
-			// If no exception at this point the server is ready:
-			$this->addServer( $index, $node_properties['weight'] );
-		}
-		catch ( \ADODB_Exception $e )
-		{
-			// The server is down, won't be added in the balancing. Log it:
-			trigger_error( "SERVER IS DOWN! " . $node_properties['db_host'] );
-		}
-
 	}
 }
 
