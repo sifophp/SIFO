@@ -19,6 +19,7 @@
  */
 
 namespace Sifo;
+use Sifo\Exception\ConfigurationException;
 
 /**
  * Configuration file parser.

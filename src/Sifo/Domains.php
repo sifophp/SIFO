@@ -164,7 +164,7 @@ class Domains
 							$this->valid_domain = false;
 
 							// The subdomain given is unknown. Apache shouldn't let the application arrive at this point.
-							// throw new Exception_404( "Unknown language subdomain $language in domain $host" );
+							// throw new Exception404( "Unknown language subdomain $language in domain $host" );
 						}
 
 						$subdomain = implode( '.', $subdomain_pieces );

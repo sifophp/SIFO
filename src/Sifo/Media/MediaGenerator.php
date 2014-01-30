@@ -22,6 +22,7 @@ namespace Sifo\Media;
 
 use Sifo\Config;
 use Sifo\Domains;
+use Sifo\Exception\ConfigurationException;
 
 /**
  * Generates media files.
