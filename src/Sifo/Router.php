@@ -20,6 +20,9 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\SEO\Exception301;
+use Sifo\Exception\SEO\Exception500;
 use Sifo\Filter\FilterServer;
 
 /**
@@ -84,7 +87,7 @@ class Router
 		// Failed to parse routes file.
 		if ( !$routes )
 		{
-			throw new Exception_500( "Failed opening router conifiguration file" );
+			throw new Exception500( "Failed opening router conifiguration file" );
 		}
 
 		if ( $language )
@@ -152,7 +155,7 @@ class Router
 						// $count indicates the replaces. If $count gt 0 means that was matchs.
 						if ( $count )
 						{
-							throw new Exception_301( $destiny );
+							throw new Exception301( $destiny );
 						}
 					}
 				}

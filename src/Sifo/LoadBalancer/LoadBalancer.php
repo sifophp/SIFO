@@ -72,7 +72,7 @@ abstract class LoadBalancer
 	/**
 	 * Sets the nodes to work with.
 	 * @param array $nodes
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return integer Number of nodes added.
 	 */
 	public function setNodes( Array $nodes )

@@ -20,6 +20,12 @@
 
 namespace Sifo;
 
+use Sifo\Cache\CacheBase;
+use Sifo\Cache\CacheDisk;
+use Sifo\Cache\CacheMemcache;
+use Sifo\Cache\CacheMemcached;
+use Sifo\Exception\SEO\Exception500;
+
 /**
  * Proxy class that handles all Cache types in a single interface.
  */
@@ -72,7 +78,7 @@ class Cache extends CacheBase
 					self::$instance[$type][$lock_enabled] = new CacheDisk();
 					break;
 				default:
-					throw new Exception_500( 'Unknown cache type requested' );
+					throw new Exception500( 'Unknown cache type requested' );
 			}
 
 			self::$cache_type = $type;

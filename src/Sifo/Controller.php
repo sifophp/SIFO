@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\SEO\Exception404;
 use Sifo\Filter\FilterPost;
 use Sifo\Filter\FilterGet;
 use Sifo\Exception\SEO\SEOException;
@@ -451,7 +453,7 @@ abstract class Controller
 	/**
 	 * Grabs the HTML for a smarty template.
 	 *
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return string html
 	 */
 	protected function grabHtml()
@@ -459,7 +461,7 @@ abstract class Controller
 		$class_name = get_class( $this );
 		if ( !$this->is_json && !isset( $this->layout ) )
 		{
-			throw new Exception_500( 'Layout not set in controller ' . $class_name );
+			throw new Exception500( 'Layout not set in controller ' . $class_name );
 		}
 
 		$this->startBench( "view_$class_name" );
@@ -991,7 +993,7 @@ abstract class Controller
 	 * Parse the url params in params array searching for some expected params. If someone is found modify the array.
 	 * $params array is referenced.
 	 *
-	 * @throws Exception_404
+	 * @throws Exception404
 	 * @return array
 	 */
 	protected function parseParams()
@@ -1072,12 +1074,12 @@ abstract class Controller
 					{
 						if ( is_array( $value ) && count( array_diff( $value, $expected_url_params[$expected_url_keys[$param]]['accepted_values'] ) ) )
 						{
-							throw new Exception_404( 'The value passed in the parameters is not included in the "accepted_values"' );
+							throw new Exception404( 'The value passed in the parameters is not included in the "accepted_values"' );
 						}
 
 						if ( !is_array( $value ) && ( !in_array( $value, $expected_url_params[$expected_url_keys[$param]]['accepted_values'] ) ) )
 						{
-							throw new Exception_404( 'The value passed is the parameters is not included in the "accepted_values"' );
+							throw new Exception404( 'The value passed is the parameters is not included in the "accepted_values"' );
 						}
 					}
 
@@ -1127,9 +1129,9 @@ abstract class Controller
 	 */
 	public function changeInstanceEnvironment( $instance, $domain, $language, $i18n_messages = 'messages' )
 	{
-		\Sifo\Bootstrap::$instance = $instance;
-		\Sifo\Domains::getInstance()->changeDomain( $domain );
-		\Sifo\I18N::setDomain( $i18n_messages, $language, $instance );
+		Bootstrap::$instance = $instance;
+		Domains::getInstance()->changeDomain( $domain );
+		I18N::setDomain( $i18n_messages, $language, $instance );
 		$this->__construct();
 	}
 
