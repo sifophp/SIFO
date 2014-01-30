@@ -18,7 +18,13 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Mysql;
+
+use Sifo\Config;
+use Sifo\Domains;
+use Sifo\Bootstrap;
+use Sifo\I18N;
+use Sifo\Registry;
 
 class MysqlModel
 {
