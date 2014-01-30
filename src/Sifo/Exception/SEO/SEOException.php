@@ -21,6 +21,8 @@
 namespace Sifo\Exception\SEO;
 
 // See available exceptions below this class.
+use Sifo\Headers;
+
 class SEOException extends \Exception
 {
 	/**
