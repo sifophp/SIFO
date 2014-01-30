@@ -31,7 +31,7 @@ class Keyspace
 	{
 		if ( !isset( self::$keyspace ) )
 		{
-			self::$keyspace = \Sifo\Config::getInstance()->getConfig( 'keyspace' );
+			self::$keyspace = Config::getInstance()->getConfig( 'keyspace' );
 		}
 
 		if ( !isset( self::$keyspace[$key_name] ) )

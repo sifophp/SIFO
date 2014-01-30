@@ -420,7 +420,7 @@ abstract class Controller
 				Debug::subSet( 'controllers', get_class( $this ), $this->debug_info );
 
 				$return['debug_content'] 	= $this->dispatchSingleController( 'DebugIndex', array( 'show_debug_timers' => false ) );
-				$return['debug_total_time']	= \Sifo\Benchmark::getInstance()->timingCurrent();
+				$return['debug_total_time']	= Benchmark::getInstance()->timingCurrent();
 			}
 
 			$json_callback = FilterGet::getInstance()->getString( 'json_callback' );

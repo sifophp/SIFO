@@ -38,7 +38,7 @@ class View extends \Smarty
 		parent::__construct();
 
 		// Get the instances inheritance.
-		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
+		$instance_inheritance = Domains::getInstance()->getInstanceInheritance();
 
 		// If there is inheritance.
 		if ( is_array( $instance_inheritance ) )
