@@ -397,5 +397,3 @@ MESSAGE;
 		file_put_contents( ROOT_PATH . '/logs/errors_database.log', $message, FILE_APPEND );
 	}
 }
-
-?>
