@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-include ROOT_PATH . '/libs/EpiClasses/EpiCurl.php';
-
 /**
  * Retreive data of a youtube video from API.
  *

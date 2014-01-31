@@ -182,8 +182,6 @@ class Search
 	{
 		if ( true === $node_properties['active'] )
 		{
-			include_once ROOT_PATH . '/libs/'.Config::getInstance()->getLibrary( 'sphinx' ) . '/sphinxapi.php';
-
 			$sphinx 			= new \SphinxClient();
 			$sphinx->SetServer( $node_properties['server'], $node_properties['port'] );
 

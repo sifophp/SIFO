@@ -22,8 +22,6 @@ namespace Sifo;
 
 use Sifo\Exception\ConfigurationException;
 
-include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'predis' ) . '/lib/Predis/Autoloader.php';
-
 /**
  * Customized Predis autoloader.
  */

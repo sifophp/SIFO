@@ -101,8 +101,6 @@ class Database
 		if ( !is_array( self::$adodb ) )
 		{
 			$version = Config::getInstance()->getLibrary( 'adodb' );
-			include_once( ROOT_PATH . "/libs/$version/adodb-exceptions.inc.php" ); //include exceptions for php5
-			include_once( ROOT_PATH . "/libs/$version/adodb.inc.php" );
 
 			if ( !isset( $db_params['profile'] ) )
 			{

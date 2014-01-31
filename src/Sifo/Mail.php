@@ -46,7 +46,6 @@ class Mail
 	{
 		$config = Config::getInstance()->getConfig( 'mail' );
 
-		include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'phpmailer' ) .'/class.phpmailer.php';
 		$this->mail = new \PHPMailer();
 		$this->mail->CharSet 		= $config['CharSet'];
 		$this->mail->From			= $config['From'];

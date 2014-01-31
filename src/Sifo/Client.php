@@ -83,7 +83,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			require_once ROOT_PATH . '/libs/GeoIP-Lite/geoip.php';
 			$gi           = geoip_open( ROOT_PATH . '/libs/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_code = geoip_country_code_by_addr( $gi, $ip );
 			geoip_close( $gi );
@@ -117,7 +116,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			require_once ROOT_PATH . '/libs/GeoIP-Lite/geoip.php';
 			$gi           = geoip_open( ROOT_PATH . '/libs/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_name = geoip_country_name_by_addr( $gi, $ip );
 			geoip_close( $gi );
@@ -138,7 +136,6 @@ class Client
 		}
 		else
 		{
-			require_once ROOT_PATH . '/libs/Browscap/Browscap.php';
 			$bc      = new \phpbrowscap\Browscap( ROOT_PATH . '/libs/Browscap/' );
 			$browser = $bc->getBrowser( $useragent, $return_array );
 			Registry::set( 'Client_Browser', $browser );

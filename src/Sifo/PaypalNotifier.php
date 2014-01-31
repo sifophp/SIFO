@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-require_once ROOT_PATH . '/libs/Paypal/Ipn.php';
-
 /**
  * Adapter for PayPal notifier.
  */

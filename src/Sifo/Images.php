@@ -37,8 +37,6 @@ class Images
 	 */
 	static public function resizeAndSave( $from, $to, $width, $height, $crop = false, $resizeUp = false, $transparency = false, $quality = 100 )
 	{
-		include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
-
 		$fileinfo = pathinfo( $to );
 
 		$thumb = \PhpThumbFactory::create( $from );
@@ -79,8 +77,6 @@ class Images
 	 */
 	static public function cropAndSave( $from, $to, $startX, $startY, $width, $height, $resizeUp = false, $transparency = false, $quality = 100 )
 	{
-		include_once ROOT_PATH . '/libs/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
-
 		$fileinfo = pathinfo( $to );
 
 		$thumb = \PhpThumbFactory::create( $from );

@@ -20,9 +20,6 @@
 
 namespace Sifo;
 
-include_once ROOT_PATH . '/libs/'. Config::getInstance()->getLibrary( 'smarty' ).'/Smarty.class.php';
-
-
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */

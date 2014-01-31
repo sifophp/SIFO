@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-include ROOT_PATH . '/libs/EpiClasses/EpiCurl.php';
-
 /**
  * Interacts with the Twitter API, launching the same request for every given account in parallel.
  *
