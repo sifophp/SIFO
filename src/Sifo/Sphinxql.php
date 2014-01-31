@@ -20,6 +20,10 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\SEO\Exception500;
+use Sifo\LoadBalancer\LoadBalancerSphinxql;
+
 /**
  * SphinxQL class. Use this class to execute queries against SphinxQL.
  * It Only supports SELECT sentences to execute.
@@ -124,7 +128,7 @@ class Sphinxql
 	 * Get Sphinx connection params from config files.
 	 *
 	 * @param $profile
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return array
 	 */
 	protected function getConnectionParams( $profile )
@@ -136,14 +140,14 @@ class Sphinxql
 
 			if ( empty( $sphinx_config[$profile] ) )
 			{
-				throw new \Sifo\Exception_500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
+				throw new Exception500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
 			}
 
 			$sphinx_config = $this->checkBalancedProfile( $sphinx_config[$profile] );
 		}
 		catch ( ConfigurationException $e )
 		{
-			throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config' );
+			throw new Exception500( 'You must define the connection params in sphinx.config' );
 		}
 
 		return $sphinx_config;
@@ -172,7 +176,7 @@ class Sphinxql
 	 * Use this method to connect to Sphinx.
 	 * @param $node_properties
 	 * @return \mysqli
-	 * @throws Exception_500
+	 * @throws Exception500
 	 */
 	public function connect( $node_properties )
 	{
@@ -180,7 +184,7 @@ class Sphinxql
 
 		if ( !$mysqli || $mysqli->connect_error )
 		{
-			throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+			throw new Exception500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 		}
 
 		return $mysqli;
@@ -381,38 +385,5 @@ class Sphinxql
 	protected function logError( $error )
 	{
 		trigger_error( '[SphinxQL ERROR] ' . $error );
-	}
-}
-
-/**
- * Class LoadBalancerSphinxql
- * @package Sifo
- */
-class LoadBalancerSphinxql extends LoadBalancer
-{
-	/**
-	 * Name of the cache where the results of server status are stored.
-	 * @var string
-	 */
-	public $loadbalancer_cache_key = '__sphinxql_loadbalancer_available_nodes';
-
-	private $sphinxql_object;
-
-	protected function addNodeIfAvailable( $index, $node_properties )
-	{
-		try
-		{
-			$this->sphinxql_object->connect( $node_properties );
-			$this->addServer( $index, $node_properties['weight'] );
-		}
-		catch( \Sifo\Exception_500 $e )
-		{
-			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
-		}
-	}
-
-	public function injectObject( $object )
-	{
-		$this->sphinxql_object = $object;
 	}
 }

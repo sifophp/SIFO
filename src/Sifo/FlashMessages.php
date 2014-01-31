@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SEO\Exception503;
+
 /**
  * Class that keeps messages of errors, success, etc... in the registry.
  */
@@ -127,7 +129,7 @@ class FlashMessages
 			case self::STORAGE_REGISTRY:
 				return Registry::getInstance();
 			default:
-				throw new Exception_503( 'Invalid storage type.' );
+				throw new Exception503( 'Invalid storage type.' );
 		}
 	}
 }

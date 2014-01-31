@@ -14,8 +14,12 @@
  * This class is based on Memcache object implementation: http://www.php.net/manual/en/book.memcache.php
  *
  */
+
 namespace Sifo\Cache;
+
 use \Memcache;
+use Sifo\Config;
+use Sifo\Exception\ConfigurationException;
 
 /**
  * Wrapper for the PECL Memcache extension.
@@ -35,15 +39,15 @@ class CacheMemcache extends CacheBase
 	{
 		try
 		{
-			$servers = \Sifo\Config::getInstance()->getConfig( 'cache', 'servers' );
+			$servers = Config::getInstance()->getConfig( 'cache', 'servers' );
 		}
-		catch ( \Sifo\ConfigurationException $e )
+		catch ( ConfigurationException $e )
 		{
 			// Default memcached address and listening port.
 			$servers = array( array( '127.0.0.1' => 11211 ) );
 		}
 
-		$this->cache_object = new \CacheMemcacheAdapter();
+		$this->cache_object = new CacheMemcacheAdapter();
 
 		foreach ( $servers[0] as $server => $port )
 		{

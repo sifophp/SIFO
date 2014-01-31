@@ -1,9 +1,10 @@
 <?php
+use Sifo\Controller;
 
 /**
  * Controller class is abstract, so we need a mock (for now).
  */
-class ControllerMock extends \Sifo\Controller
+class ControllerMock extends Controller
 {
 	public function build()
 	{
@@ -44,7 +45,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof \Sifo\Controller );
+		$this->assertTrue( $this->object instanceof Controller );
 	}
 }
 

@@ -20,6 +20,7 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SEO\Exception500;
 use Sifo\Filter\FilterServer;
 use Sifo\Exception\DomainsException;
 
@@ -138,7 +139,7 @@ class Domains
 			}
 			else
 			{
-				throw new Exception_500( 'The language MUST be declared in domains.config file' );
+				throw new Exception500( 'The language MUST be declared in domains.config file' );
 			}
 
 			if ( false !== strstr( strtolower( $this->http_host ), $host ) )
@@ -163,7 +164,7 @@ class Domains
 							$this->valid_domain = false;
 
 							// The subdomain given is unknown. Apache shouldn't let the application arrive at this point.
-							// throw new Exception_404( "Unknown language subdomain $language in domain $host" );
+							// throw new Exception404( "Unknown language subdomain $language in domain $host" );
 						}
 
 						$subdomain = implode( '.', $subdomain_pieces );
@@ -289,7 +290,6 @@ class Domains
 
 	/**
 	 * Change debug mode during the execution.
-	 * @return bool
 	 */
 	public function setDebugMode( $mode )
 	{

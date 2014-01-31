@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\RegistryException;
+
 /**
  * Global storage of objects in memory. They expire after script execution.
  */

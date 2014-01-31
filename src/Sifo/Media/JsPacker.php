@@ -1,5 +1,4 @@
 <?php
-
 /**
  * LICENSE
  *
@@ -19,7 +18,7 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Media;
 
 /**
  * Javascript packer.

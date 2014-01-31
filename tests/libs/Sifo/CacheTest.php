@@ -1,10 +1,11 @@
 <?php
 
+use Sifo\Cache;
 
 /**
  * Yea, a mock to override the constructor, awesome.
  */
-class CacheMock extends \Sifo\Cache
+class CacheMock extends Cache
 {
 	public function __construct()
 	{
@@ -45,7 +46,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof \Sifo\Cache );
+		$this->assertTrue( $this->object instanceof Cache );
 	}
 }
 

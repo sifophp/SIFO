@@ -1,12 +1,14 @@
 <?php
 
+use Sifo\Exception\SEO\Exception301;
+
 /**
- * Test class for Exception_301.
+ * Test class for Exception301.
  */
 class Exception_301Test extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Exception_301
+     * @var Exception301
      */
     protected $object;
 
@@ -16,7 +18,7 @@ class Exception_301Test extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Exception_301;
+        $this->object = new Exception301;
     }
 
     /**
