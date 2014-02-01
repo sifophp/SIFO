@@ -1,4 +1,5 @@
 <?php
+use Sifo\FlashMessages;
 
 /**
  * Test class for FlashMessages.

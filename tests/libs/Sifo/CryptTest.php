@@ -1,4 +1,5 @@
 <?php
+use \Sifo\Crypt;
 
 /**
  * Test class for Crypt.

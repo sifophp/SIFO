@@ -1,4 +1,5 @@
 <?php
+use Sifo\Cookie;
 
 /**
  * Test class for Cookie.

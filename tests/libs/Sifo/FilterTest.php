@@ -1,4 +1,5 @@
 <?php
+use Sifo\Filter\Filter;
 
 /**
  * Test class for Filter.
@@ -16,7 +17,7 @@ class FilterTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Filter;
+        $this->object = Filter::getInstance();
     }
 
     /**

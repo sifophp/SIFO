@@ -2,6 +2,8 @@
 
 use Sifo\Config;
 
+define( 'ROOT_PATH', realpath( '.') );
+
 /**
  * Yea, a mock to override the constructor, truly great.
  */
@@ -30,7 +32,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-	    $this->object = new ConfigMock( 'tests' );
+	    $this->object = Config::getInstance( 'common' );
+
     }
 
     /**

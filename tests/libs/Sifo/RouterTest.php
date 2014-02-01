@@ -1,4 +1,5 @@
 <?php
+use Sifo\Router;
 
 
 /**
@@ -17,7 +18,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Router;
+        $this->object =  new Router( '/', 'common' );
     }
 
     /**

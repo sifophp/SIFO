@@ -1,12 +1,13 @@
 <?php
+use Sifo\Database;
 
 /**
- * Test class for Redis.
+ * Test class for Db.
  */
-class RedisTest extends \PHPUnit_Framework_TestCase
+class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Redis
+     * @var Db
      */
     protected $object;
 
@@ -16,7 +17,7 @@ class RedisTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Redis;
+        $this->object = new Database;
     }
 
     /**
@@ -28,31 +29,9 @@ class RedisTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testDebug().
+     * @todo Implement testGetInstance().
      */
-    public function testDebug()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @todo Implement testSetIsUTF8().
-     */
-    public function testSetIsUTF8()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @todo Implement testSetTimeout().
-     */
-    public function testSetTimeout()
+    public function testGetInstance()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -72,9 +51,9 @@ class RedisTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testStrlen().
+     * @todo Implement test__get().
      */
-    public function testStrlen()
+    public function test__get()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -83,9 +62,9 @@ class RedisTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement test__destruct().
+     * @todo Implement test__set().
      */
-    public function test__destruct()
+    public function test__set()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(

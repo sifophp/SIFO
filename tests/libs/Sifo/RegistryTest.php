@@ -1,4 +1,5 @@
 <?php
+use Sifo\Registry;
 
 /**
  * Test class for Registry.
@@ -16,7 +17,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Registry;
+        $this->object =  Registry::getInstance();
     }
 
     /**
