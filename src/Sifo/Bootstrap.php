@@ -21,15 +21,20 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\ControllerException;
+use Sifo\Exception\DomainsException;
+use Sifo\Exception\SEO\Exception401;
+use Sifo\Exception\SEO\Exception404;
+use Sifo\Exception\SEO\Exception500;
+use Sifo\Filter\FilterCookie;
+use Sifo\Filter\FilterGet;
+use Sifo\Filter\FilterServer;
+
 if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
 	newrelic_set_appname( ucfirst( $instance ) );
 }
-
-/**
- * Class Bootstrap
- */
-require_once ROOT_PATH . '/libs/Sifo/Config.php';
 
 class Bootstrap
 {
@@ -84,9 +89,6 @@ class Bootstrap
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
 
-		// Include files:
-		self::includeRequiredFiles();
-
 		self::autoload();
 		Benchmark::getInstance()->timingStart();
 
@@ -132,30 +134,30 @@ class Bootstrap
 	}
 
 	/**
-	 * Includes (include_once) the file corresponding to the passed passed classname.
+	 * Includes (include_once) the file corresponding to the passed passed class name.
 	 * It does not instantiate any object.
 	 *
 	 * This method must be public as it is used in external places, as unit-tests.
 	 *
-	 * @param string $classname
+	 * @param string $class_name
 	 *
-	 * @throws Exception_500
-	 * @return string The classname you asked for.
+	 * @throws Exception500
+	 * @return string The class name you asked for.
 	 */
-	public static function includeFile( $classname )
+	public static function includeFile( $class_name )
 	{
 		try
 		{
-			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $classname );
+			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $class_name );
 		}
-		catch ( Exception_Configuration $e )
+		catch ( ConfigurationException $e )
 		{
-			throw new Exception_500( $e->getMessage() );
+			throw new Exception500( $e->getMessage() );
 		}
 
 		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
 		{
-			throw new Exception_500( "Doesn't exist in expected path {$classInfo['path']}" );
+			throw new Exception500( "Doesn't exist in expected path {$classInfo['path']}" );
 		}
 
 		return $classInfo['name'];
@@ -169,24 +171,23 @@ class Bootstrap
 	 * @param string $class Class name you want to get
 	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
 	 *
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return Object|void
 	 */
 	public static function getClass( $class, $call_constructor = true )
 	{
-		$classname = self::includeFile( $class );
+		$class_name = self::includeFile( $class );
 
-		if ( class_exists( $classname ) )
+		if ( class_exists( $class_name ) )
 		{
 			if ( $call_constructor )
 			{
-				return new $classname;
+				return new $class_name;
 			}
 		}
-		else
-		{
-			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
-		}
+
+		throw new Exception500( "Method getClass($class) failed because the class $class_name is not declared inside this file (a copy/paste friend?)." );
+
 	}
 
 	/**
@@ -218,7 +219,7 @@ class Bootstrap
 				{
 					Headers::set( 'WWW-Authenticate', 'Basic realm="Protected page"' );
 					Headers::send();
-					throw new Exception_401( 'You should enter a valid credentials.' );
+					throw new Exception401( 'You should enter a valid credentials.' );
 				}
 
 				// If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
@@ -228,7 +229,7 @@ class Bootstrap
 			self::$language = $domain->getLanguage();
 			$php_inis       = $domain->getPHPInis();
 
-			if ( $php_inis )
+			if ( !empty( $php_inis ) )
 			{
 				self::_overWritePHPini( $php_inis );
 			}
@@ -238,7 +239,7 @@ class Bootstrap
 
 			if ( !$domain->valid_domain )
 			{
-				throw new Exception_404( 'Unknown language in domain' );
+				throw new Exception404 ( 'Unknown language in domain' );
 			}
 			else
 			{
@@ -316,13 +317,13 @@ class Bootstrap
 		}
 	}
 
-	/**
-	 * Dispatches an error after an exception.
-	 *
-	 * @param Exception $e
-	 *
-	 * @return output buffer
-	 */
+    /**
+     * Dispatches an error after an exception.
+     *
+     * @param \Sifo\Exception\SEO\SEOException $e
+     *
+     * @return mixed HTML buffer or false if redirected.
+     */
 	private static function _dispatchErrorController( $e )
 	{
 		if ( !isset( $e->http_code ) )
@@ -351,7 +352,7 @@ class Bootstrap
 		{
 			// Path is passed via message:
 			$path         = trim( $e->getMessage(), '/' );
-			$new_location = '';
+
 			// Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
 			if ( false !== strpos( $path, '://' ) )
 			{
@@ -377,7 +378,7 @@ class Bootstrap
 				Headers::setResponseStatus( $e->http_code );
 				Headers::set( 'Location', $new_location, $e->http_code );
 				Headers::send();
-				return;
+				return false;
 			}
 			else
 			{
@@ -386,7 +387,7 @@ class Bootstrap
 				Headers::set( 'Location (paused)', $new_location );
 				Headers::send();
 				self::invokeController( 'debug/index' )->dispatch();
-				return;
+				return false;
 			}
 		}
 
@@ -401,15 +402,15 @@ class Bootstrap
 	}
 
 	/**
-	 * Sets all the PHP ini configurations stored in the configuration.
+	 * Sets all the PHP.ini configurations stored in the configuration.
 	 *
-	 * @param array $php_inis
+	 * @param array $php_INI
 	 */
-	private static function _overWritePHPini( Array $php_inis )
+	private static function _overWritePHPini( Array $php_INI )
 	{
-		foreach ( $php_inis as $varname => $newvalue )
+		foreach ( $php_INI as $var_name => $new_value )
 		{
-			ini_set( $varname, $newvalue );
+			ini_set( $var_name, $new_value );
 		}
 	}
 }

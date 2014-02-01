@@ -37,7 +37,7 @@ class Domains
 	protected $has_debug = false;
 	protected $instance;
 	protected $domain_configuration = array();
-	protected $php_inis = false;
+	protected $php_inis = array();
 	protected $redirect;
 	protected $auth_data = array();
     protected $http_host;
