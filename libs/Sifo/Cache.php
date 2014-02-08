@@ -48,14 +48,13 @@ class Cache extends CacheBase
 	 */
 	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER, $lock_enabled = self::CACHE_LOCKING_ENABLED )
 	{
+        if ( self::CACHE_TYPE_AUTODISCOVER == $type )
+        {
+            $type = self::discoverCacheType();
+        }
 
-		if ( !isset ( self::$instance[$type] ) )
-		{
-			if ( self::CACHE_TYPE_AUTODISCOVER == $type )
-			{
-				$type = self::discoverCacheType();
-			}
-
+        if ( !isset ( self::$instance[$type] ) )
+        {
 			switch ( $type )
 			{
 				case self::CACHE_TYPE_MEMCACHED:
