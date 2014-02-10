@@ -30,6 +30,7 @@ class DebugIndexController extends \Sifo\Controller
 
 	public function build()
 	{
+		$total_script_execution = \Sifo\Benchmark::getInstance()->timingCurrent();
 		$this->setLayout( 'debug/debug.tpl' );
 
 		$this->execution_key = md5( time() . rand() );
@@ -86,7 +87,7 @@ class DebugIndexController extends \Sifo\Controller
 
 		// Summary debug:
 		$debug['rebuild_all']		= $this->isRebuildAllActive();
-		$debug['times']['total']	= \Sifo\Benchmark::getInstance()->timingCurrent();
+		$debug['times']['total']	= $total_script_execution;
 
 		if ( !isset( $debug['times']['cache'] ) ) $debug['times']['cache'] = 0;
 		if ( !isset( $debug['times']['external'] ) ) $debug['times']['external'] = 0;
