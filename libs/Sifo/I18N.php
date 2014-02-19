@@ -153,7 +153,7 @@ class I18N
 			if ( !isset( self::$instance_translations[self::$current_instance][self::$active_domain_and_locale] ) )
 			{
 				$translations_file = Config::getInstance( $instance )->getConfig( 'locale', self::$active_domain_and_locale );
-				include_once( ROOT_PATH . "/$translations_file" );
+				include( ROOT_PATH . "/$translations_file" );
 
 				if ( !isset( $translations ) )
 				{
