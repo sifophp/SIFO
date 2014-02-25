@@ -226,7 +226,7 @@ class Sphinxql
 		$query = $this->prepareQuery( $query, $parameters );
 
 		$this->multi_query .= $query;
-		if ( !preg_match( '/^CALL/i', $query ) )
+		if ( !preg_match( '/^CALL|^INSERT|^DELETE|^REPLACE/i', $query ) )
 		{
 			$this->multi_query .= ';';
 		}
