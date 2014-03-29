@@ -63,6 +63,11 @@ function smarty_function_genurl( $params, &$smarty )
 
 	$action = ( isset( $params['action'] ) ) ? $params['action'] : 'replace';
 
+	if ( !in_array( $action, array( 'add', 'replace', 'remove' ) ) )
+	{
+		trigger_error( "[genurl] You must specify a valid genurl action parameter (add, replace or remove). Remember that you can't add a parsed parameter called 'action' in order to avoid collision." );
+	}
+
 	// You can also specify {genurl key='filter_name' value='filter_value'} instead of {genurl filter_name='filter_value'}.
 	// This is useful when you have dynamic filtering.
 	if ( !empty( $params['key'] ) && isset( $params['value'] ) )
