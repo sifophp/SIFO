@@ -45,13 +45,20 @@ class CacheLock
 	private function __construct( $key, $cache_instance )
 	{
 		$this->lock_id =  uniqid();
-		$this->key = $this->getLockCacheKey( $key );
+		$this->key = $key;
 
 		$this->cache_object = $cache_instance;
 	}
 
-	public static function getInstance( $key, $cache_instance )
+	/**
+	 * @param string $original_key
+	 * @param string $cache_instance
+	 * @return \Sifo\CacheLock
+	 */
+	public static function getInstance( $original_key, $cache_instance )
 	{
+		$key = self::KEY_PREFIX . $original_key;
+
 		if ( !isset( self::$instances[$key] ) )
 		{
 			self::$instances[$key] = new self( $key, $cache_instance );
@@ -63,7 +70,7 @@ class CacheLock
 	/**
 	 * Returns if another cache calculation is in progress.
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isLocked()
 	{
@@ -75,7 +82,7 @@ class CacheLock
 	/**
 	 * Acquire lock.
 	 *
-	 *return @boolean
+	 * @return boolean
 	 */
 	public function acquire()
 	{
@@ -87,47 +94,22 @@ class CacheLock
 	 *
 	 * @return boolean
 	 */
-	public function release( $key = null )
+	public function release()
 	{
-		if ( empty( $key ) )
-		{
-			$key = $this->key;
-		}
-		unset( self::$instances[$key] );
-		return $this->cache_object->delete( $key );
+		unset( self::$instances[$this->key] );
+		return $this->cache_object->delete( $this->key );
 	}
 
 	/**
-	 * Releases all existing cache locks.
-	 */
-	protected function releaseAll()
-	{
-		foreach( self::$instances as $key => $lock )
-		{
-			$lock->release( $this->getLockCacheKey( $key ) );
-		}
-	}
-
-	/**
-	 * Release all cache locks before at object's destruction.
+	 * Release cache lock before object's destruction.
 	 *
 	 * If Exceptions, reDispatch, exit() or other hacks interfere with the normal workflow the cache locks have to be released.
 	 */
 	public function __destruct()
 	{
-		 $this->releaseAll();
+		if ( !empty( self::$instances[$this->key] ) )
+		{
+			$this->release();
+		}
 	}
-
-	/**
-	 * Returns the cache key name used to store the lock.
-	 *
-	 * @param $key
-	 * @return string
-	 */
-	protected function getLockCacheKey( $key )
-	{
-		return self::KEY_PREFIX . $key;
-	}
-
-
 }
