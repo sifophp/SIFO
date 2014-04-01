@@ -179,6 +179,17 @@ class CacheBase
 	}
 
 	/**
+	 * Delete $key object from cache.
+	 *
+	 * @param string $key
+	 * @return mixed
+	 */
+	public function delete( $key )
+	{
+		return $this->cache_object->delete( sha1( $key ) );
+	}
+
+	/**
 	 * Construct the cache tag if it's defined in config.
 	 *
 	 * @param string $tag Cache tag.
