@@ -201,9 +201,9 @@ class Debug
 				return 'E_CORE_ERROR';
 			case E_CORE_WARNING: // 32 //
 				return 'E_CORE_WARNING';
-			case E_CORE_ERROR: // 64 //
+			case E_COMPILE_ERROR: // 64 //
 				return 'E_COMPILE_ERROR';
-			case E_CORE_WARNING: // 128 //
+			case E_COMPILE_WARNING: // 128 //
 				return 'E_COMPILE_WARNING';
 			case E_USER_ERROR: // 256 //
 				return 'E_USER_ERROR';
