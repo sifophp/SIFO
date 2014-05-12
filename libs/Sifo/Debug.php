@@ -45,6 +45,11 @@ class Debug
 	private static $all_modules_available = true;
 
 	/**
+	 * @var string Identifier of the current request execution. It will be set from the debug/index.ctrl in order to get it from the Controller in case of a JSON execution.
+	 */
+	private static $execution_key;
+
+	/**
 	 * Avoid external construction of class without singleton usage.
 	 *
 	 */
@@ -221,5 +226,20 @@ class Debug
 				return 'E_USER_DEPRECATED';
 		}
 		return "";
+	}
+
+	public static function setExecutionKey( $execution_key )
+	{
+		self::$execution_key = $execution_key;
+	}
+
+	public static function getExecutionKey()
+	{
+		if ( !isset( self::$execution_key ) )
+		{
+			self::$execution_key = md5( time() . rand() );
+		}
+
+		return self::$execution_key;
 	}
 }

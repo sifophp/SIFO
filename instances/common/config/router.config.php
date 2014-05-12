@@ -36,10 +36,16 @@ $config['rebuild'] = 'manager/rebuild';
 $config['findi18n'] = 'manager/findi18n';
 $config['rebuild-i18n-local'] = 'manager/rebuildi18nLocal';
 $config['rebuild-router'] = 'manager/rebuildRouter';
+
+// i18n
 $config['translate'] = 'i18n/status';
 $config['translation-save'] = 'i18n/save';
 $config['translation-rebuild'] = 'i18n/rebuild';
 $config['translation-actions'] = 'i18n/actions';
+
+// Sifo debug
+$config['sifo-debug-analyzer'] = 'debug/analyzer';
+$config['sifo-debug-actions'] = 'debug/actions';
 
 // Used in debug mode Mail Interception.
 $config['mail-continue'] = 'debug/mail';

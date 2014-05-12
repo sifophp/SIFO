@@ -1,7 +1,7 @@
 {* HTML messages *}
-{if isset( $log_messages.html )}
+{if isset( $debug.log_messages.html )}
 	<h2 id="benchmarks">{t}Log Messages{/t}</h2>
-	{foreach from=$log_messages.html item=value name=html_log}
+	{foreach from=$debug.log_messages.html item=value name=html_log}
 	<h3 id="html_log_{$smarty.foreach.html_log.index}" class="{if $value.type=='error'}query_error{/if}{if $value.type=='warn'}query_duplicated{/if}">
 		<a class="debug_toggle_view" rel="html_log_content_{$smarty.foreach.html_log.index}" href="#">
 			{$smarty.foreach.html_log.index+1}. Message {$value.type}
@@ -17,7 +17,7 @@
 {/if}
 
 {* Console messages *}
-{if isset( $log_messages.browser_console )}
+{if isset( $debug.log_messages.browser_console )}
 <script>
 	{literal}
 	// JavaScript debug this is for IE and other browsers w/o console
@@ -29,7 +29,7 @@
 	console.debug = console.debug || function(){};
 	{/literal}
 
-	{foreach from=$log_messages.browser_console item=debug_message name=debug_messages_iteration}
+	{foreach from=$debug.log_messages.browser_console item=debug_message name=debug_messages_iteration}
 		{if $debug_message.is_object}
 	var object_{$smarty.foreach.debug_messages_iteration.iteration} = {$debug_message.message};
 	var val_{$smarty.foreach.debug_messages_iteration.iteration} = eval("(" + object_{$smarty.foreach.debug_messages_iteration.iteration} + ")" );
@@ -42,9 +42,9 @@
 {/if}
 
 {* Alert messages *}
-{if isset( $log_messages.alert )}
+{if isset( $debug.log_messages.alert )}
 <script>
-	{foreach from=$log_messages.alert item=debug_message name=debug_messages_iteration}
+	{foreach from=$debug.log_messages.alert item=debug_message name=debug_messages_iteration}
 		alert( {$debug_message.message} );
 	{/foreach}
 </script>
