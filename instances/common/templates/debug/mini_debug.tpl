@@ -186,7 +186,7 @@
 			</dd>
 
 			<dt>{t}Debug{/t}</dt>
-			<dd>
+			<dd class="no-hide">
 				<a href="{$url.sifo_debug_analyzer}?execution_key={$execution_key}" target="_blank">{t}Debug Analyzer{/t} &raquo;</a>
 			</dd>
 
@@ -313,10 +313,10 @@
 						$('#debug_timers').drags();
 
 						$('#debug_timers a.slide').click( function() {
-							if ( $('#debug_timers dd:last').is(':visible') )
+							if ( $('#debug_timers dt:last').is(':visible') )
 							{
 								$.cookie('DEBUG_hide_time', 'true', { expires:7, domain: cookie_domain } );
-								$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').slideUp();
+								$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').not('.no-hide').slideUp();
 								$(this).html('&darr;');
 							}
 							else
@@ -330,7 +330,7 @@
 
 						if ( 'true' == $.cookie( 'DEBUG_hide_time' ) )
 						{
-							$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').hide();
+							$('#debug_timers dd:gt(0),#debug_timers dt:gt(0)').not('.no-hide').hide();
 						}
 						if (sStyle = $.cookie("DEBUG_timer_style")){
 							$('#debug_timers').attr('style', sStyle);

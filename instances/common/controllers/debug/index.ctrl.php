@@ -112,7 +112,7 @@ class DebugIndexController extends \Sifo\Controller
 		$this->finalRender( $debug_data );
 	}
 
-	private function finalRender( $debug_data )
+	protected function finalRender( $debug_data )
 	{
 		$database_debug_handler = new DebugDataBaseHandler();
 
