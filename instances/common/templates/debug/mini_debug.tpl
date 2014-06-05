@@ -110,16 +110,16 @@
 				<dd><span>{if isset( $debug.times.total) && $debug.times.total > 0}{math equation="y / x * 100" x=$debug.times.total y=$debug.times.db_queries format="%.0f"}%{/if}</span>{$debug.times.db_queries|time_format}</dd>
 			{/if}
 			{if $debug.queries_errors}
-				<dt class="query_error">{t}DB errors{/t}</dt>
-				<dd class="query_error"><strong>{$debug.queries_errors|@count}</strong></dd>
+				<dt class="no-hide query_error">{t}DB errors{/t}</dt>
+				<dd class="no-hide query_error"><strong>{$debug.queries_errors|@count}</strong></dd>
 			{/if}
 			{if $debug.queries_duplicated}
 				<dt class="query_duplicated">{t}Duplicated Queries{/t}</dt>
 				<dd class="query_duplicated"><strong>{$debug.queries_duplicated|@count}</strong></dd>
 			{/if}
 			{if $debug.smarty_errors}
-				<dt class="query_duplicated">{t}Smarty errors{/t}</dt>
-				<dd class="query_duplicated"><strong>{$debug.smarty_errors|@count}</strong></dd>
+				<dt class="no-hide query_duplicated">{t}Smarty errors{/t}</dt>
+				<dd class="no-hide query_duplicated"><strong>{$debug.smarty_errors|@count}</strong></dd>
 			{/if}
 			{if $debug.times.search}
 				<dt>{t}Searches{/t} <small>(<a href="{$url.sifo_debug_analyzer}?execution_key={$execution_key}#search_queries" target="_blank">{t 1=$debug.elements.search}%1 searches{/t}</a>)</small></dt>
@@ -130,8 +130,8 @@
 				<dd><span>{math equation="y / x * 100" x=$debug.times.total y=$debug.times.sphinxql format="%.0f"}%</span>{$debug.times.sphinxql|time_format}</dd>
 			{/if}
 			{if $debug.sphinxql_errors|default:false}
-				<dt class="query_error">{t}SphinxQL errors{/t}</dt>
-				<dd class="query_error"><strong>{$debug.sphinxql_errors|@count}</strong></dd>
+				<dt class="no-hide query_error">{t}SphinxQL errors{/t}</dt>
+				<dd class="no-hide query_error"><strong>{$debug.sphinxql_errors|@count}</strong></dd>
 			{/if}
 			{if $debug.times.cache}
 				<dt>{t}Cache{/t} <small>(<a href="{$url.sifo_debug_analyzer}?execution_key={$execution_key}#controllers" target="_blank">{t 1=$debug.elements.cache}%1 blocks{/t}</a>)</small></dt>
