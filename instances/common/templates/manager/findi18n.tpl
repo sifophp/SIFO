@@ -132,7 +132,7 @@ INSERT INTO i18n_messages values ( null, '{$literal|replace:"'":"\'"|escape:'htm
 			{foreach $missing_messages as $literal => $path}
 				<p>
 					<span class="original">{$literal|replace:"__":""|replace:"'":"\'"}</span>
-					$translations["<span class="original_visible">{$literal|replace:"__":""|replace:"'":"\'"|escape:'html'}</span>"] =
+					$translations["<span class="original_visible">{$literal|replace:"__":""|replace:'"':'\"'|escape:'html'}</span>"] =
 					"<span class="translated">...</span>";
 				</p>
 			{/foreach}
