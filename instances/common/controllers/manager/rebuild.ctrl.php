@@ -189,6 +189,7 @@ class ManagerRebuildController extends \Sifo\Controller
 							$type_files[$class]['Sifo'] = $path;
 						}
 					}
+
 				}
 			}
 		}
@@ -200,49 +201,54 @@ class ManagerRebuildController extends \Sifo\Controller
 			{
 				foreach ( $available_files as $k => $v )
 				{
-					$rel_path = $this->cleanStartingSlash( $v["relative"] );
+                    // Allow only PHP extensions
+                    $desired_file_pattern = preg_match( '/\.(php)$/i', $v["relative"] );
+                    if ( ( $type != 'templates' && $desired_file_pattern ) || $type == 'templates' )
+                    {
+                        $rel_path = $this->cleanStartingSlash( $v["relative"] );
 
-					$path = str_replace( '//', '/', "instances/$current_instance/$type/$rel_path" );
+                        $path = str_replace( '//', '/', "instances/$current_instance/$type/$rel_path" );
 
-					// Calculate the class name for the given file:
-					$rel_path = str_replace( '.model.php', '', $rel_path );
-					$rel_path = str_replace( '.ctrl.php', '', $rel_path );
-					$rel_path = str_replace( '.config.php', '', $rel_path );
-					$rel_path = str_replace( '.php', '', $rel_path ); // Default
+                        // Calculate the class name for the given file:
+                        $rel_path = str_replace( '.model.php', '', $rel_path );
+                        $rel_path = str_replace( '.ctrl.php', '', $rel_path );
+                        $rel_path = str_replace( '.config.php', '', $rel_path );
+                        $rel_path = str_replace( '.php', '', $rel_path ); // Default
 
-					$class = $this->getClassTypeStandarized( $rel_path );
+                        $class = $this->getClassTypeStandarized( $rel_path );
 
-					if ( 'default' != $current_instance )
-					{
-						$class_extended = $class . ucfirst( $current_instance );
-					}
-					else
-					{
-						$class_extended = $class;
-					}
+                        if ( 'default' != $current_instance )
+                        {
+                            $class_extended = $class . ucfirst( $current_instance );
+                        }
+                        else
+                        {
+                            $class_extended = $class;
+                        }
 
-					switch ( $type )
-					{
-						case 'controllers':
-							$class .= 'Controller';
-							$type_files[$class][ucfirst( $current_instance )] = $path;
-							break;
-						case 'models':
-							$class .= 'Model';
-							$type_files[$class][ucfirst( $current_instance )] = $path;
-							break;
-						case 'classes':
-							$type_files[$class][ucfirst( $current_instance )] = $path;
-							break;
-						case 'config':
-							if ( $rel_path == 'configuration_files' )
-							{
-								continue;
-							}
-						case 'templates':
-						default:
-							$type_files[$rel_path] = $path;
-					}
+                        switch ( $type )
+                        {
+                            case 'controllers':
+                                $class .= 'Controller';
+                                $type_files[$class][ucfirst( $current_instance )] = $path;
+                                break;
+                            case 'models':
+                                $class .= 'Model';
+                                $type_files[$class][ucfirst( $current_instance )] = $path;
+                                break;
+                            case 'classes':
+                                $type_files[$class][ucfirst( $current_instance )] = $path;
+                                break;
+                            case 'config':
+                                if ( $rel_path == 'configuration_files' )
+                                {
+                                    continue;
+                                }
+                            case 'templates':
+                            default:
+                                $type_files[$rel_path] = $path;
+                        }
+                    }
 				}
 			}
 		}
