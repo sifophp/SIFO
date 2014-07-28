@@ -94,13 +94,15 @@ class DebugDataBaseHandler
 			$statement = $this->persistence->prepare( $insert );
 
 			$date_time = new DateTime();
+            $timestamp = $date_time->getTimestamp();
 			$is_json   = (int) $is_json;
 
 			$statement->bindParam( ':execution_key', $execution_key, PDO::PARAM_STR );
 			$statement->bindParam( ':url', $url, PDO::PARAM_STR );
-			$statement->bindParam( ':debug_content', json_encode( $debug_content ), PDO::PARAM_STR );
+            $encoded_debug = json_encode( $debug_content );
+			$statement->bindParam( ':debug_content', $encoded_debug , PDO::PARAM_STR );
 			$statement->bindParam( ':is_json', $is_json, PDO::PARAM_INT );
-			$statement->bindParam( ':timestamp', $date_time->getTimestamp(), PDO::PARAM_INT );
+			$statement->bindParam( ':timestamp', $timestamp, PDO::PARAM_INT );
 
 			$statement->execute();
 		}
@@ -124,9 +126,10 @@ class DebugDataBaseHandler
 			$statement = $this->persistence->prepare( $delete );
 
 			$date_time_to_delete = new DateTime();
+            $timestamp = $date_time_to_delete->getTimestamp();
 			$date_time_to_delete->sub( new \DateInterval( 'P' . $this->days_to_keep_debugs . 'D' ) );
 
-			$statement->bindParam( ':timestamp', $date_time_to_delete->getTimestamp(), PDO::PARAM_INT );
+			$statement->bindParam( ':timestamp', $timestamp, PDO::PARAM_INT );
 
 			$statement->execute();
 		}
