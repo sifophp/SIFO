@@ -126,8 +126,8 @@ class DebugDataBaseHandler
 			$statement = $this->persistence->prepare( $delete );
 
 			$date_time_to_delete = new DateTime();
-            $timestamp = $date_time_to_delete->getTimestamp();
 			$date_time_to_delete->sub( new \DateInterval( 'P' . $this->days_to_keep_debugs . 'D' ) );
+            $timestamp = $date_time_to_delete->getTimestamp();
 
 			$statement->bindParam( ':timestamp', $timestamp, PDO::PARAM_INT );
 
