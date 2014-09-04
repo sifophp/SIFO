@@ -1,7 +1,7 @@
 {
     "name": "sifophp/sifo",
     "description": "SIFO framework.",
-    "license": "Apache License",
+    "license": "Apache-2.0",
     "keywords": [],
     "homepage": "https://github.com/sifophp/SIFO",
     "type": "project",
