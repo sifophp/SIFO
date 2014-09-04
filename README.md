@@ -1,3 +1,8 @@
+SIFO 3.0.1
+=======================================================
+Migrate SIFO to a vendor component.
+Work in Progress ;)
+
 Flexible PHP5 framework for real-world web applications
 =======================================================
 [SIFO] is a well-proven open source PHP5 framework currently running on several

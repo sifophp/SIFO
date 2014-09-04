@@ -1,0 +1,11 @@
+{
+    "name": "sifophp/sifo",
+    "description": "SIFO framework.",
+    "license": "Apache License",
+    "keywords": [],
+    "homepage": "https://github.com/sifophp/SIFO",
+    "type": "project",
+    "require": {
+        "php": ">=5.3.2"
+    }
+}
