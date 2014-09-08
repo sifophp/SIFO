@@ -20,24 +20,7 @@
 
 namespace Sifo;
 
-include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'predis' ) . '/lib/Predis/Autoloader.php';
-
-/**
- * Customized Predis autoloader.
- */
-class PredisAutoloader extends \Predis\Autoloader
-{
-    /**
-     * Registers the autoloader class with the PHP SPL autoloader.
-     *
-     * Extended so the predis autoloader is PREPENDED instead of appended
-     * to the autoload stack.
-     */
-    public static function register()
-    {
-        spl_autoload_register( array( new self, 'autoload' ), true, true );
-    }
-}
+include_once ROOT_PATH . '/vendor/predis/predis/src/Autoloader.php';
 
 /**
  * Predis adapter for Sifo.
@@ -65,7 +48,7 @@ class RedisModel
 	{
 		if ( !isset( self::$connected_client[$profile] ) )
 		{
-			PredisAutoloader::register();
+			\Predis\Autoloader::register( true );
 
 			if ( null == $profile )
 			{
