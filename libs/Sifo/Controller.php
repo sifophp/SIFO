@@ -378,7 +378,7 @@ abstract class Controller
 				newrelic_name_transaction( $this->params['controller'] );
 			}
 
-			echo $cached_content;
+            $this->echoOutput( $cached_content );
 			return;
 		}
 
@@ -443,7 +443,7 @@ abstract class Controller
 			newrelic_name_transaction( $this->params['controller'] );
 		}
 
-		echo $content;
+        $this->echoOutput( $content );
 	}
 
 	/**
@@ -761,6 +761,17 @@ abstract class Controller
 	 */
 	public function postDispatch() {}
 
+    /**
+     * Sends the output to the browser (echo), both cached or not.
+     *
+     * This is the last chance to modify the output.
+     *
+     * @param $output
+     */
+    public function echoOutput( $output )
+    {
+        echo $output;
+    }
 	/**
 	 * Returns the parameters relative to this controller.
 	 *
