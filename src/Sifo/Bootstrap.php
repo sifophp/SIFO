@@ -30,6 +30,7 @@ if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
  * Class Bootstrap
  */
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/sifo/Config.php';
+require_once ROOT_PATH . '/vendor/autoload.php';
 
 class Bootstrap
 {
