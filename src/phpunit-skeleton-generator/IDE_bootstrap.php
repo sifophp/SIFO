@@ -9,7 +9,7 @@
 
 define( 'ROOT_PATH', realpath( dirname( __FILE__ ) . '/../..' ) );
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/sifo/Bootstrap.php';
+require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Bootstrap.php';
 require_once ROOT_PATH.'/vendor/sifophp/sifo/src/PHPUnit-3.5.0/Text/Template.php';
 
 

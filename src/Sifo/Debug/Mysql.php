@@ -21,7 +21,7 @@
 namespace Sifo;
 use PDO,PDOStatement;
 
-include_once ROOT_PATH . '/vendor/sifophp/sifo/src/sifo/Mysql.php';
+include_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Mysql.php';
 
 /**
  * DbDebugStatement class that is extended for debugging purposes.

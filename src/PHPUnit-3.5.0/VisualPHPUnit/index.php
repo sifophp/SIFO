@@ -59,7 +59,7 @@
 
 	define( 'ROOT_PATH', realpath( dirname( __FILE__ ) . '/../../..' ) );
 
-	require_once ROOT_PATH . '/vendor/sifophp/sifo/src/sifo/Bootstrap.php';
+	require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Bootstrap.php';
 
 	\Sifo\Bootstrap::$instance = 'common';
 

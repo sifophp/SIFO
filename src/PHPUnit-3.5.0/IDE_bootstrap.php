@@ -9,7 +9,7 @@
 
 define( 'ROOT_PATH', realpath( dirname( __FILE__ ) . '/../..' ) );
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/sifo/Bootstrap.php';
+require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Bootstrap.php';
 require_once dirname( __FILE__).'\Extensions\ControllerTest.php';
 require_once dirname( __FILE__).'\VisualPHPUnit\CoverageAnalysis.php';
 
