@@ -380,7 +380,8 @@ class Sphinxql
 	 */
 	protected function logError( $error )
 	{
-		trigger_error( '[SphinxQL ERROR] ' . $error );
+        $filterServer = \Sifo\FilterServer::getInstance();
+        trigger_error('[SphinxQL ERROR] ' . $error . ' in ' . $filterServer->getString('HTTP_REFERER') . ' calling ' . $filterServer->getString('SCRIPT_URI'));
 	}
 }
 

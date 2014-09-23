@@ -51,7 +51,7 @@ class CacheBase
 	 *
 	 * @var bool
 	 */
-	public $use_locking = true;
+	public $use_locking = false;
 
 	/**
 	 * Keeps a copy of all the tags versions.
