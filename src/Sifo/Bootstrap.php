@@ -29,6 +29,7 @@ if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
 /**
  * Class Bootstrap
  */
+require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Exceptions.php';
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Config.php';
 require_once ROOT_PATH . '/vendor/autoload.php';
 
