@@ -107,7 +107,7 @@ class Browscap
     public $timeout = 5;
     public $updateInterval = 432000;  // 5 days
     public $errorInterval = 7200;  // 2 hours
-    public $doAutoUpdate = true;
+    public $doAutoUpdate = false;
     public $updateMethod = null;
 
     /**
