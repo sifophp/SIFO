@@ -95,7 +95,7 @@ class DebugMysqlStatement extends MysqlStatement
 
 	protected function getPopulatedQuery()
 	{
-		$query_string = '/* ' . $context . ' */' . PHP_EOL . $this->queryString;
+		$queryString = $this->queryString;
 
 		foreach ($this->binded_params as $param => $value)
 		{
@@ -221,7 +221,6 @@ class DebugMysql extends Mysql
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
-		$statement = '/* ' . $context . ' */' . PHP_EOL . $statement;
 		$this->setDebug( $statement, $query_time, $context, $result, $this->db_params, $this->pdo );
 
 		return $result;
@@ -275,7 +274,7 @@ class DebugMysql extends Mysql
 
 		$debug_query = array(
 			"tag" => $context,
-			"sql" => $statement,
+			"sql" => '/* ' . $context . ' */' . PHP_EOL . $statement,
 			"type" => ( ( 0 === stripos( $statement, 'SELECT' ) ) ? 'read' : 'write' ),
 			"host" => $db_params['db_host'],
 			"database" => $db_params['db_name'],
