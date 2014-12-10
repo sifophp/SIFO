@@ -53,7 +53,7 @@ class MysqlStatement extends PDOStatement
 
 		if (!array_key_exists($profile, $params))
 		{
-			$params[$profile] = $profile;
+			$params[$profile] = $params;
 		}
 
 		$this->db_params = $params[$profile];
