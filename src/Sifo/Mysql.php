@@ -50,6 +50,12 @@ class MysqlStatement extends PDOStatement
 	{
         $this->dbh = $dbh;
 		$params = Domains::getInstance()->getDatabaseParams();
+
+		if (!array_key_exists($profile, $params))
+		{
+			$params[$profile] = $profile;
+		}
+
 		$this->db_params = $params[$profile];
     }
 
