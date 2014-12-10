@@ -29,6 +29,13 @@ include_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Mysql.php';
 class DebugMysqlStatement extends MysqlStatement
 {
 	/**
+	 * Binded parameters ( not binded values ).
+	 *
+	 * @var array
+	 */
+	protected $binded_params = array();
+
+	/**
 	 * The fetched result.
 	 *
 	 * Used to avoid the resultset of returning an empty array in the actual call
@@ -38,6 +45,25 @@ class DebugMysqlStatement extends MysqlStatement
 	 * @var array
 	 */
 	protected $result = null;
+
+	/**
+	 * Binds a parameter to be replaced in the query string.
+	 *
+	 * @param mixed $parameter      The parameter to bind.
+	 * @param mixed &$variable      The variable to use in the binding.
+	 * @param int   $data_type      The optional PDO data type to bind.
+	 * @param int   $length         The binded value length.
+	 * @param mixed $driver_options The optional driver options.
+	 *
+	 * @return boolean True on success, false on failure.
+	 */
+	public function bindParam($parameter, &$variable, $data_type = \PDO::PARAM_STR, $length = 0, $driver_options = null)
+	{
+		$formatted_value                 = ($data_type == \PDO::PARAM_STR ? '"' . $variable . '"' : $variable);
+		$this->binded_params[$parameter] = $formatted_value;
+
+		return parent::bindParam($parameter, $variable, $data_type, $length, $driver_options);
+	}
 
 	/**
 	 * Executes the current statement.
@@ -54,7 +80,9 @@ class DebugMysqlStatement extends MysqlStatement
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
-		$query_string = $this->_replacePreparedParameters( $this->queryString, $parameters );
+		$query_string = $this->getPopulatedQuery();
+		$query_string = $this->_replacePreparedParameters( $query_string, $parameters );
+
 		DebugMysql::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
 
 		if ( !$result )
@@ -63,6 +91,18 @@ class DebugMysqlStatement extends MysqlStatement
 		}
 
 		return $result;
+	}
+
+	protected function getPopulatedQuery()
+	{
+		$query_string = '/* ' . $context . ' */' . PHP_EOL . $this->queryString;
+
+		foreach ($this->binded_params as $param => $value)
+		{
+			$query_string = str_replace($param, $value, $query_string);
+		}
+
+		return $query_string;
 	}
 
 	private function _replacePreparedParameters( $query_string, Array $parameters )
@@ -181,6 +221,7 @@ class DebugMysql extends Mysql
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
+		$statement = '/* ' . $context . ' */' . PHP_EOL . $statement;
 		$this->setDebug( $statement, $query_time, $context, $result, $this->db_params, $this->pdo );
 
 		return $result;
