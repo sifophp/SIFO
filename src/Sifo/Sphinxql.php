@@ -261,7 +261,7 @@ class Sphinxql
 					$result->free();
 				}
 			}
-			while ( $this->sphinxql->next_result() );
+			while ( $this->sphinxql->more_results() && $this->sphinxql->next_result() );
 		}
 
 		$this->multi_query = '';
