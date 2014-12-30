@@ -171,7 +171,9 @@ class Bootstrap
             'prod' => ROOT_PATH . '/instances/' . $instance . '/config/di/services.yml',
         );
 
-        if ($is_dev_environment || !file_exists($php_services_files['prod'])) {
+        if ($is_dev_environment) {
+        	$should_display_generation_error = !file_exists($php_services_files['prod']);
+
             if (!is_dir($compiled_services_dir)) {
                 $config_dir_permissions = fileperms($config_dir);
                 chmod($config_dir, 0777);
@@ -206,10 +208,18 @@ class Bootstrap
                 $container->compile();
                 file_put_contents($php_services_files['prod'], $dumper->dump());
             }
-        }
 
-        if (!file_exists($php_services_files[$environment])) {
-            $environment = 'prod';
+            if ($should_display_generation_error) {
+            	trigger_error(
+            		'The new service declaration files were created ( ' . $instance . '/config/di/compiled/* ). ' .
+            		'Remember to commit those files! ' .
+            		'This error will never show again.'
+            	);
+            }
+
+	        if (!file_exists($php_services_files[$environment])) {
+	            $environment = 'prod';
+	        }
         }
 
         require_once $php_services_files[$environment];
