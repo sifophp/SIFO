@@ -21,6 +21,12 @@
 
 namespace Sifo;
 
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
 if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
 	newrelic_set_appname( ucfirst( $instance ) );
@@ -69,6 +75,13 @@ class Bootstrap
 	 * @var string
 	 */
 	public static $controller = null;
+
+    /**
+     * The dependency injection container.
+     *
+     * @var Container
+     */
+    public static $container;
 
 	/**
 	 * This classes will be loaded in this order and ALWAYS before starting
@@ -124,19 +137,84 @@ class Bootstrap
 		Benchmark::getInstance()->timingStop();
 	}
 
-	/**
-	 * Registers the autoload used by Sifo.
-	 *
-	 * @static
-	 */
-	public static function autoload()
-	{
-		// Register autoloader:
-		return spl_autoload_register( array(
-		                                   '\\Sifo\Bootstrap',
-		                                   'includeFile'
-		                              ) );
-	}
+    /**
+     * Registers the autoload used by Sifo.
+     *
+     * @static
+     */
+    public static function autoload()
+    {
+        $autoload = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
+        self::loadDependencyInjector();
+
+        return $autoload;
+    }
+
+    /**
+     * Loads the Symfony dependency injection component with the defined services in the instance.
+     */
+    public static function loadDependencyInjector()
+    {
+        $instance              = self::$instance;
+        $is_dev_environment    = Domains::getInstance()->getDevMode();
+        $environment           = ($is_dev_environment ? 'dev' : 'prod');
+        $config_dir            = ROOT_PATH . '/instances/' . $instance . '/config';
+        $compiled_services_dir = ROOT_PATH . '/instances/' . $instance . '/config/di/compiled';
+
+        $php_services_files = array(
+            'dev'  => ROOT_PATH . '/instances/' . $instance . '/config/di/compiled/services_dev.php',
+            'prod' => ROOT_PATH . '/instances/' . $instance . '/config/di/compiled/services.php',
+        );
+
+        $yml_services_files = array(
+            'dev'  => ROOT_PATH . '/instances/' . $instance . '/config/di/services_dev.yml',
+            'prod' => ROOT_PATH . '/instances/' . $instance . '/config/di/services.yml',
+        );
+
+        if ($is_dev_environment || !file_exists($php_services_files['prod'])) {
+            if (!is_dir($compiled_services_dir)) {
+                $config_dir_permissions = fileperms($config_dir);
+                chmod($config_dir, 0777);
+
+                mkdir($compiled_services_dir, 0777, true);
+                chmod($config_dir, $config_dir_permissions);
+            }
+
+            if (file_exists($yml_services_files['dev'])) {
+                $container   = new ContainerBuilder;
+                $yaml_loader = new YamlFileLoader($container, new FileLocator(ROOT_PATH));
+                $dumper      = new PhpDumper($container);
+
+                $yaml_loader->load($yml_services_files['dev']);
+                $container->compile();
+                file_put_contents($php_services_files['dev'], $dumper->dump());
+            }
+
+            if (file_exists($yml_services_files['prod'])) {
+                $container   = new ContainerBuilder;
+                $yaml_loader = new YamlFileLoader($container, new FileLocator(ROOT_PATH));
+                $dumper      = new PhpDumper($container);
+
+                $yaml_loader->load($yml_services_files['prod']);
+                $container->compile();
+                file_put_contents($php_services_files['prod'], $dumper->dump());
+            }
+            else {
+                $container = new ContainerBuilder;
+                $dumper    = new PhpDumper($container);
+
+                $container->compile();
+                file_put_contents($php_services_files['prod'], $dumper->dump());
+            }
+        }
+
+        if (!file_exists($php_services_files[$environment])) {
+            $environment = 'prod';
+        }
+
+        require_once $php_services_files[$environment];
+        self::$container = new \ProjectServiceContainer;
+    }
 
 	/**
 	 * Invokes a controller with the folder/action form.
@@ -147,17 +225,20 @@ class Bootstrap
 	 */
 	public static function invokeController( $controller )
 	{
-		$controller_path = explode( '/', $controller );
+        $controller_path = explode( '/', $controller );
 
-		$class = '';
-		foreach ( $controller_path as $part )
-		{
-			$class .= ucfirst( $part );
-		}
+        $class = '';
+        foreach ( $controller_path as $part )
+        {
+            $class .= ucfirst( $part );
+        }
 
-		$class .= 'Controller';
+        $class .= 'Controller';
 
-		return self::getClass( $class );
+        $controller = self::getClass( $class );
+        $controller->setContainer(self::$container);
+
+        return $controller;
 	}
 
 	/**

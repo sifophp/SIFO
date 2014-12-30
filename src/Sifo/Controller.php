@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Symfony\Component\DependencyInjection\Container;
+
 abstract class Controller
 {
      /**
@@ -97,6 +99,13 @@ abstract class Controller
 	 */
 	protected $cache_definition;
 
+    /**
+     * The dependency injection container.
+     *
+     * @var Container
+     */
+    protected $container;
+
 	/**
 	 * I18n object
 	 *
@@ -151,6 +160,16 @@ abstract class Controller
 		$this->cache = Cache::getInstance( Cache::CACHE_TYPE_AUTODISCOVER );
 		$this->view = new View();
 	}
+
+    /**
+     * Sets the dependency injection container.
+     *
+     * @param Container $container The container to use.
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+    }
 
 	public function getAssignedVars()
 	{

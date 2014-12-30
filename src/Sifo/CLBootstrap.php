@@ -28,6 +28,7 @@ class CLBootstrap extends Bootstrap
 
 		// Register autoloader:
 		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
+		self::loadDependencyInjector();
 
 		// Set paths:
 		self::$root = ROOT_PATH;
