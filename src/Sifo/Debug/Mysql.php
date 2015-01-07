@@ -95,7 +95,7 @@ class DebugMysqlStatement extends MysqlStatement
 
 	protected function getPopulatedQuery()
 	{
-		$queryString = $this->queryString;
+		$query_string = $this->queryString;
 
 		foreach ($this->binded_params as $param => $value)
 		{
