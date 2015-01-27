@@ -21,12 +21,6 @@
 
 namespace Sifo;
 
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-
 if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
 	newrelic_set_appname( ucfirst( $instance ) );
@@ -79,7 +73,7 @@ class Bootstrap
     /**
      * The dependency injection container.
      *
-     * @var Container
+     * @var DependencyInjector
      */
     public static $container;
 
@@ -144,97 +138,21 @@ class Bootstrap
      */
     public static function autoload()
     {
-        $autoload = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
-        self::loadDependencyInjector();
+        $autoload        = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
+        self::$container = DependencyInjector::getInstance();
 
         return $autoload;
     }
 
     /**
-     * Loads the Symfony dependency injection component with the defined services in the instance.
+     * Invokes a controller with the folder/action form.
+     *
+     * @param string $controller The controller in folder/action form.
+     *
+     * @return Controller|void
      */
-    public static function loadDependencyInjector()
+    public static function invokeController( $controller )
     {
-        $instance              = self::$instance;
-        $is_dev_environment    = Domains::getInstance()->getDevMode();
-        $environment           = ($is_dev_environment ? 'dev' : 'prod');
-        $config_dir            = ROOT_PATH . '/instances/' . $instance . '/config';
-        $compiled_services_dir = ROOT_PATH . '/instances/' . $instance . '/config/di/compiled';
-
-        $php_services_files = array(
-            'dev'  => ROOT_PATH . '/instances/' . $instance . '/config/di/compiled/services_dev.php',
-            'prod' => ROOT_PATH . '/instances/' . $instance . '/config/di/compiled/services.php',
-        );
-
-        $yml_services_files = array(
-            'dev'  => ROOT_PATH . '/instances/' . $instance . '/config/di/services_dev.yml',
-            'prod' => ROOT_PATH . '/instances/' . $instance . '/config/di/services.yml',
-        );
-
-        if ($is_dev_environment) {
-        	$should_display_generation_error = !file_exists($php_services_files['prod']);
-
-            if (!is_dir($compiled_services_dir)) {
-                $config_dir_permissions = fileperms($config_dir);
-                chmod($config_dir, 0777);
-
-                mkdir($compiled_services_dir, 0777, true);
-                chmod($config_dir, $config_dir_permissions);
-            }
-
-            if (file_exists($yml_services_files['dev'])) {
-                $container   = new ContainerBuilder;
-                $yaml_loader = new YamlFileLoader($container, new FileLocator(ROOT_PATH));
-                $dumper      = new PhpDumper($container);
-
-                $yaml_loader->load($yml_services_files['dev']);
-                $container->compile();
-                file_put_contents($php_services_files['dev'], $dumper->dump());
-            }
-
-            if (file_exists($yml_services_files['prod'])) {
-                $container   = new ContainerBuilder;
-                $yaml_loader = new YamlFileLoader($container, new FileLocator(ROOT_PATH));
-                $dumper      = new PhpDumper($container);
-
-                $yaml_loader->load($yml_services_files['prod']);
-                $container->compile();
-                file_put_contents($php_services_files['prod'], $dumper->dump());
-            }
-            else {
-                $container = new ContainerBuilder;
-                $dumper    = new PhpDumper($container);
-
-                $container->compile();
-                file_put_contents($php_services_files['prod'], $dumper->dump());
-            }
-
-            if ($should_display_generation_error) {
-            	trigger_error(
-            		'The new service declaration files were created ( ' . $instance . '/config/di/compiled/* ). ' .
-            		'Remember to commit those files! ' .
-            		'This error will never show again.'
-            	);
-            }
-
-	        if (!file_exists($php_services_files[$environment])) {
-	            $environment = 'prod';
-	        }
-        }
-
-        require_once $php_services_files[$environment];
-        self::$container = new \ProjectServiceContainer;
-    }
-
-	/**
-	 * Invokes a controller with the folder/action form.
-	 *
-	 * @param string $controller The controller in folder/action form.
-	 *
-	 * @return Controller|void
-	 */
-	public static function invokeController( $controller )
-	{
         $controller_path = explode( '/', $controller );
 
         $class = '';
@@ -249,7 +167,7 @@ class Bootstrap
         $controller->setContainer(self::$container);
 
         return $controller;
-	}
+    }
 
 	/**
 	 * Includes (include_once) the file corresponding to the passed passed classname.

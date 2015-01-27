@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-use Symfony\Component\DependencyInjection\Container;
-
 abstract class Controller
 {
      /**
@@ -102,7 +100,7 @@ abstract class Controller
     /**
      * The dependency injection container.
      *
-     * @var Container
+     * @var DependencyInjector
      */
     protected $container;
 
@@ -164,9 +162,9 @@ abstract class Controller
     /**
      * Sets the dependency injection container.
      *
-     * @param Container $container The container to use.
+     * @param DependencyInjector $container The container to use.
      */
-    public function setContainer(Container $container)
+    public function setContainer(DependencyInjector $container)
     {
         $this->container = $container;
     }
