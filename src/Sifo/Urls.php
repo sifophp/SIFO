@@ -157,10 +157,15 @@ class Urls
 		// If url ends in slash, remove it and redirect:
 		if ( ( strlen( $path ) > 1 ) && ( substr( $path, -1 ) == '/' ) )
 		{
-			$path = trim( $path, '/' );
+			$path = trim($path, '/');
+			if (!empty($query_string))
+			{
+				$path .= '?' . urldecode($query_string);
+			}
 
 			header( 'HTTP/1.0 Moved Permanently 301' );
 			header( 'Location: ' . $this->getBaseUrl() . "/$path" );
+			exit();
 		}
 
 		$path = ltrim( $path, '/' );
