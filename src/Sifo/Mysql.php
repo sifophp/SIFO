@@ -63,10 +63,9 @@ class MysqlStatement extends PDOStatement
 	 * Executes the current statement.
 	 *
 	 * @param array $parameters The array of parameters to be replaced in the statement.
-	 * @param string $context The context of the query.
 	 * @return bool True if everything went OK, false otherwise.
 	 */
-	public function execute( $parameters = array(), $context = null )
+	public function execute(array $parameters = array())
 	{
 		if ( $parameters !== array() )
 		{
@@ -195,7 +194,7 @@ class Mysql
 	 * @param string $context Used in debug to identify the query context.
 	 * @return PDOStatament
 	 */
-	public function query( $statement, $context = null )
+	public function query($statement)
 	{
 		return $this->pdo->query( $statement );
 	}

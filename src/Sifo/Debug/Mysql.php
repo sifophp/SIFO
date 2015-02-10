@@ -69,10 +69,9 @@ class DebugMysqlStatement extends MysqlStatement
 	 * Executes the current statement.
 	 *
 	 * @param array $parameters The array of parameters to be replaced in the statement.
-	 * @param string $context The context of the query.
 	 * @return bool True if everything went OK, false otherwise.
 	 */
-	public function execute( $parameters = array(), $context = null )
+	public function execute(array $parameters = array())
 	{
 		Benchmark::getInstance()->timingStart( 'db_queries' );
 
@@ -82,6 +81,10 @@ class DebugMysqlStatement extends MysqlStatement
 
 		$query_string = $this->getPopulatedQuery();
 		$query_string = $this->_replacePreparedParameters( $query_string, $parameters );
+
+		preg_match('/\/\* (.+)? \*\/\n(.*)/s', $query_string, $matches);
+		$context      = $matches[1];
+		$query_string = $matches[2];
 
 		DebugMysql::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
 
@@ -210,11 +213,14 @@ class DebugMysql extends Mysql
 	 * Calls the pdo query method.
 	 *
 	 * @param string $statement The query statement to be executed in the database server.
-	 * @param string $context Used in debug to identify the query context.
 	 * @return PDOStatament
 	 */
-	public function query( $statement, $context = null )
+	public function query($statement)
 	{
+		preg_match('/\/\* (.+)? \*\/\n(.*)/s', $statement, $matches);
+		$context   = $matches[1];
+		$statement = $matches[2];
+
 		Benchmark::getInstance()->timingStart( 'db_queries' );
 
 		$result = $this->pdo->query( $statement );
