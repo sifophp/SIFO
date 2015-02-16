@@ -6,7 +6,8 @@
     "homepage": "https://github.com/sifophp/SIFO",
     "type": "project",
     "require": {
-        "php": ">=5.3.2"
+        "php": ">=5.3.2",
+        "tpyo/amazon-s3-php-class": "0.5.*"
     },
     "require": {
         "symfony/yaml": "2.6.0"

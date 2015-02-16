@@ -20,8 +20,6 @@
 
 namespace Sifo;
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Amazon/S3.php';
-
 /**
  * Adapter for the Amazon WS clients.
  */
