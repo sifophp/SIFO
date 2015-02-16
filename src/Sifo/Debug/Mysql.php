@@ -71,7 +71,7 @@ class DebugMysqlStatement extends MysqlStatement
 	 * @param array $parameters The array of parameters to be replaced in the statement.
 	 * @return bool True if everything went OK, false otherwise.
 	 */
-	public function execute(array $parameters = array())
+	public function execute($parameters = null)
 	{
 		Benchmark::getInstance()->timingStart( 'db_queries' );
 
@@ -108,8 +108,13 @@ class DebugMysqlStatement extends MysqlStatement
 		return $query_string;
 	}
 
-	private function _replacePreparedParameters( $query_string, Array $parameters )
+	private function _replacePreparedParameters( $query_string, $parameters )
 	{
+        if ( !$parameters )
+        {
+            return $query_string;
+        }
+
 		foreach( $parameters as $param => $value )
 		{
 			if ( !is_numeric( $value ) )

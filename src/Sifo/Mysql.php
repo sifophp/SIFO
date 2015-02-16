@@ -63,18 +63,12 @@ class MysqlStatement extends PDOStatement
 	 * Executes the current statement.
 	 *
 	 * @param array $parameters The array of parameters to be replaced in the statement.
-	 * @return bool True if everything went OK, false otherwise.
+	 *
+     * @return bool True if everything went OK, false otherwise.
 	 */
-	public function execute(array $parameters = array())
+	public function execute($parameters = null)
 	{
-		if ( $parameters !== array() )
-		{
-			return parent::execute( $parameters );
-		}
-		else
-		{
-			return parent::execute();
-		}
+        return parent::execute($parameters );
 	}
 
 	/**
