@@ -30,7 +30,7 @@ function smarty_modifier_capitalize($string, $uc_digits = false, $lc_rest = fals
             $upper_string = mb_convert_case( $string, MB_CASE_TITLE, SMARTY_RESOURCE_CHAR_SET );
         } else {
             // uppercase word breaks
-            $upper_string = preg_replace("!(^|[^\p{L}'])([\p{Ll}])!ueS", "stripslashes('\\1').mb_convert_case(stripslashes('\\2'),MB_CASE_UPPER, SMARTY_RESOURCE_CHAR_SET)", $string);
+            $upper_string = preg_replace_callback("!(^|[^\p{L}'])([\p{Ll}])!Su", 'smarty_mod_cap_mbconvert_cb', $string);
         }
         // check uc_digits case
         if (!$uc_digits) {
@@ -40,7 +40,7 @@ function smarty_modifier_capitalize($string, $uc_digits = false, $lc_rest = fals
                 }
             } 
         }
-        $upper_string = preg_replace("!((^|\s)['\"])(\w)!ue", "stripslashes('\\1').mb_convert_case(stripslashes('\\3'),MB_CASE_UPPER, SMARTY_RESOURCE_CHAR_SET)", $upper_string);
+        $upper_string = preg_replace_callback("!((^|\s)['\"])(\w)!u", 'smarty_mod_cap_mbconvert2_cb', $upper_string);
         return $upper_string;
     }
     
@@ -49,7 +49,7 @@ function smarty_modifier_capitalize($string, $uc_digits = false, $lc_rest = fals
         $string = strtolower($string);
     }
     // uppercase (including hyphenated words)
-    $upper_string = preg_replace("!(^|[^\p{L}'])([\p{Ll}])!ueS", "stripslashes('\\1').ucfirst(stripslashes('\\2'))", $string); 
+    $upper_string = preg_replace_callback("!(^|[^\p{L}'])([\p{Ll}])!Su", 'smarty_mod_cap_ucfirst_cb', $string);
     // check uc_digits case
     if (!$uc_digits) {
         if (preg_match_all("!\b([\p{L}]*[\p{N}]+[\p{L}]*)\b!u", $string, $matches, PREG_OFFSET_CAPTURE)) {
@@ -58,8 +58,25 @@ function smarty_modifier_capitalize($string, $uc_digits = false, $lc_rest = fals
             }
         } 
     }
-    $upper_string = preg_replace("!((^|\s)['\"])(\w)!ue", "stripslashes('\\1').strtoupper(stripslashes('\\3'))", $upper_string);
+    $upper_string = preg_replace_callback("!((^|\s)['\"])(\w)!u", 'smarty_mod_cap_ucfirst2_cb', $upper_string);
     return $upper_string;
 } 
+function smarty_mod_cap_mbconvert_cb($matches)
+{
+    return stripslashes($matches[1]) . mb_convert_case(stripslashes($matches[2]), MB_CASE_UPPER, SMARTY_RESOURCE_CHAR_SET);
+}
 
-?>
+function smarty_mod_cap_mbconvert2_cb($matches)
+{
+    return stripslashes($matches[1]) . mb_convert_case(stripslashes($matches[3]), MB_CASE_UPPER, SMARTY_RESOURCE_CHAR_SET);
+}
+
+function smarty_mod_cap_ucfirst_cb($matches)
+{
+    return stripslashes($matches[1]) . ucfirst(stripslashes($matches[2]));
+}
+
+function smarty_mod_cap_ucfirst2_cb($matches)
+{
+    return stripslashes($matches[1]) . ucfirst(stripslashes($matches[3]));
+}
