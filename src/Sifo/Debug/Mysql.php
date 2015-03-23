@@ -321,6 +321,11 @@ class DebugMysql extends Mysql
 		$trace = '';
 		foreach ( $debug_backtrace as $key => $step )
 		{
+			if (!(isset($step['file']) && isset($step['line']) && isset($step['class']) && isset($step['function']))) {
+				$trace .= "#$key {$step['function']}\n";
+				continue;
+			}
+
 			$trace .= "#$key {$step['file']}({$step['line']}) : {$step['class']}::{$step['function']}()\n";
 		}
 
