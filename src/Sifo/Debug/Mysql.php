@@ -196,6 +196,13 @@ class DebugMysql extends Mysql
 	const STATEMENT_CLASS = '\\Sifo\\DebugMysqlStatement';
 
 	/**
+	 * Executed query contexts.
+	 *
+	 * @var array
+	 */
+	static private $executed_query_contexts = array();
+
+	/**
 	 * Singleton static method.
 	 *
 	 * @param string $profile The database server to connect to.
@@ -305,6 +312,14 @@ class DebugMysql extends Mysql
 			file_put_contents( ROOT_PATH . '/logs/errors_database.log', "================================\nDate: " . date( 'd-m-Y H:i:s') . "\nError:\n". $error . "\n ", FILE_APPEND );
 			Debug::push( 'queries_errors', $error );
 		}
+
+		if (in_array($context, self::$executed_query_contexts))
+		{
+			$debug_query['duplicated'] = true;
+			Debug::push( 'duplicated_queries', 1 );
+		}
+
+		self::$executed_query_contexts[] = $context;
 
 		Debug::push( 'queries', $debug_query );
 	}
