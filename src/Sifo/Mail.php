@@ -72,7 +72,7 @@ class Mail
 	 * @param mixed $args
 	 * @return mixed
 	 */
-	function __call( $method, $args )
+    public function __call( $method, $args )
 	{
 		return call_user_func_array( array( $this->mail, $method ), $args );
 	}
@@ -82,7 +82,7 @@ class Mail
 	 *
 	 * @param string $property
 	 */
-	function __get( $property )
+    public function __get( $property )
 	{
 		return $this->mail->$property;
 	}
@@ -93,7 +93,7 @@ class Mail
 	 * @param string $property
 	 * @param mixed $value
 	 */
-	function __set( $property, $value )
+    public function __set( $property, $value )
 	{
 		$this->mail->$property = $value;
 	}
