@@ -22,8 +22,14 @@ namespace Sifo;
 
 class Mail
 {
+    /**
+     * @var \PHPMailer
+     */
 	protected $mail;
 
+    /**
+     * @var self
+     */
 	static private $instance;
 
 	/**
@@ -46,7 +52,6 @@ class Mail
 	{
 		$config = Config::getInstance()->getConfig( 'mail' );
 
-		include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'phpmailer' ) .'/class.phpmailer.php';
 		$this->mail = new \PHPMailer();
 		$this->mail->CharSet 		= $config['CharSet'];
 		$this->mail->From			= $config['From'];
