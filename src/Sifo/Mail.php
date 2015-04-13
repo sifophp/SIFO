@@ -22,101 +22,111 @@ namespace Sifo;
 
 class Mail
 {
-	protected $mail;
+    /**
+     * @var \PHPMailer
+     */
+    protected $mail;
 
-	static private $instance;
+    /**
+     * @var self
+     */
+    static private $instance;
 
-	/**
-	 * Singleton of Client class.
-	 *
-	 * @param string $instance_name Instance Name, needed to determine correct paths.
-	 * @return object Client
-	 */
-	public static function getInstance()
-	{
-		if ( !isset ( self::$instance ) )
-		{
-			self::$instance = new self();
-		}
+    /**
+     * Singleton of Client class.
+     *
+     * @param string $instance_name Instance Name, needed to determine correct paths.
+     *
+     * @return object Client
+     */
+    public static function getInstance()
+    {
+        if (!isset (self::$instance))
+        {
+            self::$instance = new self();
+        }
 
-		return self::$instance;
-	}
+        return self::$instance;
+    }
 
-	public function __construct()
-	{
-		$config = Config::getInstance()->getConfig( 'mail' );
+    public function __construct()
+    {
+        $config = Config::getInstance()->getConfig('mail');
 
-		include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'phpmailer' ) .'/class.phpmailer.php';
-		$this->mail = new \PHPMailer();
-		$this->mail->CharSet 		= $config['CharSet'];
-		$this->mail->From			= $config['From'];
-		$this->mail->FromName		= $config['FromName'];
+        $this->mail           = new \PHPMailer();
+        $this->mail->CharSet  = $config['CharSet'];
+        $this->mail->From     = $config['From'];
+        $this->mail->FromName = $config['FromName'];
 
-		foreach( $config as $property => $value )
-		{
-			$this->mail->$property = $value;
-		}
-		return $this->mail;
-	}
+        foreach ($config as $property => $value)
+        {
+            $this->mail->$property = $value;
+        }
 
-
-	/**
-	 * Calls the PHPmailer methods.
-	 *
-	 * @param string $method
-	 * @param mixed $args
-	 * @return mixed
-	 */
-	function __call( $method, $args )
-	{
-		return call_user_func_array( array( $this->mail, $method ), $args );
-	}
-
-	/**
-	 * Get any phpmailer attribute.
-	 *
-	 * @param string $property
-	 */
-	function __get( $property )
-	{
-		return $this->mail->$property;
-	}
-
-	/**
-	 * Set any phpmailer attribute.
-	 *
-	 * @param string $property
-	 * @param mixed $value
-	 */
-	function __set( $property, $value )
-	{
-		$this->mail->$property = $value;
-	}
+        return $this->mail;
+    }
 
 
-	/**
-	 * Send an email.
-	 *
-	 * @param string $to
-	 * @param string $subject
-	 * @param string $body
-	 * @return boolean
-	 */
-	public function send( $to, $subject, $body )
-	{
-		$this->mail->Subject		= $subject;
-		$this->mail->AltBody		= strip_tags( $body );
-		$this->mail->AddAddress( $to );
-		$this->mail->MsgHTML( $body );
+    /**
+     * Calls the PHPmailer methods.
+     *
+     * @param string $method
+     * @param mixed  $args
+     *
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        return call_user_func_array(array($this->mail, $method), $args);
+    }
 
-		if ( !$this->mail->Send() )
-		{
-			trigger_error( $this->mail->ErrorInfo );
-			return false;
-		}
+    /**
+     * Get any phpmailer attribute.
+     *
+     * @param string $property
+     */
+    public function __get($property)
+    {
+        return $this->mail->$property;
+    }
 
-		$this->mail->ClearAddresses();
+    /**
+     * Set any phpmailer attribute.
+     *
+     * @param string $property
+     * @param mixed  $value
+     */
+    public function __set($property, $value)
+    {
+        $this->mail->$property = $value;
+    }
 
-		return true;
-	}
+
+    /**
+     * Send an email.
+     *
+     * @param string $to
+     * @param string $subject
+     * @param string $body
+     *
+     * @return boolean
+     */
+    public function send($to, $subject, $body)
+    {
+        $this->mail->Subject = $subject;
+        $this->mail->AltBody = strip_tags($body);
+        $this->mail->AddAddress($to);
+        $this->mail->MsgHTML($body);
+
+        if (!$this->mail->Send())
+        {
+            trigger_error($this->mail->ErrorInfo);
+
+            return false;
+        }
+
+        $this->mail->ClearAddresses();
+
+        return true;
+    }
 }
