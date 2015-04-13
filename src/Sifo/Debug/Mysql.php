@@ -196,11 +196,11 @@ class DebugMysql extends Mysql
 	const STATEMENT_CLASS = '\\Sifo\\DebugMysqlStatement';
 
 	/**
-	 * Executed query contexts.
+	 * Executed queries.
 	 *
 	 * @var array
 	 */
-	static private $executed_query_contexts = array();
+	static private $executed_queries = array();
 
 	/**
 	 * Singleton static method.
@@ -290,9 +290,10 @@ class DebugMysql extends Mysql
 			$rows_num = 0;
 		}
 
+		$sql         = '/* ' . $context . ' */' . PHP_EOL . $statement;
 		$debug_query = array(
 			"tag" => $context,
-			"sql" => '/* ' . $context . ' */' . PHP_EOL . $statement,
+			"sql" => $sql,
 			"type" => ( ( 0 === stripos( $statement, 'SELECT' ) ) ? 'read' : 'write' ),
 			"host" => $db_params['db_host'],
 			"database" => $db_params['db_name'],
@@ -313,13 +314,13 @@ class DebugMysql extends Mysql
 			Debug::push( 'queries_errors', $error );
 		}
 
-		if (in_array($context, self::$executed_query_contexts))
+		if (in_array($sql, self::$executed_queries))
 		{
 			$debug_query['duplicated'] = true;
 			Debug::push( 'duplicated_queries', 1 );
 		}
 
-		self::$executed_query_contexts[] = $context;
+		self::$executed_queries[] = $sql;
 
 		Debug::push( 'queries', $debug_query );
 	}
