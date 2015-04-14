@@ -37,6 +37,9 @@ class View extends \Smarty
 	{
 		parent::__construct();
 
+        // Set Smarty Plugins dir.
+        $this->setPluginsDir(array( ROOT_PATH . '/vendor/sifophp/sifo/src/'. Config::getInstance()->getLibrary( 'smarty' ).'/plugins/'));
+
 		// Get the instances inheritance.
 		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
