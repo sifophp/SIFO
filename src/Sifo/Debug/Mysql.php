@@ -82,7 +82,7 @@ class DebugMysqlStatement extends MysqlStatement
 		$query_string = $this->getPopulatedQuery();
 		$query_string = $this->_replacePreparedParameters( $query_string, $parameters );
 
-		preg_match('/\/\* (.+?) \*\/\n(.*)/s', $query_string, $matches);
+		preg_match('/\/\* (.*?) \*\/\n(.*)/s', $query_string, $matches);
 		$context      = $matches[1];
 		$query_string = $matches[2];
 
