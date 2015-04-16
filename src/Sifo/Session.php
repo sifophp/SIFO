@@ -114,7 +114,7 @@ class Session
 	{
 		if ( !isset( $_SESSION[$name] ) )
 		{
-			trigger_error( "Session: Session variable does not exist." );
+			trigger_error( "Session: $name variable does not exist." );
 			return false;
 		}
 		else

@@ -63,7 +63,6 @@ class Filter
 		if ( !self::$instance )
 		{
 			self::$instance = new self ( $_POST );
-			$_POST = array();
 		}
 		return self::$instance;
 	}
@@ -480,7 +479,6 @@ class FilterGet extends Filter
 		if ( !self::$instance )
 		{
 			self::$instance = new self ( $_GET );
-			$_GET = array();
 		}
 		return self::$instance;
 	}
@@ -504,7 +502,6 @@ class FilterRequest extends Filter
 		if ( !self::$instance )
 		{
 			self::$instance = new self ( $_REQUEST );
-			$_REQUEST = array();
 		}
 		return self::$instance;
 	}
