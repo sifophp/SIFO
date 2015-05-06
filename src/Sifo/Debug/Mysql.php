@@ -309,8 +309,12 @@ class DebugMysql extends Mysql
 
 		if ( $debug_query['error'] !== false )
 		{
-			// Log mysql_errors to disk:
-			file_put_contents( ROOT_PATH . '/logs/errors_database.log', "================================\nDate: " . date( 'd-m-Y H:i:s') . "\nError:\n". $error . "\n ", FILE_APPEND );
+            // Log mysql_errors to disk:
+            file_put_contents(ROOT_PATH . '/logs/errors_database.log',
+                "================================\nDate: " . date('d-m-Y H:i:s')
+                . "\nError:\n- SQL State: {$error[0]}\n- Code: {$error[1]}\n- Message: {$error[2]}\n",
+                FILE_APPEND
+            );
 			Debug::push( 'queries_errors', $error );
 		}
 
