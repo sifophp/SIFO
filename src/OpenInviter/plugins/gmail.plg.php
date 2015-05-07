@@ -4,9 +4,9 @@
  */
 $_pluginInfo=array(
 	'name'=>'GMail',
-	'version'=>'1.4.8',
+	'version'=>'1.4.9',
 	'description'=>"Get the contacts from a GMail account",
-	'base_version'=>'1.6.3',
+	'base_version'=>'1.8.4',
 	'type'=>'email',
 	'check_url'=>'http://google.com',
 	'requirement'=>'email',
@@ -98,7 +98,7 @@ class gmail extends openinviter_base
 			}
 		
 		$contacts=array();
-		$doc=new DOMDocument();libxml_use_internal_errors(true);if (!empty($res)) $doc->loadHTML($res);libxml_use_internal_errors(false);
+		$doc=new DOMDocument();libxml_use_internal_errors(true);if (!empty($res)) $doc->loadHTML('<?xml encoding="UTF-8">'.$res);libxml_use_internal_errors(false);		
 		$xpath=new DOMXPath($doc);$query="//entry";$data=$xpath->query($query);
 		foreach ($data as $node) 
 			{

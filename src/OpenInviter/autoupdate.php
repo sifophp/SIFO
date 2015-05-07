@@ -1,5 +1,6 @@
 <?php
 set_time_limit(0);
+date_default_timezone_set("GMT");
 if (!is_writable(dirname(__FILE__))) { echo "<b>OpenInviter</b> folder is not writable. Updates will not be posible<br>";exit; }
 if (!is_writable(dirname(__FILE__).'/plugins')) { echo "<b>OpenInviter/plugins</b> folder is not writable. Updates will not be posible<br>";exit; }
 if (file_exists(dirname(__FILE__)."/postinstall.php")) { echo "Delete <b>postinstall.php</b> before running the autoupdater";exit; }
