@@ -20,9 +20,6 @@
 
 namespace Sifo;
 
-include_once ROOT_PATH . '/vendor/sifophp/sifo/src/'. Config::getInstance()->getLibrary( 'smarty' ).'/Smarty.class.php';
-
-
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */
@@ -37,10 +34,9 @@ class View extends \Smarty
 	{
 		parent::__construct();
 
-        // Set Smarty Plugins dir.
-        $this->setPluginsDir(array( ROOT_PATH . '/vendor/sifophp/sifo/src/'. Config::getInstance()->getLibrary( 'smarty' ).'/plugins/'));
+        $this->inheritance_merge_compiled_includes = false;
 
-		// Get the instances inheritance.
+        // Get the instances inheritance.
 		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
 		// If there is inheritance.
