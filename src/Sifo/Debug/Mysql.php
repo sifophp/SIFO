@@ -309,8 +309,11 @@ class DebugMysql extends Mysql
 
 		if ( $debug_query['error'] !== false )
 		{
+            $database_data = Domains::getInstance()->getDatabaseParams();
+            $path = !empty($database_data['error_log_path']) ? $database_data['error_log_path'] : ROOT_PATH . '/logs/errors_database.log';
+
             // Log mysql_errors to disk:
-            file_put_contents(ROOT_PATH . '/logs/errors_database.log',
+            file_put_contents($path,
                 "================================\nDate: " . date('d-m-Y H:i:s')
                 . "\nError:\n- SQL State: {$error[0]}\n- Code: {$error[1]}\n- Message: {$error[2]}\n",
                 FILE_APPEND
