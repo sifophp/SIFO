@@ -18,9 +18,6 @@
  *
  */
 
-
-use \Memcache;
-
 /**
  * Common methods available to every Cache instance.
  */
