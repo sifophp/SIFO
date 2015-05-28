@@ -155,21 +155,7 @@ class DependencyInjector
 
             $class_name         = '\\' . $declaration['class'];
             $arguments          = array_key_exists('arguments', $declaration) ? $declaration['arguments'] : array();
-            $compiled_arguments = array();
-
-            foreach ($arguments as $argument) {
-                if ($this->isALiteralArgument($argument)) {
-                    $compiled_dependency = $this->getLiteralArgumentCompilation($argument);
-                }
-                elseif ($this->isALiteralDependency($compiled_services, $argument)) {
-                    $compiled_dependency = $this->getLiteralDependencyCompilation($argument);
-                }
-                else {
-                    $compiled_dependency = $this->getCallableDependencyCompilation($argument);
-                }
-
-                $compiled_arguments[] = $compiled_dependency;
-            }
+            $compiled_arguments = $this->stringifyArguments($arguments, $compiled_services);
 
             $return_statement = "new " . $class_name;
             if ($this->isASingleton($declaration))
@@ -182,6 +168,37 @@ class DependencyInjector
         }
 
         $this->dumpConfigurationFile($compiled_services, $instance_php_definitions_file, $instance, $parent_instance, $files_suffix);
+    }
+
+    private function stringifyArguments(array $arguments, array $compiled_services)
+    {
+        $compiled_arguments = array();
+
+        foreach ($arguments as $argument) {
+            if ($this->isALiteralArgument($argument)) {
+                $compiled_dependency = $this->getLiteralArgumentCompilation($argument);
+            }
+            elseif ($this->isAnArray($argument)) {
+                $compiled_argument = '';
+
+                foreach ($argument as $argument_key => $argument_value) {
+                    $stringified_value = $this->stringifyArguments([$argument_value], $compiled_services)[0];
+                    $compiled_argument .= '\'' . $argument_key . '\' => ' . $stringified_value . ",\n";
+                }
+
+                $compiled_dependency = "[\n" . $compiled_argument . ']';
+            }
+            elseif ($this->isALiteralDependency($compiled_services, $argument)) {
+                $compiled_dependency = $this->getLiteralDependencyCompilation($argument);
+            }
+            else {
+                $compiled_dependency = $this->getCallableDependencyCompilation($argument);
+            }
+
+            $compiled_arguments[] = $compiled_dependency;
+        }
+
+        return $compiled_arguments;
     }
 
     private function getImportedServices($parsed_yaml_content)
@@ -235,6 +252,11 @@ class DependencyInjector
         return
             array_key_exists($sanitized_dependency, $compiled_dependencies)
             && substr($compiled_dependencies[$sanitized_dependency], 0, 8) != 'function';
+    }
+
+    private function isAnArray($dependency)
+    {
+        return is_array($dependency);
     }
 
     private function getLiteralArgumentCompilation($argument)
