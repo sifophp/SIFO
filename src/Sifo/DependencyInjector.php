@@ -157,13 +157,23 @@ class DependencyInjector
             $arguments          = array_key_exists('arguments', $declaration) ? $declaration['arguments'] : array();
             $compiled_arguments = $this->stringifyArguments($arguments, $compiled_services);
 
-            $return_statement = "new " . $class_name;
-            if ($this->isASingleton($declaration))
-            {
-                $return_statement = $class_name . "::" . $declaration['singleton'];
+            if ($this->isASingleton($declaration)) {
+                $class_instance_creation_statement = $class_name . "::" . $declaration['singleton'];
+            }
+            else {
+                $class_instance_creation_statement = "new " . $class_name;
             }
 
-            $service_return              = "return " . $return_statement . "(\n" . implode(",\n", $compiled_arguments) . "\n\t);";
+            $class_instance_creation_statement .= "(\n" . implode(",\n", $compiled_arguments) . "\n\t)";
+
+            $service_return              = '$service_instance = ' . $class_instance_creation_statement . ';';
+
+            if ($this->hasSetterInjections($declaration))
+            {
+                $service_return .= $this->getSetterInjectionsCalls($declaration, $compiled_services);
+            }
+
+            $service_return              .= "\n\t" . 'return $service_instance;';
             $compiled_services[$service] = "function (\$config) {\n\t" . $service_return . "\n};";
         }
 
@@ -239,6 +249,26 @@ class DependencyInjector
     private function isASingleton($declaration)
     {
         return array_key_exists('singleton', $declaration);
+    }
+
+    private function hasSetterInjections($declaration)
+    {
+        return array_key_exists('calls', $declaration);
+    }
+
+    private function getSetterInjectionsCalls($declaration, $compiled_services)
+    {
+        $setter_injections_calls = "";
+
+        foreach ($declaration['calls'] as $setter_injection)
+        {
+            $setter_injection_compiled_arguments = $this->stringifyArguments($setter_injection[1], $compiled_services);
+
+            $class_instance_creation_statement = implode(",\n", $setter_injection_compiled_arguments);
+            $setter_injections_calls .= "\n\t" . '$service_instance->' . $setter_injection[0] . "(\n" . $class_instance_creation_statement . "\n\t);";
+        }
+
+        return $setter_injections_calls;
     }
 
     private function isALiteralArgument($argument)
