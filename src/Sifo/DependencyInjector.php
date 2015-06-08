@@ -149,6 +149,7 @@ class DependencyInjector
         $domains   = Domains::getInstance();
         $instances = array_slice($domains->getInstanceInheritance(), 1);
 
+
         foreach ($instances as $index => $instance) {
             $parent_instance    = $index > 0 ? $instances[$index - 1] : null;
             $this->generateDependenciesDeclarationForInstance($instance, $parent_instance, '');
@@ -177,6 +178,12 @@ class DependencyInjector
         foreach ($declared_services as $service => $declaration) {
             if ($this->isALiteralDeclaration($declaration)) {
                 $compiled_services[$service] = "'" . $declaration . "';";
+                continue;
+            }
+
+            if ($this->isAnAlias($declaration)) {
+                $aliased_service             = ltrim($declaration['alias'], '@');
+                $compiled_services[$service] = "\$config['" . $aliased_service . "'];\n";
                 continue;
             }
 
@@ -283,6 +290,11 @@ class DependencyInjector
     private function isALiteralDeclaration($declaration)
     {
         return !is_array($declaration);
+    }
+
+    private function isAnAlias($declaration)
+    {
+        return array_key_exists('alias', $declaration);
     }
 
     private function isASingleton($declaration)
