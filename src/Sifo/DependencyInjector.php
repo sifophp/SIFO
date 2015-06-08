@@ -36,6 +36,14 @@ class DependencyInjector
     static protected $instance;
 
     /**
+     * Already instantiated container services.
+     *
+     * @var array
+     * @static
+     */
+    static protected $container_instances = array();
+
+    /**
      * Private constructor, use getInstance() instead to get an instance.
      */
     private function __construct()
@@ -86,12 +94,22 @@ class DependencyInjector
             throw new Exception_DependencyInjector('Undefined service ' . $service);
         }
 
-        $service = $service_definitions[$service];
-        if (is_object($service)) {
-            $service = $service($service_definitions);
+        $uses_the_container_scope = $this->usingTheContainerScope($service, $service_definitions);
+
+        if ($uses_the_container_scope && array_key_exists($service, self::$container_instances)) {
+            return self::$container_instances[$service];
         }
 
-        return $service;
+        $service_instance = $service_definitions[$service];
+        if (is_object($service_instance)) {
+            $service_instance = $service_instance($service_definitions);
+        }
+
+        if ($uses_the_container_scope) {
+            self::$container_instances[$service] = $service_instance;
+        }
+
+        return $service_instance;
     }
 
     /**
@@ -113,6 +131,14 @@ class DependencyInjector
         }
 
         return $service_exists;
+    }
+
+    private function usingTheContainerScope($service, array $service_definitions)
+    {
+        return
+            array_key_exists('scopes', $service_definitions) &&
+            array_key_exists($service, $service_definitions['scopes']) &&
+            'container' == $service_definitions['scopes'][$service];
     }
 
     /**
@@ -146,6 +172,7 @@ class DependencyInjector
         $parsed_yaml_content = Yaml::parse(file_get_contents($instance_yml_definitions_file));
         $declared_services   = $this->getImportedServices($parsed_yaml_content);
         $compiled_services   = array();
+        $scoped_definitions  = array();
 
         foreach ($declared_services as $service => $declaration) {
             if ($this->isALiteralDeclaration($declaration)) {
@@ -165,19 +192,31 @@ class DependencyInjector
             }
 
             $class_instance_creation_statement .= "(\n" . implode(",\n", $compiled_arguments) . "\n\t)";
+            $service_return                    = '$service_instance = ' . $class_instance_creation_statement . ';';
 
-            $service_return              = '$service_instance = ' . $class_instance_creation_statement . ';';
-
-            if ($this->hasSetterInjections($declaration))
-            {
+            if ($this->hasSetterInjections($declaration)) {
                 $service_return .= $this->getSetterInjectionsCalls($declaration, $compiled_services);
             }
 
-            $service_return              .= "\n\t" . 'return $service_instance;';
+            if ($this->isAPrototypedDeclaration($declaration)) {
+                $scoped_definitions[$service] = 'prototype';
+            }
+            else {
+                $scoped_definitions[$service] = 'container';
+            }
+
+            $service_return              .= "\n\n\t" . 'return $service_instance;';
             $compiled_services[$service] = "function (\$config) {\n\t" . $service_return . "\n};";
         }
 
-        $this->dumpConfigurationFile($compiled_services, $instance_php_definitions_file, $instance, $parent_instance, $files_suffix);
+        $this->dumpConfigurationFile(
+            $compiled_services,
+            $scoped_definitions,
+            $instance_php_definitions_file,
+            $instance,
+            $parent_instance,
+            $files_suffix
+        );
     }
 
     private function stringifyArguments(array $arguments, array $compiled_services)
@@ -256,6 +295,15 @@ class DependencyInjector
         return array_key_exists('calls', $declaration);
     }
 
+    private function isAPrototypedDeclaration($declaration)
+    {
+        if (array_key_exists('scope', $declaration) && $declaration['scope'] == 'prototype') {
+            return true;
+        }
+
+        return false;
+    }
+
     private function getSetterInjectionsCalls($declaration, $compiled_services)
     {
         $setter_injections_calls = "";
@@ -304,8 +352,14 @@ class DependencyInjector
         return "\t\t\$config['" . substr($argument, 1) . "'](\$config)";
     }
 
-    private function dumpConfigurationFile($compiled_services, $definitions_config_file, $instance, $parent_instance, $files_suffix)
-    {
+    private function dumpConfigurationFile(
+        $compiled_services,
+        $scoped_definitions,
+        $definitions_config_file,
+        $instance,
+        $parent_instance,
+        $files_suffix
+    ) {
         $dumped_configuration             = "<?php\n\n";
         $production_dependencies_php_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition.config.php';
         $parent_dependencies_php_file     = ROOT_PATH . '/instances/' . $parent_instance . '/config/services/definition' . $files_suffix . '.config.php';
@@ -322,7 +376,20 @@ class DependencyInjector
             $dumped_configuration .= "\$config['" . $service . "'] = " . $compilation . "\n\n";
         }
 
+        $dumped_configuration .= $this->dumpScopedServices($scoped_definitions);
+
         file_put_contents($definitions_config_file, $dumped_configuration);
+    }
+
+    private function dumpScopedServices(array $scoped_definitions)
+    {
+        $dumped_services = "";
+
+        foreach ($scoped_definitions as $service => $type) {
+            $dumped_services .= "\$config['scopes']['" . $service . "'] = '" . $type . "';\n";
+        }
+
+        return $dumped_services;
     }
 }
 
