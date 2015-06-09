@@ -44,6 +44,13 @@ class DependencyInjector
     static protected $container_instances = array();
 
     /**
+     * Defined services.
+     *
+     * @var array
+     */
+    protected $service_definitions;
+
+    /**
      * Private constructor, use getInstance() instead to get an instance.
      */
     private function __construct()
@@ -82,6 +89,34 @@ class DependencyInjector
      */
     public function get($service)
     {
+        if (!$this->service_definitions) {
+            $this->loadServiceDefinitions();
+        }
+
+        if (!array_key_exists($service, $this->service_definitions)) {
+            throw new Exception_DependencyInjector('Undefined service ' . $service);
+        }
+
+        $uses_the_container_scope = $this->usingTheContainerScope($service);
+
+        if ($uses_the_container_scope && array_key_exists($service, self::$container_instances)) {
+            return self::$container_instances[$service];
+        }
+
+        $service_instance = $this->service_definitions[$service];
+        if (is_object($service_instance)) {
+            $service_instance = $service_instance($this);
+        }
+
+        if ($uses_the_container_scope) {
+            self::$container_instances[$service] = $service_instance;
+        }
+
+        return $service_instance;
+    }
+
+    private function loadServiceDefinitions()
+    {
         try {
             $environment_suffix  = Domains::getInstance()->getDevMode() ? '_dev' : '';
             $service_definitions = Config::getInstance()->getConfig('services/definition' . $environment_suffix);
@@ -90,26 +125,7 @@ class DependencyInjector
             $service_definitions = Config::getInstance()->getConfig('services/definition');
         }
 
-        if (!array_key_exists($service, $service_definitions)) {
-            throw new Exception_DependencyInjector('Undefined service ' . $service);
-        }
-
-        $uses_the_container_scope = $this->usingTheContainerScope($service, $service_definitions);
-
-        if ($uses_the_container_scope && array_key_exists($service, self::$container_instances)) {
-            return self::$container_instances[$service];
-        }
-
-        $service_instance = $service_definitions[$service];
-        if (is_object($service_instance)) {
-            $service_instance = $service_instance($service_definitions);
-        }
-
-        if ($uses_the_container_scope) {
-            self::$container_instances[$service] = $service_instance;
-        }
-
-        return $service_instance;
+        $this->service_definitions = $service_definitions;
     }
 
     /**
@@ -133,12 +149,12 @@ class DependencyInjector
         return $service_exists;
     }
 
-    private function usingTheContainerScope($service, array $service_definitions)
+    private function usingTheContainerScope($service)
     {
         return
-            array_key_exists('scopes', $service_definitions) &&
-            array_key_exists($service, $service_definitions['scopes']) &&
-            'container' == $service_definitions['scopes'][$service];
+            array_key_exists('scopes', $this->service_definitions) &&
+            array_key_exists($service, $this->service_definitions['scopes']) &&
+            'container' == $this->service_definitions['scopes'][$service];
     }
 
     /**
@@ -148,7 +164,6 @@ class DependencyInjector
     {
         $domains   = Domains::getInstance();
         $instances = array_slice($domains->getInstanceInheritance(), 1);
-
 
         foreach ($instances as $index => $instance) {
             $parent_instance    = $index > 0 ? $instances[$index - 1] : null;
@@ -213,7 +228,7 @@ class DependencyInjector
             }
 
             $service_return              .= "\n\n\t" . 'return $service_instance;';
-            $compiled_services[$service] = "function (\$config) {\n\t" . $service_return . "\n};";
+            $compiled_services[$service] = "function (\$container) {\n\t" . $service_return . "\n};";
         }
 
         $this->dumpConfigurationFile(
@@ -226,32 +241,29 @@ class DependencyInjector
         );
     }
 
-    private function stringifyArguments(array $arguments, array $compiled_services)
+    private function stringifyArguments(array $arguments, array $compiled_services, $depth = 2)
     {
         $compiled_arguments = array();
 
         foreach ($arguments as $argument) {
+
             if ($this->isALiteralArgument($argument)) {
-                $compiled_dependency = $this->getLiteralArgumentCompilation($argument);
+                $compiled_arguments[] = $this->getLiteralArgumentCompilation($argument);
             }
             elseif ($this->isAnArray($argument)) {
                 $compiled_argument = '';
 
                 foreach ($argument as $argument_key => $argument_value) {
-                    $stringified_value = $this->stringifyArguments([$argument_value], $compiled_services)[0];
-                    $compiled_argument .= '\'' . $argument_key . '\' => ' . $stringified_value . ",\n";
+                    $stringified_value = $this->stringifyArguments([$argument_value], $compiled_services, $depth + 1)[0];
+                    $compiled_argument .= str_repeat("\t", $depth + 1) . '\'' . $argument_key . '\' => ' . ltrim($stringified_value) . ",\n";
                 }
 
-                $compiled_dependency = "[\n" . $compiled_argument . ']';
-            }
-            elseif ($this->isALiteralDependency($compiled_services, $argument)) {
-                $compiled_dependency = $this->getLiteralDependencyCompilation($argument);
+                $compiled_arguments[] = str_repeat("\t", $depth) . "[\n" . $compiled_argument . str_repeat("\t", $depth) . ']';
             }
             else {
-                $compiled_dependency = $this->getCallableDependencyCompilation($argument);
+                $dependant_service    = ltrim($argument, '@');
+                $compiled_arguments[] = str_repeat("\t", $depth) . "\$container->get('" . $dependant_service . "')";
             }
-
-            $compiled_arguments[] = $compiled_dependency;
         }
 
         return $compiled_arguments;
@@ -336,14 +348,6 @@ class DependencyInjector
         return !is_array($argument) && substr($argument, 0, 1) != '@';
     }
 
-    private function isALiteralDependency($compiled_dependencies, $dependency)
-    {
-        $sanitized_dependency = substr($dependency, 1);
-        return
-            array_key_exists($sanitized_dependency, $compiled_dependencies)
-            && substr($compiled_dependencies[$sanitized_dependency], 0, 8) != 'function';
-    }
-
     private function isAnArray($dependency)
     {
         return is_array($dependency);
@@ -352,16 +356,6 @@ class DependencyInjector
     private function getLiteralArgumentCompilation($argument)
     {
         return "\t\t'" . $argument . "'";
-    }
-
-    private function getLiteralDependencyCompilation($argument)
-    {
-        return "\t\t\$config['" . substr($argument, 1) . "']";
-    }
-
-    private function getCallableDependencyCompilation($argument)
-    {
-        return "\t\t\$config['" . substr($argument, 1) . "'](\$config)";
     }
 
     private function dumpConfigurationFile(
