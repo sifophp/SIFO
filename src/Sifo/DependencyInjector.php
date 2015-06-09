@@ -149,6 +149,16 @@ class DependencyInjector
         return $service_exists;
     }
 
+    public function servicesWithTag($tag_name)
+    {
+        if (!isset($this->service_definitions['tags'][$tag_name]))
+        {
+            return array();
+        }
+
+        return $this->service_definitions['tags'][$tag_name];
+    }
+
     private function usingTheContainerScope($service)
     {
         return
