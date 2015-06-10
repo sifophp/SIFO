@@ -208,8 +208,9 @@ class DependencyInjector
             }
 
             if ($this->isAnAlias($declaration)) {
-                $aliased_service             = ltrim($declaration['alias'], '@');
-                $compiled_services[$service_key] = "\$config['" . $aliased_service . "'];\n";
+                $aliased_service                 = ltrim($declaration['alias'], '@');
+                $container_return_string         = "return \$container->get('" . $aliased_service . "');";
+                $compiled_services[$service_key] = "function (\$container) {\n\t" . $container_return_string . "\n};";
                 continue;
             }
 
