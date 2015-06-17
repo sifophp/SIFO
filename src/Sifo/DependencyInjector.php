@@ -97,7 +97,7 @@ class DependencyInjector
             throw new Exception_DependencyInjector('Undefined service "' . $service_key . '"');
         }
 
-        if (in_array($service_key, $this->service_definitions['private_services']) && !$get_private_service) {
+        if ($this->loadingAPrivateService($service_key) && !$get_private_service) {
             throw new Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
         }
 
@@ -117,6 +117,13 @@ class DependencyInjector
         }
 
         return $service_instance;
+    }
+
+    private function loadingAPrivateService($service_key)
+    {
+        return
+            array_key_exists('private_services', $this->service_definitions)
+            && in_array($service_key, $this->service_definitions['private_services']);
     }
 
     private function loadServiceDefinitions()
