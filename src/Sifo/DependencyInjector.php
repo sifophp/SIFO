@@ -87,14 +87,18 @@ class DependencyInjector
      * @return mixed|callable
      * @throws Exception_DependencyInjector No entry was found for this identifier.
      */
-    public function get($service_key)
+    public function get($service_key, $get_private_service = false)
     {
         if (!$this->service_definitions) {
             $this->loadServiceDefinitions();
         }
 
         if (!array_key_exists($service_key, $this->service_definitions)) {
-            throw new Exception_DependencyInjector('Undefined service ' . $service_key);
+            throw new Exception_DependencyInjector('Undefined service "' . $service_key . '"');
+        }
+
+        if (in_array($service_key, $this->service_definitions['private_services']) && !$get_private_service) {
+            throw new Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
         }
 
         $uses_the_container_scope = $this->usingTheContainerScope($service_key);
@@ -199,6 +203,7 @@ class DependencyInjector
         $declared_services   = $this->getImportedServices($parsed_yaml_content);
         $compiled_services   = array();
         $scoped_definitions  = array();
+        $private_services    = array();
         $tags_definition     = array();
 
         foreach ($declared_services as $service_key => $declaration) {
@@ -209,7 +214,7 @@ class DependencyInjector
 
             if ($this->isAnAlias($declaration)) {
                 $aliased_service                 = ltrim($declaration['alias'], '@');
-                $container_return_string         = "return \$container->get('" . $aliased_service . "');";
+                $container_return_string         = "return \$container->get('" . $aliased_service . "', true);";
                 $compiled_services[$service_key] = "function (\$container) {\n\t" . $container_return_string . "\n};";
                 continue;
             }
@@ -239,6 +244,10 @@ class DependencyInjector
                 $scoped_definitions[$service_key] = 'container';
             }
 
+            if ($this->isAPrivateService($declaration)) {
+                $private_services[] = $service_key;
+            }
+
             $tags_definition = $this->addAllDefinitionTags($tags_definition, $service_key, $declaration);
 
             $service_return              .= "\n\n\t" . 'return $service_instance;';
@@ -248,6 +257,7 @@ class DependencyInjector
         $this->dumpConfigurationFile(
             $compiled_services,
             $scoped_definitions,
+            $private_services,
             $tags_definition,
             $instance_php_definitions_file,
             $instance,
@@ -277,7 +287,7 @@ class DependencyInjector
             }
             else {
                 $dependant_service    = ltrim($argument, '@');
-                $compiled_arguments[] = str_repeat("\t", $depth) . "\$container->get('" . $dependant_service . "')";
+                $compiled_arguments[] = str_repeat("\t", $depth) . "\$container->get('" . $dependant_service . "', true)";
             }
         }
 
@@ -341,6 +351,11 @@ class DependencyInjector
         }
 
         return false;
+    }
+
+    private function isAPrivateService($declaration)
+    {
+        return array_key_exists('public', $declaration) && !$declaration['public'];
     }
 
     private function addAllDefinitionTags($tags_definition, $service_key, $declaration)
@@ -407,6 +422,7 @@ class DependencyInjector
     private function dumpConfigurationFile(
         $compiled_services,
         $scoped_definitions,
+        $private_services,
         $tags_definition,
         $definitions_config_file,
         $instance,
@@ -430,6 +446,7 @@ class DependencyInjector
         }
 
         $dumped_configuration .= $this->dumpScopedServices($scoped_definitions);
+        $dumped_configuration .= $this->dumpPrivateServices($private_services);
         $dumped_configuration .= $this->dumpTagsDefinition($tags_definition);
 
         file_put_contents($definitions_config_file, $dumped_configuration);
@@ -441,6 +458,17 @@ class DependencyInjector
 
         foreach ($scoped_definitions as $service => $type) {
             $dumped_services .= "\$config['scopes']['" . $service . "'] = '" . $type . "';\n";
+        }
+
+        return $dumped_services;
+    }
+
+    private function dumpPrivateServices(array $private_services)
+    {
+        $dumped_services = "\n";
+
+        foreach ($private_services as $private_service) {
+            $dumped_services .= "\$config['private_services'][] = '" . $private_service . "';\n";
         }
 
         return $dumped_services;
