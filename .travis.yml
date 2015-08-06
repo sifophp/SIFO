@@ -1,0 +1,21 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6  
+  - hhvm
+
+matrix:
+     allow_failures:
+         - php: hhvm
+         - php: 5.6
+
+before_install:
+  - php /home/travis/.phpenv/versions/5.3.27/bin/composer.phar self-update
+
+install:
+  - composer install
+
+script: phpunit --configuration phpunit.xml.dist
