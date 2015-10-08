@@ -13,6 +13,10 @@ It comes with several technologies *ready to use* such as Memcached, Sphinx, Mys
 
 **Clone [Sifo App](https://github.com/sifophp/sifo-app)**
 
+If you don't have a LAMP environment, you can download a pre-configure vagrant machine:
+
+**Download  [Vagrant Sifo](https://github.com/sifophp/vagrant-sifo)**
+
 ---
 
 More documentation in the *official site*: [sifo.me] [SIFO]
