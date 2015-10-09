@@ -35,7 +35,7 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertTrue( $this->object instanceof Benchmark );
+		$this->assertInstanceOf(Benchmark::class, $this->object);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
 	public function testGetInstance()
 	{
 		$object = Benchmark::getInstance();
-		$this->assertTrue( $object instanceof Benchmark );
+		$this->assertInstanceOf(Benchmark::class, $object);
 
 		$singleton = Benchmark::getInstance();
 		$this->assertEquals( $object, $singleton );

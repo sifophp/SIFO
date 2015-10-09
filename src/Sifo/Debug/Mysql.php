@@ -45,7 +45,7 @@ class Mysql extends BaseMysql
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = '\\Sifo\\Debug\\MysqlStatement';
+	const STATEMENT_CLASS = MysqlStatement::class;
 
 	/**
 	 * Executed queries.

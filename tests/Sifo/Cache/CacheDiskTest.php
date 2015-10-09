@@ -35,7 +35,7 @@ class DiskTest extends \PHPUnit_Framework_TestCase
      */
     public function testObjectCreation()
     {
-        $this->assertTrue($this->object instanceof Disk);
+        $this->assertInstanceOf(Disk::class, $this->object);
     }
 
 }
