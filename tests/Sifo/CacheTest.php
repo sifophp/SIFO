@@ -37,7 +37,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function should_return_disk_cache()
     {
         $this->object = Cache::getInstance(Cache::CACHE_TYPE_DISK);
-        $this->assertInstanceOf(Disk::class, $this->object);
+        $this->assertTrue($this->object instanceof Disk);
     }
 }
 

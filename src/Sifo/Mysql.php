@@ -53,7 +53,7 @@ class Mysql
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = MysqlStatement::class;
+	const STATEMENT_CLASS = '\\Sifo\\MysqlStatement';
 
 	/**
 	 * Initializes the PDO object with the domains.config.php database configuration.

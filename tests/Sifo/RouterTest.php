@@ -18,7 +18,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = $this->getMockBuilder(Router::class)->disableOriginalConstructor();
+        $this->object = $this->getMockBuilder('\\Sifo\\Router')->disableOriginalConstructor()->getMock();
     }
 
     /**

@@ -39,7 +39,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testObjectCreation()
 	{
-		$this->assertInstanceOf(Config::class, $this->object);
+        $this->assertTrue($this->object instanceof Config);
 	}
 }
 
