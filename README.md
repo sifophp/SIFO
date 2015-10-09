@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/sifophp/SIFO.png?branch=sifo3-beta)](https://travis-ci.org/sifophp/SIFO)
+[![Build Status](https://travis-ci.org/sifophp/SIFO.svg?branch=namespaces-migration)](https://travis-ci.org/sifophp/SIFO)
+ [![Coverage Status](https://coveralls.io/repos/sifophp/SIFO/badge.svg?branch=namespaces-migration&service=github)](https://coveralls.io/github/sifophp/SIFO?branch=namespaces-migration) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/2c92c1d2-681f-4352-8e58-eed9df067141/mini.png)](https://insight.sensiolabs.com/projects/2c92c1d2-681f-4352-8e58-eed9df067141)
 
 Flexible PHP5 framework for real-world web applications
 =======================================================
