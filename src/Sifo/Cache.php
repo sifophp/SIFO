@@ -20,10 +20,15 @@
 
 namespace Sifo;
 
+use Sifo\Cache\Base;
+use Sifo\Cache\Disk;
+use Sifo\Cache\Memcache;
+use Sifo\Cache\Memcached;
+
 /**
  * Proxy class that handles all Cache types in a single interface.
  */
-class Cache extends CacheBase
+class Cache extends Base
 {
 
 	const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
@@ -60,15 +65,15 @@ class Cache extends CacheBase
 				case self::CACHE_TYPE_MEMCACHED:
 					// http://php.net/manual/en/book.memcached.php
 					// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
-					self::$instance[$type][$lock_enabled] = new CacheMemcached();
+					self::$instance[$type][$lock_enabled] = new Memcached();
 					break;
 				case self::CACHE_TYPE_MEMCACHE:
 					// http://php.net/manual/en/book.memcache.php:
-					self::$instance[$type][$lock_enabled] = new CacheMemcache();
+					self::$instance[$type][$lock_enabled] = new Memcache();
 					break;
 				case self::CACHE_TYPE_DISK:
 					// Use cache disk instead:
-					self::$instance[$type][$lock_enabled] = new CacheDisk();
+					self::$instance[$type][$lock_enabled] = new Disk();
 					break;
 				default:
 					throw new Exception_500( 'Unknown cache type requested' );
@@ -82,7 +87,7 @@ class Cache extends CacheBase
 				trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
 
 				// Use cache disk instead:
-				self::$instance[$type][$lock_enabled] = new CacheDisk();
+				self::$instance[$type][$lock_enabled] = new Disk();
 				self::$cache_type = self::CACHE_TYPE_DISK;
 			}
 

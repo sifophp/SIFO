@@ -18,9 +18,9 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
 
-class CacheLock
+class Lock
 {
 	/**
 	 * Maximum time a lock is effective.

@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Debug\Sphinxql;
+
 /**
  * SphinxQL class. Use this class to execute queries against SphinxQL.
  * It Only supports SELECT sentences to execute.
@@ -113,7 +115,7 @@ class Sphinxql
 			}
 			else
 			{
-				self::$instance[$profile] = new DebugSphinxql( $profile );
+				self::$instance[$profile] = new Sphinxql( $profile );
 			}
 		}
 

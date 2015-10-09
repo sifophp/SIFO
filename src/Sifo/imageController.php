@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Cache\Disk;
+
 abstract class ImageController extends Controller
 {
 	/**
@@ -112,7 +114,7 @@ abstract class ImageController extends Controller
 			return false;
 		}
 
-		$cache = new CacheDisk();
+		$cache = new Disk();
 		$content = $cache->get( $cache_key['name'] );
 
 		return ( $content ? $content : false );
@@ -141,7 +143,7 @@ abstract class ImageController extends Controller
 
 		if ( false !== $cache_key )
 		{
-			$cache = new CacheDisk();
+			$cache = new Disk();
 			$cache->set( $cache_key['name'], $content, $cache_key['expiration'] );
 		}
 

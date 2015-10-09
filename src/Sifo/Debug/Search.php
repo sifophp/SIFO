@@ -18,12 +18,17 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Debug;
+
+use Sifo\Benchmark;
+use Sifo\Debug;
+use Sifo\Store;
+use Sifo\Search as BaseSearch;
 
 /**
  * Search extension using debug features. It will be used ONLY on devel mode or with debug enable.
  */
-class DebugSearch extends Search
+class Search extends BaseSearch
 {
 	/**
 	 * @var Store all the information related to queries to show it at the end in the debug.

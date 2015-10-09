@@ -1,8 +1,11 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Debug;
 
-class DebugPredisProxyClient extends PredisProxyClient
+use Sifo\Debug;
+use Sifo\PredisProxyClient as BasePredisProxyClient;
+
+class PredisProxyClient extends BasePredisProxyClient
 {
 	public function __call( $method, $args )
 	{

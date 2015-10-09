@@ -18,12 +18,16 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Debug;
+
+use Sifo\Benchmark;
+use Sifo\Debug;
+use Sifo\Sphinxql as BaseSphinxql;
 
 /**
  * SphinxQL Debug class.
  */
-class DebugSphinxql extends Sphinxql
+class Sphinxql extends BaseSphinxql
 {
 	/**
 	 * @var array Query debug information.

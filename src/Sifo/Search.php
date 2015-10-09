@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Debug\Search;
+
 class Search
 {
 	/**
@@ -76,7 +78,7 @@ class Search
 			}
 			else
 			{
-				self::$instance[$profile] = new DebugSearch( $profile );
+				self::$instance[$profile] = new Search( $profile );
 			}
 		}
 

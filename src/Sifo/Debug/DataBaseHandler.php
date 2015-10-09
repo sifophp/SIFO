@@ -1,12 +1,12 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Debug;
 
 use DateTime;
 use PDO;
 use PDOException;
 
-class DebugDataBaseHandler
+class DataBaseHandler
 {
 
 	/**
