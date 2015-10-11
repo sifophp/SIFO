@@ -26,15 +26,7 @@ namespace Sifo;
  */
 class Client
 {
-
 	static private $instance;
-
-	/**
-	 * Filter server.
-	 *
-	 * @var FilterServer
-	 */
-	static private $server;
 
 	/**
 	 * Singleton of Client class.

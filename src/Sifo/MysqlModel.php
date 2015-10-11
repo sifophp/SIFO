@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Debug\Mysql;
+
 class MysqlModel
 {
 	protected $db;
@@ -113,7 +115,7 @@ class MysqlModel
 			return Mysql::getInstance( $profile );
 		}
 
-		return DebugMysql::getInstance( $profile );
+		return Mysql::getInstance( $profile );
 	}
 
 	/**

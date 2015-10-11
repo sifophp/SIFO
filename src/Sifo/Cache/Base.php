@@ -18,12 +18,17 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
+
+use Sifo\Config;
+use Sifo\Domains;
+use Sifo\FilterCookie;
+use Sifo\FilterGet;
 
 /**
  * Common methods available to every Cache instance.
  */
-class CacheBase
+class Base
 {
 	/**
 	 * Define the format of the stored cache tag.
@@ -119,19 +124,19 @@ class CacheBase
 					return false;
 				}
 
-				$lock = CacheLock::getInstance( $sha1, $this->cache_object );
+				$lock = Lock::getInstance( $sha1, $this->cache_object );
 
 				if ( $lock->isLocked() )
 				{
 					do
 					{
-						usleep( CacheLock::WAIT_TIME );
+						usleep( Lock::WAIT_TIME );
 					}
 					while( $lock->isLocked() );
 
 					if ( !( $content = $this->cache_object->get( $sha1 ) ) )
 					{
-						trigger_error( "Cache lock timeout.Lock for $key (SHA1: $sha1) has not released after ".CacheLock::TTL." seconds of script running.", E_USER_WARNING );
+						trigger_error( "Cache lock timeout.Lock for $key (SHA1: $sha1) has not released after ".Lock::TTL." seconds of script running.", E_USER_WARNING );
 					}
 				}
 				else
@@ -172,7 +177,7 @@ class CacheBase
 
 		if(  $this->use_locking )
 		{
-			CacheLock::getInstance( $key, $this->cache_object )->release();
+			Lock::getInstance( $key, $this->cache_object )->release();
 		}
 
 		return $set_result;

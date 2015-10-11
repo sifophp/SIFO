@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Debug\PredisProxyClient;
+
 include_once ROOT_PATH . '/vendor/predis/predis/src/Autoloader.php';
 
 /**
@@ -120,7 +122,7 @@ class PredisProxyClient
 		}
 		else
 		{
-			self::$instance[$key] = new DebugPredisProxyClient( $connection_params );
+			self::$instance[$key] = new PredisProxyClient( $connection_params );
 		}
 
 		return self::$instance[$key];

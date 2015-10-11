@@ -14,22 +14,20 @@
  * This class is based on Memcache object implementation: http://www.php.net/manual/en/book.memcache.php
  *
  */
-namespace Sifo;
-use \Memcache;
+namespace Sifo\Cache;
 
 /**
  * Wrapper for the PECL Memcache extension.
  *
  * @see http://www.php.net/manual/en/memcache.installation.php
  */
-class CacheMemcache extends CacheBase
+class Memcache extends Base
 {
-	protected $cache_object = null;
+	/** @var \Memcache */
+	protected $cache_object;
 
 	/**
-	 * Returns an instance of the Memcache object with the configured servers.
-	 *
-	 * @return Memcache
+	 * Returns an instance of the \Memcache object with the configured servers.
 	 */
 	public function __construct()
 	{
@@ -43,7 +41,7 @@ class CacheMemcache extends CacheBase
 			$servers = array( array( '127.0.0.1' => 11211 ) );
 		}
 
-		$this->cache_object = new \CacheMemcacheAdapter();
+		$this->cache_object = new MemcacheAdapter();
 
 		foreach ( $servers[0] as $server => $port )
 		{

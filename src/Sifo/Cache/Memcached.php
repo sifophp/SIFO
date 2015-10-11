@@ -18,7 +18,10 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Cache;
+
+use Sifo\Config;
+use Sifo\Exception_Configuration;
 
 /**
  * Provides an interface to communicate with the Memcached server.
@@ -26,7 +29,7 @@ namespace Sifo;
  * This class is based on Memcached PHP's object implementation: http://www.php.net/manual/es/book.memcached.php
  *
  */
-class CacheMemcached extends CacheBase
+class Memcached extends Base
 {
 
 	/**

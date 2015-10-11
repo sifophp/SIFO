@@ -65,7 +65,7 @@ class Config
 		$this->instance_name = $instance_name;
 		if ( $instance_name === 'tests' )
 		{
-			$this->config_path = ROOT_PATH . '/' . $instance_name ."/config/";
+			$this->config_path = ROOT_PATH . '/vendor/sifophp/sifo-common-instance/config/';
 		}
 		else
 		{

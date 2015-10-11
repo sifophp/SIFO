@@ -8,3 +8,4 @@ logs/*
 instances/*/
 !instances/common
 vendor/
+composer.lock

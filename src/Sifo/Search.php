@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Debug\Search as DebugSearch;
+
 class Search
 {
 	/**

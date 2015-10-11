@@ -13,7 +13,7 @@
         >
     <testsuites>
         <testsuite name="SIFO Test Suite">
-            <directory>./tests/libs/Sifo/</directory>
+            <directory>./tests/Sifo/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
