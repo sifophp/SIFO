@@ -1,5 +1,6 @@
 <?php
-use Sifo\Filter;
+
+use Sifo\Filter\Filter;
 
 /**
  * Test class for Filter.
