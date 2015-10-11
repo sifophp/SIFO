@@ -20,25 +20,20 @@
 
 namespace Sifo\Filter;
 
-class FilterRequest extends Filter
+/**
+ * This class is used to update the runtime filter with the cookies changes.
+ * @author Albert Lombarte, Sergio Ambel
+ */
+class CookieRuntime extends Cookie
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
 
-    /**
-     * Filters variables passed by Post, Get and Cookie.
-     * @return Filter
-     */
-    public static function getInstance()
+    static public function setCookie($key, $value)
     {
-        if (!self::$instance) {
-            self::$instance = new self($_REQUEST);
-        }
+        self::getInstance()->request[$key] = $value;
+    }
 
-        return self::$instance;
+    static public function deleteCookie($key)
+    {
+        unset(self::getInstance()->request[$key]);
     }
 }

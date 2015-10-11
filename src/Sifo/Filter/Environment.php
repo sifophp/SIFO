@@ -20,7 +20,7 @@
 
 namespace Sifo\Filter;
 
-class FilterEnv extends Filter
+class Environment extends Filter
 {
     /**
      * Singleton object.

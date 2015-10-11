@@ -20,9 +20,25 @@
 
 namespace Sifo\Filter;
 
-/**
- * Filter is FilterPost by default.
- */
-class FilterPost extends Filter
+class Session extends Filter
 {
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    protected static $instance;
+
+    /**
+     * Filters variables passed by Session.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self($_SESSION);
+        }
+
+        return self::$instance;
+    }
 }

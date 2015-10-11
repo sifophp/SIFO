@@ -20,9 +20,7 @@
 
 namespace Sifo\Filter;
 
-use Sifo\Exception\FilterException;
-
-class FilterCustom extends Filter
+class Cookie extends Filter
 {
     /**
      * Singleton object.
@@ -32,34 +30,13 @@ class FilterCustom extends Filter
     protected static $instance;
 
     /**
-     * Allow creation of different objects, the FilterCustom is not based on
-     * global values like $_GET or $_POST and might be used for different purposes
-     * in the same execution thread.
-     *
-     * @param array $request
-     *
-     * @return FilterCustom
-     */
-    public function __construct($request)
-    {
-        return parent::__construct($request);
-    }
-
-    /**
-     * Filters variables passed in the array and empties original input.
-     *
-     * @throws FilterException
+     * Filters variables passed inside Cookies.
      * @return Filter
      */
     public static function getInstance()
     {
-        $params = func_get_args();
-        if ((!isset($params[0])) || (!is_array($params[0]))) {
-            throw new FilterException('The variable passed inside the getInstance( $array ) method is not an array.');
-        }
-        $array = $params[0];
         if (!self::$instance) {
-            self::$instance = new self($array);
+            self::$instance = new self($_COOKIE);
         }
 
         return self::$instance;

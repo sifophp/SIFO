@@ -20,7 +20,7 @@
 
 namespace Sifo\Filter;
 
-class FilterSession extends Filter
+class Get extends Filter
 {
     /**
      * Singleton object.
@@ -30,13 +30,13 @@ class FilterSession extends Filter
     protected static $instance;
 
     /**
-     * Filters variables passed by Session.
+     * Filters variables passed by Get
      * @return Filter
      */
     public static function getInstance()
     {
         if (!self::$instance) {
-            self::$instance = new self($_SESSION);
+            self::$instance = new self($_GET);
         }
 
         return self::$instance;

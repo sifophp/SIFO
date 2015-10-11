@@ -20,7 +20,7 @@
 
 namespace Sifo\Filter;
 
-class FilterFiles extends Filter
+class Files extends Filter
 {
     /**
      * Singleton object.

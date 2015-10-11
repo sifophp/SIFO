@@ -21,19 +21,8 @@
 namespace Sifo\Filter;
 
 /**
- * This class is used to update the runtime filter with the cookies changes.
- * @author Albert Lombarte, Sergio Ambel
+ * Filter is FilterPost by default.
  */
-class FilterCookieRuntime extends FilterCookie
+class Post extends Filter
 {
-
-    static public function setCookie($key, $value)
-    {
-        self::getInstance()->request[$key] = $value;
-    }
-
-    static public function deleteCookie($key)
-    {
-        unset(self::getInstance()->request[$key]);
-    }
 }
