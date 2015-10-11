@@ -20,23 +20,8 @@
 
 namespace Sifo;
 
-/**
- * This class is used to update the runtime filter with the cookies changes.
- * @author Albert Lombarte, Sergio Ambel
- */
-class FilterCookieRuntime extends FilterCookie
-{
-
-	static public function setCookie( $key, $value )
-	{
-		self::getInstance()->request[$key] = $value;
-	}
-
-	static public function deleteCookie( $key )
-	{
-		unset( self::getInstance()->request[$key] );
-	}
-}
+use Sifo\Filter\Cookie as FilterCookie;
+use Sifo\Filter\CookieRuntime;
 
 class Cookie
 {
@@ -73,7 +58,7 @@ class Cookie
 		}
 
 		// Filter runtime update:
-		FilterCookieRuntime::setCookie( $name, $value );
+		CookieRuntime::setCookie( $name, $value );
 
 		return true;
 	}
@@ -89,7 +74,7 @@ class Cookie
 		}
 
 		// Filter runtime update:
-		FilterCookieRuntime::deleteCookie( $name );
+		CookieRuntime::deleteCookie( $name );
 
 		return true;
 	}
@@ -103,7 +88,7 @@ class Cookie
 	 */
 	static public function get( $cookies )
 	{
-		trigger_error( "'Cookie::get' is deprecated, please use 'FilterCookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );" );
+		trigger_error( "'Cookie::get' is deprecated, please use 'Sifo\\Filter\\Cookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );" );
 
 		if ( is_array( $cookies ) )
 		{
