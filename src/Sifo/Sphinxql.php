@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Sifo\Debug\Sphinxql;
+use Sifo\Exception\SEO\Exception500;
 
 /**
  * SphinxQL class. Use this class to execute queries against SphinxQL.
@@ -126,7 +127,7 @@ class Sphinxql
 	 * Get Sphinx connection params from config files.
 	 *
 	 * @param $profile
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return array
 	 */
 	protected function getConnectionParams( $profile )
@@ -138,14 +139,14 @@ class Sphinxql
 
 			if ( empty( $sphinx_config[$profile] ) )
 			{
-				throw new \Sifo\Exception_500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
+				throw new Exception500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
 			}
 
 			$sphinx_config = $this->checkBalancedProfile( $sphinx_config[$profile] );
 		}
 		catch ( Exception_Configuration $e )
 		{
-			throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config' );
+			throw new Exception500( 'You must define the connection params in sphinx.config' );
 		}
 
 		return $sphinx_config;
@@ -174,7 +175,7 @@ class Sphinxql
 	 * Use this method to connect to Sphinx.
 	 * @param $node_properties
 	 * @return \mysqli
-	 * @throws Exception_500
+	 * @throws Exception500
 	 */
 	public function connect( $node_properties )
 	{
@@ -182,7 +183,7 @@ class Sphinxql
 
 		if ( !$mysqli || $mysqli->connect_error )
 		{
-			throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+			throw new Exception500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 		}
 
 		return $mysqli;
@@ -408,7 +409,7 @@ class LoadBalancerSphinxql extends LoadBalancer
 			$this->sphinxql_object->connect( $node_properties );
 			$this->addServer( $index, $node_properties['weight'] );
 		}
-		catch( \Sifo\Exception_500 $e )
+		catch( Exception500 $e )
 		{
 			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 		}
