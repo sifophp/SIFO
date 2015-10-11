@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Sifo\Debug\Search as DebugSearch;
+use Sifo\Exception\SEO\Exception500;
 
 class Search
 {
@@ -89,7 +90,7 @@ class Search
 	 * Get Sphinx connection params from config files.
 	 *
 	 * @param $profile
-	 * @throws Exception_500
+	 * @throws Exception500
 	 * @return array
 	 */
 	protected function getConnectionParams( $profile )
@@ -111,7 +112,7 @@ class Search
 				elseif ( isset( $sphinx_config['default'] ) )
 				{
 					// Is using profiles but there isn't the required one.
-					throw new \Sifo\Exception_500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
+					throw new Exception500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
 				}
 				// Deprecated:
 				else
@@ -125,7 +126,7 @@ class Search
 			}
 			catch ( Exception_Configuration $e )
 			{
-				throw new \Sifo\Exception_500( 'You must define the connection params in sphinx.config or domains.config file' );
+				throw new Exception500( 'You must define the connection params in sphinx.config or domains.config file' );
 			}
 		}
 		else
@@ -174,7 +175,7 @@ class Search
 	 * Use this method to connect to Sphinx.
 	 * @param $node_properties
 	 * @return \SphinxClient
-	 * @throws Exception_500
+	 * @throws Exception500
 	 */
 	static function connect( $node_properties )
 	{
@@ -194,7 +195,7 @@ class Search
 			// Check if Sphinx is listening:
 			if ( false === $sphinx->Status() )
 			{
-				throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+				throw new Exception500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 			}
 		}
 
@@ -217,7 +218,7 @@ class LoadBalancerSearch extends LoadBalancer
 			Search::connect( $node_properties );
 			$this->addServer( $index, $node_properties['weight'] );
 		}
-		catch( \Sifo\Exception_500 $e )
+		catch( Exception500 $e )
 		{
 			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 		}

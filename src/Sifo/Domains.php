@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SEO\Exception500;
+
 class Domains
 {
 	protected $domain;
@@ -135,7 +137,7 @@ class Domains
 			}
 			else
 			{
-				throw new Exception_500( 'The language MUST be declared in domains.config file' );
+				throw new Exception500( 'The language MUST be declared in domains.config file' );
 			}
 
 			if ( false !== strstr( strtolower( $this->http_host ), $host ) )

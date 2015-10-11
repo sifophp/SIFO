@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SEO\Exception500;
+
 include_once 'LoadBalancer.php';
 
 // Some stuff needed by ADODb:
@@ -149,7 +151,7 @@ class Database
 				// If connection to database fails throw a SIFO 500 error.
 			catch ( \ADODB_Exception $e )
 			{
-				throw new Exception_500( $e->getMessage(), $e->getCode() );
+				throw new Exception500( $e->getMessage(), $e->getCode() );
 			}
 
 			Benchmark::getInstance()->timingCurrentToRegistry( 'db_connections' );

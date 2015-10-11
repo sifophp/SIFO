@@ -21,6 +21,7 @@
 namespace Sifo;
 
 use Sifo\Cache\Disk;
+use Sifo\Exception\SEO\Exception500;
 
 abstract class ImageController extends Controller
 {
@@ -63,7 +64,7 @@ abstract class ImageController extends Controller
 	{
 		if ( !( $this->is_gif || $this->is_jpeg || $this->is_png || $this->is_bmp || $this->is_ico ) || ( $this->is_gif + $this->is_jpeg + $this->is_png + $this->is_bmp + $this->is_ico ) > 1 )
 		{
-			throw new Exception_500( "Please do the favour of use one (and only one) image content_type helper!" );
+			throw new Exception500( "Please do the favour of use one (and only one) image content_type helper!" );
 		}
 
 		if ( $this->is_gif )
