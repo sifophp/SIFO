@@ -22,6 +22,9 @@ namespace Sifo\Exception\Http;
 
 use Sifo\Exception\HttpException;
 
-class Exception100 extends HttpException
+/**
+ * Redirect (Moved permanently).
+ */
+class MovedPermanently extends HttpException
 {
 }

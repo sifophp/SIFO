@@ -22,6 +22,9 @@ namespace Sifo\Exception\Http;
 
 use Sifo\Exception\HttpException;
 
-class Exception100 extends HttpException
+/**
+ * See other.
+ */
+class SeeOther extends HttpException
 {
 }
