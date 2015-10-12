@@ -22,6 +22,6 @@ namespace Sifo\Exception\Http;
 
 use Sifo\Exception\HttpException;
 
-class Exception100 extends HttpException
+class MultipleChoices extends HttpException
 {
 }

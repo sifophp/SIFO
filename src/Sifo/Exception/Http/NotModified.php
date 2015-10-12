@@ -22,6 +22,9 @@ namespace Sifo\Exception\Http;
 
 use Sifo\Exception\HttpException;
 
-class Exception100 extends HttpException
+/**
+ * Not modified headers. TODO, implement Etag.
+ */
+class NotModified extends HttpException
 {
 }
