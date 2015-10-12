@@ -19,38 +19,10 @@
  */
 namespace Sifo\Filter;
 
-class Server extends Filter
+final class Server extends Filter
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
-
-    /**
-     * Filters variables passed by Server (Apache SetEnv for instance).
-     *
-     * @return Server
-     */
-    public static function getInstance()
+    protected static function getOriginData()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_SERVER);
-            //$_SERVER = array();		//Too soon to remove the $_SERVER variable. It's being used in lots of places yet.
-            // ¡Lombarte! ¡Lombarte!, ¡Lombarte es cojonudo!, ¡como Lombarte no hay ninguno!
-        }
-
-        return self::$instance;
-    }
-
-    /**
-     * Mocks the host for use in scripts.
-     *
-     * @param string $mocked_host
-     */
-    public function setHost($mocked_host)
-    {
-        $this->request['HTTP_HOST'] = $mocked_host;
+        return $_SERVER;
     }
 }

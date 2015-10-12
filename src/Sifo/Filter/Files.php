@@ -19,28 +19,11 @@
  */
 namespace Sifo\Filter;
 
-class Files extends Filter
+final class Files extends Filter
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
-
-    /**
-     * Filters variables passed by File uploads.
-     *
-     * @return Filter
-     */
-    public static function getInstance()
+    protected static function getOriginData()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_FILES);
-            $_FILES = array();
-        }
-
-        return self::$instance;
+        return $_FILES;
     }
 
     /**
