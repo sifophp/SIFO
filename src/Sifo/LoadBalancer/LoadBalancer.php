@@ -18,9 +18,12 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\LoadBalancer;
 
+use Sifo\Bootstrap;
+use Sifo\Cache;
 use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\LoadBalancerException;
 
 /**
  * Determines where to send the data based on server capabilities.
@@ -134,7 +137,7 @@ abstract class LoadBalancer
 	{
 		if ( !isset( $this->nodes ) )
 		{
-			throw new LoadBalancer_Exception( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
+			throw new LoadBalancerException( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
 		}
 
 		$x = round( mt_rand( 0, $this->total_weights ) );
@@ -164,5 +167,3 @@ abstract class LoadBalancer
 		}
 	}
 }
-
-class LoadBalancer_Exception extends \Exception {}

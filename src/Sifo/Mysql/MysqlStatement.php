@@ -1,8 +1,28 @@
 <?php
-namespace Sifo;
+/**
+ * LICENSE
+ *
+ * Copyright 2010 Carlos Soriano
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+namespace Sifo\Mysql;
 
 use PDO;
 use PDOStatement;
+use Sifo\Domains;
 
 /**
  * DbStatement class that is extended to customize some PDO functionality.
@@ -34,8 +54,7 @@ class MysqlStatement extends PDOStatement
         $this->dbh = $dbh;
         $params    = Domains::getInstance()->getDatabaseParams();
 
-        if (!array_key_exists($profile, $params))
-        {
+        if (!array_key_exists($profile, $params)) {
             $params[$profile] = $params;
         }
 
@@ -84,8 +103,7 @@ class MysqlStatement extends PDOStatement
      */
     public function fetchAll($fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, $ctor_args = array())
     {
-        if ($fetch_argument === null)
-        {
+        if ($fetch_argument === null) {
             return parent::fetchAll($fetch_style);
         }
 

@@ -21,7 +21,9 @@
 namespace Sifo;
 
 use Sifo\Debug\Search as DebugSearch;
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\Http\InternalServerError;
+use Sifo\LoadBalancer\LoadBalancerSearch;
 
 class Search
 {
@@ -90,7 +92,7 @@ class Search
 	 * Get Sphinx connection params from config files.
 	 *
 	 * @param $profile
-	 * @throws Exception500
+	 * @throws InternalServerError
 	 * @return array
 	 */
 	protected function getConnectionParams( $profile )
@@ -112,7 +114,7 @@ class Search
 				elseif ( isset( $sphinx_config['default'] ) )
 				{
 					// Is using profiles but there isn't the required one.
-					throw new Exception500( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
+					throw new InternalServerError( "Expected sphinx settings not defined for profile {$profile} in sphinx.config." );
 				}
 				// Deprecated:
 				else
@@ -126,7 +128,7 @@ class Search
 			}
 			catch ( ConfigurationException $e )
 			{
-				throw new Exception500( 'You must define the connection params in sphinx.config or domains.config file' );
+				throw new InternalServerError( 'You must define the connection params in sphinx.config or domains.config file' );
 			}
 		}
 		else
@@ -175,7 +177,7 @@ class Search
 	 * Use this method to connect to Sphinx.
 	 * @param $node_properties
 	 * @return \SphinxClient
-	 * @throws Exception500
+	 * @throws InternalServerError
 	 */
 	static function connect( $node_properties )
 	{
@@ -195,32 +197,10 @@ class Search
 			// Check if Sphinx is listening:
 			if ( false === $sphinx->Status() )
 			{
-				throw new Exception500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+				throw new InternalServerError( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
 			}
 		}
 
 		return $sphinx;
-	}
-}
-
-class LoadBalancerSearch extends LoadBalancer
-{
-	/**
-	 * Name of the cache where the results of server status are stored.
-	 * @var string
-	 */
-	public $loadbalancer_cache_key = '__sphinx_loadbalancer_available_nodes';
-
-	protected function addNodeIfAvailable( $index, $node_properties )
-	{
-		try
-		{
-			Search::connect( $node_properties );
-			$this->addServer( $index, $node_properties['weight'] );
-		}
-		catch( Exception500 $e )
-		{
-			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
-		}
 	}
 }

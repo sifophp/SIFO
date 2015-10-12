@@ -1,5 +1,4 @@
 <?php
-
 /**
  * LICENSE
  *
@@ -19,7 +18,9 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Media;
+
+use Sifo\Media\MediaPacker;
 
 /**
  * CSS packer.

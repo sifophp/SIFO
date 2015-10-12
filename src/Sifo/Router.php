@@ -20,8 +20,8 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SEO\Exception301;
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\Http\MovedPermanently;
 
 /**
  * Maps an URL with a controller
@@ -85,7 +85,7 @@ class Router
 		// Failed to parse routes file.
 		if ( !$routes )
 		{
-			throw new Exception500( "Failed opening router conifiguration file" );
+			throw new InternalServerError( "Failed opening router conifiguration file" );
 		}
 
 		if ( $language )
@@ -153,7 +153,7 @@ class Router
 						// $count indicates the replaces. If $count gt 0 means that was matchs.
 						if ( $count )
 						{
-							throw new Exception301( $destiny );
+							throw new MovedPermanently( $destiny );
 						}
 					}
 				}
