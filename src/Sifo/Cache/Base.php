@@ -22,6 +22,7 @@ namespace Sifo\Cache;
 use Sifo\Config;
 use Sifo\Domains;
 use Sifo\Filter\Get;
+use Sifo\Filter\Cookie;
 
 /**
  * Common methods available to every Cache instance.
@@ -96,7 +97,7 @@ class Base
      */
     public function hasRebuild()
     {
-        return Domains::getInstance()->getDevMode() && (Filter\Get::getInstance()->getInteger('rebuild') || Filter\Cookie::getInstance()->getInteger('rebuild_all'));
+        return Domains::getInstance()->getDevMode() && (Get::getInstance()->getInteger('rebuild') || Cookie::getInstance()->getInteger('rebuild_all'));
     }
 
     /**

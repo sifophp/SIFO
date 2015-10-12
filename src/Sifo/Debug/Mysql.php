@@ -78,7 +78,7 @@ class Mysql extends BaseMysql
      *
      * @param string $statement The query statement to be executed in the database server.
      *
-     * @return \PDOStatament
+     * @return \PDOStatement
      */
     public function query($statement)
     {
