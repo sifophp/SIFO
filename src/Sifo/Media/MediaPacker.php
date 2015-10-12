@@ -1,5 +1,4 @@
 <?php
-
 /**
  * LICENSE
  *
@@ -19,7 +18,10 @@
  *
  */
 
-namespace Sifo;
+namespace Sifo\Media;
+
+use Sifo\Domains;
+use Sifo\Config;
 
 /**
  * Generates media files.
@@ -108,7 +110,7 @@ abstract class MediaPacker
 	/**
 	 * Sets the directory where you want to write the generated files to.
 	 *
-	 * @param $path Real path to the directory storing
+	 * @param string $path Real path to the directory storing
 	 *
 	 * @throws \RuntimeException
 	 */
@@ -124,5 +126,4 @@ abstract class MediaPacker
 		}
 
 	}
-
 }
