@@ -3,7 +3,7 @@
 namespace Sifo\Debug;
 
 use Sifo\Debug;
-use Sifo\PredisProxyClient as BasePredisProxyClient;
+use Sifo\Redis\PredisProxyClient as BasePredisProxyClient;
 
 class PredisProxyClient extends BasePredisProxyClient
 {
