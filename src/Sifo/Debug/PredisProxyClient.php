@@ -7,33 +7,31 @@ use Sifo\Redis\PredisProxyClient as BasePredisProxyClient;
 
 class PredisProxyClient extends BasePredisProxyClient
 {
-	public function __call( $method, $args )
-	{
-		if ( is_object( $this->client ) )
-		{
-			$call_data = array();
-			$call_data['connection'] = $this->connection_params;
-			$call_data['method'] = $method;
-			$call_data['args'] = $args;
-			$call_data['controller'] = $this->getCallerClass();
-			$call_data['results'] = call_user_func_array( array( $this->client, $method ), $args );
+    public function __call($method, $args)
+    {
+        if (is_object($this->client)) {
+            $call_data = array();
+            $call_data['connection'] = $this->connection_params;
+            $call_data['method'] = $method;
+            $call_data['args'] = $args;
+            $call_data['controller'] = $this->getCallerClass();
+            $call_data['results'] = call_user_func_array(array($this->client, $method), $args);
 
-			Debug::push( 'redis', $call_data );
+            Debug::push('redis', $call_data);
 
-			return $call_data['results'];
-		}
+            return $call_data['results'];
+        }
 
-		return null;
-	}
+        return;
+    }
 
-	public function getCallerClass()
-	{
-		$trace = debug_backtrace();
-		foreach( $trace as $steps )
-		{
-			$classes[$steps['class']] = $steps['class'];
-		}
+    public function getCallerClass()
+    {
+        $trace = debug_backtrace();
+        foreach ($trace as $steps) {
+            $classes[$steps['class']] = $steps['class'];
+        }
 
-		return implode( ' > ', array_slice( $classes, 0, 4 ) );
-	}
+        return implode(' > ', array_slice($classes, 0, 4));
+    }
 }

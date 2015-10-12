@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 class Mail
@@ -30,7 +29,7 @@ class Mail
     /**
      * @var self
      */
-    static private $instance;
+    private static $instance;
 
     /**
      * Singleton of Client class.
@@ -41,8 +40,7 @@ class Mail
      */
     public static function getInstance()
     {
-        if (!isset (self::$instance))
-        {
+        if (!isset(self::$instance)) {
             self::$instance = new self();
         }
 
@@ -53,19 +51,17 @@ class Mail
     {
         $config = Config::getInstance()->getConfig('mail');
 
-        $this->mail           = new \PHPMailer();
-        $this->mail->CharSet  = $config['CharSet'];
-        $this->mail->From     = $config['From'];
+        $this->mail = new \PHPMailer();
+        $this->mail->CharSet = $config['CharSet'];
+        $this->mail->From = $config['From'];
         $this->mail->FromName = $config['FromName'];
 
-        foreach ($config as $property => $value)
-        {
+        foreach ($config as $property => $value) {
             $this->mail->$property = $value;
         }
 
         return $this->mail;
     }
-
 
     /**
      * Calls the PHPmailer methods.
@@ -101,7 +97,6 @@ class Mail
         $this->mail->$property = $value;
     }
 
-
     /**
      * Send an email.
      *
@@ -109,7 +104,7 @@ class Mail
      * @param string $subject
      * @param string $body
      *
-     * @return boolean
+     * @return bool
      */
     public function send($to, $subject, $body)
     {
@@ -118,8 +113,7 @@ class Mail
         $this->mail->AddAddress($to);
         $this->mail->MsgHTML($body);
 
-        if (!$this->mail->Send())
-        {
+        if (!$this->mail->Send()) {
             trigger_error($this->mail->ErrorInfo);
 
             return false;

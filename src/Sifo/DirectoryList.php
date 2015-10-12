@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -16,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 /**
@@ -71,86 +69,76 @@ namespace Sifo;
  */
 class DirectoryList
 {
+    /**
+     * Returns the list of *immediate* files [isFile()] and folders [isDir()] on the given path.
+     *
+     * Non-recursive function.
+     *
+     * @param string $path             Directory where you want to start parsing.
+     * @param array  $valid_extensions
+     *
+     * @return \IteratorIterator
+     */
+    public function getList($path, $valid_extensions = array())
+    {
+        // Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
+        $recursive_dir_iterator = new \RecursiveDirectoryIterator($path);
+        $recursive_dir_iterator->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
 
-	/**
-	 * Returns the list of *immediate* files [isFile()] and folders [isDir()] on the given path.
-	 *
-	 * Non-recursive function.
-	 *
-	 * @param string $path Directory where you want to start parsing.
-	 * @param array $valid_extensions
-	 * @return \IteratorIterator
-	 */
-	public function getList( $path, $valid_extensions = array( ) )
-	{
-		// Using RecursiveDirectoryIterator because compared to DirectoryIterator this one removes dot folders:
-		$recursive_dir_iterator =  new \RecursiveDirectoryIterator( $path );
-		$recursive_dir_iterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
+        if (!empty($valid_extensions)) {
+            return new FilterFilesByExtensionIterator(
+                            new \IteratorIterator($recursive_dir_iterator),
+                            $valid_extensions);
+        } else {
+            return new \IteratorIterator($recursive_dir_iterator);
+        }
+    }
 
-		if ( !empty( $valid_extensions ) )
-		{
-			return new FilterFilesByExtensionIterator(
-							new \IteratorIterator( $recursive_dir_iterator ),
-							$valid_extensions );
-		}
-		else
-		{
+    /**
+     * Recursive listing of directory, files and dirs. If a set of extensions is
+     * passed only matching files will be returned (do not pass the dot in the extensions).
+     *
+     * @param string $path               Directory where you want to start parsing.
+     * @param bool   $accept_directories
+     * @param array  $valid_extensions   List of accepted extensions in the list, empty array for no filtering.
+     *
+     * @return \RecursiveIteratorIterator|\Sifo\FilterFilesByExtensionIterator ratorIterator of RecursiveDirectoryIterator
+     */
+    public function getRecursiveList($path, $accept_directories = true, $valid_extensions = array())
+    {
+        $mode = $this->_getIteratorMode($accept_directories);
+        $recursive_dir_iterator = new \RecursiveDirectoryIterator($path);
+        $recursive_dir_iterator->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
 
-			return new \IteratorIterator( $recursive_dir_iterator );
-		}
+        if (!empty($valid_extensions)) {
+            return new FilterFilesByExtensionIterator(
+                            new \RecursiveIteratorIterator(
+                                    $recursive_dir_iterator,
+                                    $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD
+                            ),
+                            $valid_extensions);
+        } else {
+            return new \RecursiveIteratorIterator($recursive_dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD);
+        }
+    }
 
-	}
-
-	/**
-	 * Recursive listing of directory, files and dirs. If a set of extensions is
-	 * passed only matching files will be returned (do not pass the dot in the extensions)
-	 *
-	 * @param string $path Directory where you want to start parsing.
-	 * @param bool $accept_directories
-	 * @param array $valid_extensions List of accepted extensions in the list, empty array for no filtering.
-	 * @return \RecursiveIteratorIterator|\Sifo\FilterFilesByExtensionIterator ratorIterator of RecursiveDirectoryIterator
-	 */
-	public function getRecursiveList( $path, $accept_directories = true, $valid_extensions = array( ) )
-	{
-		$mode = $this->_getIteratorMode( $accept_directories );
-		$recursive_dir_iterator =  new \RecursiveDirectoryIterator( $path );
-		$recursive_dir_iterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
-
-		if ( !empty( $valid_extensions ) )
-		{
-			return new FilterFilesByExtensionIterator(
-							new \RecursiveIteratorIterator(
-									$recursive_dir_iterator,
-									$mode, \RecursiveIteratorIterator::CATCH_GET_CHILD
-							),
-							$valid_extensions );
-		}
-		else
-		{
-			return new \RecursiveIteratorIterator( $recursive_dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD );
-		}
-
-	}
-
-	private function _getIteratorMode( $accept_directories )
-	{
-		/**
-		 * Available modes for RecursiveIteratorIterator:
-		 *
-		 * RecursiveIteratorIterator::LEAVES_ONLY (don't show folders, default)
-		 * RecursiveIteratorIterator::SELF_FIRST (show parent folders before children)
-		 * RecursiveIteratorIterator::CHILD_FIRST (show parent folders after children, unusual)
-		 *
-		 * Flags (set in flags, not in mode):
-		 * RecursiveIteratorIterator::CATCH_GET_CHILD = Catches exceptions in getChildren() call
-		 */
-		return ( $accept_directories ?
-						\RecursiveIteratorIterator::SELF_FIRST :
-						\RecursiveIteratorIterator::LEAVES_ONLY
-				);
-
-	}
-
+    private function _getIteratorMode($accept_directories)
+    {
+        /*
+         * Available modes for RecursiveIteratorIterator:
+         *
+         * RecursiveIteratorIterator::LEAVES_ONLY (don't show folders, default)
+         * RecursiveIteratorIterator::SELF_FIRST (show parent folders before children)
+         * RecursiveIteratorIterator::CHILD_FIRST (show parent folders after children, unusual)
+         *
+         * Flags (set in flags, not in mode):
+         * RecursiveIteratorIterator::CATCH_GET_CHILD = Catches exceptions in getChildren() call
+         */
+        return ($accept_directories ?
+                        \RecursiveIteratorIterator::SELF_FIRST :
+                        \RecursiveIteratorIterator::LEAVES_ONLY
+                );
+    }
 }
 
 /**
@@ -159,45 +147,38 @@ class DirectoryList
  */
 class FilterFilesByExtensionIterator extends \FilterIterator
 {
+    protected $allowed_extensions;
 
-	protected $allowed_extensions;
+    public function __construct(\Iterator $iterator, Array $allowed_extensions)
+    {
+        $this->allowed_extensions = $allowed_extensions;
+        parent::__construct($iterator);
+    }
 
-	public function __construct( \Iterator $iterator, Array $allowed_extensions )
-	{
-		$this->allowed_extensions = $allowed_extensions;
-		parent::__construct( $iterator );
+    /**
+     * Checks if current file matches the allowed extension or not. If directories
+     * are passed will be accepted.
+     *
+     * @return bool
+     */
+    public function accept()
+    {
+        // If directories are passed, we accept them. Is duty of the calling function:
 
-	}
+        if ($this->current()->isDir()) {
+            return true;
+        }
 
-	/**
-	 * Checks if current file matches the allowed extension or not. If directories
-	 * are passed will be accepted.
-	 *
-	 * @return boolean
-	 */
-	public function accept()
-	{
-		// If directories are passed, we accept them. Is duty of the calling function:
+        if (!empty($this->allowed_extensions)) {
+            foreach ($this->allowed_extensions as $ext) {
+                if (pathinfo($this->getBaseName(), PATHINFO_EXTENSION) == $ext) {
+                    return true;
+                }
+            }
 
-		if ( $this->current()->isDir() )
-		{
-			return true;
-		}
+            return false;
+        }
 
-		if ( !empty( $this->allowed_extensions ) )
-		{
-			foreach ( $this->allowed_extensions as $ext )
-			{
-				if ( pathinfo( $this->getBaseName(), PATHINFO_EXTENSION ) == $ext )
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		return true;
-
-	}
-
+        return true;
+    }
 }

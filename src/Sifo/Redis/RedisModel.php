@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Redis;
 
 use Sifo\Config;
@@ -25,7 +24,7 @@ use Sifo\Domains;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Redis;
 
-include_once ROOT_PATH . '/vendor/predis/predis/src/Autoloader.php';
+include_once ROOT_PATH.'/vendor/predis/predis/src/Autoloader.php';
 
 /**
  * Predis adapter for Sifo.
@@ -34,6 +33,7 @@ class RedisModel
 {
     /**
      * Redis client object.
+     *
      * @var \Predis\Client
      */
     private static $connected_client = array();
@@ -47,6 +47,7 @@ class RedisModel
      * will be searched in redis.config.php.
      *
      * @param string $profile Connection profile.
+     *
      * @return \Predis\Client
      */
     public function connect($profile = null)

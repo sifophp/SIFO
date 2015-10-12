@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Garcia
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 /**
@@ -25,116 +24,112 @@ namespace Sifo;
  */
 class Benchmark
 {
-	private static $instance;
-	public static $start_times;
-	public static $stop_times;
-	public static $delta_points;
+    private static $instance;
+    public static $start_times;
+    public static $stop_times;
+    public static $delta_points;
 
-	/**
-	 * Singleton of benchmark class.
-	 *
-	 * @return Benchmark
-	 */
-	public static function getInstance()
-	{
-		if ( !isset ( self::$instance ) )
-		{
-			self::$instance = new self();
-		}
+    /**
+     * Singleton of benchmark class.
+     *
+     * @return Benchmark
+     */
+    public static function getInstance()
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+        }
 
-		return self::$instance;
-	}
+        return self::$instance;
+    }
 
-	/**
-	 * Class constructor.
-	 */
-	public function __construct()
-	{
-		self::$start_times = array();
-		self::$stop_times = array();
-		self::$delta_points = array();
-	}
+    /**
+     * Class constructor.
+     */
+    public function __construct()
+    {
+        self::$start_times = array();
+        self::$stop_times = array();
+        self::$delta_points = array();
+    }
 
-	/**
-	 * Starts the timer for the given group name.
-	 *
-	 * @param string $name
-	 */
-	public function timingStart ($name = 'default') {
-		self::$start_times[$name] = explode(' ', microtime());
-	}
+    /**
+     * Starts the timer for the given group name.
+     *
+     * @param string $name
+     */
+    public function timingStart($name = 'default')
+    {
+        self::$start_times[$name] = explode(' ', microtime());
+    }
 
-	/**
-	 * Stops the timer for the given group name.
-	 *
-	 * @param string $name
-	 */
-	public function timingStop ($name = 'default') {
-		self::$stop_times[$name] = explode(' ', microtime());
-	}
+    /**
+     * Stops the timer for the given group name.
+     *
+     * @param string $name
+     */
+    public function timingStop($name = 'default')
+    {
+        self::$stop_times[$name] = explode(' ', microtime());
+    }
 
-	/**
-	 * Returns the current time for the given group name.
-	 *
-	 * @param string $name
+    /**
+     * Returns the current time for the given group name.
+     *
+     * @param string $name
+     *
      * @return int Current time
      */
-	public function timingCurrent ($name = 'default') {
-		if (!isset(self::$start_times[$name])) {
-			return 0;
-		}
-		if (!isset(self::$stop_times[$name])) {
-			$stop_time = explode(' ', microtime());
-		}
-		else {
-			$stop_time = self::$stop_times[$name];
-		}
-		// do the big numbers first so the small ones aren't lost
-		$current = $stop_time[1] - self::$start_times[$name][1];
-		$current += $stop_time[0] - self::$start_times[$name][0];
-		return $current;
-	}
+    public function timingCurrent($name = 'default')
+    {
+        if (!isset(self::$start_times[$name])) {
+            return 0;
+        }
+        if (!isset(self::$stop_times[$name])) {
+            $stop_time = explode(' ', microtime());
+        } else {
+            $stop_time = self::$stop_times[$name];
+        }
+        // do the big numbers first so the small ones aren't lost
+        $current = $stop_time[1] - self::$start_times[$name][1];
+        $current += $stop_time[0] - self::$start_times[$name][0];
 
-	/**
-	 * Stores the current time to registry to accumulate partials.
-	 *
-	 * @param string $name
-	 * @return int
-	 */
-	public function timingCurrentToRegistry ($name = 'default')
-	{
-		$num_elements = Debug::get( 'elements' );
-		if ( isset( $num_elements[$name] ) )
-		{
-			$num_elements = $num_elements[$name] + 1;
-		}
-		else
-		{
-			$num_elements = 1;
-		}
+        return $current;
+    }
 
-		Debug::subSet( 'elements', $name, $num_elements );
+    /**
+     * Stores the current time to registry to accumulate partials.
+     *
+     * @param string $name
+     *
+     * @return int
+     */
+    public function timingCurrentToRegistry($name = 'default')
+    {
+        $num_elements = Debug::get('elements');
+        if (isset($num_elements[$name])) {
+            $num_elements = $num_elements[$name] + 1;
+        } else {
+            $num_elements = 1;
+        }
 
-		$total_times = Debug::get( 'times' );
+        Debug::subSet('elements', $name, $num_elements);
 
-		$actual_time = self::timingCurrent($name);
+        $total_times = Debug::get('times');
 
-		if ( isset( $total_times[$name] ) )
-		{
-			$total_times = $total_times[$name] + $actual_time;
-		}
-		else
-		{
-			$total_times = $actual_time;
-		}
+        $actual_time = self::timingCurrent($name);
 
+        if (isset($total_times[$name])) {
+            $total_times = $total_times[$name] + $actual_time;
+        } else {
+            $total_times = $actual_time;
+        }
 
-		Debug::subSet( 'times', $name, $total_times );
+        Debug::subSet('times', $name, $total_times);
 
-		unset( self::$start_times[$name] );
-		unset( self::$stop_times[$name] );
+        unset(self::$start_times[$name]);
+        unset(self::$stop_times[$name]);
 
-		return $actual_time;
-	}
+        return $actual_time;
+    }
 }
-?>

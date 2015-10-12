@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Carlos Soriano
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Mysql;
 
 use PDO;
@@ -52,7 +51,7 @@ class MysqlStatement extends PDOStatement
     protected function __construct($dbh, $profile)
     {
         $this->dbh = $dbh;
-        $params    = Domains::getInstance()->getDatabaseParams();
+        $params = Domains::getInstance()->getDatabaseParams();
 
         if (!array_key_exists($profile, $params)) {
             $params[$profile] = $params;
@@ -76,14 +75,14 @@ class MysqlStatement extends PDOStatement
     /**
      * Fetches the resultset. Extended to make PDO::FETCH_ASSOC as default $fetch_style.
      *
-     * @param integer $fetch_style        Controls how the next row will be returned to the caller. This value must be one of the PDO::FETCH_* constants, defaulting to
-     *                                    PDO::FETCH_ASSOC.
-     * @param integer $cursor_orientation For a PDOStatement object representing a scrollable cursor, this value determines which row will be returned to the caller.
-     *                                    This value must be one of the PDO::FETCH_ORI_* constants, defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
-     *                                    your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute to PDO::CURSOR_SCROLL when you prepare the SQL statement
-     *                                    with PDO::prepare().
-     * @param integer $cursor_offset      For a PDOStatement object representing a scrollable cursor for which the cursor_orientation parameter is set to
-     *                                    PDO::FETCH_ORI_ABS, this value specifies the absolute number of the row in the result set that shall be fetched.
+     * @param int $fetch_style        Controls how the next row will be returned to the caller. This value must be one of the PDO::FETCH_* constants, defaulting to
+     *                                PDO::FETCH_ASSOC.
+     * @param int $cursor_orientation For a PDOStatement object representing a scrollable cursor, this value determines which row will be returned to the caller.
+     *                                This value must be one of the PDO::FETCH_ORI_* constants, defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
+     *                                your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute to PDO::CURSOR_SCROLL when you prepare the SQL statement
+     *                                with PDO::prepare().
+     * @param int $cursor_offset      For a PDOStatement object representing a scrollable cursor for which the cursor_orientation parameter is set to
+     *                                PDO::FETCH_ORI_ABS, this value specifies the absolute number of the row in the result set that shall be fetched.
      *
      * @return mixed
      */
@@ -95,9 +94,9 @@ class MysqlStatement extends PDOStatement
     /**
      * Returns an array containing all of the result set rows.
      *
-     * @param integer $fetch_style    Controls the contents of the returned array as documented in PDOStatement::fetch().
-     * @param mixed   $fetch_argument This argument have a different meaning depending on the value of the fetch_style parameter.
-     * @param array   $ctor_args      Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
+     * @param int   $fetch_style    Controls the contents of the returned array as documented in PDOStatement::fetch().
+     * @param mixed $fetch_argument This argument have a different meaning depending on the value of the fetch_style parameter.
+     * @param array $ctor_args      Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
      *
      * @return array
      */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -16,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 use Sifo\Exception\Http\Unauthorized;
@@ -26,52 +24,51 @@ use Sifo\Exception\Http\NotFound;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\ConfigurationException;
 
-if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
-{
-	newrelic_set_appname( ucfirst( $instance ) );
+if (extension_loaded('newrelic') && isset($instance)) {
+    newrelic_set_appname(ucfirst($instance));
 }
 
 /**
- * Class Bootstrap
+ * Class Bootstrap.
  */
-require_once ROOT_PATH . '/vendor/autoload.php';
+require_once ROOT_PATH.'/vendor/autoload.php';
 
 class Bootstrap
 {
-	/**
-	 * Root path.
-	 *
-	 * @var string
-	 */
-	public static $root;
+    /**
+     * Root path.
+     *
+     * @var string
+     */
+    public static $root;
 
-	/**
-	 * Application path.
-	 *
-	 * @var string
-	 */
-	public static $application;
+    /**
+     * Application path.
+     *
+     * @var string
+     */
+    public static $application;
 
-	/**
-	 * Instance name, this is the folder under 'instances'.
-	 *
-	 * @var string
-	 */
-	public static $instance;
+    /**
+     * Instance name, this is the folder under 'instances'.
+     *
+     * @var string
+     */
+    public static $instance;
 
-	/**
-	 * Language of this instance.
-	 *
-	 * @var string
-	 */
-	public static $language;
+    /**
+     * Language of this instance.
+     *
+     * @var string
+     */
+    public static $language;
 
-	/**
-	 * The executed controller.
-	 *
-	 * @var string
-	 */
-	public static $controller = null;
+    /**
+     * The executed controller.
+     *
+     * @var string
+     */
+    public static $controller = null;
 
     /**
      * The dependency injection container.
@@ -80,59 +77,57 @@ class Bootstrap
      */
     public static $container;
 
-	/**
-	 * This classes will be loaded in this order and ALWAYS before starting
-	 * to parse code. This array can be replaced in your libraries.config under
-	 * the key $config['classes_always_preloaded']
-	 *
-	 * @var array
-	 */
-	public static $required_classes = array(
-		'Exceptions',
-		'Filter',
-		'Domains',
-		'Urls',
-		'Router',
-		'Controller'
-	);
+    /**
+     * This classes will be loaded in this order and ALWAYS before starting
+     * to parse code. This array can be replaced in your libraries.config under
+     * the key $config['classes_always_preloaded'].
+     *
+     * @var array
+     */
+    public static $required_classes = array(
+        'Exceptions',
+        'Filter',
+        'Domains',
+        'Urls',
+        'Router',
+        'Controller',
+    );
 
-	/**
-	 * Include the minimum necessary files to run SIFO.
-	 */
-	public static function includeRequiredFiles()
-	{
-		foreach ( self::$required_classes as $class )
-		{
-			self::includeFile( $class );
-		}
-	}
+    /**
+     * Include the minimum necessary files to run SIFO.
+     */
+    public static function includeRequiredFiles()
+    {
+        foreach (self::$required_classes as $class) {
+            self::includeFile($class);
+        }
+    }
 
-	/**
-	 * Starts the execution. Root path is passed to avoid recalculation.
-	 *
-	 * @param $instance_name
-	 * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
-	 *
-	 * @internal param string $root Path to root.
-	 *
-	 */
-	public static function execute( $instance_name, $controller_name = null )
-	{
-		// Set paths:
-		self::$root        = ROOT_PATH;
-		self::$application = dirname( __FILE__ );
-		self::$instance    = $instance_name;
+    /**
+     * Starts the execution. Root path is passed to avoid recalculation.
+     *
+     * @param $instance_name
+     * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
+     *
+     * @internal param string $root Path to root.
+     */
+    public static function execute($instance_name, $controller_name = null)
+    {
+        // Set paths:
+        self::$root = ROOT_PATH;
+        self::$application = dirname(__FILE__);
+        self::$instance = $instance_name;
 
-		// Include files:
-		self::includeRequiredFiles();
+        // Include files:
+        self::includeRequiredFiles();
 
-		self::autoload();
-		Benchmark::getInstance()->timingStart();
+        self::autoload();
+        Benchmark::getInstance()->timingStart();
 
-		self::dispatch( $controller_name );
+        self::dispatch($controller_name);
 
-		Benchmark::getInstance()->timingStop();
-	}
+        Benchmark::getInstance()->timingStop();
+    }
 
     /**
      * Registers the autoload used by Sifo.
@@ -141,7 +136,7 @@ class Bootstrap
      */
     public static function autoload()
     {
-        $autoload        = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
+        $autoload = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
         self::$container = DependencyInjector::getInstance();
 
         return $autoload;
@@ -154,303 +149,265 @@ class Bootstrap
      *
      * @return Controller|void
      */
-    public static function invokeController( $controller )
+    public static function invokeController($controller)
     {
-        $controller_path = explode( '/', $controller );
+        $controller_path = explode('/', $controller);
 
         $class = '';
-        foreach ( $controller_path as $part )
-        {
-            $class .= ucfirst( $part );
+        foreach ($controller_path as $part) {
+            $class .= ucfirst($part);
         }
 
         $class .= 'Controller';
 
-        $controller = self::getClass( $class );
+        $controller = self::getClass($class);
         $controller->setContainer(self::$container);
 
         return $controller;
     }
 
-	/**
-	 * Includes (include_once) the file corresponding to the passed passed classname.
-	 * It does not instantiate any object.
-	 *
-	 * This method must be public as it is used in external places, as unit-tests.
-	 *
-	 * @param string $classname
-	 *
-	 * @throws InternalServerError
-	 * @return string The classname you asked for.
-	 */
-	public static function includeFile( $classname )
-	{
-		try
-		{
-			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $classname );
-		}
-		catch ( ConfigurationException $e )
-		{
-            throw new InternalServerError( $e->getMessage() );
-		}
+    /**
+     * Includes (include_once) the file corresponding to the passed passed classname.
+     * It does not instantiate any object.
+     *
+     * This method must be public as it is used in external places, as unit-tests.
+     *
+     * @param string $classname
+     *
+     * @throws InternalServerError
+     *
+     * @return string The classname you asked for.
+     */
+    public static function includeFile($classname)
+    {
+        try {
+            $classInfo = Config::getInstance(self::$instance)->getClassInfo($classname);
+        } catch (ConfigurationException $e) {
+            throw new InternalServerError($e->getMessage());
+        }
 
-		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
-		{
-			throw new InternalServerError( "Doesn't exist in expected path {$classInfo['path']}" );
-		}
+        if (!include_once ROOT_PATH.DIRECTORY_SEPARATOR.$classInfo['path']) {
+            throw new InternalServerError("Doesn't exist in expected path {$classInfo['path']}");
+        }
 
-		return $classInfo['name'];
-	}
+        return $classInfo['name'];
+    }
 
-	/**
-	 * Returns an instance of the requested class at the lowest level in the hierarchy. The second parameter controls
-	 * if an instance of the object is returned. If you are getting a class with
-	 * a private constructor (e.g: singleton) set it to false.
-	 *
-	 * @param string $class Class name you want to get
-	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
-	 *
-	 * @throws InternalServerError
-	 * @return Object|void
-	 */
-	public static function getClass( $class, $call_constructor = true )
-	{
-		$classname = self::includeFile( $class );
+    /**
+     * Returns an instance of the requested class at the lowest level in the hierarchy. The second parameter controls
+     * if an instance of the object is returned. If you are getting a class with
+     * a private constructor (e.g: singleton) set it to false.
+     *
+     * @param string $class            Class name you want to get
+     * @param bool   $call_constructor Return a new object of the class (true), or include the class only (false).
+     *
+     * @throws InternalServerError
+     *
+     * @return Object|void
+     */
+    public static function getClass($class, $call_constructor = true)
+    {
+        $classname = self::includeFile($class);
 
-		if ( class_exists( $classname ) )
-		{
-			if ( $call_constructor )
-			{
-				return new $classname;
-			}
-		}
-		else
-		{
-			throw new InternalServerError( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
-		}
-	}
+        if (class_exists($classname)) {
+            if ($call_constructor) {
+                return new $classname();
+            }
+        } else {
+            throw new InternalServerError("Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?).");
+        }
+    }
 
-	/**
-	 * Sets the controller and view properties and executes the controller, sending the output buffer.
-	 *
-	 * @param string $controller Dispatches a specific controller, or use URL to determine the controller
-	 */
-	public static function dispatch( $controller = null )
-	{
-		try
-		{
-			$domain      = Domains::getInstance();
-			$destination = $domain->getRedirect();
+    /**
+     * Sets the controller and view properties and executes the controller, sending the output buffer.
+     *
+     * @param string $controller Dispatches a specific controller, or use URL to determine the controller
+     */
+    public static function dispatch($controller = null)
+    {
+        try {
+            $domain = Domains::getInstance();
+            $destination = $domain->getRedirect();
 
-			if ( !empty( $destination ) )
-			{
-				Headers::setResponseStatus( 301 );
-				Headers::set( 'Location', $destination, 301 );
-				Headers::send();
-				exit;
-			}
+            if (!empty($destination)) {
+                Headers::setResponseStatus(301);
+                Headers::set('Location', $destination, 301);
+                Headers::send();
+                exit;
+            }
 
-			$auth_data = $domain->getAuthData();
+            $auth_data = $domain->getAuthData();
 
-			if ( !empty( $auth_data ) && Filter\Cookie::getInstance()->getString( 'domain_auth' ) != $auth_data['hash'] )
-			{
-				$filter_server = Filter\Server::getInstance();
-				if ( $filter_server->isEmpty( 'PHP_AUTH_USER' ) || $filter_server->isEmpty( 'PHP_AUTH_PW' ) || $filter_server->getString( 'PHP_AUTH_USER' ) != $auth_data['user'] || $filter_server->getString( 'PHP_AUTH_PW' ) != $auth_data['password'] )
-				{
-					Headers::set( 'WWW-Authenticate', 'Basic realm="Protected page"' );
-					Headers::send();
-					throw new Unauthorized( 'You should enter a valid credentials.' );
-				}
+            if (!empty($auth_data) && Filter\Cookie::getInstance()->getString('domain_auth') != $auth_data['hash']) {
+                $filter_server = Filter\Server::getInstance();
+                if ($filter_server->isEmpty('PHP_AUTH_USER') || $filter_server->isEmpty('PHP_AUTH_PW') || $filter_server->getString('PHP_AUTH_USER') != $auth_data['user'] || $filter_server->getString('PHP_AUTH_PW') != $auth_data['password']) {
+                    Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
+                    Headers::send();
+                    throw new Unauthorized('You should enter a valid credentials.');
+                }
 
-				// If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
-				setcookie( 'domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain() );
-			}
+                // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
+                setcookie('domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain());
+            }
 
-			self::$language = $domain->getLanguage();
-			$php_inis       = $domain->getPHPInis();
+            self::$language = $domain->getLanguage();
+            $php_inis = $domain->getPHPInis();
 
-			if ( $php_inis )
-			{
-				self::_overWritePHPini( $php_inis );
-			}
+            if ($php_inis) {
+                self::_overWritePHPini($php_inis);
+            }
 
-			$url        = Urls::getInstance( self::$instance );
-			$path_parts = $url->getPathParts();
+            $url = Urls::getInstance(self::$instance);
+            $path_parts = $url->getPathParts();
 
-			if ( !$domain->valid_domain )
-			{
-				throw new NotFound( 'Unknown language in domain' );
-			}
-			else
-			{
-				if ( null === $controller )
-				{
-					$router     = new Router( $path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode );
-					$controller = $router->getController();
-				}
-			}
+            if (!$domain->valid_domain) {
+                throw new NotFound('Unknown language in domain');
+            } else {
+                if (null === $controller) {
+                    $router = new Router($path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode);
+                    $controller = $router->getController();
+                }
+            }
 
-			// This is the controller to use:
-			$ctrl             = self::invokeController( $controller );
-			self::$controller = $controller;
+            // This is the controller to use:
+            $ctrl = self::invokeController($controller);
+            self::$controller = $controller;
 
-			// Save in params for future references:
-			$ctrl->addParams( array(
-			                       'controller_route' => $controller,
-			                  ) );
+            // Save in params for future references:
+            $ctrl->addParams(array(
+                                   'controller_route' => $controller,
+                              ));
 
-			// Active/deactive auto-rebuild option:
-			if ( $domain->getDevMode() )
-			{
-				if ( Filter\Get::getInstance()->getInteger( 'clean_compile' ) )
-				{
-					$smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
-					system( 'rm -rf ' . $smarty_compiles_dir );
-				}
+            // Active/deactive auto-rebuild option:
+            if ($domain->getDevMode()) {
+                if (Filter\Get::getInstance()->getInteger('clean_compile')) {
+                    $smarty_compiles_dir = ROOT_PATH.'/instances/'.self::$instance.'/templates/_smarty/compile/*';
+                    system('rm -rf '.$smarty_compiles_dir);
+                }
 
-				$ctrl->getClass( 'Cookie' );
-				if ( Filter\Get::getInstance()->getInteger( 'rebuild_all' ) )
-				{
-					Cookie::set( 'rebuild_all', 1 );
-				}
-				if ( Filter\Get::getInstance()->getInteger( 'rebuild_nothing' ) && Filter\Cookie::getInstance()->getInteger( 'rebuild_all' ) )
-				{
-					Cookie::delete( 'rebuild_all' );
-				}
-				if ( 1 === Filter\Get::getInstance()->getInteger( 'debug' ) )
-				{
-					Cookie::set( 'debug', 1 );
-				}
-				if ( 0 === Filter\Get::getInstance()->getInteger( 'debug' ) )
-				{
-					Cookie::set( 'debug', 0 );
-				}
+                $ctrl->getClass('Cookie');
+                if (Filter\Get::getInstance()->getInteger('rebuild_all')) {
+                    Cookie::set('rebuild_all', 1);
+                }
+                if (Filter\Get::getInstance()->getInteger('rebuild_nothing') && Filter\Cookie::getInstance()->getInteger('rebuild_all')) {
+                    Cookie::delete('rebuild_all');
+                }
+                if (1 === Filter\Get::getInstance()->getInteger('debug')) {
+                    Cookie::set('debug', 1);
+                }
+                if (0 === Filter\Get::getInstance()->getInteger('debug')) {
+                    Cookie::set('debug', 0);
+                }
 
-				if ( false !== ( $debug = Filter\Cookie::getInstance()->getInteger( 'debug' ) ) )
-				{
-					Domains::getInstance()->setDebugMode( (bool)$debug );
-				}
-			}
+                if (false !== ($debug = Filter\Cookie::getInstance()->getInteger('debug'))) {
+                    Domains::getInstance()->setDebugMode((bool) $debug);
+                }
+            }
 
-			$ctrl->dispatch();
+            $ctrl->dispatch();
 
-			if ( false === $ctrl->is_json && Domains::getInstance()->getDebugMode() )
-			{
-				self::invokeController( 'debug/index' )->dispatch();
-			}
-		}
-			// Don't know what to do after Domain is evaluated. Goodbye:
-		catch ( DomainsException $d )
-		{
-			Headers::setResponseStatus( 404 );
-			Headers::send();
-			echo "<h1>{$d->getMessage()}</h1>";
-			die;
-		}
-		catch ( ControllerException $e )
-		{
-			self::_dispatchErrorController( $e->getPrevious() );
-		}
-		catch ( \Exception $e )
-		{
-			self::_dispatchErrorController( $e );
-		}
-	}
+            if (false === $ctrl->is_json && Domains::getInstance()->getDebugMode()) {
+                self::invokeController('debug/index')->dispatch();
+            }
+        }
+            // Don't know what to do after Domain is evaluated. Goodbye:
+        catch (DomainsException $d) {
+            Headers::setResponseStatus(404);
+            Headers::send();
+            echo "<h1>{$d->getMessage()}</h1>";
+            die;
+        } catch (ControllerException $e) {
+            self::_dispatchErrorController($e->getPrevious());
+        } catch (\Exception $e) {
+            self::_dispatchErrorController($e);
+        }
+    }
 
-	/**
-	 * Dispatches an error after an exception.
-	 *
-	 * @param Exception $e
-	 *
-	 * @return output buffer
-	 */
-	private static function _dispatchErrorController( $e )
-	{
-		if ( !isset( $e->http_code ) )
-		{
-			$e->http_code     = 503;
-			$e->http_code_msg = 'Exception!';
-			$e->redirect      = false;
-		}
+    /**
+     * Dispatches an error after an exception.
+     *
+     * @param Exception $e
+     *
+     * @return output buffer
+     */
+    private static function _dispatchErrorController($e)
+    {
+        if (!isset($e->http_code)) {
+            $e->http_code = 503;
+            $e->http_code_msg = 'Exception!';
+            $e->redirect = false;
+        }
 
-		Headers::setResponseStatus( $e->http_code );
-		Headers::send();
+        Headers::setResponseStatus($e->http_code);
+        Headers::send();
 
-		// Execute ErrorCommonController when an exception is captured.
-		$ctrl2 = self::invokeController( 'error/common' );
+        // Execute ErrorCommonController when an exception is captured.
+        $ctrl2 = self::invokeController('error/common');
 
-		// Set params:
-		$ctrl2->addParams( array(
-		                        'code'     => $e->http_code,
-		                        'code_msg' => $e->http_code_msg,
-		                        'msg'      => $e->getMessage(),
-		                        'trace'    => $e->getTraceAsString(),
-		                   ) );
+        // Set params:
+        $ctrl2->addParams(array(
+                                'code' => $e->http_code,
+                                'code_msg' => $e->http_code_msg,
+                                'msg' => $e->getMessage(),
+                                'trace' => $e->getTraceAsString(),
+                           ));
 
-		// All the SEO_Exceptions with need of redirection have this attribute:
-		if ( $e->redirect )
-		{
-			// Path is passed via message:
-			$path         = trim( $e->getMessage(), '/' );
-			$new_location = '';
-			// Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
-			if ( false !== strpos( $path, '://' ) )
-			{
-				// Absolute path passed:
-				$new_location = $path;
-			}
-			else
-			{
-				// Relative path passed, use path as the key in url.config.php file:
-				$new_location = Urls::getUrl( $path );
-			}
+        // All the SEO_Exceptions with need of redirection have this attribute:
+        if ($e->redirect) {
+            // Path is passed via message:
+            $path = trim($e->getMessage(), '/');
+            $new_location = '';
+            // Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
+            if (false !== strpos($path, '://')) {
+                // Absolute path passed:
+                $new_location = $path;
+            } else {
+                // Relative path passed, use path as the key in url.config.php file:
+                $new_location = Urls::getUrl($path);
+            }
 
-			if ( empty( $new_location ) || false == $new_location )
-			{
-				trigger_error( "Exception " . $e->http_code . " raised with an empty location " . $e->getTraceAsString() );
-				Headers::setResponseStatus( 500 );
-				Headers::send();
-				exit;
-			}
+            if (empty($new_location) || false == $new_location) {
+                trigger_error('Exception '.$e->http_code.' raised with an empty location '.$e->getTraceAsString());
+                Headers::setResponseStatus(500);
+                Headers::send();
+                exit;
+            }
 
-			if ( !Domains::getInstance()->getDebugMode() )
-			{
-				Headers::setResponseStatus( $e->http_code );
-				Headers::set( 'Location', $new_location, $e->http_code );
-				Headers::send();
-				return;
-			}
-			else
-			{
-				$ctrl2->addParams( array( 'url_redirect' => $new_location ) );
-				$ctrl2->dispatch();
-				Headers::set( 'Location (paused)', $new_location );
-				Headers::send();
-				self::invokeController( 'debug/index' )->dispatch();
-				return;
-			}
-		}
+            if (!Domains::getInstance()->getDebugMode()) {
+                Headers::setResponseStatus($e->http_code);
+                Headers::set('Location', $new_location, $e->http_code);
+                Headers::send();
 
-		$result = $ctrl2->dispatch();
-		// Load the debug in case you have enabled the has debug flag.
-		if ( Domains::getInstance()->getDebugMode() )
-		{
-			self::invokeController( 'debug/index' )->dispatch();
-		}
+                return;
+            } else {
+                $ctrl2->addParams(array('url_redirect' => $new_location));
+                $ctrl2->dispatch();
+                Headers::set('Location (paused)', $new_location);
+                Headers::send();
+                self::invokeController('debug/index')->dispatch();
 
-		return $result;
-	}
+                return;
+            }
+        }
 
-	/**
-	 * Sets all the PHP ini configurations stored in the configuration.
-	 *
-	 * @param array $php_inis
-	 */
-	private static function _overWritePHPini( Array $php_inis )
-	{
-		foreach ( $php_inis as $varname => $newvalue )
-		{
-			ini_set( $varname, $newvalue );
-		}
-	}
+        $result = $ctrl2->dispatch();
+        // Load the debug in case you have enabled the has debug flag.
+        if (Domains::getInstance()->getDebugMode()) {
+            self::invokeController('debug/index')->dispatch();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Sets all the PHP ini configurations stored in the configuration.
+     *
+     * @param array $php_inis
+     */
+    private static function _overWritePHPini(Array $php_inis)
+    {
+        foreach ($php_inis as $varname => $newvalue) {
+            ini_set($varname, $newvalue);
+        }
+    }
 }

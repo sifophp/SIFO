@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Filter;
 
 /**
@@ -31,7 +30,7 @@ class Filter
 {
     /**
      * Regular expression for email validation.
-     * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
+     * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44.
      */
     const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
 
@@ -44,6 +43,7 @@ class Filter
 
     /**
      * Request storage.
+     *
      * @var array
      */
     protected $request;
@@ -63,6 +63,7 @@ class Filter
         if (!self::$instance) {
             self::$instance = new self($_POST);
         }
+
         return self::$instance;
     }
 
@@ -75,6 +76,7 @@ class Filter
      * Checks if a var has been sent in the request.
      *
      * @param string $var_name
+     *
      * @return bool
      */
     public function isSent($var_name)
@@ -99,18 +101,18 @@ class Filter
     /**
      * Returns the number of variables found in the post.
      *
-     * @return integer
+     * @return int
      */
     public function countVars()
     {
         return count($this->request);
     }
 
-
     /**
      * Returns a string using the FILTER_DEFAULT.
      *
      * @param string $var_name
+     *
      * @return string
      */
     public function getString($var_name, $sanitized = false)
@@ -131,6 +133,7 @@ class Filter
      * Get a variable without any type of filtering.
      *
      * @param string $var_name
+     *
      * @return string
      */
     public function getUnfiltered($var_name)
@@ -145,8 +148,9 @@ class Filter
     /**
      * Returns an email if filtered or false if it is not valid.
      *
-     * @param string $var_name Request containing the variable.
-     * @param boolean $check_dns Check if domain passed has a valid MX record.
+     * @param string $var_name  Request containing the variable.
+     * @param bool   $check_dns Check if domain passed has a valid MX record.
+     *
      * @return string
      */
     public function getEmail($var_name, $check_dns = false)
@@ -158,6 +162,7 @@ class Filter
         if (preg_match(self::VALID_EMAIL_REGEXP, $this->request[$var_name])) {
             if ($check_dns) {
                 $exploded_email = explode('@', $this->request[$var_name]);
+
                 return (checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
             } else {
                 return $this->request[$var_name];
@@ -168,10 +173,11 @@ class Filter
     }
 
     /**
-     * Returns if a value might be considered as boolean (1, true, on, yes)
+     * Returns if a value might be considered as boolean (1, true, on, yes).
      *
      * @param string $var_name
-     * @return boolean
+     *
+     * @return bool
      */
     public function getBoolean($var_name)
     {
@@ -186,7 +192,8 @@ class Filter
      * Returns a float value for the given var.
      *
      * @param string $var_name
-     * @param boolean $decimal
+     * @param bool   $decimal
+     *
      * @return float
      */
     public function getFloat($var_name, $decimal = null)
@@ -196,7 +203,7 @@ class Filter
         }
 
         if (isset($decimal)) {
-            $decimal = array( 'options' => array( 'decimal' => $decimal ) );
+            $decimal = array('options' => array('decimal' => $decimal));
         }
 
         return filter_var($this->request[$var_name], FILTER_VALIDATE_FLOAT, $decimal);
@@ -206,8 +213,9 @@ class Filter
      * Returns the integer value of the var or false.
      *
      * @param string $var_name
-     * @param boolean $decimal
-     * @return integer
+     * @param bool   $decimal
+     *
+     * @return int
      */
     public function getInteger($var_name, $min_range = null, $max_range = null)
     {
@@ -231,9 +239,10 @@ class Filter
     /**
      * Returns the IP value of the var or false.
      *
-     * @param string $var_name Name of the variable
+     * @param string $var_name  Name of the variable
      * @param string $min_range Minimum value accepted
-     * @param sting $max_range Maximum value accepted
+     * @param sting  $max_range Maximum value accepted
+     *
      * @return bool|mixed
      */
     public function getIP($var_name, $min_range = null, $max_range = null)
@@ -262,7 +271,7 @@ class Filter
             return false;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, array( 'options' => array( 'regexp' => $regexp ) ));
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $regexp)));
     }
 
     public function getUrl($var_name)
@@ -272,6 +281,7 @@ class Filter
         }
 
         $options['options']['flags'] = FILTER_FLAG_PATH_REQUIRED;
+
         return filter_var($this->request[$var_name], FILTER_VALIDATE_URL, $options);
     }
 
@@ -294,7 +304,8 @@ class Filter
      *
      * @param string $var_name
      * @param string $filter_function Is the function to use with each array field.
-     * @return boolean
+     *
+     * @return bool
      */
     public function getArrayFromSerialized($var_name, $filter_function = null)
     {
@@ -302,6 +313,7 @@ class Filter
             return false;
         }
         parse_str($this->request[$var_name], $this->request[$var_name]);
+
         return $this->getArray($var_name, $filter_function);
     }
 
@@ -309,7 +321,8 @@ class Filter
      * Returns an array on the post UNFILTERED.
      *
      * @param unknown_type $var_name
-     * @param null $filter_function
+     * @param null         $filter_function
+     *
      * @return unknown
      */
     public function getArray($var_name, $filter_function = null)
@@ -351,7 +364,8 @@ class Filter
      * 29/2/2005 | 29/02/13 | 29/02/2200
      *
      * @param string $var_name
-     * @param string $format Any format accepted by date()
+     * @param string $format   Any format accepted by date()
+     *
      * @return mixed String of the date or false.
      */
     public function getDate($var_name, $format = 'd-m-Y')
@@ -387,8 +401,8 @@ class Filter
         $field_values = $this->request[$var_name];
         if (null !== $second_var_name && null !== $third_var_name) {
             if (isset($this->request[$second_var_name]) && isset($this->request[$third_var_name])) {
-                $field_values = $this->request[$var_name] . '/' .
-                        $this->request[$second_var_name] . '/' .
+                $field_values = $this->request[$var_name].'/'.
+                        $this->request[$second_var_name].'/'.
                         $this->request[$third_var_name];
             }
         }

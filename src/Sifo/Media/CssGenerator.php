@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,12 +16,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Media;
-
-use Sifo\Media\MediaGenerator;
 
 /**
  * CSS generator.
@@ -32,7 +29,7 @@ class CssGenerator extends MediaGenerator
      *
      * @var CssGenerator
      */
-    static protected $instance;
+    protected static $instance;
 
     /**
      * Media type of the current generator.
@@ -60,7 +57,7 @@ class CssGenerator extends MediaGenerator
             return self::$instance;
         }
 
-        return self::$instance = new self;
+        return self::$instance = new self();
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Redis;
 
 use Sifo\Domains;
@@ -41,7 +40,7 @@ class PredisProxyClient
         if (true !== Domains::getInstance()->getDebugMode()) {
             self::$instance[$key] = new self($connection_params);
         } else {
-            self::$instance[$key] = new PredisProxyClient($connection_params);
+            self::$instance[$key] = new self($connection_params);
         }
 
         return self::$instance[$key];
@@ -50,7 +49,7 @@ class PredisProxyClient
     protected function __construct(Array $connection_params)
     {
         $this->connection_params = $connection_params;
-        $this->client            = new \Predis\Client($connection_params);
+        $this->client = new \Predis\Client($connection_params);
     }
 
     public function __call($method, $args)
@@ -59,6 +58,6 @@ class PredisProxyClient
             return call_user_func_array(array($this->client, $method), $args);
         }
 
-        return null;
+        return;
     }
 }

@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,22 +16,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\LoadBalancer;
 
 use Sifo\Exception\Http\InternalServerError;
-use Sifo\LoadBalancer\LoadBalancer;
 
 /**
- * Class LoadBalancerSphinxql
- * @package Sifo
+ * Class LoadBalancerSphinxql.
  */
 class LoadBalancerSphinxql extends LoadBalancer
 {
     /**
      * Name of the cache where the results of server status are stored.
+     *
      * @var string
      */
     public $loadbalancer_cache_key = '__sphinxql_loadbalancer_available_nodes';
@@ -43,7 +41,7 @@ class LoadBalancerSphinxql extends LoadBalancer
             $this->sphinxql_object->connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
         } catch (InternalServerError $e) {
-            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
+            trigger_error('Sphinx ('.$node_properties['server'].':'.$node_properties['port'].') is down!');
         }
     }
 

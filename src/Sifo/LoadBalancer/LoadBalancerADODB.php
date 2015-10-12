@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,12 +16,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\LoadBalancer;
-
-use Sifo\LoadBalancer\LoadBalancer;
 
 class LoadBalancerADODB extends LoadBalancer
 {
@@ -37,7 +34,7 @@ class LoadBalancerADODB extends LoadBalancer
             $this->addServer($index, $node_properties['weight']);
         } catch (\ADODB_Exception $e) {
             // The server is down, won't be added in the balancing. Log it:
-            trigger_error("SERVER IS DOWN! " . $node_properties['db_host']);
+            trigger_error('SERVER IS DOWN! '.$node_properties['db_host']);
         }
     }
 }

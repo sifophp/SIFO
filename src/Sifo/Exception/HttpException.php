@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Exception;
 
 use Exception;
@@ -28,7 +27,7 @@ class HttpException extends \Exception
     /**
      * HTTP code used for this exception.
      *
-     * @var integer
+     * @var int
      */
     public $http_code = 302;
 
@@ -42,7 +41,7 @@ class HttpException extends \Exception
     /**
      * Whether the status code requires a redirection or not.
      *
-     * @var boolean
+     * @var bool
      */
     public $redirect = false;
 
@@ -54,8 +53,7 @@ class HttpException extends \Exception
         // Invoke parent to ensure all available data has been properly assigned:
         parent::__construct($message, $http_status_code);
 
-        if ( 0 != $http_status_code )
-        {
+        if (0 != $http_status_code) {
             $this->http_code = $http_status_code;
         }
 
@@ -68,7 +66,7 @@ class HttpException extends \Exception
             $this->http_code_msg = Headers::$http_codes[$this->http_code];
         } else {
             // The passed exception is not in the list. Pass a 500 error.
-            $this->http_code     = 500;
+            $this->http_code = 500;
             $this->http_code_msg = 'Internal Server Error';
         }
 

@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Filter;
 
 class Environment extends Filter
@@ -31,13 +30,14 @@ class Environment extends Filter
 
     /**
      * Filters variables passed in the environment.
+     *
      * @return Filter
      */
     public static function getInstance()
     {
         if (!self::$instance) {
             self::$instance = new self($_ENV);
-            $_ENV           = array();
+            $_ENV = array();
         }
 
         return self::$instance;

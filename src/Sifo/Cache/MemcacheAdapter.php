@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2012 Sergi Ambel
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Cache;
 
 /**
@@ -25,7 +24,6 @@ namespace Sifo\Cache;
  */
 class MemcacheAdapter extends \Memcache
 {
-
     /**
      * Stores the given "content" under the key "$key" on the memcached server.
      *
@@ -34,11 +32,11 @@ class MemcacheAdapter extends \Memcache
      *
      * The params order is changed to make it compatible with the rest of caching systems.
      *
-     * @param string  $key
-     * @param mixed   $content
-     * @param integer $expire Timestamp or number of seconds until expiration. If passed in seconds value over 30 days is not understood.
+     * @param string $key
+     * @param mixed  $content
+     * @param int    $expire  Timestamp or number of seconds until expiration. If passed in seconds value over 30 days is not understood.
      *
-     * @return boolean True on success or false on failure.
+     * @return bool True on success or false on failure.
      */
     public function set($key, $content, $expire = 0)
     {

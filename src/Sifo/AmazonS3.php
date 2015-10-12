@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2011 Carlos Soriano
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 /**
@@ -25,16 +24,14 @@ namespace Sifo;
  */
 class AmazonS3 extends \S3
 {
-	public function __construct()
-	{
-		$config = Config::getInstance()->getConfig( 'amazon', 's3' );
+    public function __construct()
+    {
+        $config = Config::getInstance()->getConfig('amazon', 's3');
 
-		return parent::__construct(
-				$config['awsAccessKey'],
-				$config['awsSecretKey'],
-				$config['useSSL']
-		);
-	}
+        return parent::__construct(
+                $config['awsAccessKey'],
+                $config['awsSecretKey'],
+                $config['useSSL']
+        );
+    }
 }
-
-?>

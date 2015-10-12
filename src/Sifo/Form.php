@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
 use Sifo\Exception\FormException;
@@ -58,266 +57,257 @@ use Sifo\Exception\FormException;
  */
 class Form
 {
-	/**
-	 * Singleton keeper.
-	 *
-	 * @var Form
-	 */
-	protected static $instance;
+    /**
+     * Singleton keeper.
+     *
+     * @var Form
+     */
+    protected static $instance;
 
-	/**
-	 * Filter object.
-	 *
-	 * @var Filter
-	 */
-	protected $filter;
+    /**
+     * Filter object.
+     *
+     * @var Filter
+     */
+    protected $filter;
 
-	/**
-	 * Fields added to form.
-	 * @var array
-	 */
-	protected $fields = array();
+    /**
+     * Fields added to form.
+     *
+     * @var array
+     */
+    protected $fields = array();
 
-	/**
-	 * Errors parsed so far.
-	 * @var array
-	 */
-	protected $errors = array();
+    /**
+     * Errors parsed so far.
+     *
+     * @var array
+     */
+    protected $errors = array();
 
-	/**
-	 * Flag checking if form is valid.
-	 * @var boolean
-	 */
-	protected $is_valid = true;
+    /**
+     * Flag checking if form is valid.
+     *
+     * @var bool
+     */
+    protected $is_valid = true;
 
-	/**
-	 * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
-	 * @return Form
-	 */
-	public function __construct( Filter $filter )
-	{
-		$this->filter = $filter;
-	}
+    /**
+     * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
+     *
+     * @return Form
+     */
+    public function __construct(Filter $filter)
+    {
+        $this->filter = $filter;
+    }
 
-	/**
-	 * Singleton
-	 *
-	 * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
-	 * @return Form
-	 */
-	static public function getInstance( Filter $filter )
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $filter );
-		}
-		return self::$instance;
-	}
+    /**
+     * Singleton.
+     *
+     * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
+     *
+     * @return Form
+     */
+    public static function getInstance(Filter $filter)
+    {
+        if (!self::$instance) {
+            self::$instance = new self($filter);
+        }
 
-	/**
-	 * Validates a single form element.
-	 *
-	 * @param boolean $mandatory
-	 * @param string $name INPUT name
-	 * @param string $filter_rule rule used in Filter
-	 * @param array $parameters Array with parameters, defaults to an empty array()
-	 * @return boolean
-	 */
-	public function validateSingleElement( $mandatory, $name, $filter_rule, $parameters = array() )
-	{
-		if ( method_exists( $this->filter, $filter_rule ) === false )
-		{
-			throw new FormException( "The method $filter_rule is not present in Filter" );
-		}
+        return self::$instance;
+    }
 
-		if ( !$mandatory && ( !$this->filter->isSent( $name ) || $this->filter->isEmpty( $name ) ) )
-		{
-			return true;
-		}
+    /**
+     * Validates a single form element.
+     *
+     * @param bool   $mandatory
+     * @param string $name        INPUT name
+     * @param string $filter_rule rule used in Filter
+     * @param array  $parameters  Array with parameters, defaults to an empty array()
+     *
+     * @return bool
+     */
+    public function validateSingleElement($mandatory, $name, $filter_rule, $parameters = array())
+    {
+        if (method_exists($this->filter, $filter_rule) === false) {
+            throw new FormException("The method $filter_rule is not present in Filter");
+        }
 
-		if ( $mandatory && ( !$this->filter->isSent( $name ) || $this->filter->isEmpty( $name ) ) )
-		{
-			return false;
-		}
+        if (!$mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name))) {
+            return true;
+        }
 
-		$total_params = array( $name );
-		if ( !empty( $parameters ) && is_array( $parameters ) )
-		{
-			$total_params = array_merge( $total_params, array_values( $parameters ) );
-		}
+        if ($mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name))) {
+            return false;
+        }
 
-		$filter_result = call_user_func_array( array( $this->filter, $filter_rule ), $total_params );
+        $total_params = array($name);
+        if (!empty($parameters) && is_array($parameters)) {
+            $total_params = array_merge($total_params, array_values($parameters));
+        }
 
-		// The filter might sanitize the given string, so must be returned cleaned up. Apply filter:
-		if ( !is_bool( $filter_result ) || $filter_rule === 'getBoolean' )
-		{
-			$this->fields[$name] = $filter_result;
-		}
+        $filter_result = call_user_func_array(array($this->filter, $filter_rule), $total_params);
 
-		return !(false === $filter_result );
-	}
+        // The filter might sanitize the given string, so must be returned cleaned up. Apply filter:
+        if (!is_bool($filter_result) || $filter_rule === 'getBoolean') {
+            $this->fields[$name] = $filter_result;
+        }
 
-	/**
-	 * Validate an array with several INPUT names that need the same filter rule.
-	 * @param array $names
-	 * @param string $filter_rule
-	 * @param array $parameters
-	 */
-	public function validateEqualElements( Array $names, $filter_rule, $parameters = array() )
-	{
-		$res = true;
-		foreach ( $names as $name )
-		{
-			$res = $res && $this->validateSingleElement( true, $name, $filter_rule, $parameters );
-		}
-	}
+        return !(false === $filter_result);
+    }
 
-	/**
-	 * Returns an array with all the errors found.
-	 *
-	 * @return array
-	 */
-	public function getErrors()
-	{
-		return $this->errors;
-	}
+    /**
+     * Validate an array with several INPUT names that need the same filter rule.
+     *
+     * @param array  $names
+     * @param string $filter_rule
+     * @param array  $parameters
+     */
+    public function validateEqualElements(Array $names, $filter_rule, $parameters = array())
+    {
+        $res = true;
+        foreach ($names as $name) {
+            $res = $res && $this->validateSingleElement(true, $name, $filter_rule, $parameters);
+        }
+    }
 
-	/**
-	 * Returns an array with all the requirements of the to-be processed form.
-	 *
-	 * @return array
-	 */
-	public function getRequirements( $form_config )
-	{
-		$form_elements = Config::getInstance()->getConfig( $form_config );
-		$requirements = array();
+    /**
+     * Returns an array with all the errors found.
+     *
+     * @return array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
 
-		foreach( $form_elements as $element )
-		{
-			$requirements[$element['name']] = $element['required'];
-		}
+    /**
+     * Returns an array with all the requirements of the to-be processed form.
+     *
+     * @return array
+     */
+    public function getRequirements($form_config)
+    {
+        $form_elements = Config::getInstance()->getConfig($form_config);
+        $requirements = array();
 
-		return $requirements;
-	}
+        foreach ($form_elements as $element) {
+            $requirements[$element['name']] = $element['required'];
+        }
 
-	/**
-	 * Validates a series of form elements. See header of Form.php file for usage.
-	 *
-	 * @param string $form_config
-	 */
-	public function validateElements( $form_config )
-	{
-		$form_elements = Config::getInstance()->getConfig( $form_config );
+        return $requirements;
+    }
 
-		foreach( $form_elements as $key => $element )
-		{
-			if ( !isset( $element['name'] ) || !isset( $element['filter'] ) )
-			{
-				throw new FormException( 'A form element was passed without the minimum required definition parameters. Element was: ' . var_export( $element, true) );
-			}
+    /**
+     * Validates a series of form elements. See header of Form.php file for usage.
+     *
+     * @param string $form_config
+     */
+    public function validateElements($form_config)
+    {
+        $form_elements = Config::getInstance()->getConfig($form_config);
 
-			$single_element_validation = $this->validateSingleElement(
-					( isset( $element['required']) && $element['required'] ), // Boolean: Field is required?
-					$element['name'], // Name of the input
-					$element['filter'], // Filter rule to apply
-					( isset( $element['params'] ) ? $element['params'] : array() ) // Passed params
-			);
+        foreach ($form_elements as $key => $element) {
+            if (!isset($element['name']) || !isset($element['filter'])) {
+                throw new FormException('A form element was passed without the minimum required definition parameters. Element was: '.var_export($element, true));
+            }
 
-			if ( !$single_element_validation )
-			{
-				if ( isset( $element['error'] ) )
-				{
-					$this->errors[$element['name']] = $element['error'];
-				}
-				$this->is_valid = false;
-			}
-		}
+            $single_element_validation = $this->validateSingleElement(
+                    (isset($element['required']) && $element['required']), // Boolean: Field is required?
+                    $element['name'], // Name of the input
+                    $element['filter'], // Filter rule to apply
+                    (isset($element['params']) ? $element['params'] : array()) // Passed params
+            );
 
-		return $this->is_valid;
-	}
+            if (!$single_element_validation) {
+                if (isset($element['error'])) {
+                    $this->errors[$element['name']] = $element['error'];
+                }
+                $this->is_valid = false;
+            }
+        }
 
+        return $this->is_valid;
+    }
 
-	/**
-	 * Returns true only if ALL added fields are valid.
-	 *
-	 * TODO: Support getBoolean with false values.
-	 *
-	 * @return boolean
-	 */
-	public function isValid()
-	{
-		return $this->is_valid;
-	}
+    /**
+     * Returns true only if ALL added fields are valid.
+     *
+     * TODO: Support getBoolean with false values.
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        return $this->is_valid;
+    }
 
-	/**
-	 * Adds an array of fields to the form.
-	 *
-	 * This is useful to maintain all the form field => values within a form object.
-	 *
-	 * @param array $fields
-	 */
-	public function addFields( array $fields )
-	{
-		$this->fields = array_merge( $this->fields, $fields );
-	}
+    /**
+     * Adds an array of fields to the form.
+     *
+     * This is useful to maintain all the form field => values within a form object.
+     *
+     * @param array $fields
+     */
+    public function addFields(array $fields)
+    {
+        $this->fields = array_merge($this->fields, $fields);
+    }
 
-	public function getFields()
-	{
-		return $this->fields;
-	}
+    public function getFields()
+    {
+        return $this->fields;
+    }
 
-	public function getField( $key )
-	{
-		if ( isset($this->fields[$key] ) )
-		{
-			return $this->fields[$key];
-		}
-		return false;
-	}
+    public function getField($key)
+    {
+        if (isset($this->fields[$key])) {
+            return $this->fields[$key];
+        }
 
-	/**
-	 * Returns a security string that encodes a timestamp in the future.
-	 *
-	 * @param <type> $time
-	 * @return <type>
-	 */
-	public function getTimeHash( $time = 5 )
-	{
-		Bootstrap::getClass( 'Crypt', false );
-		return Crypt::encrypt( strtotime( "+$time seconds" ) ); // Put hash N seconds in the future.
-	}
+        return false;
+    }
 
-	/**
-	 * Validates the elements ensuring that the form has been on screen enough seconds.
-	 *
-	 * @param string $form_config Configuration file with form definition.
-	 * @param string $input_name Optional input name that contains the security hash.
-	 * @return boolean
-	 */
-	public function isValidTimeHash( $input_name )
-	{
-		if ( !$this->filter->isSent( $input_name ) || $this->filter->isEmpty( $input_name) )
-		{
-			$this->errors[$input_name] = 'Security hash not sent'; // You shouldn't display this error. Hackers don't need info.
-			return false;
-		}
-		else
-		{
-			Bootstrap::getClass( 'Crypt', false );
-			$time_printed = intval( Crypt::decrypt( $this->filter->getString( $input_name ) ) );
+    /**
+     * Returns a security string that encodes a timestamp in the future.
+     *
+     * @param <type> $time
+     *
+     * @return <type>
+     */
+    public function getTimeHash($time = 5)
+    {
+        Bootstrap::getClass('Crypt', false);
 
-			if ( time() < $time_printed  )
-			{
-				// Too fast cowboy!
-				$this->errors[$input_name] = 'Form submitted too fast, might be a BOT';
-				return false;
-			}
+        return Crypt::encrypt(strtotime("+$time seconds")); // Put hash N seconds in the future.
+    }
 
-		}
+    /**
+     * Validates the elements ensuring that the form has been on screen enough seconds.
+     *
+     * @param string $form_config Configuration file with form definition.
+     * @param string $input_name  Optional input name that contains the security hash.
+     *
+     * @return bool
+     */
+    public function isValidTimeHash($input_name)
+    {
+        if (!$this->filter->isSent($input_name) || $this->filter->isEmpty($input_name)) {
+            $this->errors[$input_name] = 'Security hash not sent'; // You shouldn't display this error. Hackers don't need info.
+            return false;
+        } else {
+            Bootstrap::getClass('Crypt', false);
+            $time_printed = intval(Crypt::decrypt($this->filter->getString($input_name)));
 
-		return true;
-	}
+            if (time() < $time_printed) {
+                // Too fast cowboy!
+                $this->errors[$input_name] = 'Form submitted too fast, might be a BOT';
 
+                return false;
+            }
+        }
 
+        return true;
+    }
 }
-?>

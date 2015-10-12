@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,24 +16,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Filter;
 
 /**
  * This class is used to update the runtime filter with the cookies changes.
+ *
  * @author Albert Lombarte, Sergio Ambel
  */
 class CookieRuntime extends Cookie
 {
-
-    static public function setCookie($key, $value)
+    public static function setCookie($key, $value)
     {
         self::getInstance()->request[$key] = $value;
     }
 
-    static public function deleteCookie($key)
+    public static function deleteCookie($key)
     {
         unset(self::getInstance()->request[$key]);
     }

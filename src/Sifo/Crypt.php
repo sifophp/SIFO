@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,7 +16,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 namespace Sifo;
 
@@ -29,54 +29,55 @@ namespace Sifo;
  */
 class Crypt
 {
-	/**
-	 * Seed used for crypt/decrypt strings, in short this adds the mess.
-	 *
-	 * @var string
-	 */
-	static public $seed = 'WriteSomeTextHere';
+    /**
+     * Seed used for crypt/decrypt strings, in short this adds the mess.
+     *
+     * @var string
+     */
+    public static $seed = 'WriteSomeTextHere';
 
-	static public function encrypt( $string )
-	{
-		$result = '';
-		for( $i=0; $i<strlen( $string ); $i++) {
-			$char = substr($string, $i, 1);
-			$keychar = substr( self::$seed, ($i % strlen( self::$seed ) )-1, 1 );
-			$char = chr( ord( $char ) + ord( $keychar ) );
-			$result .= $char;
-		}
+    public static function encrypt($string)
+    {
+        $result = '';
+        for ($i = 0; $i < strlen($string); ++$i) {
+            $char = substr($string, $i, 1);
+            $keychar = substr(self::$seed, ($i % strlen(self::$seed)) - 1, 1);
+            $char = chr(ord($char) + ord($keychar));
+            $result .= $char;
+        }
 
-		return base64_encode( $result );
-	}
+        return base64_encode($result);
+    }
 
-	static public function decrypt( $string )
-	{
-		$result ='';
-		$string = base64_decode( $string );
+    public static function decrypt($string)
+    {
+        $result = '';
+        $string = base64_decode($string);
 
-		for( $i=0; $i<strlen( $string ); $i++ ) {
-			$char = substr( $string, $i, 1);
-			$keychar = substr( self::$seed, ( $i % strlen( self::$seed ) )-1, 1 );
-			$char = chr( ord( $char ) - ord( $keychar ) );
-			$result .= $char;
-		}
+        for ($i = 0; $i < strlen($string); ++$i) {
+            $char = substr($string, $i, 1);
+            $keychar = substr(self::$seed, ($i % strlen(self::$seed)) - 1, 1);
+            $char = chr(ord($char) - ord($keychar));
+            $result .= $char;
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	static public function encryptForUrl( $string, $char_plus = '-', $char_slash = '.' )
-	{
-		$string = self::encrypt( $string );
-		$string = str_replace( '+', $char_plus, $string );
-		$string = str_replace( '/', $char_slash, $string );
-		return $string;
-	}
+    public static function encryptForUrl($string, $char_plus = '-', $char_slash = '.')
+    {
+        $string = self::encrypt($string);
+        $string = str_replace('+', $char_plus, $string);
+        $string = str_replace('/', $char_slash, $string);
 
-	static public function decryptFromUrl( $string, $char_plus = '-', $char_slash = '.' )
-	{
-		$string = str_replace( $char_plus, '+', $string );
-		$string = str_replace( $char_slash, '/', $string );
-		return self::decrypt( $string );
-	}
+        return $string;
+    }
+
+    public static function decryptFromUrl($string, $char_plus = '-', $char_slash = '.')
+    {
+        $string = str_replace($char_plus, '+', $string);
+        $string = str_replace($char_slash, '/', $string);
+
+        return self::decrypt($string);
+    }
 }
-?>

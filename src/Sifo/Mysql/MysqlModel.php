@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Carlos Soriano
  *
@@ -15,9 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Mysql;
 
 use Sifo\Bootstrap;
@@ -35,7 +34,7 @@ class MysqlModel
     /**
      * Use this method as constructor in children.
      *
-     * @return boolean
+     * @return bool
      */
     protected function init()
     {
@@ -46,6 +45,7 @@ class MysqlModel
      * Returns an element in the registry.
      *
      * @param string $key
+     *
      * @return mixed
      */
     protected function inRegistry($key)
@@ -62,7 +62,7 @@ class MysqlModel
      * Stores in the registry a value with the given key.
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      */
     protected function storeInRegistry($key, $value)
     {
@@ -70,12 +70,13 @@ class MysqlModel
     }
 
     /**
-     * Returns the translation of a string
+     * Returns the translation of a string.
      *
      * @param string $subject
      * @param string $var_1
      * @param string $var2
      * @param string $var_n
+     *
      * @return string
      */
     public function translate($subject, $var_1 = '', $var2 = '', $var_n = '')
@@ -89,6 +90,7 @@ class MysqlModel
         }
 
         unset($variables['%0']);
+
         return I18N::getInstance('messages', Domains::getInstance()->getLanguage())->getTranslation($subject, $variables);
     }
 
@@ -96,7 +98,8 @@ class MysqlModel
      * Returns an object of the given class.
      *
      * @param string $class_name
-     * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
+     * @param bool   $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
+     *
      * @return Object
      */
     public function getClass($class_name, $call_constructor = true)
@@ -108,6 +111,7 @@ class MysqlModel
      * Returns the Database connection object.
      *
      * @param string $profile The profile to be used in the database connection.
+     *
      * @return Mysql|DebugMysql
      */
     protected function connectDb($profile = 'default')

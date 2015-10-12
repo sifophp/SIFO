@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,48 +16,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Media;
-
-use Sifo\Media\MediaPacker;
 
 /**
  * CSS packer.
  */
 class CssPacker extends MediaPacker
 {
-	/**
-	 * Media type of the current packer.
-	 *
-	 * @var string
-	 */
-	protected $media_type = 'css';
+    /**
+     * Media type of the current packer.
+     *
+     * @var string
+     */
+    protected $media_type = 'css';
 
-	/**
-	 * Write media pack in disk.
-	 *
-	 * @param array $media_list List of media files included in the pack.
-	 * @param string $prepend_string Prepended content.
-	 */
-	protected function getPackedContent( Array $media_list, $prepend_string = '' )
-	{
-		$content = $prepend_string;
-		foreach ( $media_list['files'] as $media )
-		{
-			$filename = ROOT_PATH . '/' . $media;
-			$path_info = pathinfo( $filename );
+    /**
+     * Write media pack in disk.
+     *
+     * @param array  $media_list     List of media files included in the pack.
+     * @param string $prepend_string Prepended content.
+     */
+    protected function getPackedContent(Array $media_list, $prepend_string = '')
+    {
+        $content = $prepend_string;
+        foreach ($media_list['files'] as $media) {
+            $filename = ROOT_PATH.'/'.$media;
+            $path_info = pathinfo($filename);
 
-			if ( is_file( $filename ) )
-			{
-				$content .= "/* START FILE {$path_info['basename']} */\n\n" . chr( 13 );
-				$content .= file_get_contents( $filename ) . chr( 13 );
-				$content .= "\n\n/* END {$path_info['basename']} */" . chr( 13 );
-			}
-		}
+            if (is_file($filename)) {
+                $content .= "/* START FILE {$path_info['basename']} */\n\n".chr(13);
+                $content .= file_get_contents($filename).chr(13);
+                $content .= "\n\n/* END {$path_info['basename']} */".chr(13);
+            }
+        }
 
-		return $content;
-
-	}
+        return $content;
+    }
 }

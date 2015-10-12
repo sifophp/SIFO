@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2010 Albert Lombarte
  *
@@ -15,12 +16,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo\Media;
-
-use Sifo\Media\MediaGenerator;
 
 /**
  * Javascript generator.
@@ -32,7 +29,7 @@ class JsGenerator extends MediaGenerator
      *
      * @var JsGenerator
      */
-    static protected $instance;
+    protected static $instance;
 
     /**
      * Media type of the current generator.
@@ -44,7 +41,7 @@ class JsGenerator extends MediaGenerator
     /**
      * Generates all groups, and not only the ones added by the controller.
      *
-     * @var boolean
+     * @var bool
      */
     protected $generate_all_groups = true;
 
@@ -67,7 +64,7 @@ class JsGenerator extends MediaGenerator
             return self::$instance;
         }
 
-        return self::$instance = new self;
+        return self::$instance = new self();
     }
 
     /**
@@ -90,11 +87,11 @@ var basePathConfig = {
 CODE;
         foreach ($media_list as $group => $media_data) {
             $generated_file = array_shift($generated_files);
-            $base_array[]   = "'$group': '$this->instance_static_host/$generated_file'";
+            $base_array[] = "'$group': '$this->instance_static_host/$generated_file'";
         }
 
         $base_code .= implode(',', $base_array);
-        $base_code .= '};' . "\n";
+        $base_code .= '};'."\n";
 
         return $base_code;
     }

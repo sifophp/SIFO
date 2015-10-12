@@ -1,6 +1,7 @@
 <?php
+
 /**
- * LICENSE
+ * LICENSE.
  *
  * Copyright 2011 Quim Blanch
  *
@@ -15,30 +16,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 namespace Sifo;
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Paypal/Ipn.php';
+require_once ROOT_PATH.'/vendor/sifophp/sifo/src/Paypal/Ipn.php';
 
 /**
  * Adapter for PayPal notifier.
  */
 class PaypalNotifier extends \IpnListener
 {
-	public function __construct()
-	{
-		$config = Config::getInstance()->getConfig( 'paypal' );
+    public function __construct()
+    {
+        $config = Config::getInstance()->getConfig('paypal');
 
-		return parent::__construct(
-			$config['use_curl'],
-			$config['force_ssl_v3'],
-			$config['follow_location'],
-			$config['use_ssl'],
-			$config['use_sandbox'],
-			$config['timeout']
-		);
-	}
+        return parent::__construct(
+            $config['use_curl'],
+            $config['force_ssl_v3'],
+            $config['follow_location'],
+            $config['use_ssl'],
+            $config['use_sandbox'],
+            $config['timeout']
+        );
+    }
 }
-?>

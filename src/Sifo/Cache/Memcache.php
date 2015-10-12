@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provides an interface to communicate with the Memcache server.
  *
@@ -12,12 +13,10 @@
  * $m->set( 'a', 'my value' ); // Stores in the key 'a' the value 'my value'
  *
  * This class is based on Memcache object implementation: http://www.php.net/manual/en/book.memcache.php
- *
  */
 namespace Sifo\Cache;
 
-use \Sifo\Exception\ConfigurationException;
-
+use Sifo\Exception\ConfigurationException;
 
 /**
  * Wrapper for the PECL Memcache extension.
@@ -26,31 +25,27 @@ use \Sifo\Exception\ConfigurationException;
  */
 class Memcache extends Base
 {
-	/** @var \Memcache */
-	protected $cache_object;
+    /** @var \Memcache */
+    protected $cache_object;
 
-	/**
-	 * Returns an instance of the \Memcache object with the configured servers.
-	 */
-	public function __construct()
-	{
-		try
-		{
-			$servers = \Sifo\Config::getInstance()->getConfig( 'cache', 'servers' );
-		}
-		catch ( ConfigurationException $e )
-		{
-			// Default memcached address and listening port.
-			$servers = array( array( '127.0.0.1' => 11211 ) );
-		}
+    /**
+     * Returns an instance of the \Memcache object with the configured servers.
+     */
+    public function __construct()
+    {
+        try {
+            $servers = \Sifo\Config::getInstance()->getConfig('cache', 'servers');
+        } catch (ConfigurationException $e) {
+            // Default memcached address and listening port.
+            $servers = array(array('127.0.0.1' => 11211));
+        }
 
-		$this->cache_object = new MemcacheAdapter();
+        $this->cache_object = new MemcacheAdapter();
 
-		foreach ( $servers[0] as $server => $port )
-		{
-			$this->cache_object->addServer( $server, $port );
-		}
+        foreach ($servers[0] as $server => $port) {
+            $this->cache_object->addServer($server, $port);
+        }
 
-		return $this->cache_object;
-	}
+        return $this->cache_object;
+    }
 }
