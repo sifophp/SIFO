@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class Found extends HttpException
 {
+    public $http_code = 302;
 }

@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class ContinueSending extends HttpException
 {
+    public $http_code = 100;
 }

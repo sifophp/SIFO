@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class RequestRangeNotSatisfiable extends HttpException
 {
+    public $http_code = 416;
 }

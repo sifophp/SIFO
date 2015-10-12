@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class Accepted extends HttpException
 {
+    public $http_code = 202;
 }

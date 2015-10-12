@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class NotModified extends HttpException
 {
+    public $http_code = 304;
 }

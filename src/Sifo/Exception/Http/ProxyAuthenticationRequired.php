@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class ProxyAuthenticationRequired extends HttpException
 {
+    public $http_code = 407;
 }

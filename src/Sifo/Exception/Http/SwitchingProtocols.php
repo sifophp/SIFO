@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class SwitchingProtocols extends HttpException
 {
+    public $http_code = 101;
 }

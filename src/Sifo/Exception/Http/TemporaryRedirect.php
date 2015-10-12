@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class TemporaryRedirect extends HttpException
 {
+    public $http_code = 307;
 }

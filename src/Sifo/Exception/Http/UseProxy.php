@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class UseProxy extends HttpException
 {
+    public $http_code = 305;
 }

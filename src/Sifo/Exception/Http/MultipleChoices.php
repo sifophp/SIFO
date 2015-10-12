@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class MultipleChoices extends HttpException
 {
+    public $http_code = 300;
 }

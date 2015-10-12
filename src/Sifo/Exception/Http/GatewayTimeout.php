@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class GatewayTimeout extends HttpException
 {
+    public $http_code = 504;
 }

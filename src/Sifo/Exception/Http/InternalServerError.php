@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class InternalServerError extends HttpException
 {
+    public $http_code = 500;
 }

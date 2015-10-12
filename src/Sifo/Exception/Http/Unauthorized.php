@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class Unauthorized extends HttpException
 {
+    public $http_code = 401;
 }

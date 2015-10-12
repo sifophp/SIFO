@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class BadRequest extends HttpException
 {
+    public $http_code = 400;
 }

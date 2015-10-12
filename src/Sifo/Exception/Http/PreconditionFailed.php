@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class PreconditionFailed extends HttpException
 {
+    public $http_code = 412;
 }

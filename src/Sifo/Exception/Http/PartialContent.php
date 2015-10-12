@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class PartialContent extends HttpException
 {
+    public $http_code = 206;
 }

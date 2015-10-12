@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class NotImplemented extends HttpException
 {
+    public $http_code = 501;
 }

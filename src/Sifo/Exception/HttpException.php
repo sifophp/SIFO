@@ -49,22 +49,23 @@ class HttpException extends \Exception
     /**
      * Set the correct status code on Exception invokation.
      */
-    public function __construct($message = null, $code = 0)
+    public function __construct($message = null, $http_status_code = 0)
     {
         // Invoke parent to ensure all available data has been properly assigned:
-        parent::__construct($message, $code);
+        parent::__construct($message, $http_status_code);
 
-        $current_exception      = get_class($this);
-        $current_exception_code = ( int )str_replace(__NAMESPACE__ . '\\Exception_', '', $current_exception);
+        if ( 0 != $http_status_code )
+        {
+            $this->http_code = $http_status_code;
+        }
 
         // See if the http status code needs a redirection:
-        if ((300 <= $current_exception_code) && (307 >= $current_exception_code)) {
+        if ((300 <=  $this->http_code) && (307 >= $this->http_code)) {
             $this->redirect = true;
         }
 
-        if (isset(Headers::$http_codes[$current_exception_code])) {
-            $this->http_code     = $current_exception_code;
-            $this->http_code_msg = Headers::$http_codes[$current_exception_code];
+        if (isset(Headers::$http_codes[ $this->http_code])) {
+            $this->http_code_msg = Headers::$http_codes[$this->http_code];
         } else {
             // The passed exception is not in the list. Pass a 500 error.
             $this->http_code     = 500;

@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class Gone extends HttpException
 {
+    public $http_code = 410;
 }

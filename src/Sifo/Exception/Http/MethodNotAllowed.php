@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class MethodNotAllowed extends HttpException
 {
+    public $http_code = 405;
 }

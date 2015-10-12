@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class RequestTimeout extends HttpException
 {
+    public $http_code = 408;
 }

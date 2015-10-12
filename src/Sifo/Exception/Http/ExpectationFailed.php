@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class ExpectationFailed extends HttpException
 {
+    public $http_code = 417;
 }

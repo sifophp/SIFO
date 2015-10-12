@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class Conflict extends HttpException
 {
+    public $http_code = 409;
 }

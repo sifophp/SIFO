@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class NoContent extends HttpException
 {
+    public $http_code = 204;
 }

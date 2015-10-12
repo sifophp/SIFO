@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class NotFound extends HttpException
 {
+    public $http_code = 404;
 }

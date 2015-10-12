@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class NotAcceptable extends HttpException
 {
+    public $http_code = 406;
 }

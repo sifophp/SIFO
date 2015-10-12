@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class RequestUriTooLong extends HttpException
 {
+    public $http_code = 414;
 }

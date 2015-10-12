@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class LengthRequired extends HttpException
 {
+    public $http_code = 411;
 }

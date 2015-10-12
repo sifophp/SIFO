@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class RequestEntityTooLarge extends HttpException
 {
+    public $http_code = 413;
 }

@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class NonAuthoritativeInformation extends HttpException
 {
+    public $http_code = 203;
 }

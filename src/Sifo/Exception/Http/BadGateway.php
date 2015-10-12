@@ -24,4 +24,5 @@ use Sifo\Exception\HttpException;
 
 class BadGateway extends HttpException
 {
+    public $http_code = 502;
 }

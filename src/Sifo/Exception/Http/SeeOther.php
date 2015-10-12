@@ -27,4 +27,5 @@ use Sifo\Exception\HttpException;
  */
 class SeeOther extends HttpException
 {
+    public $http_code = 303;
 }
