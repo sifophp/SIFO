@@ -23,8 +23,6 @@ namespace Sifo;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\LoadBalancer\LoadBalancerADODB;
 
-include_once 'LoadBalancer/LoadBalancer.php';
-
 // Some stuff needed by ADODb:
 $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
 
