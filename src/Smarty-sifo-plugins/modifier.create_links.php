@@ -1,12 +1,11 @@
 <?php
+
 /**
- * Smarty plugin
- * @package Smarty
- * @subpackage plugins
+ * Smarty plugin.
  */
 
 /**
- * Smarty create_links modifier plugin
+ * Smarty create_links modifier plugin.
  *
  * Type:     modifier<br>
  * Name:     create_links<br>
@@ -17,13 +16,13 @@
  *         - string $regexp Optional in case you want to define a different regexp for URLs (like only internal links).
  *
  * @author   Manuel Fernandez <un tio muy chungo>
+ *
  * @return string
  */
-function smarty_modifier_create_links($string,$regexp = '')
+function smarty_modifier_create_links($string, $regexp = '')
 {
-	if ( empty( $regexp ) )
-	{
-		$regexp = <<<REGEXP
+    if (empty($regexp)) {
+        $regexp = <<<REGEXP
 {
   \\b
   # Match the leading part (proto://hostname, or just hostname)
@@ -57,11 +56,9 @@ function smarty_modifier_create_links($string,$regexp = '')
   )?
 }ix
 REGEXP;
-	}
+    }
 
-	return preg_replace( $regexp, '<a href="\1\4">\1\4</a>', $string );
+    return preg_replace($regexp, '<a href="\1\4">\1\4</a>', $string);
 }
 
-/* vim: set expandtab: */
-
-?>
+/* vim: set expandtab: */;

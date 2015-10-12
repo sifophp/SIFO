@@ -1,13 +1,11 @@
 <?php
+
 /**
- * Smarty plugin
- * @package Smarty
- * @subpackage plugins
+ * Smarty plugin.
  */
 
-
 /**
- * Smarty {fill} function plugin
+ * Smarty {fill} function plugin.
  *
  * Type:     function<br>
  * Name:     fill<br>
@@ -29,14 +27,16 @@
  *           Outputs: http://www.domain.com/my-first-post/vote
  *
  * @link    http://www.harecoded.com/fill-smarty-php-plugin-311577
+ *
  * @author Albert Lombarte <alombarte at harecoded dot com>
+ *
  * @param array
  * @param Smarty
+ *
  * @return string
  */
 function smarty_function_filln($params, &$smarty)
 {
-
     if (isset($params['delimiter'])) {
         $_delimiter = $params['delimiter'];
         unset($params['delimiter']);
@@ -57,19 +57,15 @@ function smarty_function_filln($params, &$smarty)
 
     unset($params['subject']);
 
-    foreach ($params as $_key => $_val)
-    {
-        $_val = (string)$_val;
-        $_tmp_result = str_replace($_delimiter . $_key . $_delimiter, $_val, $_tmp_result);
+    foreach ($params as $_key => $_val) {
+        $_val = (string) $_val;
+        $_tmp_result = str_replace($_delimiter.$_key.$_delimiter, $_val, $_tmp_result);
 
         $normalized_url = \Sifo\Urls::normalize($_val);
-        $_html_result = str_replace($_delimiter . $_key . $_delimiter, $normalized_url, $_html_result);
+        $_html_result = str_replace($_delimiter.$_key.$_delimiter, $normalized_url, $_html_result);
     }
 
     return $_html_result;
-
 }
 
-/* vim: set expandtab: */
-
-?>
+/* vim: set expandtab: */;
