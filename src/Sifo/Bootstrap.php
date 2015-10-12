@@ -252,9 +252,9 @@ class Bootstrap
 
 			$auth_data = $domain->getAuthData();
 
-			if ( !empty( $auth_data ) && FilterCookie::getInstance()->getString( 'domain_auth' ) != $auth_data['hash'] )
+			if ( !empty( $auth_data ) && Filter\Cookie::getInstance()->getString( 'domain_auth' ) != $auth_data['hash'] )
 			{
-				$filter_server = FilterServer::getInstance();
+				$filter_server = Filter\Server::getInstance();
 				if ( $filter_server->isEmpty( 'PHP_AUTH_USER' ) || $filter_server->isEmpty( 'PHP_AUTH_PW' ) || $filter_server->getString( 'PHP_AUTH_USER' ) != $auth_data['user'] || $filter_server->getString( 'PHP_AUTH_PW' ) != $auth_data['password'] )
 				{
 					Headers::set( 'WWW-Authenticate', 'Basic realm="Protected page"' );
@@ -302,31 +302,31 @@ class Bootstrap
 			// Active/deactive auto-rebuild option:
 			if ( $domain->getDevMode() )
 			{
-				if ( FilterGet::getInstance()->getInteger( 'clean_compile' ) )
+				if ( Filter\Get::getInstance()->getInteger( 'clean_compile' ) )
 				{
 					$smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
 					system( 'rm -rf ' . $smarty_compiles_dir );
 				}
 
 				$ctrl->getClass( 'Cookie' );
-				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
+				if ( Filter\Get::getInstance()->getInteger( 'rebuild_all' ) )
 				{
 					Cookie::set( 'rebuild_all', 1 );
 				}
-				if ( FilterGet::getInstance()->getInteger( 'rebuild_nothing' ) && FilterCookie::getInstance()->getInteger( 'rebuild_all' ) )
+				if ( Filter\Get::getInstance()->getInteger( 'rebuild_nothing' ) && Filter\Cookie::getInstance()->getInteger( 'rebuild_all' ) )
 				{
 					Cookie::delete( 'rebuild_all' );
 				}
-				if ( 1 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				if ( 1 === Filter\Get::getInstance()->getInteger( 'debug' ) )
 				{
 					Cookie::set( 'debug', 1 );
 				}
-				if ( 0 === FilterGet::getInstance()->getInteger( 'debug' ) )
+				if ( 0 === Filter\Get::getInstance()->getInteger( 'debug' ) )
 				{
 					Cookie::set( 'debug', 0 );
 				}
 
-				if ( false !== ( $debug = FilterCookie::getInstance()->getInteger( 'debug' ) ) )
+				if ( false !== ( $debug = Filter\Cookie::getInstance()->getInteger( 'debug' ) ) )
 				{
 					Domains::getInstance()->setDebugMode( (bool)$debug );
 				}

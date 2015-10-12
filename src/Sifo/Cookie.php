@@ -20,7 +20,6 @@
 
 namespace Sifo;
 
-use Sifo\Filter\Cookie as FilterCookie;
 use Sifo\Filter\CookieRuntime;
 
 class Cookie
@@ -82,13 +81,13 @@ class Cookie
 	/**
 	 * Read one (string) or several (array) cookies and returns it with a simple sanitization of the content.
 	 *
-	 * @deprecated The Cookie::get from FilterCookie::getString.
+	 * @deprecated The Cookie::get from Filter\Cookie::getString.
 	 * @param string|array $cookie
 	 * @return string|false
 	 */
 	static public function get( $cookies )
 	{
-		trigger_error( "'Cookie::get' is deprecated, please use 'Sifo\\Filter\\Cookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );" );
+		trigger_error( "'Cookie::get' is deprecated, please use 'Sifo\\Filter\\Cookie'. Ex: \\Sifo\\Filter\\Cookie::getInstance()->getString( 'cookie_key' );" );
 
 		if ( is_array( $cookies ) )
 		{
@@ -118,9 +117,9 @@ class Cookie
 	 */
 	static private function _sanitizeCookie( $cookie )
 	{
-		if ( FilterCookie::getInstance()->isSent( $cookie ) )
+		if ( Filter\Cookie::getInstance()->isSent( $cookie ) )
 		{
-			return FilterCookie::getInstance()->getString( $cookie );
+			return Filter\Cookie::getInstance()->getString( $cookie );
 		}
 
 		return false;

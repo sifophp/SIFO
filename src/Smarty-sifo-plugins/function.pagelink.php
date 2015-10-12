@@ -18,8 +18,8 @@ function smarty_function_pagelink( $params, &$smarty )
 	{
 		$_delimiter = ':';
 	}
-	$_current_querystring = \Sifo\FilterServer::getInstance()->getString( 'QUERY_STRING' );
-	$_current_path = \Sifo\FilterServer::getInstance()->getString( 'REQUEST_URI' );
+	$_current_querystring = \Sifo\Filter\Server::getInstance()->getString( 'QUERY_STRING' );
+	$_current_path = \Sifo\Filter\Server::getInstance()->getString( 'REQUEST_URI' );
 
 	if ( !empty( $_current_querystring ) )
 	{

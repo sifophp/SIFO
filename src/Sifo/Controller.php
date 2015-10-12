@@ -194,7 +194,7 @@ abstract class Controller
      */
 	protected function getValidatedForm( $submit_button, $form_config, $default_fields = array() )
 	{
-		$post = FilterPost::getInstance();
+		$post = Filter\Post::getInstance();
 
 		$form = new Form( $post, $this->view );
 		if ( $post->isSent( $submit_button ) )
@@ -349,7 +349,7 @@ abstract class Controller
 	 */
 	protected function cacheException( $e, $cache_key )
 	{
-		if ( ( false !== $cache_key ) && ( !FilterPost::getInstance()->countVars() ) )
+		if ( ( false !== $cache_key ) && ( !Filter\Post::getInstance()->countVars() ) )
 		{
 			$expiration = in_array( $e->http_code, array( 301, 302, 404 ) ) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
 			$this->cache->set( $cache_key['name'], $e, $expiration );
@@ -361,7 +361,7 @@ abstract class Controller
 	 */
 	public function dispatch()
 	{
-		if ( Domains::getInstance()->getDebugMode() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
+		if ( Domains::getInstance()->getDebugMode() && ( Filter\Get::getInstance()->getInteger( 'kill_session' ) ) )
 		{
 			@Session::getInstance()->destroy();
 		}
@@ -369,7 +369,7 @@ abstract class Controller
 		if ( $this->is_json )
 		{
 			// Set headers before cache:
-			if ( $json_callback = FilterGet::getInstance()->getString( 'json_callback' ) )
+			if ( $json_callback = Filter\Get::getInstance()->getString( 'json_callback' ) )
 			{
 				Headers::set( 'Content-type', 'text/javascript' );
 			}
@@ -441,7 +441,7 @@ abstract class Controller
 				$return['debug_execution_key'] = \Sifo\Debug::getExecutionKey();
 			}
 
-			$json_callback = FilterGet::getInstance()->getString( 'json_callback' );
+			$json_callback = Filter\Get::getInstance()->getString( 'json_callback' );
 			$content = ( $json_callback ? $json_callback . '(' . json_encode( $return ) . ')':	json_encode( $return ) );
 		}
 		else
@@ -502,7 +502,7 @@ abstract class Controller
 	protected function grabCache()
 	{
 		// When DATA is sent, invalidate cache:
-		if ( 0 < FilterPost::getInstance()->countVars() )
+		if ( 0 < Filter\Post::getInstance()->countVars() )
 		{
 			return false;
 		}
@@ -1022,7 +1022,7 @@ abstract class Controller
 	 * Parse the url params in params array searching for some expected params. If someone is found modify the array.
 	 * $params array is referenced.
 	 *
-	 * @throws Exception404
+	 * @throws NotFound
 	 * @return array
 	 */
 	protected function parseParams()

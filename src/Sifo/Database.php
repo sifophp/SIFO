@@ -403,8 +403,8 @@ class Database
 	protected function writeDiskLog( $error )
 	{
 		$date = date( 'd-m-Y H:i:s' );
-		$referer = FilterServer::getInstance()->getString( 'HTTP_REFERER' );
-		$current_url = FilterServer::getInstance()->getString( 'SCRIPT_URI' );
+		$referer = Filter\Server::getInstance()->getString( 'HTTP_REFERER' );
+		$current_url = Filter\Server::getInstance()->getString( 'SCRIPT_URI' );
 
 		// Log mysql_errors to disk:
 		$message = <<<MESSAGE

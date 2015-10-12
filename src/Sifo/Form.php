@@ -91,7 +91,7 @@ class Form
 	protected $is_valid = true;
 
 	/**
-	 * @param Filter $filter Filter object (FilterPost, FilterGet...)
+	 * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
 	 * @return Form
 	 */
 	public function __construct( Filter $filter )
@@ -102,7 +102,7 @@ class Form
 	/**
 	 * Singleton
 	 *
-	 * @param Filter $filter Filter object (FilterPost, FilterGet...)
+	 * @param Filter $filter Filter object (Filter\Post, Filter\Get...)
 	 * @return Form
 	 */
 	static public function getInstance( Filter $filter )

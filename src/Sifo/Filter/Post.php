@@ -21,7 +21,7 @@
 namespace Sifo\Filter;
 
 /**
- * Filter is FilterPost by default.
+ * Filter is Filter\Post by default.
  */
 class Post extends Filter
 {

@@ -65,7 +65,7 @@ class Domains
 
 	private function __construct( $host = null )
 	{
-		$filter_server = FilterServer::getInstance();
+		$filter_server = \Sifo\Filter\Server::getInstance();
 
 		// If the host is defined by user we use it.
 		$this->http_host = $host;
@@ -369,7 +369,7 @@ class Domains
 	 */
 	public function getStaticHost()
 	{
-		$filter_server = FilterServer::getInstance();
+		$filter_server = Filter\Server::getInstance();
 
 		// Fix for hostings where the HTTPS server value is not empty but "off" (like Webfaction).
 		if ( $filter_server->getString( 'HTTPS' ) && ( 'off' !== $filter_server->getString( 'HTTPS' ) ) )
@@ -387,7 +387,7 @@ class Domains
 	 */
 	public function getMediaHost()
 	{
-		$filter_server = FilterServer::getInstance();
+		$filter_server = Filter\Server::getInstance();
 
 		if ( $filter_server->getString( 'HTTPS' ) )
 		{

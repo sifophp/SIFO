@@ -123,7 +123,7 @@ class Urls
 	private function __construct( $instance_name )
 	{
 		$domains = Domains::getInstance( $instance_name );
-		$filter_server = FilterServer::getInstance();
+		$filter_server = Filter\Server::getInstance();
 
 		$language = $domains->getLanguage();
 

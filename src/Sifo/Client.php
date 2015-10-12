@@ -141,7 +141,7 @@ class Client
 	 */
 	public static function getBrowserLanguage()
 	{
-		$server = FilterServer::getInstance();
+		$server = Filter\Server::getInstance();
 
 		if ( $lang = $server->getString( 'HTTP_ACCEPT_LANGUAGE' ) )
 		{
@@ -198,7 +198,7 @@ class Client
 	 */
 	public static function getIP()
 	{
-		$server = FilterServer::getInstance();
+		$server = Filter\Server::getInstance();
 		$found_ip = false;
 
 		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_TRUE_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $server_header )
@@ -208,7 +208,7 @@ class Client
 				// The X-Forwarded-For format is **in most cases**: client, proxy1, proxy2, ...
 				foreach ( explode( ',', $ip_list ) as $ip )
 				{
-					$custom_filter = new FilterCustom( array( 'ip' => trim( $ip ) ) );
+					$custom_filter = new Filter\Custom( array( 'ip' => trim( $ip ) ) );
 					// Is ANY valid IP, public, private or range:
 					if ( $ip = $custom_filter->getIP( 'ip' ) )
 					{
@@ -239,7 +239,7 @@ class Client
 		else
 		{
 			$answer    = false;
-			$useragent = FilterServer::getInstance()->getString( 'HTTP_USER_AGENT' );
+			$useragent = Filter\Server::getInstance()->getString( 'HTTP_USER_AGENT' );
 
 			// Regular expression from http://detectmobilebrowsers.com/
 			// Regex updated on 18 October 2012

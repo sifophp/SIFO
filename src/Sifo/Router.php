@@ -42,7 +42,7 @@ class Router
 	 */
 	static public function getUsedUrl()
 	{
-		$server = FilterServer::getInstance();
+		$server = \Sifo\Filter\Server::getInstance();
 
 		$used_url = 'http';
 		if ( $server->getString( "HTTPS" ) == "on" )
