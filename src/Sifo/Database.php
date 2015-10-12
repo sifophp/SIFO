@@ -20,7 +20,7 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\Http\InternalServerError;
 
 include_once 'LoadBalancer.php';
 
@@ -151,7 +151,7 @@ class Database
 				// If connection to database fails throw a SIFO 500 error.
 			catch ( \ADODB_Exception $e )
 			{
-				throw new Exception500( $e->getMessage(), $e->getCode() );
+				throw new InternalServerError( $e->getMessage(), $e->getCode() );
 			}
 
 			Benchmark::getInstance()->timingCurrentToRegistry( 'db_connections' );

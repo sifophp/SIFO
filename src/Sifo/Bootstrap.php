@@ -21,9 +21,9 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SEO\Exception401;
-use Sifo\Exception\SEO\Exception404;
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\Http\Unauthorized;
+use Sifo\Exception\Http\NotFound;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\ConfigurationException;
 
 if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
@@ -180,7 +180,7 @@ class Bootstrap
 	 *
 	 * @param string $classname
 	 *
-	 * @throws Exception500
+	 * @throws InternalServerError
 	 * @return string The classname you asked for.
 	 */
 	public static function includeFile( $classname )
@@ -191,12 +191,12 @@ class Bootstrap
 		}
 		catch ( ConfigurationException $e )
 		{
-            throw new Exception500( $e->getMessage() );
+            throw new InternalServerError( $e->getMessage() );
 		}
 
 		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
 		{
-			throw new Exception500( "Doesn't exist in expected path {$classInfo['path']}" );
+			throw new InternalServerError( "Doesn't exist in expected path {$classInfo['path']}" );
 		}
 
 		return $classInfo['name'];
@@ -210,7 +210,7 @@ class Bootstrap
 	 * @param string $class Class name you want to get
 	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
 	 *
-	 * @throws Exception500
+	 * @throws InternalServerError
 	 * @return Object|void
 	 */
 	public static function getClass( $class, $call_constructor = true )
@@ -226,7 +226,7 @@ class Bootstrap
 		}
 		else
 		{
-			throw new Exception500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
+			throw new InternalServerError( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
 		}
 	}
 
@@ -259,7 +259,7 @@ class Bootstrap
 				{
 					Headers::set( 'WWW-Authenticate', 'Basic realm="Protected page"' );
 					Headers::send();
-					throw new Exception401( 'You should enter a valid credentials.' );
+					throw new Unauthorized( 'You should enter a valid credentials.' );
 				}
 
 				// If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
@@ -279,7 +279,7 @@ class Bootstrap
 
 			if ( !$domain->valid_domain )
 			{
-				throw new Exception404( 'Unknown language in domain' );
+				throw new NotFound( 'Unknown language in domain' );
 			}
 			else
 			{

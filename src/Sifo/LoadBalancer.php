@@ -20,7 +20,7 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\Http\InternalServerError;
 
 /**
  * Determines where to send the data based on server capabilities.
@@ -69,7 +69,7 @@ abstract class LoadBalancer
 	/**
 	 * Sets the nodes to work with.
 	 * @param array $nodes
-	 * @throws Exception500
+	 * @throws InternalServerError
 	 * @return integer Number of nodes added.
 	 */
 	public function setNodes( Array $nodes )
@@ -102,7 +102,7 @@ abstract class LoadBalancer
 			// This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
 			$message = "No available servers in profile";
 			trigger_error( $message );
-			throw new Exception500( $message );
+			throw new InternalServerError( $message );
 		}
 
 		return $num_nodes;

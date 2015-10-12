@@ -20,8 +20,8 @@
 
 namespace Sifo;
 
-use Sifo\Filter\FilterServer;
 use Sifo\Exception\DomainsException;
+use \Sifo\Exception\Http\InternalServerError;
 
 class Domains
 {
@@ -138,7 +138,7 @@ class Domains
 			}
 			else
 			{
-				throw new Exception500( 'The language MUST be declared in domains.config file' );
+				throw new InternalServerError( 'The language MUST be declared in domains.config file' );
 			}
 
 			if ( false !== strstr( strtolower( $this->http_host ), $host ) )

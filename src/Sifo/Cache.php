@@ -24,7 +24,7 @@ use Sifo\Cache\Base;
 use Sifo\Cache\Disk;
 use Sifo\Cache\Memcache;
 use Sifo\Cache\Memcached;
-use Sifo\Exception\SEO\Exception500;
+use Sifo\Exception\Http\InternalServerError;
 
 /**
  * Proxy class that handles all Cache types in a single interface.
@@ -77,7 +77,7 @@ class Cache extends Base
 					self::$instance[$type][$lock_enabled] = new Disk();
 					break;
 				default:
-					throw new Exception500( 'Unknown cache type requested' );
+					throw new InternalServerError( 'Unknown cache type requested' );
 			}
 
 			self::$cache_type = $type;
