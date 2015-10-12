@@ -24,7 +24,7 @@ use DB;
 use Sifo\Benchmark;
 use Sifo\Debug;
 use Sifo\Domains;
-use Sifo\Mysql as BaseMysql;
+use Sifo\Mysql\Mysql as BaseMysql;
 
 /**
  * Database debug class. Extends the parent with benchmarking and debug utilities.

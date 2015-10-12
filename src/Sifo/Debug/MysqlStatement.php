@@ -3,7 +3,7 @@ namespace Sifo\Debug;
 
 use PDO;
 use Sifo\Benchmark;
-use Sifo\MysqlStatement as BaseMysqlStatement;
+use Sifo\Mysql\MysqlStatement as BaseMysqlStatement;
 
 /**
  * DebugStatement class that is extended for debugging purposes.
