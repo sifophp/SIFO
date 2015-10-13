@@ -1,6 +1,6 @@
 <?php
-use Sifo\Router;
 
+use Sifo\Router;
 
 /**
  * Test class for Router.
@@ -51,4 +51,3 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
-

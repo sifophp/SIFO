@@ -31,7 +31,7 @@ abstract class Filter
     /**
      * Regular expression for email validation.
      * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see:
-     * https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
+     * https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44.
      */
     const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
 
@@ -57,7 +57,7 @@ abstract class Filter
         static $instance = null;
         if (null === $instance) {
             $origin_data = static::getOriginData();
-            $instance    = new static($origin_data);
+            $instance = new static($origin_data);
         }
 
         return $instance;
@@ -65,7 +65,7 @@ abstract class Filter
 
     protected static function getOriginData()
     {
-        return null;
+        return;
     }
 
     public function setVar($key, $value)
@@ -347,7 +347,7 @@ abstract class Filter
      * 29/2/2005 | 29/02/13 | 29/02/2200
      *
      * @param string $var_name
-     * @param string $format Any format accepted by date()
+     * @param string $format   Any format accepted by date()
      *
      * @return mixed String of the date or false.
      */
@@ -389,8 +389,8 @@ abstract class Filter
         $field_values = $this->request[$var_name];
         if (null !== $second_var_name && null !== $third_var_name) {
             if (isset($this->request[$second_var_name]) && isset($this->request[$third_var_name])) {
-                $field_values = $this->request[$var_name] . '/' . $this->request[$second_var_name] . '/'
-                    . $this->request[$third_var_name];
+                $field_values = $this->request[$var_name].'/'.$this->request[$second_var_name].'/'
+                    .$this->request[$third_var_name];
             }
         }
 

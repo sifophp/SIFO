@@ -17,15 +17,15 @@ class PostTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $_POST        = [
-            'name'    => 'John Appleseed',
-            'email'   => 'john.appleseed@apple.com',
+        $_POST = [
+            'name' => 'John Appleseed',
+            'email' => 'john.appleseed@apple.com',
             'address' => ['street' => 'Smith St.', 'city' => 'London'],
-            'age'     => 37,
-            'height'  => 72.5,
-            'ip'      => '192.168.1.1',
-            'url'     => 'http://www.apple.com',
-            'valid'   => true
+            'age' => 37,
+            'height' => 72.5,
+            'ip' => '192.168.1.1',
+            'url' => 'http://www.apple.com',
+            'valid' => true,
         ];
         $this->object = Post::getInstance();
     }
@@ -90,7 +90,6 @@ class PostTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('float', $this->object->getFloat('height'));
     }
 
-
     /** @test */
     public function should_get_integer()
     {
@@ -129,4 +128,3 @@ class PostTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($_POST, $this->object->getRawRequest());
     }
 }
-

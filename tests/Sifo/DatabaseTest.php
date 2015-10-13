@@ -1,4 +1,5 @@
 <?php
+
 use Sifo\Database;
 
 /**
@@ -17,7 +18,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Database;
+        $this->object = new Database();
     }
 
     /**

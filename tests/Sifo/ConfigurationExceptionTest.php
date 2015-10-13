@@ -28,13 +28,12 @@ class ConfigurationExceptionTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
     }
-    
+
     /**
      * Object is an exception.
      */
     public function testIsException()
     {
-        $this->assertTrue( $this->object instanceof \Exception );
+        $this->assertTrue($this->object instanceof \Exception);
     }
 }
-

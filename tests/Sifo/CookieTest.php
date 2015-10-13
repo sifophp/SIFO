@@ -1,4 +1,5 @@
 <?php
+
 use Sifo\Cookie;
 
 /**
@@ -17,7 +18,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Cookie;
+        $this->object = new Cookie();
     }
 
     /**
@@ -61,4 +62,3 @@ class CookieTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
-

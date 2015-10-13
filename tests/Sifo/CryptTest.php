@@ -1,4 +1,5 @@
 <?php
+
 use \Sifo\Crypt;
 
 /**
@@ -17,7 +18,7 @@ class CryptTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Crypt;
+        $this->object = new Crypt();
     }
 
     /**
@@ -50,4 +51,3 @@ class CryptTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
-

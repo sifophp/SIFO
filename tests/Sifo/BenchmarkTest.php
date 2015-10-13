@@ -18,7 +18,7 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Benchmark;
+        $this->object = new Benchmark();
     }
 
     /**
@@ -27,98 +27,88 @@ class BenchmarkTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-		$this->object = null;
+        $this->object = null;
     }
 
-	/**
-	 * Test object correct creation.
-	 */
-	public function testObjectCreation()
-	{
-		$this->assertInstanceOf(Benchmark::class, $this->object);
-	}
+    /**
+     * Test object correct creation.
+     */
+    public function testObjectCreation()
+    {
+        $this->assertInstanceOf(Benchmark::class, $this->object);
+    }
 
-	/**
-	 * Test singleton.
-	 */
-	public function testGetInstance()
-	{
-		$object = Benchmark::getInstance();
-		$this->assertInstanceOf(Benchmark::class, $object);
+    /**
+     * Test singleton.
+     */
+    public function testGetInstance()
+    {
+        $object = Benchmark::getInstance();
+        $this->assertInstanceOf(Benchmark::class, $object);
 
-		$singleton = Benchmark::getInstance();
-		$this->assertEquals( $object, $singleton );
-	}
+        $singleton = Benchmark::getInstance();
+        $this->assertEquals($object, $singleton);
+    }
 
-	/**
-	 * Test some benchmarks.
-	 */
-	public function testTimer()
-	{
-		$this->object->timingStart();
-		try
-		{
-			// Linux
-			$black_hole = fopen( '/dev/null', 'w' );
-		}
-		catch ( Exception $e )
-		{
-			// Windows
-			$black_hole = fopen( 'null', 'w' );
-		}
+    /**
+     * Test some benchmarks.
+     */
+    public function testTimer()
+    {
+        $this->object->timingStart();
+        try {
+            // Linux
+            $black_hole = fopen('/dev/null', 'w');
+        } catch (Exception $e) {
+            // Windows
+            $black_hole = fopen('null', 'w');
+        }
 
-		for ( $i = 0; $i < 500; $i++ )
-		{
-			fputs( $black_hole, $i );
-		}
+        for ($i = 0; $i < 500; ++$i) {
+            fputs($black_hole, $i);
+        }
 
-		$current = $this->object->timingCurrent();
-		$this->assertInternalType( 'float', $current );
-		$this->assertTrue( $current > 0 );
+        $current = $this->object->timingCurrent();
+        $this->assertInternalType('float', $current);
+        $this->assertTrue($current > 0);
 
-		$this->object->timingStart( 'test' );
+        $this->object->timingStart('test');
 
-		for ( $i = 0; $i < 500; $i++ )
-		{
-			fputs( $black_hole, $i );
-		}
+        for ($i = 0; $i < 500; ++$i) {
+            fputs($black_hole, $i);
+        }
 
-		$this->object->timingStop( 'test' );
-		$current = $this->object->timingCurrent( 'test' );
-		$this->assertInternalType( 'float', $current );
-		$this->assertTrue( $current > 0 );
+        $this->object->timingStop('test');
+        $current = $this->object->timingCurrent('test');
+        $this->assertInternalType('float', $current);
+        $this->assertTrue($current > 0);
 
-		fclose( $black_hole );
-	}
+        fclose($black_hole);
+    }
 
-	/**
-	 * Test timingCurrentToRegistry().
-	 */
-	public function testtimingCurrentToRegistry()
-	{
-		$this->object->timingStart( 'test' );
+    /**
+     * Test timingCurrentToRegistry().
+     */
+    public function testtimingCurrentToRegistry()
+    {
+        $this->object->timingStart('test');
 
-		try
-		{
-			// Linux
-			$black_hole = fopen( '/dev/null', 'w' );
-		}
-		catch ( Exception $e )
-		{
-			// Windows
-			$black_hole = fopen( 'null', 'w' );
-		}
+        try {
+            // Linux
+            $black_hole = fopen('/dev/null', 'w');
+        } catch (Exception $e) {
+            // Windows
+            $black_hole = fopen('null', 'w');
+        }
 
-		for ( $i = 0; $i < 500; $i++ )
-		{
-			fputs( $black_hole, $i );
-		}
+        for ($i = 0; $i < 500; ++$i) {
+            fputs($black_hole, $i);
+        }
 
-		$this->object->timingStop( 'test' );
+        $this->object->timingStop('test');
 
-		$current = $this->object->timingCurrentToRegistry( 'test' );
-		$this->assertInternalType( 'float', $current );
-		$this->assertTrue( $current > 0 );
-	}
+        $current = $this->object->timingCurrentToRegistry('test');
+        $this->assertInternalType('float', $current);
+        $this->assertTrue($current > 0);
+    }
 }
-

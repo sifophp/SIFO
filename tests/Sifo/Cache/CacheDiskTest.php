@@ -1,4 +1,5 @@
 <?php
+
 use Sifo\Cache\Disk;
 
 /**
@@ -18,7 +19,7 @@ class DiskTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new Disk;
+        $this->object = new Disk();
     }
 
     /**
@@ -37,6 +38,4 @@ class DiskTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf(Disk::class, $this->object);
     }
-
 }
-

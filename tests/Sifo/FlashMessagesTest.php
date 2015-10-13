@@ -1,4 +1,5 @@
 <?php
+
 use Sifo\FlashMessages;
 
 /**
@@ -17,7 +18,7 @@ class FlashMessagesTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new FlashMessages;
+        $this->object = new FlashMessages();
     }
 
     /**
@@ -50,4 +51,3 @@ class FlashMessagesTest extends \PHPUnit_Framework_TestCase
         );
     }
 }
-

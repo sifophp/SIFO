@@ -2,7 +2,7 @@
 
 use Sifo\Config;
 
-define( 'ROOT_PATH', realpath( '.') );
+define('ROOT_PATH', realpath('.'));
 
 /**
  * Test class for Config.
@@ -21,8 +21,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-	    $this->object = Config::getInstance('tests');
-
+        $this->object = Config::getInstance('tests');
     }
 
     /**
@@ -31,15 +30,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-	    $this->object = null;
+        $this->object = null;
     }
 
-	/**
-	 * Test object correct creation.
-	 */
-	public function testObjectCreation()
-	{
+    /**
+     * Test object correct creation.
+     */
+    public function testObjectCreation()
+    {
         $this->assertInstanceOf(Config::class, $this->object);
-	}
+    }
 }
-
