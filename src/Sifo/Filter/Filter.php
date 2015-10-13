@@ -26,20 +26,14 @@ namespace Sifo\Filter;
  *
  * @see http://php.net/manual/en/filter.filters.validate.php
  */
-class Filter
+abstract class Filter
 {
     /**
      * Regular expression for email validation.
-     * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44.
+     * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see:
+     * https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
      */
     const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
-
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
 
     /**
      * Request storage.
@@ -60,11 +54,18 @@ class Filter
      */
     public static function getInstance()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_POST);
+        static $instance = null;
+        if (null === $instance) {
+            $origin_data = static::getOriginData();
+            $instance    = new static($origin_data);
         }
 
-        return self::$instance;
+        return $instance;
+    }
+
+    protected static function getOriginData()
+    {
+        return null;
     }
 
     public function setVar($key, $value)
@@ -95,7 +96,10 @@ class Filter
     public function isEmpty($var_name)
     {
         // I changed empty by strlen because we was sending that 0 is an empty field and this is a correct integer. Minutes for example:
-        return (!isset($this->request[$var_name]) || (is_array($this->request[$var_name]) && (count($this->request[$var_name]) == 0)) || (!is_array($this->request[$var_name]) && (strlen($this->request[$var_name]) == 0)));
+        return (!isset($this->request[$var_name])
+            || (is_array($this->request[$var_name])
+                && (count($this->request[$var_name]) == 0))
+            || (!is_array($this->request[$var_name]) && (strlen($this->request[$var_name]) == 0)));
     }
 
     /**
@@ -271,7 +275,8 @@ class Filter
             return false;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $regexp)));
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP,
+            array('options' => array('regexp' => $regexp)));
     }
 
     public function getUrl($var_name)
@@ -320,39 +325,17 @@ class Filter
     /**
      * Returns an array on the post UNFILTERED.
      *
-     * @param unknown_type $var_name
-     * @param null         $filter_function
+     * @param string $var_name
      *
-     * @return unknown
+     * @return mixed
      */
-    public function getArray($var_name, $filter_function = null)
+    public function getArray($var_name)
     {
         if (!isset($this->request[$var_name]) || !is_array($this->request[$var_name])) {
             return false;
         }
 
-        // Returns an unfiltered Array
-        if (null == $filter_function) {
-            return $this->request[$var_name];
-        }
-
-        trigger_error('The function Filter::getArray is not implemented yet so you are not filtering anything.');
-
-        /*
-        TODO: Filter arrays, but filter must be independent of the request.
-        foreach ( $this->request[$var_name] as $key => $value )
-        {
-            $params = func_get_args();
-            unset( $params[0] );
-
-            // Prepend the value to the beginning of the array:
-            array_unshift( $params, $value );
-
-            $filtered_array[$key] = call_user_func_array( array( $this, $filter_function ), $params );
-        }
-
-        return $filtered_array;
-        */
+        return $this->request[$var_name];
     }
 
     /**
@@ -364,7 +347,7 @@ class Filter
      * 29/2/2005 | 29/02/13 | 29/02/2200
      *
      * @param string $var_name
-     * @param string $format   Any format accepted by date()
+     * @param string $format Any format accepted by date()
      *
      * @return mixed String of the date or false.
      */
@@ -392,8 +375,13 @@ class Filter
         return $date;
     }
 
-    public function getDateMultiValue($var_name, $minimum_years = null, $second_var_name = null, $third_var_name = null, $format = 'd-m-Y')
-    {
+    public function getDateMultiValue(
+        $var_name,
+        $minimum_years = null,
+        $second_var_name = null,
+        $third_var_name = null,
+        $format = 'd-m-Y'
+    ) {
         if (!isset($this->request[$var_name])) {
             return false;
         }
@@ -401,9 +389,8 @@ class Filter
         $field_values = $this->request[$var_name];
         if (null !== $second_var_name && null !== $third_var_name) {
             if (isset($this->request[$second_var_name]) && isset($this->request[$third_var_name])) {
-                $field_values = $this->request[$var_name].'/'.
-                        $this->request[$second_var_name].'/'.
-                        $this->request[$third_var_name];
+                $field_values = $this->request[$var_name] . '/' . $this->request[$second_var_name] . '/'
+                    . $this->request[$third_var_name];
             }
         }
 

@@ -21,24 +21,8 @@ namespace Sifo\Filter;
 
 class Cookie extends Filter
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
-
-    /**
-     * Filters variables passed inside Cookies.
-     *
-     * @return Filter
-     */
-    public static function getInstance()
+    protected static function getOriginData()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_COOKIE);
-        }
-
-        return self::$instance;
+        return $_COOKIE;
     }
 }

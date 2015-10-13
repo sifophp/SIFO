@@ -19,26 +19,10 @@
  */
 namespace Sifo\Filter;
 
-class Request extends Filter
+final class Request extends Filter
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
-
-    /**
-     * Filters variables passed by Post, Get and Cookie.
-     *
-     * @return Filter
-     */
-    public static function getInstance()
+    protected static function getOriginData()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_REQUEST);
-        }
-
-        return self::$instance;
+        return $_REQUEST;
     }
 }

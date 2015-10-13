@@ -19,27 +19,10 @@
  */
 namespace Sifo\Filter;
 
-class Environment extends Filter
+final class Environment extends Filter
 {
-    /**
-     * Singleton object.
-     *
-     * @var Filter
-     */
-    protected static $instance;
-
-    /**
-     * Filters variables passed in the environment.
-     *
-     * @return Filter
-     */
-    public static function getInstance()
+    protected static function getOriginData()
     {
-        if (!self::$instance) {
-            self::$instance = new self($_ENV);
-            $_ENV = array();
-        }
-
-        return self::$instance;
+        return $_ENV;
     }
 }

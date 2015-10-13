@@ -24,7 +24,7 @@ namespace Sifo\Filter;
  *
  * @author Albert Lombarte, Sergio Ambel
  */
-class CookieRuntime extends Cookie
+final class CookieRuntime extends Cookie
 {
     public static function setCookie($key, $value)
     {

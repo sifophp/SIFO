@@ -19,9 +19,10 @@
  */
 namespace Sifo\Filter;
 
-/**
- * Filter is Filter\Post by default.
- */
-class Post extends Filter
+final class Post extends Filter
 {
+    protected static function getOriginData()
+    {
+        return $_POST;
+    }
 }
