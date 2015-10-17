@@ -96,9 +96,8 @@ class Database
 
         // When adodb is instantiated for the first time the object becomes in an array with a type of operation.
         if (!is_array(self::$adodb)) {
-            $version = Config::getInstance()->getLibrary('adodb');
-            include_once ROOT_PATH."/vendor/sifophp/sifo/src/$version/adodb-exceptions.inc.php"; //include exceptions for php5
-            include_once ROOT_PATH."/vendor/sifophp/sifo/src/$version/adodb.inc.php";
+            include_once ROOT_PATH."/vendor/sifophp/sifo/src/adodb/adodb-exceptions.inc.php"; //include exceptions for php5
+            include_once ROOT_PATH."/vendor/sifophp/sifo/src/adodb/adodb.inc.php";
 
             if (!isset($db_params['profile'])) {
                 // No Master/Slave schema expected:

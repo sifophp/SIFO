@@ -27,13 +27,6 @@ use Sifo\Exception\ConfigurationException;
 class Config
 {
     /**
-     * Defines what profile do you want to use to load libraries. This must be a key in domains.config.php.
-     *
-     * @var string
-     */
-    public static $libraries_profile = 'default';
-
-    /**
      * Singleton instance.
      *
      * @var Config
@@ -83,7 +76,7 @@ class Config
      */
     public static function getInstance($instance_name = null)
     {
-        // Load instance from bootsrap
+        // Load instance from bootstrap
         if (!isset($instance_name)) {
             $instance_name = Bootstrap::$instance;
         }
@@ -201,28 +194,5 @@ class Config
     public function getInstanceName()
     {
         return $this->instance_name;
-    }
-
-    /**
-     * Returns the library assigned to the given alias.
-     *
-     * @param string $alias Alias of the library, e.g: 'smarty'
-     *
-     * @return string Effective name of the folder with the library
-     */
-    public function getLibrary($alias)
-    {
-        $libraries = $this->getConfig('libraries', 'default');
-
-        // User requested a different profile, combine with default for missing attributes.
-        if (self::$libraries_profile != 'default') {
-            $libraries = array_merge($libraries, $this->getConfig('libraries', self::$libraries_profile));
-        }
-
-        if (!isset($libraries[$alias])) {
-            throw new ConfigurationException("The library '$alias' you are loading is not set in profile ".self::$libraries_profile);
-        }
-
-        return $libraries[$alias];
     }
 }

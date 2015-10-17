@@ -27,7 +27,7 @@ use Sifo\LoadBalancer\LoadBalancerSearch;
 class Search
 {
     /**
-     * @var Current instance.
+     * @var string Current instance.
      */
     protected static $instance;
 
@@ -158,8 +158,6 @@ class Search
         if (is_object($this->sphinx)) {
             return call_user_func_array(array($this->sphinx, $method), $args);
         }
-
-        return;
     }
 
     /**
@@ -174,7 +172,7 @@ class Search
     public static function connect($node_properties)
     {
         if (true === $node_properties['active']) {
-            include_once ROOT_PATH.'/vendor/sifophp/sifo/src/'.Config::getInstance()->getLibrary('sphinx').'/sphinxapi.php';
+            include_once '../Sphinx/sphinxapi.php';
 
             $sphinx = new \SphinxClient();
             $sphinx->SetServer($node_properties['server'], $node_properties['port']);
@@ -188,8 +186,10 @@ class Search
             if (false === $sphinx->Status()) {
                 throw new InternalServerError('Sphinx ('.$node_properties['server'].':'.$node_properties['port'].') is down!');
             }
+
+            return $sphinx;
         }
 
-        return $sphinx;
+        return false;
     }
 }
