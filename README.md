@@ -1,4 +1,4 @@
-Flexible PHP5 framework for real-world web applications
+Flexible PHP framework for real-world web applications
 =======================================================
 [SIFO] is a well-proven open source PHP5 framework currently running on several
 sites, from small installations to large websites with multiple servers.
