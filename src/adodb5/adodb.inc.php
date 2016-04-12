@@ -234,7 +234,7 @@
 
 		var $createdir = true; // requires creation of temp dirs
 
-		function ADODB_Cache_File()
+		function __construct()
 		{
 		global $ADODB_INCLUDED_CSV;
 			if (empty($ADODB_INCLUDED_CSV)) include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
@@ -428,7 +428,7 @@
 	/**
 	 * Constructor
 	 */
-	function ADOConnection()
+	function __construct()
 	{
 		die('Virtual Class -- cannot instantiate');
 	}
@@ -2659,7 +2659,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	* Will select the supplied $page number from a recordset, given that it is paginated in pages of
 	* $nrows rows per page. It also saves two boolean values saying if the given page is the first
-	* and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination.
+	* and/or last one of the recordset. Added by IvÃ¡n Oliva to provide recordset pagination.
 	*
 	* See readme.htm#ex8 for an example of usage.
 	*
@@ -2686,7 +2686,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	* Will select the supplied $page number from a recordset, given that it is paginated in pages of
 	* $nrows rows per page. It also saves two boolean values saying if the given page is the first
-	* and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination.
+	* and/or last one of the recordset. Added by IvÃ¡n Oliva to provide recordset pagination.
 	*
 	* @param secs2cache	seconds to cache data, set to 0 to force query
 	* @param sql
@@ -2885,9 +2885,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	var $_obj; 				/** Used by FetchObj */
 	var $_names;			/** Used by FetchObj */
 
-	var $_currentPage = -1;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atFirstPage = false;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atLastPage = false;	/** Added by Iván Oliva to implement recordset pagination */
+	var $_currentPage = -1;	/** Added by IvÃ¡n Oliva to implement recordset pagination */
+	var $_atFirstPage = false;	/** Added by IvÃ¡n Oliva to implement recordset pagination */
+	var $_atLastPage = false;	/** Added by IvÃ¡n Oliva to implement recordset pagination */
 	var $_lastPageNo = -1;
 	var $_maxRecordCount = 0;
 	var $datetime = false;
@@ -2898,6 +2898,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param queryID  	this is the queryID returned by ADOConnection->_query()
 	 *
 	 */
+	function __construct($queryID)
+	{
+		$this->ADORecordSet($queryID);
+	}
+
 	function ADORecordSet($queryID)
 	{
 		$this->_queryID = $queryID;
@@ -3889,6 +3894,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 * Constructor
 		 *
 		 */
+		function __construct($fakeid=1)
+		{
+			$this->ADORecordSet_array($fakeid);
+		}
+
 		function ADORecordSet_array($fakeid=1)
 		{
 		global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
@@ -4401,4 +4411,3 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 }
-?>
