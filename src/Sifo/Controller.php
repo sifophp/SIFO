@@ -100,7 +100,7 @@ abstract class Controller
     /**
      * The dependency injection container.
      *
-     * @var DependencyInjector
+     * @var DependencyInjector|\Symfony\Component\DependencyInjection\ContainerInterface
      */
     protected $container;
 
@@ -122,7 +122,6 @@ abstract class Controller
 
 	public function __construct()
 	{
-
 		$this->includeClasses();
 		$this->instance = Bootstrap::$instance;
 		$this->language = Domains::getInstance()->getLanguage();

@@ -184,19 +184,23 @@ class Bootstrap
 	{
 		try
 		{
-			$classInfo = Config::getInstance( self::$instance )->getClassInfo( $classname );
+			$class_info = Config::getInstance( self::$instance )->getClassInfo( $classname );
 		}
 		catch ( Exception_Configuration $e )
 		{
-            throw new Exception_500( $e->getMessage() );
+            return null;
 		}
 
-		if ( !include_once ROOT_PATH . DIRECTORY_SEPARATOR . $classInfo['path'] )
+		$class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
+
+		if (!file_exists($class_path))
 		{
-			throw new Exception_500( "Doesn't exist in expected path {$classInfo['path']}" );
+			throw new Exception_500("Doesn't exist in expected path {$class_info['path']}");
 		}
 
-		return $classInfo['name'];
+		include_once($class_path);
+
+		return $class_info['name'];
 	}
 
 	/**
@@ -214,16 +218,14 @@ class Bootstrap
 	{
 		$classname = self::includeFile( $class );
 
-		if ( class_exists( $classname ) )
-		{
-			if ( $call_constructor )
-			{
-				return new $classname;
-			}
-		}
-		else
+		if (empty($classname) || !class_exists($classname))
 		{
 			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
+		}
+
+		if ($call_constructor)
+		{
+			return new $classname;
 		}
 	}
 
