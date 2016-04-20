@@ -447,11 +447,11 @@ class DependencyInjector
         $parent_dependencies_php_file     = ROOT_PATH . '/instances/' . $parent_instance . '/config/services/definition' . $files_suffix . '.config.php';
 
         if ($files_suffix && file_exists($production_dependencies_php_file)) {
-            $dumped_configuration .= "require_once ROOT_PATH . '/instances/" . $instance . "/config/services/definition.config.php';\n\n";
+            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $instance . "/config/services/definition.config.php';\n\n";
         }
 
         if (file_exists($parent_dependencies_php_file)) {
-            $dumped_configuration .= "require_once ROOT_PATH . '/instances/" . $parent_instance . "/config/services/definition" . $files_suffix . ".config.php';\n\n";
+            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $parent_instance . "/config/services/definition" . $files_suffix . ".config.php';\n\n";
         }
 
         foreach ($compiled_services as $service => $compilation) {
