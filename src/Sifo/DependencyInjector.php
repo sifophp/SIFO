@@ -20,6 +20,7 @@
 
 namespace Sifo;
 
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -68,15 +69,20 @@ class DependencyInjector
      * Gets an instance of the dependency injector class.
      *
      * @static
-     * @return DependencyInjector Dependency injector instance.
+     * @return DependencyInjector|Container Dependency injector instance.
      */
-    public static function getInstance()
+    public static function getInstance($instance_name = null)
     {
-        if (!isset(self::$instance)) {
-            self::$instance = new self;
+        if (null == $instance_name)
+        {
+            $instance_name = Bootstrap::$instance;
         }
 
-        return self::$instance;
+        if (!isset(self::$instance[$instance_name])) {
+            self::$instance[$instance_name] = new self;
+        }
+
+        return self::$instance[$instance_name];
     }
 
     /**
