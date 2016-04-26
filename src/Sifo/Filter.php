@@ -680,22 +680,25 @@ class FilterCustom extends Filter
 	/**
 	 * Filters variables passed in the array and empties original input.
 	 *
+	 * @deprecated You should use `new FilterCustom($array)` instead of calling getInstance.
 	 * @throws FilterException
 	 * @return Filter
 	 */
 	public static function getInstance()
 	{
 		$params = func_get_args();
-		if ( ( !isset( $params[0] ) ) || ( !is_array( $params[0] ) ) )
+		if ((!isset($params[0])) || (!is_array($params[0])))
 		{
-			throw new FilterException( 'The variable passed inside the getInstance( $array ) method is not an array.' );
+			throw new FilterException('The variable passed inside the getInstance( $array ) method is not an array.');
 		}
 		$array = $params[0];
-		if ( !self::$instance )
+		$hash  = md5(serialize($array));
+		if (!isset(self::$instance[$hash]))
 		{
-			self::$instance = new self ( $array );
+			self::$instance[$hash] = new self ($array);
 		}
-		return self::$instance;
+
+		return self::$instance[$hash];
 	}
 }
 
