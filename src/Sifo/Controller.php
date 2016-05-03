@@ -572,7 +572,7 @@ abstract class Controller
 	 * @param array $definition Cache definition.
 	 * @return string
 	 */
-	private function _getFinalCacheKeyName( Array $definition )
+	private function _getFinalCacheKeyName( array $definition )
 	{
 		// Add the controller class name when 'name' is empty.
 		if ( !isset( $definition['name'] ) )

@@ -49,7 +49,5 @@ class CacheMemcache extends CacheBase
 		{
 			$this->cache_object->addServer( $server, $port );
 		}
-
-		return $this->cache_object;
 	}
 }
