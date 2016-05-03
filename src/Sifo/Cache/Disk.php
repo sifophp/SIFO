@@ -113,7 +113,7 @@ class CacheDisk extends CacheBase
 			'expiration' => $expire,
 			'content' => $contents
 		);
-		return file_put_contents( $source_file, var_export( $cache_content, true ) );
+		return file_put_contents( $source_file, serialize( $cache_content ) );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class CacheDisk extends CacheBase
 			return false;
 		}
 
-		$cache_content = eval( 'return ' . $file_content . ';' );
+		$cache_content = @unserialize($file_content);
 
 		if ( !isset( $cache_content['expiration'] ) || !isset( $cache_content['content'] ) )
 		{
@@ -150,7 +150,6 @@ class CacheDisk extends CacheBase
 		// Check if content has expired (expiration=0 means persistent cache):
 		if ( $cache_content['expiration'] > 0 )
 		{
-
 			$mtime = filemtime( $source_file );
 			if ( ( $mtime + $cache_content['expiration'] ) < time() )
 			{
@@ -199,8 +198,8 @@ class CacheDisk extends CacheBase
 	 */
 	private function getCacheFilename( $key )
 	{
-		$key = preg_replace( '/[^0-9a-z_\-=]/', '', strtolower( $key ) ) . '-' . sha1( $key );
-		return $this->getPathBase() . "$key.cache";
+		$hash = sha1( $key );
+		return $this->getPathBase() . "{$hash}.cache";
 	}
 
 	/**
