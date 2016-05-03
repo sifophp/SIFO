@@ -52,6 +52,7 @@ final class CacheClient implements CacheContract
 
     public function deleteCacheByTag($tag, $value)
     {
+        $value = Urls::normalize($value);
         $this->cache_pool->deleteItem("{$tag}/{$value}");
     }
 
@@ -77,6 +78,7 @@ final class CacheClient implements CacheContract
         $cache_tags = '';
         foreach ( $definition as $tag => $value )
         {
+            $value = Urls::normalize($value);
             if (in_array($tag, $cache_tags_definition))
             {
                 $cache_tags = $tag . '/' . $value . '/';
