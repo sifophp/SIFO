@@ -89,7 +89,7 @@ final class CacheClient implements CacheContract
             }
         }
         sort( $cache_keys );
-        array_unshift( $cache_keys, Bootstrap::$instance, Domains::getInstance()->getLanguage() );
+        array_unshift( $cache_keys, Domains::getInstance()->getDomain(), Domains::getInstance()->getLanguage() );
 
         $full_cache_key = $cache_tags . implode('_', $cache_keys);
 
