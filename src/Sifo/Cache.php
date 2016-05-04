@@ -68,6 +68,8 @@ class Cache
 			return self::$instance[self::$cache_type];
 		}
 
+        $options = ['serializer' => 'php'];
+
 		switch ( self::$cache_type )
 		{
 			case self::CACHE_TYPE_MEMCACHED:
@@ -75,7 +77,6 @@ class Cache
                 $servers = Config::getInstance()->getConfig( 'cache', 'servers' );
                 $servers = $servers[0];
 
-                $options = [];
                 foreach ($servers as $server_host => $server_port)
                 {
                     $options['servers'][] = [$server_host, $server_port];
@@ -87,7 +88,6 @@ class Cache
                 $servers = Config::getInstance()->getConfig( 'cache', 'servers' );
                 $servers = $servers[0];
 
-                $options = [];
                 foreach ($servers as $server_host => $server_port)
                 {
                     $options['servers'][] = [$server_host, $server_port];
@@ -96,7 +96,8 @@ class Cache
 				$cache_driver = new Driver\Redis($options);
 				break;
 			case self::CACHE_TYPE_DISK:
-                $options['path'] = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache/';
+				$options['path'] = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache/';
+
                 $cache_driver    = new Driver\FileSystem($options);
 				break;
 			default:
