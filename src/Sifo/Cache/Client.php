@@ -52,8 +52,8 @@ final class CacheClient implements CacheContract
 
     public function deleteCacheByTag($tag, $value)
     {
-        $tag   = Urls::normalize($tag);
-        $value = Urls::normalize($value);
+        $tag   = $this->formatTag($tag);
+        $value = $this->formatValue($value);
         $this->cache_pool->deleteItem("{$tag}/{$value}");
     }
 
@@ -81,8 +81,8 @@ final class CacheClient implements CacheContract
         $cache_tags_string = '';
         foreach ($definition as $tag => $value)
         {
-            $tag   = Urls::normalize($tag);
-            $value = Urls::normalize($value);
+            $tag   = $this->formatTag($tag);
+            $value = $this->formatValue($value);
             if (in_array($tag, $cache_tags_definition))
             {
                 $cache_tags_array[] = "{$tag}/{$value}";
@@ -110,5 +110,15 @@ final class CacheClient implements CacheContract
     private function hasRebuild()
     {
         return Domains::getInstance()->getDevMode() && (FilterGet::getInstance()->getInteger('rebuild') || FilterCookie::getInstance()->getInteger('rebuild_all'));
+    }
+
+    private function formatTag($tag)
+    {
+        return Urls::normalize($tag);
+    }
+
+    private function formatValue($value)
+    {
+        return Urls::normalize($value) . md5($value);
     }
 }
