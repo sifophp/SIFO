@@ -42,9 +42,9 @@ class CacheBase
 	/**
 	 * Contains the original cache object.
 	 *
-	 * @var null
+	 * @var \Memcache|\Memcached|CacheDisk
 	 */
-	protected $cache_object = null;
+	protected $cache_object;
 
 	/**
 	 * Controls whether this instance makes use of cache locking or not.
@@ -68,7 +68,7 @@ class CacheBase
 	 *
 	 * @return mixed
 	 */
-	public function __call( $method, $args ) //call adodb methods
+	public function __call( $method, $args )
 	{
 		return call_user_func_array( array(
 			$this->cache_object,
@@ -91,7 +91,7 @@ class CacheBase
 	 *
 	 * @return bool
 	 */
-	public function hasRebuild()
+	protected function hasRebuild()
 	{
 		return Domains::getInstance()->getDevMode() && ( FilterGet::getInstance()->getInteger( 'rebuild' ) || FilterCookie::getInstance()->getInteger( 'rebuild_all' ) );
 	}
@@ -161,18 +161,16 @@ class CacheBase
 	public function set( $key, $content, $expiration )
 	{
 		$content = array(
-			'key' => $key,
-			'content' => $content,
-			//'expiration' => $expiration,
-			//'time' => time()
+			'key'     => $key,
+			'content' => $content
 		);
 
-		$key = sha1( $key );
-		$set_result =  $this->cache_object->set( $key, $content, $expiration );
+		$hash = sha1( $key );
+		$set_result =  $this->cache_object->set( $hash, $content, $expiration );
 
-		if(  $this->use_locking )
+		if( $this->use_locking )
 		{
-			CacheLock::getInstance( $key, $this->cache_object )->release();
+			CacheLock::getInstance( $hash, $this->cache_object )->release();
 		}
 
 		return $set_result;
@@ -197,7 +195,7 @@ class CacheBase
 	 *
 	 * @return string
 	 */
-	public function getCacheTag( $tag, $value )
+	private function getCacheTag( $tag, $value )
 	{
 		$cache_tag = $tag . '=' . $value;
 
@@ -224,9 +222,9 @@ class CacheBase
 	 *
 	 * @return string
 	 */
-	public function getCacheKeyName( Array $definition )
+	public function getCacheKeyName( array $definition )
 	{
-		$cache_key = array();
+		$cache_key      = array();
 		$cache_base_key = array();
 
 		// First of all, let's construct the cache base with domain, language and controller name.
@@ -260,9 +258,9 @@ class CacheBase
 	{
 		$stored_tag = sprintf( self::CACHE_TAG_STORE_FORMAT, $tag, $value );
 
-		if ( false === $this->add( $stored_tag, 1 ) )
+		if ( false === $this->cache_object->add( $stored_tag, 1 ) )
 		{
-			$this->increment( $stored_tag );
+			$this->cache_object->increment( $stored_tag );
 		}
 
 		return true;

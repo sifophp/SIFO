@@ -31,8 +31,6 @@ class CacheMemcached extends CacheBase
 
 	/**
 	 * Returns an instance of the Memcached object with the configured servers.
-	 *
-	 * @return Memcached
 	 */
 	public function __construct()
 	{
@@ -52,7 +50,5 @@ class CacheMemcached extends CacheBase
 		{
 			$this->cache_object->addServer( $server, $port );
 		}
-
-		return $this->cache_object;
 	}
 }

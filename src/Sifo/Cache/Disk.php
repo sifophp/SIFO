@@ -150,7 +150,6 @@ class CacheDisk extends CacheBase
 		// Check if content has expired (expiration=0 means persistent cache):
 		if ( $cache_content['expiration'] > 0 )
 		{
-
 			$mtime = filemtime( $source_file );
 			if ( ( $mtime + $cache_content['expiration'] ) < time() )
 			{
@@ -199,8 +198,8 @@ class CacheDisk extends CacheBase
 	 */
 	private function getCacheFilename( $key )
 	{
-		$key = preg_replace( '/[^0-9a-z_\-=]/', '', strtolower( $key ) ) . '-' . sha1( $key );
-		return $this->getPathBase() . "$key.cache";
+		$hash = sha1( $key );
+		return $this->getPathBase() . "{$hash}.cache";
 	}
 
 	/**

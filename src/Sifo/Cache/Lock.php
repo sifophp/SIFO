@@ -22,38 +22,39 @@ namespace Sifo;
 
 class CacheLock
 {
-	/**
-	 * Maximum time a lock is effective.
-	 */
+	/** Maximum time a lock is effective. */
 	const TTL = 8;
 
-	/**
-	 * Time until the next locking check is performed (in microseconds).
-	 */
-	const WAIT_TIME = 100000; // 10 per second
+	/** Time until the next locking check is performed (in microseconds). */
+	const WAIT_TIME = 100000; // 0,1 seconds
 
-	/**
-	 * Cache key prefix.
-	 */
+	/** Cache key prefix. */
 	const KEY_PREFIX = '$LOCK$';
 
+	/** @var string */
 	protected $lock_id;
+
+	/** @var string */
 	protected $key;
+
+	/** @var CacheLock[]  */
 	private static $instances;
+
+	/** @var CacheBase */
 	protected $cache_object;
 
 	private function __construct( $key, $cache_instance )
 	{
-		$this->lock_id =  uniqid();
-		$this->key = $key;
-
+		$this->lock_id      = uniqid();
+		$this->key          = $key;
 		$this->cache_object = $cache_instance;
 	}
 
 	/**
-	 * @param string $original_key
-	 * @param string $cache_instance
-	 * @return \Sifo\CacheLock
+	 * @param string    $original_key
+	 * @param CacheBase $cache_instance
+	 *
+	 * @return CacheLock
 	 */
 	public static function getInstance( $original_key, $cache_instance )
 	{
@@ -103,7 +104,8 @@ class CacheLock
 	/**
 	 * Release cache lock before object's destruction.
 	 *
-	 * If Exceptions, reDispatch, exit() or other hacks interfere with the normal workflow the cache locks have to be released.
+	 * If Exceptions, reDispatch, exit() or other hacks interfere with the normal workflow
+	 * the cache locks have to be released.
 	 */
 	public function __destruct()
 	{

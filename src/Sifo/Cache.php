@@ -23,9 +23,8 @@ namespace Sifo;
 /**
  * Proxy class that handles all Cache types in a single interface.
  */
-class Cache extends CacheBase
+class Cache
 {
-
 	const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
 	const CACHE_TYPE_MEMCACHED = 'MEMCACHED';
 	const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
@@ -44,51 +43,58 @@ class Cache extends CacheBase
 	/**
 	 * Singleton of config class.
 	 *
-	 * @return Cache
+	 * @param string $type
+	 * @param int    $lock_enabled
+	 *
+	 * @return CacheBase
+	 *
+	 * @throws Exception_500
 	 */
-	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER, $lock_enabled = self::CACHE_LOCKING_ENABLED )
+	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER, $lock_enabled = self::CACHE_LOCKING_DISABLED )
 	{
         if ( self::CACHE_TYPE_AUTODISCOVER == $type )
         {
             $type = self::discoverCacheType();
         }
 
-        if ( !isset ( self::$instance[$type] ) )
-        {
-			switch ( $type )
-			{
-				case self::CACHE_TYPE_MEMCACHED:
-					// http://php.net/manual/en/book.memcached.php
-					// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
-					self::$instance[$type][$lock_enabled] = new CacheMemcached();
-					break;
-				case self::CACHE_TYPE_MEMCACHE:
-					// http://php.net/manual/en/book.memcache.php:
-					self::$instance[$type][$lock_enabled] = new CacheMemcache();
-					break;
-				case self::CACHE_TYPE_DISK:
-					// Use cache disk instead:
-					self::$instance[$type][$lock_enabled] = new CacheDisk();
-					break;
-				default:
-					throw new Exception_500( 'Unknown cache type requested' );
-			}
+		self::$cache_type = $type;
 
-			self::$cache_type = $type;
-
-			// Memcache is down, we cache on disk to handle this dangerous situation:
-			if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !self::$instance[$type][$lock_enabled]->isActive() )
-			{
-				trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
-
-				// Use cache disk instead:
-				self::$instance[$type][$lock_enabled] = new CacheDisk();
-				self::$cache_type = self::CACHE_TYPE_DISK;
-			}
-
+		if ( isset( self::$instance[$type][$lock_enabled] ) )
+		{
+			return self::$instance[$type][$lock_enabled];
 		}
 
-		self::$instance[$type][$lock_enabled]->lock_enabled = $lock_enabled;
+		switch ( $type )
+		{
+			case self::CACHE_TYPE_MEMCACHED:
+				// http://php.net/manual/en/book.memcached.php
+				// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
+				$cache_object = new CacheMemcached();
+				break;
+			case self::CACHE_TYPE_MEMCACHE:
+				// http://php.net/manual/en/book.memcache.php:
+				$cache_object = new CacheMemcache();
+				break;
+			case self::CACHE_TYPE_DISK:
+				// Use cache disk instead:
+				$cache_object = new CacheDisk();
+				break;
+			default:
+				throw new Exception_500( "Unknown cache type requested: '{$type}'");
+		}
+
+		// Memcache is down, we cache on disk to handle this dangerous situation:
+		if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !$cache_object->isActive() )
+		{
+			trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
+
+			// Use cache disk instead:
+			$cache_object     = new CacheDisk();
+			self::$cache_type = self::CACHE_TYPE_DISK;
+		}
+
+		$cache_object->use_locking            = (bool) $lock_enabled;
+		self::$instance[$type][$lock_enabled] = $cache_object;
 
 		return self::$instance[$type][$lock_enabled];
 	}
@@ -102,24 +108,21 @@ class Cache extends CacheBase
 	{
 		$cache_config = Config::getInstance()->getConfig( 'cache' );
 
-		if ( true === $cache_config['active'] )
+		if ( true !== $cache_config['active'] || !isset( $cache_config['client'] ) )
 		{
-			if ( isset( $cache_config['client'] ) && $cache_config['client'] === 'Memcached' )
-			{
-				$type = self::CACHE_TYPE_MEMCACHED;
-			}
-			else
-			{
-				$type = self::CACHE_TYPE_MEMCACHE;
-			}
-		}
-		else
-		{
-			$type = self::CACHE_TYPE_DISK;
+			return self::CACHE_TYPE_DISK;
 		}
 
-		return $type;
+		if ( 'Memcached' === $cache_config['client'] )
+		{
+			return self::CACHE_TYPE_MEMCACHED;
+		}
+
+		if ( 'Memcache' === $cache_config['client'] )
+		{
+			return self::CACHE_TYPE_MEMCACHE;
+		}
+
+		return 'unknown';
 	}
-
-
 }

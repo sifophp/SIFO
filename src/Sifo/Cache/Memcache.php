@@ -15,7 +15,6 @@
  *
  */
 namespace Sifo;
-use \Memcache;
 
 /**
  * Wrapper for the PECL Memcache extension.
@@ -28,8 +27,6 @@ class CacheMemcache extends CacheBase
 
 	/**
 	 * Returns an instance of the Memcache object with the configured servers.
-	 *
-	 * @return Memcache
 	 */
 	public function __construct()
 	{
@@ -49,7 +46,5 @@ class CacheMemcache extends CacheBase
 		{
 			$this->cache_object->addServer( $server, $port );
 		}
-
-		return $this->cache_object;
 	}
 }
