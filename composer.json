@@ -6,11 +6,10 @@
   "homepage": "https://github.com/sifophp/SIFO",
   "type": "project",
   "require": {
-    "php": ">=5.6",
+    "php": ">=5.3.2",
     "smarty/smarty": "dev-master#c8ecad0",
-    "tpyo/amazon-s3-php-class": "~0.5",
-    "phpmailer/phpmailer": "~5.2",
-    "symfony/yaml": "~2.6",
-    "tedivm/stash": "^0.14.1"
+    "tpyo/amazon-s3-php-class": "0.5.*",
+    "phpmailer/phpmailer": "5.2.*",
+    "symfony/yaml": "2.6.0"
   }
 }
