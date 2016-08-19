@@ -42,7 +42,7 @@ class Router
 		$server = FilterServer::getInstance();
 
 		$used_url = 'http';
-		if ( $server->getString( "HTTPS" ) == "on" )
+		if ( $server->getString( 'HTTPS' ) == 'on' || $server->getString( 'HTTP_X_FORWARDED_PROTO' ) == 'https' )
 		{
 			$used_url .= "s";
 		}
