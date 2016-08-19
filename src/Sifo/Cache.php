@@ -20,10 +20,6 @@
 
 namespace Sifo;
 
-use Stash\Driver;
-use Stash\Interfaces;
-use Stash\Pool;
-
 /**
  * Proxy class that handles all Cache types in a single interface.
  */
@@ -32,7 +28,6 @@ class Cache
 	const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
 	const CACHE_TYPE_MEMCACHED = 'MEMCACHED';
 	const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
-	const CACHE_TYPE_REDIS = 'REDIS';
 	const CACHE_TYPE_DISK = 'DISK';
 
 	const CACHE_LOCKING_ENABLED = 1;
@@ -49,12 +44,13 @@ class Cache
 	 * Singleton of config class.
 	 *
 	 * @param string $type
+	 * @param int    $lock_enabled
 	 *
-	 * @return CacheClient
+	 * @return CacheBase
 	 *
 	 * @throws Exception_500
 	 */
-	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER )
+	static public function getInstance( $type = self::CACHE_TYPE_AUTODISCOVER, $lock_enabled = self::CACHE_LOCKING_DISABLED )
 	{
         if ( self::CACHE_TYPE_AUTODISCOVER == $type )
         {
@@ -63,60 +59,44 @@ class Cache
 
 		self::$cache_type = $type;
 
-		if ( isset( self::$instance[self::$cache_type] ) )
+		if ( isset( self::$instance[$type][$lock_enabled] ) )
 		{
-			return self::$instance[self::$cache_type];
+			return self::$instance[$type][$lock_enabled];
 		}
 
-        $options = ['serializer' => 'php'];
-
-		switch ( self::$cache_type )
+		switch ( $type )
 		{
 			case self::CACHE_TYPE_MEMCACHED:
-			case self::CACHE_TYPE_MEMCACHE:
-                $servers = Config::getInstance()->getConfig( 'cache', 'servers' );
-                $servers = $servers[0];
-
-                foreach ($servers as $server_host => $server_port)
-                {
-                    $options['servers'][] = [$server_host, $server_port];
-                }
-
-                $cache_driver = new Driver\Memcache($options);
+				// http://php.net/manual/en/book.memcached.php
+				// Memcached offers more methods than Memcache (like append, cas, replaceByKey...)
+				$cache_object = new CacheMemcached();
 				break;
-			case self::CACHE_TYPE_REDIS:
-                $servers = Config::getInstance()->getConfig( 'cache', 'servers' );
-                $servers = $servers[0];
-
-                foreach ($servers as $server_host => $server_port)
-                {
-                    $options['servers'][] = [$server_host, $server_port];
-                }
-
-				$cache_driver = new Driver\Redis($options);
+			case self::CACHE_TYPE_MEMCACHE:
+				// http://php.net/manual/en/book.memcache.php:
+				$cache_object = new CacheMemcache();
 				break;
 			case self::CACHE_TYPE_DISK:
-				$options['path'] = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache/';
-
-                $cache_driver    = new Driver\FileSystem($options);
+				// Use cache disk instead:
+				$cache_object = new CacheDisk();
 				break;
 			default:
-				throw new Exception_500("Unknown cache type requested: '" . self::$cache_type . "'");
+				throw new Exception_500( "Unknown cache type requested: '{$type}'");
 		}
 
-		$cache_pool = new Pool($cache_driver);
-
-		if (!self::isCacheDriverAvailable($cache_pool))
+		// Memcache is down, we cache on disk to handle this dangerous situation:
+		if ( false !== strpos( self::$cache_type, 'MEMCACHE' ) && !$cache_object->isActive() )
 		{
+			trigger_error( 'Memcached is down! Falling back to Disk cache if available...' );
+
+			// Use cache disk instead:
+			$cache_object     = new CacheDisk();
 			self::$cache_type = self::CACHE_TYPE_DISK;
-			$options['path']  = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache/';
-			$cache_driver     = new Driver\FileSystem($options);
-			$cache_pool       = new Pool($cache_driver);
 		}
 
-		self::$instance[self::$cache_type] = new CacheClient($cache_pool);
+		$cache_object->use_locking            = (bool) $lock_enabled;
+		self::$instance[$type][$lock_enabled] = $cache_object;
 
-		return self::$instance[self::$cache_type];
+		return self::$instance[$type][$lock_enabled];
 	}
 
 	/**
@@ -133,51 +113,16 @@ class Cache
 			return self::CACHE_TYPE_DISK;
 		}
 
-		$cache_client = mb_strtolower($cache_config['client']);
-
-		if ( 'memcached' == $cache_client )
+		if ( 'Memcached' === $cache_config['client'] )
 		{
 			return self::CACHE_TYPE_MEMCACHED;
 		}
 
-		if ( 'memcache' == $cache_client )
+		if ( 'Memcache' === $cache_config['client'] )
 		{
 			return self::CACHE_TYPE_MEMCACHE;
 		}
 
-		if ( 'redis' == $cache_client )
-		{
-			return self::CACHE_TYPE_REDIS;
-		}
-
 		return 'unknown';
-	}
-
-	private static function isCacheDriverAvailable(Pool $cache_pool)
-	{
-		if ($cache_pool->getDriver() instanceof Driver\FileSystem)
-		{
-			return true;
-		}
-
-		try
-		{
-			// Try to save an item...
-			$availability_item = $cache_pool->getItem('SifoCacheAvailability');
-			$availability_item->lock();
-			$availability_item->set(true);
-			$cache_pool->save($availability_item);
-
-			// ...and immediately try to recover it from cache.
-			$availability_item = $cache_pool->getItem('SifoCacheAvailability');
-			$is_available = $availability_item->get();
-
-			// If it returns data, and data is `true`, it is available!
-			return $is_available;
-		}
-		catch (\Exception $exception)
-		{
-			return false;
-		}
 	}
 }
