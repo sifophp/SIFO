@@ -21,7 +21,8 @@
 
 namespace Sifo;
 
-if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
+$is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
+if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
 	newrelic_set_appname( ucfirst( $instance ) );
 }

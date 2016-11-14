@@ -129,7 +129,7 @@ class Urls
 
 		$clean_host = preg_replace( '/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain() );
 
-		if ( $filter_server->getString( 'HTTPS' ) )
+		if ( $filter_server->getString( 'HTTPS' ) == 'on' || $filter_server->getString( 'HTTP_X_FORWARDED_PROTO' ) == 'https' )
 		{
 			self::$scheme = 'https';
 		}
