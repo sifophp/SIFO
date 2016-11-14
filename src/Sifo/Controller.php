@@ -1057,7 +1057,7 @@ abstract class Controller
 				$param = $this->params['params'][$i];
 
 				if (
-					( 1 == strlen( $param ) ) &&  // Can be a expected key
+					( 3 >= strlen( $param ) ) &&  // Can be a expected key
 					( filter_var( $param, FILTER_DEFAULT ) ) && // Is a valid string
 					( array_key_exists( $param, $expected_url_keys ) ) && // Exists in getParamsDefinition params array.
 					( false !== filter_var( $this->params['params'][$i + 1], FILTER_DEFAULT ) && '' != filter_var( $this->params['params'][$i + 1], FILTER_DEFAULT ) ) // The value is a valid string and is not empty.
