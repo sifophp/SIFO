@@ -192,6 +192,11 @@ class Bootstrap
             return null;
 		}
 
+		if (class_exists($class_info['name'], false))
+        {
+            return $class_info['name'];
+        }
+
 		$class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
 
 		if (!file_exists($class_path))
@@ -199,7 +204,7 @@ class Bootstrap
 			throw new Exception_500("Doesn't exist in expected path {$class_info['path']}");
 		}
 
-		include_once($class_path);
+        include_once($class_path);
 
 		return $class_info['name'];
 	}
