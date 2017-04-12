@@ -186,7 +186,7 @@ class Config
 		elseif( isset( $class_type[1] ) )
 		{
 			$class_type = array_reverse( $class_type );
-			$path = $classes[$class_type[0]][$class_type[1]];
+			$path = isset($classes[$class_type[0]][$class_type[1]]) ? $classes[$class_type[0]][$class_type[1]] : null;
 		}
 
 		if ( isset( $classes[$class_type[0]] ) && !isset( $path ) )

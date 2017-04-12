@@ -12,13 +12,11 @@ class ViewTwig implements ViewInterface
 
     public function __construct()
     {
-        $loader = new \Twig_Loader_Filesystem('/');
-
-        $templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
-        $this->twig     = new \Twig_Environment(
+        $loader     = new \Twig_Loader_Filesystem(ROOT_PATH);
+        $this->twig = new \Twig_Environment(
             $loader, [
                 'autoescape' => false,
-                'cache'      => $templates_path . '_smarty/compile/'
+                'cache'      => ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/compile/'
             ]
         );
 
@@ -40,6 +38,8 @@ class ViewTwig implements ViewInterface
     public function fetch($template_path)
     {
         set_error_handler(array(View::class, "customErrorHandler"));
+
+        $template_path = str_replace(ROOT_PATH, '', $template_path);
 
         try
         {
