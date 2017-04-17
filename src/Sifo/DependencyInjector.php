@@ -490,11 +490,19 @@ class DependencyInjector
     private function dumpTagsDefinition(array $tags_definition)
     {
         $dumped_services = "\n";
-
-        foreach ($tags_definition as $tag_name => $service_tag_definition) {
-            foreach ($service_tag_definition as $service_key => $all_tag_values) {
-                foreach ($all_tag_values as $tag_value_key => $tag_value_value) {
-                    $dumped_services .= "\$config['tags']['" . $tag_name . "']['" . $service_key . "']['" . $tag_value_key . "'] = '" . $tag_value_value . "';\n";
+        foreach ($tags_definition as $tag_name => $service_tag_definition)
+        {
+            foreach ($service_tag_definition as $service_key => $all_tag_values)
+            {
+                if (empty($all_tag_values))
+                {
+                    $dumped_services .= "\$config['tags']['" . $tag_name . "']['" . $service_key . "'] = [];\n";
+                }
+                else
+                {
+                    foreach ($all_tag_values as $tag_value_key => $tag_value_value) {
+                        $dumped_services .= "\$config['tags']['" . $tag_name . "']['" . $service_key . "']['" . $tag_value_key . "'] = '" . $tag_value_value . "';\n";
+                    }
                 }
             }
         }

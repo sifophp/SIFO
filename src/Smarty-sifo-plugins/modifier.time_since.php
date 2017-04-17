@@ -78,21 +78,7 @@ function smarty_modifier_time_since( $diff_time )
         $value[1] = \Sifo\I18N::getTranslation("just some seconds");
     }
 
-	$value[1] = smarty_block_t( array( 'count' => $value[0] ), $value[1], $this, null );
+    $final_string = ($value > 0) ? $value[0] .' ' . $value[1] : $value[1];
 
-    if ( $value[0] > 0 )
-    {
-        $params[1] = $value[0] . ' '. $value[1];
-    }
-    else
-    {
-        $params[1] = $value[1];
-    }
-
-	return smarty_block_t( $params, \Sifo\I18N::getTranslation( '%1 ago' ), $this, null );
-;
+    return \Sifo\I18N::getTranslation('%1 ago', ['%1' => $final_string]);
 }
-
-/* vim: set expandtab: */
-
-?>

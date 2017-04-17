@@ -23,98 +23,98 @@ namespace Sifo;
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */
-class View extends \Smarty
+class View
 {
-	protected $template;
+    /** @var string */
+    private $template_path;
 
-	/**
-	 * Constructor. Inherits all methods from Smarty.
-	 */
-	public function __construct()
-	{
-		parent::__construct();
+    /** @var ViewSmarty|ViewTwig */
+    private $templating_engine;
 
-        $this->inheritance_merge_compiled_includes = false;
+    /** @var array */
+    private $variables = [];
 
-        // Get the instances inheritance.
-		$instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
+    public function fetch($template)
+    {
+        $this->template_path = $template;
 
-		// If there is inheritance.
-		if ( is_array( $instance_inheritance ) )
-		{
-			// First the child instance, last the parent instance.
-			$instance_inheritance = array_reverse( $instance_inheritance );
-			foreach ( $instance_inheritance as $current_instance )
-			{
-				$this->addPluginsDir( ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins' );
-			}
-		}
-		else
-		{
-			$this->addPluginsDir( $templates_path . '_smarty/plugins' );
-		}
-		// Last path is the default smarty plugins directory.
-		$this->addPluginsDir( ROOT_PATH . '/vendor/sifophp/sifo/src/Smarty-sifo-plugins' );
+        $this->chooseTemplatingEngine();
+        $this->assignVariables();
 
-		$this->setTemplateDir( ROOT_PATH . '/' );  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
+        return $this->templating_engine->fetch($this->template_path);
+    }
 
-		// Paths definition:
-		$templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
-		$this->setCompileDir( $templates_path . '_smarty/compile/' );
-		$this->setConfigDir( $templates_path . '_smarty/configs/' );
-		$this->setCacheDir( $templates_path . '_smarty/cache/' );
+    public function assign($variable_name, $value)
+    {
+        $this->variables[$variable_name] = $value;
+    }
 
-		if ( ( $view_setting = Config::getInstance()->getConfig('views') ) && ( isset( $view_setting['smarty'] ) ) )
-		{
-			$smarty_settings = $view_setting['smarty'];
+    public function getTemplateVars()
+    {
+        return $this->variables;
+    }
 
-			if ( isset( $smarty_settings['custom_plugins_dir'] ) )
-			{
-				// If is set, this path will be the default smarty plugins directory.
-				$this->addPluginsDir( $smarty_settings['custom_plugins_dir'] );
-			}
-			// Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
-			$this->auto_literal = $smarty_settings['auto_literal'];
-			$this->escape_html = $smarty_settings['escape_html'];
-		}
-	}
+    private function assignVariables()
+    {
+        foreach ($this->variables as $variable => $value)
+        {
+            $this->templating_engine->assign($variable, $value);
+        }
+    }
 
-	public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null, $display = false, $merge_tpl_vars = true, $no_output_filter = false)
-	{
-		$this->template = $template;
+    private function chooseTemplatingEngine()
+    {
+        $file_extension = pathinfo($this->template_path, PATHINFO_EXTENSION);
 
-		set_error_handler( array( $this, "customErrorHandler" ) );
-		self::muteExpectedErrors();
-		$result = parent::fetch( $template, $cache_id, $compile_id, $parent, $display, $merge_tpl_vars );
+        if ('twig' != $file_extension)
+        {
+            $this->setSmartyTemplatingEngine();
+        }
+        else
+        {
+            $this->setTwigTemplatingEngine();
+        }
+    }
 
-		// The current method launch an set_error_handler but inside self::muteExpectedErrors() ther is one more.
-		// We need launch two restores to turn back to the preview expected behaviour.
-		restore_error_handler();
-		restore_error_handler();
+    private function setSmartyTemplatingEngine()
+    {
+        if ($this->templating_engine instanceof ViewSmarty)
+        {
+            return;
+        }
 
-		return $result;
-	}
+        $this->templating_engine = new ViewSmarty();
+    }
 
-	protected function customErrorHandler( $errno, $errstr, $errfile, $errline )
-	{
-		$error_friendly = Debug::friendlyErrorType( $errno );
-		$error_string = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
+    private function setTwigTemplatingEngine()
+    {
+        if ($this->templating_engine instanceof ViewTwig)
+        {
+            return;
+        }
 
-		if( Domains::getInstance()->getDebugMode() )
-		{
-			Debug::subSet( 'smarty_errors',$this->template, '<pre>'.$error_string.'</pre>', true);
-		}
+        $this->templating_engine = new ViewTwig();
+    }
 
-		// Smarty only write PHP USER errors to log:
-		if ( ( $raw_url = Urls::$actual_url ) )
-		{
-			error_log( "URL '{$raw_url}' launched the following Smarty error: {$error_string} fetching {$this->template}" );
-			return true;
-		}
+    public static function customErrorHandler($errno, $errstr, $errfile, $errline)
+    {
+        $error_friendly = Debug::friendlyErrorType($errno);
+        $error_string   = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
-		// Follow the error handling flow:
-		return false;
-	}
+        if (Domains::getInstance()->getDebugMode())
+        {
+            Debug::subSet('smarty_errors', $errfile, '<pre>' . $error_string . '</pre>', true);
+        }
 
+        // Smarty only write PHP USER errors to log:
+        if (($raw_url = Urls::$actual_url))
+        {
+            error_log("URL '{$raw_url}' launched the following Smarty error: {$error_string}");
+
+            return true;
+        }
+
+        // Follow the error handling flow:
+        return false;
+    }
 }
-?>

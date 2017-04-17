@@ -21,7 +21,8 @@
 
 namespace Sifo;
 
-if ( extension_loaded( 'newrelic' ) && isset( $instance ) )
+$is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
+if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
 	newrelic_set_appname( ucfirst( $instance ) );
 }
@@ -191,6 +192,11 @@ class Bootstrap
             return null;
 		}
 
+		if (class_exists($class_info['name'], false))
+        {
+            return $class_info['name'];
+        }
+
 		$class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
 
 		if (!file_exists($class_path))
@@ -198,7 +204,7 @@ class Bootstrap
 			throw new Exception_500("Doesn't exist in expected path {$class_info['path']}");
 		}
 
-		include_once($class_path);
+        include_once($class_path);
 
 		return $class_info['name'];
 	}
