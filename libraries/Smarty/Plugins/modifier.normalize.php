@@ -23,7 +23,7 @@
  */
 function smarty_modifier_normalize($string, $strict = false)
 {
-	$normalized_url = \Sifo\Urls::normalize( $string );
+	$normalized_url = \Sifo\Http\Urls::normalize( $string );
 
 	return $normalized_url;
 }

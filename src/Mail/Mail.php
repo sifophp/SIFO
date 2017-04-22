@@ -1,13 +1,16 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Mail;
+
+use Sifo\Config;
 
 class Mail
 {
-    /**
-     * @var \PHPMailer
-     */
+    /** @var \PHPMailer */
     protected $mail;
+
+    /** @var Config */
+    protected $config;
 
     /**
      * @var self
@@ -31,23 +34,24 @@ class Mail
         return self::$instance;
     }
 
+    protected function setDependencies()
+    {
+        $this->mail   = new \PHPMailer();
+        $this->config = Config::getInstance();
+    }
+
     public function __construct()
     {
-        $config = Config::getInstance()->getConfig('mail');
+        $this->setDependencies();
+        $email_properties = $this->config->getConfig('mail');
 
-        $this->mail           = new \PHPMailer();
-        $this->mail->CharSet  = $config['CharSet'];
-        $this->mail->From     = $config['From'];
-        $this->mail->FromName = $config['FromName'];
-
-        foreach ($config as $property => $value)
+        foreach ($email_properties as $property => $value)
         {
-            $this->mail->$property = $value;
+            $this->mail->{$property} = $value;
         }
 
         return $this->mail;
     }
-
 
     /**
      * Calls the PHPmailer methods.
@@ -83,7 +87,6 @@ class Mail
         $this->mail->$property = $value;
     }
 
-
     /**
      * Send an email.
      *
@@ -102,13 +105,9 @@ class Mail
 
         if (!$this->mail->Send())
         {
-            trigger_error($this->mail->ErrorInfo);
-
-            return false;
+            throw new NotSendMailException($this->mail->ErrorInfo);
         }
 
         $this->mail->ClearAddresses();
-
-        return true;
     }
 }

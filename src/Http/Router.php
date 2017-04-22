@@ -1,6 +1,13 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
+
+use Sifo\Config;
+use Sifo\Exception\Exception_301;
+use Sifo\Exception_500;
+use Sifo\Exception_Configuration;
+use Sifo\FilterServer;
+use Sifo\unknown_type;
 
 /**
  * Maps an URL with a controller

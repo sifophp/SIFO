@@ -17,7 +17,7 @@ class Smarty implements ViewInterface
         $this->smarty->inheritance_merge_compiled_includes = false;
 
         // Get the instances inheritance.
-        $instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
+        $instance_inheritance = \Sifo\Http\Domains::getInstance()->getInstanceInheritance();
 
         // If there is inheritance.
         if (is_array($instance_inheritance))

@@ -2,6 +2,15 @@
 
 namespace Sifo;
 
+use Sifo\Container\DependencyInjector;
+use Sifo\Exception\SifoException;
+use Sifo\Http\Cookie;
+use Sifo\Http\Domains;
+use Sifo\Http\DomainsException;
+use Sifo\Http\Headers;
+use Sifo\Http\Router;
+use Sifo\Http\Urls;
+
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
 if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance))
 {
@@ -10,7 +19,7 @@ if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance))
 
 if (!defined('ROOT_PATH'))
 {
-    define('ROOT_PATH', realpath(__DIR__ . '../../../'));
+    define('ROOT_PATH', dirname(realpath(__FILE__)).'/..');
 }
 
 /**
@@ -287,24 +296,22 @@ class Bootstrap
         }
         catch (ControllerException $e)
         {
-            self::_dispatchErrorController($e->getPrevious());
+            self::dispatchErrorController($e->getPrevious());
         }
         catch (\Exception $e)
         {
-            self::_dispatchErrorController($e);
+            self::dispatchErrorController($e);
         }
     }
 
     /**
-     * Dispatches an error after an exception.
-     *
-     * @param Exception $e
-     *
-     * @return output buffer
+     * @param \Exception|SifoException $e
      */
-    private static function _dispatchErrorController($e)
+    private static function dispatchErrorController(\Exception $e)
     {
-        if (!isset($e->http_code))
+        $exception_http_code = !empty($e->http_code) ? $e->http_code : 503;
+
+        if (empty($e->http_code))
         {
             $e->http_code     = 503;
             $e->http_code_msg = 'Exception!';
@@ -319,12 +326,12 @@ class Bootstrap
 
         // Set params:
         $ctrl2->addParams(
-            array(
+            [
                 'code'     => $e->http_code,
                 'code_msg' => $e->http_code_msg,
                 'msg'      => $e->getMessage(),
                 'trace'    => $e->getTraceAsString(),
-            )
+            ]
         );
 
         // All the SEO_Exceptions with need of redirection have this attribute:

@@ -1,6 +1,10 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
+
+use Sifo\Bootstrap;
+use Sifo\Config;
+use Sifo\FilterServer;
 
 /**
  * Parses all the URLs.
@@ -13,7 +17,7 @@ class Urls
     /**
      * Singleton Instance.
      *
-     * @var Urls
+     * @var self
      */
     static private $instance;
     /**
@@ -87,7 +91,7 @@ class Urls
     /**
      * Singleton for managing URLs. Use this static method instead of construct.
      *
-     * @return Urls
+     * @return self
      */
     static public function getInstance($instance_name = null)
     {
@@ -98,7 +102,7 @@ class Urls
 
         if (!isset(self::$instance[$instance_name]))
         {
-            self::$instance[$instance_name] = new Urls($instance_name);
+            self::$instance[$instance_name] = new self($instance_name);
         }
 
         return self::$instance[$instance_name];
@@ -108,8 +112,6 @@ class Urls
     {
         $domains       = Domains::getInstance($instance_name);
         $filter_server = FilterServer::getInstance();
-
-        $language = $domains->getLanguage();
 
         $clean_host = preg_replace('/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain());
 
@@ -308,16 +310,16 @@ class Urls
      *
      * @return string A sifo url.
      */
-    static public function buildUrl($hostname, $controller, array $actions = array(), array $params = array())
+    static public function buildUrl($hostname, $controller, array $actions = [], array $params = [])
     {
-        $url      = Urls::getUrl($hostname) . '/';
+        $url      = self::getUrl($hostname) . '/';
         $callback = function ($a)
         {
             return urlencode($a);
         };
 
         $actions = array_map($callback, $actions);
-        array_unshift($actions, Urls::getUrl($controller));
+        array_unshift($actions, self::getUrl($controller));
         $url .= implode(self::$url_definition['context_separator'], $actions);
 
         if (array() !== $params)

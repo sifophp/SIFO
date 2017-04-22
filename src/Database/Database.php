@@ -6,9 +6,9 @@ use Sifo\Benchmark;
 use Sifo\Config;
 use Sifo\Db;
 use Sifo\Debug\Debug;
-use Sifo\Domains;
 use Sifo\Exception_500;
 use Sifo\FilterServer;
+use Sifo\Http\Domains;
 
 // Some stuff needed by ADODb:
 $ADODB_CACHE_DIR = ROOT_PATH . '/cache';

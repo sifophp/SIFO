@@ -114,13 +114,6 @@ class I18N
      */
     static protected function bindTextDomain($instance = null)
     {
-        //		Only if gettext is enabled:
-        //		setlocale( LC_ALL, self::$locale );
-        //		bindtextdomain( self::$domain, PATH_LOCALE );
-        //		bind_textdomain_codeset( self::$domain, 'UTF-8' );
-        //		textdomain( self::$domain );
-        // Loads all the messages into memory in case they aren't loaded before.
-
         if (empty($instance))
         {
             $instance = Bootstrap::$instance;

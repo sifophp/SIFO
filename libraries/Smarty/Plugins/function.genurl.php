@@ -88,7 +88,7 @@ function smarty_function_genurl( $params, &$smarty )
 			$n++;
 		}
 	}
-	
+
    	$_html_result = $params['subject'];
    	$_original_html_result = $_html_result;
 
@@ -180,7 +180,7 @@ function smarty_function_genurl( $params, &$smarty )
 					}
 					if ( $normalize )
 					{
-						$_val[$__key] = \Sifo\Urls::normalize( $_val[$__key] );
+						$_val[$__key] = \Sifo\Http\Urls::normalize($_val[$__key] );
 					}
 
 				}
@@ -196,13 +196,13 @@ function smarty_function_genurl( $params, &$smarty )
 				\Sifo\I18N::setDomain( $current_domain, \Sifo\I18N::getLocale() );
 				if ( $normalize )
 				{
-					$_val = \Sifo\Urls::normalize( $_val );
+					$_val = \Sifo\Http\Urls::normalize( $_val );
 				}
 
 			}
 			elseif ( $normalize )
 			{
-				$_val = \Sifo\Urls::normalize( $_val );
+				$_val = \Sifo\Http\Urls::normalize( $_val );
 			}
 
 			if ( isset( $_val ) && '' != $_val && false !== $_val )

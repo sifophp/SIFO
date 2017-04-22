@@ -9,7 +9,7 @@ namespace Sifo\Database\Mysql;
 
 use PDO;
 use PDOStatement;
-use Sifo\Domains;
+use Sifo\Http\Domains;
 
 /**
  * DbStatement class that is extended to customize some PDO functionality.
