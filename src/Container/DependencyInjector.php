@@ -4,7 +4,8 @@ namespace Sifo\Container;
 
 use Sifo\Bootstrap;
 use Sifo\Config;
-use Sifo\Exception_Configuration;
+use Sifo\Exception\ContainerException;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Http\Domains;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -79,7 +80,7 @@ class DependencyInjector implements ContainerInterface
      * @param string $service_key Identifier of the entry to look for.
      * @param bool $get_private_service
      * @return mixed|callable
-     * @throws \Sifo\Container\Exception_DependencyInjector No entry was found for this identifier.
+     * @throws ContainerException No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
     {
@@ -90,12 +91,12 @@ class DependencyInjector implements ContainerInterface
 
         if (!array_key_exists($service_key, $this->service_definitions))
         {
-            throw new \Sifo\Container\Exception_DependencyInjector('Undefined service "' . $service_key . '"');
+            throw new ContainerException('Undefined service "' . $service_key . '"');
         }
 
         if ($this->loadingAPrivateService($service_key) && !$get_private_service)
         {
-            throw new \Sifo\Container\Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
+            throw new ContainerException('Trying to get a private service "' . $service_key . '"');
         }
 
         $uses_the_container_scope = $this->usingTheContainerScope($service_key);
@@ -132,7 +133,7 @@ class DependencyInjector implements ContainerInterface
             $environment_suffix  = Domains::getInstance()->getDevMode() ? '_dev' : '';
             $service_definitions = Config::getInstance()->getConfig('services/definition' . $environment_suffix);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             $service_definitions = Config::getInstance()->getConfig('services/definition');
         }
@@ -155,7 +156,7 @@ class DependencyInjector implements ContainerInterface
         {
             Config::getInstance()->getConfig('services/definition', $service);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             $service_exists = false;
         }

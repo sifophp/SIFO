@@ -1,6 +1,6 @@
 <?php
 
-namespace Sifo\Database;
+namespace Sifo\Exception;
 
 class LoadBalancerException extends \Exception
 {

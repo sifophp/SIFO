@@ -4,6 +4,7 @@ namespace Sifo\Mail;
 
 use PHPUnit\Framework\TestCase;
 use Sifo\Config;
+use Sifo\Exception\SifoHttpException;
 
 class MailTest extends TestCase
 {
@@ -35,7 +36,7 @@ class MailTest extends TestCase
     private function whenSendingAnEmail()
     {
         $mail = new MailTestClass($this->mail, $this->config);
-        $mail->send('donald@trump.com', 'You mother fucker', 'Set this monkey ass photo as you cellphone background, please.');
+        $mail->send('donald@trump.com', 'Love message in a bottle', 'Back home, you arrogant mother fucker.');
     }
 }
 

@@ -8,8 +8,8 @@
 namespace Sifo\Database\Sphinx;
 
 use Sifo\Config;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception_500;
-use Sifo\Exception_Configuration;
 use Sifo\Http\Domains;
 
 /**
@@ -136,7 +136,7 @@ class Sphinxql
 
             $sphinx_config = $this->checkBalancedProfile($sphinx_config[$profile]);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             throw new \Sifo\Exception_500('You must define the connection params in sphinx.config');
         }
