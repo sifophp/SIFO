@@ -369,7 +369,7 @@ class Domains
 		$filter_server = FilterServer::getInstance();
 
 		// Fix for hostings where the HTTPS server value is not empty but "off" (like Webfaction).
-		if ( $filter_server->getString( 'HTTPS' ) && ( 'off' !== $filter_server->getString( 'HTTPS' ) ) )
+		if ( $filter_server->getString( 'HTTPS' ) == 'on' || $filter_server->getString( 'HTTP_X_FORWARDED_PROTO' ) == 'https' )
 		{
 			return str_replace( 'http://', 'https://', $this->static_host );
 		}
@@ -386,7 +386,7 @@ class Domains
 	{
 		$filter_server = FilterServer::getInstance();
 
-		if ( $filter_server->getString( 'HTTPS' ) )
+		if ( $filter_server->getString( 'HTTPS' ) == 'on' || $filter_server->getString( 'HTTP_X_FORWARDED_PROTO' ) == 'https' )
 		{
 			return str_replace( 'http://', 'https://', $this->media_host );
 		}
