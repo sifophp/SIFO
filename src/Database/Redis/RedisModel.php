@@ -3,8 +3,8 @@
 namespace Sifo\Database\Redis;
 
 use Sifo\Config;
-use Sifo\Domains;
 use Sifo\Exception_Configuration;
+use Sifo\Http\Domains;
 
 /**
  * Predis adapter for Sifo.

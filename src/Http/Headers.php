@@ -1,6 +1,6 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
 
 /**
  * Stack of HTTP headers to be sent to the browser just before the output.
@@ -29,7 +29,6 @@ namespace Sifo;
  * The headers won't be sent until you execute:
  * Headers::send();
  */
-
 class Headers
 {
     /**
@@ -55,7 +54,6 @@ class Headers
      * @var array
      */
     protected static $history = array();
-
 
     /**
      * Known HTTP codes by this framework.
@@ -205,8 +203,4 @@ class Headers
     {
         return self::$history;
     }
-}
-
-class Headers_Exception extends \Exception
-{
 }

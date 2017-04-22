@@ -4,7 +4,7 @@ namespace Sifo\Database\Mysql;
 
 use Sifo\Config;
 use Sifo\Debug\Mysql;
-use Sifo\Domains;
+use Sifo\Http\Domains;
 use Sifo\I18N;
 use Sifo\MysqlDebug;
 use Sifo\Registry;

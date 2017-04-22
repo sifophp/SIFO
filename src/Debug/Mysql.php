@@ -4,7 +4,7 @@ namespace Sifo\Debug;
 
 use Sifo\Benchmark;
 use Sifo\Database\Mysql\Mysql as OriginalMysql;
-use Sifo\Domains;
+use Sifo\Http\Domains;
 
 /**
  * Database debug class. Extends the parent with benchmarking and debug utilities.

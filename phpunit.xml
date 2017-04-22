@@ -20,7 +20,7 @@
 
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/Sifo</directory>
+            <directory suffix=".php">./src/*</directory>
             <exclude>
                 <directory>./vendor</directory>
                 <directory>./test</directory>

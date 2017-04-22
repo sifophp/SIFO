@@ -5,9 +5,9 @@ namespace Sifo\Database;
 use Sifo\Config;
 use Sifo\Current;
 use Sifo\Database;
-use Sifo\Domains;
 use Sifo\Exception_500;
 use Sifo\Exception_Configuration;
+use Sifo\Http\Domains;
 
 class Search
 {
@@ -85,7 +85,7 @@ class Search
     protected function getConnectionParams($profile)
     {
         // The domains.config file has priority, let's fetch it.
-        $sphinx_config = \Sifo\Domains::getInstance()->getParam('sphinx');
+        $sphinx_config = \Sifo\Http\Domains::getInstance()->getParam('sphinx');
 
         if (empty($sphinx_config))
         {

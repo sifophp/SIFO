@@ -2,6 +2,10 @@
 
 namespace Sifo;
 
+use Sifo\Http\Domains;
+use Sifo\Http\Router;
+use Sifo\Http\Urls;
+
 /**
  * Manage metadata. Example of use:
  *

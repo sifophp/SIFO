@@ -5,6 +5,9 @@
  */
 namespace Sifo;
 
+use Sifo\Container\DependencyInjector;
+use Sifo\Http\Domains;
+
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Bootstrap.php';
 
 class CLBootstrap extends Bootstrap

@@ -2,7 +2,7 @@
 
 namespace Sifo\Database\Redis;
 
-use Sifo\Domains;
+use Sifo\Http\Domains;
 
 include_once ROOT_PATH . '/vendor/predis/predis/src/Autoloader.php';
 

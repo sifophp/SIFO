@@ -46,7 +46,7 @@
   },
   "autoload-dev": {
       "psr-4": {
-          "SifoTest\\": "test/"
+          "Sifo\\": "test/"
       }
   }
 }

@@ -1,6 +1,10 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
+
+use Sifo\Config;
+use Sifo\Exception_500;
+use Sifo\FilterServer;
 
 class Domains
 {
@@ -399,8 +403,4 @@ class Domains
     {
         return $this->instance_inheritance;
     }
-}
-
-class DomainsException extends \Exception
-{
 }
