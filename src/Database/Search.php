@@ -5,8 +5,8 @@ namespace Sifo\Database;
 use Sifo\Config;
 use Sifo\Current;
 use Sifo\Database;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception_500;
-use Sifo\Exception_Configuration;
 use Sifo\Http\Domains;
 
 class Search
@@ -115,7 +115,7 @@ class Search
                 }
                 $sphinx_config['config_file'] = 'sphinx';
             }
-            catch (Exception_Configuration $e)
+            catch (ConfigurationException $e)
             {
                 throw new \Sifo\Exception_500('You must define the connection params in sphinx.config or domains.config file');
             }
