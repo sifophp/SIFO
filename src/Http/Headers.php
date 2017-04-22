@@ -2,6 +2,8 @@
 
 namespace Sifo\Http;
 
+use Sifo\Exception\HeadersException;
+
 /**
  * Stack of HTTP headers to be sent to the browser just before the output.
  *
@@ -133,7 +135,7 @@ class Headers
         }
         else
         {
-            throw new Headers_Exception("Unknown status code requested $http_code");
+            throw new HeadersException("Unknown status code requested $http_code");
         }
     }
 

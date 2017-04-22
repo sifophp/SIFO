@@ -9,6 +9,7 @@ namespace Sifo\Database;
 
 use Sifo\Bootstrap;
 use Sifo\Cache\Cache;
+use Sifo\Exception\LoadBalancerException;
 use Sifo\Exception_500;
 use Sifo\unknown_type;
 

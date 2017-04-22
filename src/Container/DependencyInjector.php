@@ -4,7 +4,8 @@ namespace Sifo\Container;
 
 use Sifo\Bootstrap;
 use Sifo\Config;
-use Sifo\Exception_Configuration;
+use Sifo\Exception\ContainerException;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Http\Domains;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Yaml\Yaml;
@@ -78,7 +79,7 @@ class DependencyInjector
      * @param string $service_key Identifier of the entry to look for.
      *
      * @return mixed|callable
-     * @throws \Sifo\Container\Exception_DependencyInjector No entry was found for this identifier.
+     * @throws ContainerException No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
     {
@@ -89,12 +90,12 @@ class DependencyInjector
 
         if (!array_key_exists($service_key, $this->service_definitions))
         {
-            throw new \Sifo\Container\Exception_DependencyInjector('Undefined service "' . $service_key . '"');
+            throw new ContainerException('Undefined service "' . $service_key . '"');
         }
 
         if ($this->loadingAPrivateService($service_key) && !$get_private_service)
         {
-            throw new \Sifo\Container\Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
+            throw new ContainerException('Trying to get a private service "' . $service_key . '"');
         }
 
         $uses_the_container_scope = $this->usingTheContainerScope($service_key);
@@ -131,7 +132,7 @@ class DependencyInjector
             $environment_suffix  = Domains::getInstance()->getDevMode() ? '_dev' : '';
             $service_definitions = Config::getInstance()->getConfig('services/definition' . $environment_suffix);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             $service_definitions = Config::getInstance()->getConfig('services/definition');
         }
@@ -154,7 +155,7 @@ class DependencyInjector
         {
             Config::getInstance()->getConfig('services/definition', $service);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             $service_exists = false;
         }

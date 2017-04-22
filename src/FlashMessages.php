@@ -2,11 +2,9 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SifoHttpException;
 use Sifo\Http\Session;
 
-/**
- * Class that keeps messages of errors, success, etc... in the registry.
- */
 class FlashMessages
 {
     const MSG_KO = 'msg_ko';
@@ -20,22 +18,15 @@ class FlashMessages
     /**
      * Store the message in registry.
      *
-     * @param mixed   $message          The message string or an error list (array).
-     * @param string  $type             The class associated to this message, depending on the result.
-     * @param boolean $store_in_session Whether the message is stored in registry or in session.
+     * @param mixed  $message The message string or an error list (array).
+     * @param string $type    The class associated to this message, depending on the result.
+     * @param int    $storage_engine
+     *
+     * @throws \Exception
      */
     static public function set($message, $type = self::MSG_OK, $storage_engine = self::STORAGE_REGISTRY)
     {
-        switch ($type)
-        {
-            case self::MSG_KO:
-            case self::MSG_OK:
-            case self::MSG_WARNING:
-            case self::MSG_INFO:
-                break;
-            default:
-                throw new \Exception('Unknown type of FlashMessage');
-        }
+        self::validateType($type);
 
         $registry = self::_getStorageEngine($storage_engine);
 
@@ -52,30 +43,25 @@ class FlashMessages
         {
             $flash_messages[$type][] = $message;
         }
+
         $registry->set("flash_messages", $flash_messages);
     }
 
-    /**
-     * Returns the messages stack.
-     */
     static public function get($type = null, $storage_engine = self::STORAGE_REGISTRY)
     {
-        $messages          = array();
         $existing_messages = self::_getMsgs($storage_engine);
 
         if (null === $type)
         {
             return $existing_messages;
         }
-        else
-        {
-            if (isset($existing_messages[$type]))
-            {
-                return $existing_messages[$type];
-            }
 
-            return false;
+        if (isset($existing_messages[$type]))
+        {
+            return $existing_messages[$type];
         }
+
+        return false;
     }
 
     /**
@@ -88,16 +74,16 @@ class FlashMessages
     static private function _getMsgs($storage_engine)
     {
         $registry = self::_getStorageEngine($storage_engine);
+        $messages = $registry->get('flash_messages');
 
-        $msgs = $registry->get('flash_messages');
-        if ($msgs && $storage_engine === self::STORAGE_SESSION)
+        if ($messages && $storage_engine === self::STORAGE_SESSION)
         {
             $registry->delete('flash_messages');
         }
 
-        if ($msgs)
+        if ($messages)
         {
-            return $msgs;
+            return $messages;
         }
 
         return array();
@@ -112,7 +98,21 @@ class FlashMessages
             case self::STORAGE_REGISTRY:
                 return Registry::getInstance();
             default:
-                throw new Exception_503('Invalid storage type.');
+                throw SifoHttpException::InternalServerError('Invalid storage type.');
+        }
+    }
+
+    private static function validateType($type)
+    {
+        switch ($type)
+        {
+            case self::MSG_KO:
+            case self::MSG_OK:
+            case self::MSG_WARNING:
+            case self::MSG_INFO:
+                break;
+            default:
+                throw new \Exception('Unknown type of FlashMessage');
         }
     }
 }

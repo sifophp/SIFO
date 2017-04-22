@@ -3,10 +3,12 @@
 namespace Sifo;
 
 use Sifo\Container\DependencyInjector;
-use Sifo\Exception\SifoException;
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\ControllerException;
+use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\UnknownDomainException;
 use Sifo\Http\Cookie;
 use Sifo\Http\Domains;
-use Sifo\Http\DomainsException;
 use Sifo\Http\Headers;
 use Sifo\Http\Router;
 use Sifo\Http\Urls;
@@ -19,71 +21,33 @@ if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance))
 
 if (!defined('ROOT_PATH'))
 {
-    define('ROOT_PATH', dirname(realpath(__FILE__)).'/..');
+    define('ROOT_PATH', dirname(realpath(__FILE__)) . '/..');
 }
 
-/**
- * Class Bootstrap
- */
 require_once ROOT_PATH . '/vendor/autoload.php';
 
 class Bootstrap
 {
-    /**
-     * Root path.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $root;
 
-    /**
-     * Application path.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $application;
 
-    /**
-     * Instance name, this is the folder under 'instances'.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $instance;
 
-    /**
-     * Language of this instance.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $language;
 
-    /**
-     * The executed controller.
-     *
-     * @var string
-     */
-    public static $controller = null;
+    /** @var string */
+    public static $controller;
 
-    /**
-     * The dependency injection container.
-     *
-     * @var DependencyInjector
-     */
+    /** @var DependencyInjector */
     public static $container;
 
-
-    /**
-     * Starts the execution. Root path is passed to avoid recalculation.
-     *
-     * @param        $instance_name
-     * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
-     *
-     * @internal param string $root Path to root.
-     *
-     */
-    public static function execute($instance_name, $controller_name = null)
+    public static function execute(string $instance_name, string $controller_name = null)
     {
-        // Set paths:
         self::$root        = ROOT_PATH;
         self::$application = dirname(__FILE__);
         self::$instance    = $instance_name;
@@ -97,27 +61,13 @@ class Bootstrap
         Benchmark::getInstance()->timingStop();
     }
 
-    /**
-     * Registers the autoload used by Sifo.
-     *
-     * @static
-     */
-    public static function autoload()
+    private static function autoload()
     {
-        $autoload        = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
+        spl_autoload_register(array('\\Sifo\\Bootstrap', 'includeFile'));
         self::$container = DependencyInjector::getInstance();
-
-        return $autoload;
     }
 
-    /**
-     * Invokes a controller with the folder/action form.
-     *
-     * @param string $controller The controller in folder/action form.
-     *
-     * @return Controller
-     */
-    public static function invokeController($controller)
+    public static function invokeController(string $controller): Controller
     {
         $controller_path = explode('/', $controller);
 
@@ -129,6 +79,7 @@ class Bootstrap
 
         $class .= 'Controller';
 
+        /** @var Controller $controller */
         $controller = new $class;
         $controller->setContainer(self::$container);
 
@@ -143,7 +94,7 @@ class Bootstrap
      *
      * @param string $classname
      *
-     * @throws Exception_500
+     * @throws SifoHttpException
      * @return string The classname you asked for.
      */
     public static function includeFile($classname)
@@ -152,7 +103,7 @@ class Bootstrap
         {
             $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             return null;
         }
@@ -166,7 +117,7 @@ class Bootstrap
 
         if (!file_exists($class_path))
         {
-            throw new Exception_500("Doesn't exist in expected path {$class_info['path']}");
+            throw SifoHttpException::InternalServerError("Doesn't exist in expected path {$class_info['path']}");
         }
 
         include_once($class_path);
@@ -174,12 +125,7 @@ class Bootstrap
         return $class_info['name'];
     }
 
-    /**
-     * Sets the controller and view properties and executes the controller, sending the output buffer.
-     *
-     * @param string $controller Dispatches a specific controller, or use URL to determine the controller
-     */
-    public static function dispatch($controller = null)
+    public static function dispatch(string $controller = null)
     {
         try
         {
@@ -188,10 +134,7 @@ class Bootstrap
 
             if (!empty($destination))
             {
-                Headers::setResponseStatus(301);
-                Headers::set('Location', $destination, 301);
-                Headers::send();
-                exit;
+                throw SifoHttpException::PermanentRedirect($destination);
             }
 
             $auth_data = $domain->getAuthData();
@@ -205,19 +148,20 @@ class Bootstrap
                 {
                     Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
                     Headers::send();
-                    throw new Exception_401('You should enter a valid credentials.');
+
+                    throw SifoHttpException::NotAuthorized('You should enter a valid credentials.');
                 }
 
                 // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
                 setcookie('domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain());
             }
 
-            self::$language = $domain->getLanguage();
-            $php_inis       = $domain->getPHPInis();
+            self::$language     = $domain->getLanguage();
+            $additional_php_ini = $domain->getPhpInis();
 
-            if ($php_inis)
+            if ($additional_php_ini)
             {
-                self::_overWritePHPini($php_inis);
+                self::_overWritePHPini($additional_php_ini);
             }
 
             $url        = Urls::getInstance(self::$instance);
@@ -225,59 +169,21 @@ class Bootstrap
 
             if (!$domain->valid_domain)
             {
-                throw new Exception_404('Unknown language in domain');
-            }
-            else
-            {
-                if (null === $controller)
-                {
-                    $router     = new Router($path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode);
-                    $controller = $router->getController();
-                }
+                throw SifoHttpException::NotFound('Unknown language in domain');
             }
 
-            // This is the controller to use:
+            if (null === $controller)
+            {
+                $router     = new Router($path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode);
+                $controller = $router->getController();
+            }
+
             $ctrl             = self::invokeController($controller);
             self::$controller = $controller;
 
-            // Save in params for future references:
-            $ctrl->addParams(
-                array(
-                    'controller_route' => $controller,
-                )
-            );
+            $ctrl->addParams(['controller_route' => $controller]);
 
-            // Active/deactive auto-rebuild option:
-            if ($domain->getDevMode())
-            {
-                if (FilterGet::getInstance()->getInteger('clean_compile'))
-                {
-                    $smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
-                    system('rm -rf ' . $smarty_compiles_dir);
-                }
-
-                if (FilterGet::getInstance()->getInteger('rebuild_all'))
-                {
-                    Cookie::set('rebuild_all', 1);
-                }
-                if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all'))
-                {
-                    Cookie::delete('rebuild_all');
-                }
-                if (1 === FilterGet::getInstance()->getInteger('debug'))
-                {
-                    Cookie::set('debug', 1);
-                }
-                if (0 === FilterGet::getInstance()->getInteger('debug'))
-                {
-                    Cookie::set('debug', 0);
-                }
-
-                if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug')))
-                {
-                    Domains::getInstance()->setDebugMode((bool) $debug);
-                }
-            }
+            self::manageFloatingDebugOptions();
 
             $ctrl->dispatch();
 
@@ -286,13 +192,23 @@ class Bootstrap
                 self::invokeController('debug/index')->dispatch();
             }
         }
-            // Don't know what to do after Domain is evaluated. Goodbye:
-        catch (DomainsException $d)
+        catch (UnknownDomainException $d)
         {
             Headers::setResponseStatus(404);
             Headers::send();
             echo "<h1>{$d->getMessage()}</h1>";
             die;
+        }
+        catch (SifoHttpException $e)
+        {
+            if ($e->isRedirect())
+            {
+                self::dispatchRedirect($e);
+            }
+            else
+            {
+                self::dispatchErrorController($e);
+            }
         }
         catch (ControllerException $e)
         {
@@ -300,106 +216,105 @@ class Bootstrap
         }
         catch (\Exception $e)
         {
-            self::dispatchErrorController($e);
+            $exception = SifoHttpException::InternalServerError($e->getMessage(), $e->getCode(), $e->getPrevious());
+            self::dispatchErrorController($exception);
         }
     }
 
-    /**
-     * @param \Exception|SifoException $e
-     */
-    private static function dispatchErrorController(\Exception $e)
+    private static function dispatchRedirect(SifoHttpException $exception)
     {
-        $exception_http_code = !empty($e->http_code) ? $e->http_code : 503;
+        $new_location = $exception->getRedirectLocation();
 
-        if (empty($e->http_code))
+        if (Domains::getInstance()->getDebugMode())
         {
-            $e->http_code     = 503;
-            $e->http_code_msg = 'Exception!';
-            $e->redirect      = false;
+            $ctrl = self::invokeController('error/common');
+            $ctrl->addParams(
+                [
+                    'code'         => $exception->getHttpCode(),
+                    'code_msg'     => $exception->getHttpCodeMessage(),
+                    'msg'          => $exception->getMessage(),
+                    'trace'        => $exception->getTraceAsString(),
+                    'url_redirect' => $new_location
+                ]
+            );
+            $ctrl->dispatch();
+
+            Headers::set('Location (paused)', $new_location);
+            Headers::send();
+            self::invokeController('debug/index')->dispatch();
+
+            return;
         }
 
-        Headers::setResponseStatus($e->http_code);
+        Headers::setResponseStatus($exception->getHttpCode());
+        Headers::set('Location', $new_location, $exception->getHttpCode());
+        Headers::send();
+    }
+
+    private static function dispatchErrorController(SifoHttpException $exception)
+    {
+        Headers::setResponseStatus($exception->getHttpCode());
         Headers::send();
 
-        // Execute ErrorCommonController when an exception is captured.
-        $ctrl2 = self::invokeController('error/common');
-
-        // Set params:
-        $ctrl2->addParams(
+        $ctrl = self::invokeController('error/common');
+        $ctrl->addParams(
             [
-                'code'     => $e->http_code,
-                'code_msg' => $e->http_code_msg,
-                'msg'      => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
+                'code'     => $exception->getHttpCode(),
+                'code_msg' => $exception->getHttpCodeMessage(),
+                'msg'      => $exception->getMessage(),
+                'trace'    => $exception->getTraceAsString(),
             ]
         );
 
-        // All the SEO_Exceptions with need of redirection have this attribute:
-        if ($e->redirect)
-        {
-            // Path is passed via message:
-            $path         = trim($e->getMessage(), '/');
-            $new_location = '';
-            // Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
-            if (false !== strpos($path, '://'))
-            {
-                // Absolute path passed:
-                $new_location = $path;
-            }
-            else
-            {
-                // Relative path passed, use path as the key in url.config.php file:
-                $new_location = Urls::getUrl($path);
-            }
+        $ctrl->dispatch();
 
-            if (empty($new_location) || false == $new_location)
-            {
-                trigger_error("Exception " . $e->http_code . " raised with an empty location " . $e->getTraceAsString());
-                Headers::setResponseStatus(500);
-                Headers::send();
-                exit;
-            }
-
-            if (!Domains::getInstance()->getDebugMode())
-            {
-                Headers::setResponseStatus($e->http_code);
-                Headers::set('Location', $new_location, $e->http_code);
-                Headers::send();
-
-                return;
-            }
-            else
-            {
-                $ctrl2->addParams(array('url_redirect' => $new_location));
-                $ctrl2->dispatch();
-                Headers::set('Location (paused)', $new_location);
-                Headers::send();
-                self::invokeController('debug/index')->dispatch();
-
-                return;
-            }
-        }
-
-        $result = $ctrl2->dispatch();
-        // Load the debug in case you have enabled the has debug flag.
         if (Domains::getInstance()->getDebugMode())
         {
             self::invokeController('debug/index')->dispatch();
         }
-
-        return $result;
     }
 
-    /**
-     * Sets all the PHP ini configurations stored in the configuration.
-     *
-     * @param array $php_inis
-     */
-    private static function _overWritePHPini(Array $php_inis)
+    private static function _overWritePHPini(array $php_ini_values)
     {
-        foreach ($php_inis as $varname => $newvalue)
+        foreach ($php_ini_values as $key => $value)
         {
-            ini_set($varname, $newvalue);
+            ini_set($key, $value);
+        }
+    }
+
+    private static function manageFloatingDebugOptions()
+    {
+        $domain = Domains::getInstance();
+
+        if ($domain->getDevMode())
+        {
+            if (FilterGet::getInstance()->getInteger('clean_compile'))
+            {
+                $smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
+                system('rm -rf ' . $smarty_compiles_dir);
+            }
+
+            if (FilterGet::getInstance()->getInteger('rebuild_all'))
+            {
+                Cookie::set('rebuild_all', 1);
+            }
+            if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all'))
+            {
+                Cookie::delete('rebuild_all');
+            }
+            if (1 === FilterGet::getInstance()->getInteger('debug'))
+            {
+                Cookie::set('debug', 1);
+            }
+            if (0 === FilterGet::getInstance()->getInteger('debug'))
+            {
+                Cookie::set('debug', 0);
+            }
+
+            if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug')))
+            {
+                Domains::getInstance()->setDebugMode((bool) $debug);
+            }
         }
     }
 }

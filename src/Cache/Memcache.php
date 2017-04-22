@@ -20,7 +20,7 @@ class Memcache extends Base
         {
             $servers = \Sifo\Config::getInstance()->getConfig('cache', 'servers');
         }
-        catch (\Sifo\Exception_Configuration $e)
+        catch (\Sifo\Exception\ConfigurationException $e)
         {
             // Default memcached address and listening port.
             $servers = array(array('127.0.0.1' => 11211));

@@ -4,8 +4,8 @@ namespace Sifo\Http;
 
 use Sifo\Config;
 use Sifo\Exception\Exception_301;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception_500;
-use Sifo\Exception_Configuration;
 use Sifo\FilterServer;
 use Sifo\unknown_type;
 
@@ -96,7 +96,7 @@ class Router
                     self::$reversal_map[$destiny] = $translated_route;
                 }
             }
-            catch (Exception_Configuration $e)
+            catch (ConfigurationException $e)
             {
                 // trigger_error( "Failed to load url config profile for language '$language'" );
             }

@@ -3,13 +3,14 @@
 namespace Sifo\Http;
 
 use Sifo\Config;
-use Sifo\Exception_500;
+use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\UnknownDomainException;
 use Sifo\FilterServer;
 
 class Domains
 {
     protected $domain;
-    protected $language = false;
+    protected $language;
     protected $language_subdomain = false;
     protected $language_domain = false;
     protected $subdomain = false;
@@ -31,11 +32,6 @@ class Domains
     static private $singleton;
 
 
-    /**
-     * Singleton for domain calculation.
-     *
-     * @return Domains
-     */
     static public function getInstance()
     {
         if (!isset(self::$singleton))
@@ -121,7 +117,7 @@ class Domains
             }
             else
             {
-                throw new Exception_500('The language MUST be declared in domains.config file');
+                throw SifoHttpException::InternalServerError('The language MUST be declared in domains.config file');
             }
 
             if (false !== strstr(strtolower($this->http_host), $host))
@@ -218,7 +214,7 @@ class Domains
         // If a domain is not configured, we launch a 404 error.
         if (!isset($this->instance) && !isset($this->redirect))
         {
-            throw new DomainsException('Unknown domain.');
+            throw new UnknownDomainException('Unknown domain.');
         }
     }
 
@@ -242,7 +238,7 @@ class Domains
         return $this->redirect;
     }
 
-    public function getPHPInis()
+    public function getPhpInis()
     {
         return $this->php_inis;
     }

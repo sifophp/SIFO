@@ -2,6 +2,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
+
 /**
  * Configuration file parser.
  */
@@ -87,27 +89,27 @@ class Config
      *
      * @param string $profile The requested profile.
      *
-     * @throws Exception_Configuration When isn't set the self::PROFILE_NAME_FOR_CONFIG_FILES section or the desired profile.
+     * @throws ConfigurationException When isn't set the self::PROFILE_NAME_FOR_CONFIG_FILES section or the desired profile.
      * @return boolean
      */
     protected function loadConfig($profile)
     {
         if (!isset($this->paths_to_configs[$profile]))
         {
-            throw new Exception_Configuration("The profile '$profile' was not found");
+            throw new ConfigurationException("The profile '$profile' was not found");
         }
         else
         {
             if (!include(ROOT_PATH . '/' . $this->paths_to_configs[$profile]))
             {
-                throw new Exception_Configuration("Failed to include file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile], E_USER_ERROR);
+                throw new ConfigurationException("Failed to include file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile], E_USER_ERROR);
             }
             else
             {
                 // The file was correctly included. We include the variable $config found.
                 if (!isset($config))
                 {
-                    throw new Exception_Configuration('The configuration files must have a variable named $config');
+                    throw new ConfigurationException('The configuration files must have a variable named $config');
                 }
 
                 return $config;
@@ -121,7 +123,7 @@ class Config
      * @param string $profile The requested profile.
      * @param string $group   The requested group inside the profile.
      *
-     * @throws Exception_Configuration When the selected group or profile doesn't exist.
+     * @throws ConfigurationException When the selected group or profile doesn't exist.
      * @return mixed $config_values The config values in the config file of the current profile.
      */
     public function getConfig($profile, $group = null)
@@ -140,13 +142,13 @@ class Config
             return $this->config_values[$profile][$group];
         }
 
-        throw new Exception_Configuration("The group '$group' for profile '$profile' was never set.", E_USER_ERROR);
+        throw new ConfigurationException("The group '$group' for profile '$profile' was never set.", E_USER_ERROR);
     }
 
     /**
      * Given a class name, returns the final class name and path to file.
      *
-     * @throws Exception_Configuration When the requested class doesn't exist in the .classes file.
+     * @throws ConfigurationException When the requested class doesn't exist in the .classes file.
      *
      * @param string $class_type The desired KEY in the configuration file.
      *
@@ -185,7 +187,7 @@ class Config
         if (!isset($classes[$class_type[0]]))
         {
             // Error handling.
-            throw new Exception_Configuration("The variable '{$class_type[0]}' was not found in the classes file. ", E_USER_ERROR);
+            throw new ConfigurationException("The variable '{$class_type[0]}' was not found in the classes file. ", E_USER_ERROR);
         }
 
         // The var is OK,  we return the requested array element.
@@ -223,17 +225,10 @@ class Config
 
         if (!isset($libraries[$alias]))
         {
-            throw new Exception_Configuration("The library '$alias' you are loading is not set in profile " . self::$libraries_profile);
+            throw new ConfigurationException("The library '$alias' you are loading is not set in profile " . self::$libraries_profile);
         }
 
         return $libraries[$alias];
     }
-}
-
-/**
- * Exception for the process.
- */
-class Exception_Configuration extends \Exception
-{
 }
 

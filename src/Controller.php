@@ -5,7 +5,9 @@ namespace Sifo;
 use Sifo\Cache\Cache;
 use Sifo\Container\DependencyInjector;
 use Sifo\Debug\Debug;
-use Sifo\Exception\SifoException;
+use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\ControllerException;
+use Sifo\Exception\SifoHttpException;
 use Sifo\Form\Form;
 use Sifo\Http\Domains;
 use Sifo\Http\Headers;
@@ -357,9 +359,9 @@ abstract class Controller
 
         if (false !== $cached_content)
         {
-            if ($cached_content instanceof \Exception)
+            if ($cached_content instanceof SifoHttpException)
             {
-                throw new ControllerException("Controller Build has generated an exception (cached).", null, $cached_content);
+                throw new ControllerException("Controller Build has generated an exception (cached).", $cached_content);
             }
             $this->postDispatch();
             $cached_content = $this->_realTimeReplacement($cached_content);
@@ -387,10 +389,10 @@ abstract class Controller
         {
             $return = $this->build();
         }
-        catch (SifoException $e)
+        catch (SifoHttpException $e)
         {
             $this->cacheException($e, $cache_key);
-            throw new ControllerException("Controller Build has generated an exception.", null, $e);
+            throw new ControllerException("Controller Build has generated an exception.", $e);
         }
 
         $controller_params = array_merge(array('layout' => $this->layout), $this->getParams());
@@ -626,7 +628,7 @@ abstract class Controller
 
             return $this->view->fetch($template);
         }
-        catch (Exception_Configuration $e)
+        catch (ConfigurationException $e)
         {
             return false;
         }
@@ -700,7 +702,7 @@ abstract class Controller
      * @throws ControllerException
      * @return string
      */
-    public function dispatchSingleController($controller, $params = array())
+    public function dispatchSingleController($controller, $params = [])
     {
         $benchmark_key = 'controller_execution_time';
         $this->startBench($benchmark_key);
@@ -713,9 +715,9 @@ abstract class Controller
 
         if (false !== $cached_content)
         {
-            if ($cached_content instanceof \Exception)
+            if ($cached_content instanceof SifoHttpException)
             {
-                throw new ControllerException("Module Execute has generated an exception (cached).", null, $cached_content);
+                throw new ControllerException("Module Execute has generated an exception (cached).", $cached_content);
             }
             $module_content = $cached_content;
         }
@@ -731,10 +733,10 @@ abstract class Controller
             {
                 $module_content = $module->execute();
             }
-            catch (SifoException $e)
+            catch (SifoHttpException $e)
             {
                 $this->cacheException($e, $cache_key);
-                throw new ControllerException("Module Execute has generated an exception.", null, $e);
+                throw new ControllerException("Module Execute has generated an exception.", $e);
             }
         }
 
@@ -768,13 +770,6 @@ abstract class Controller
     {
     }
 
-    /**
-     * Sends the output to the browser (echo), both cached or not.
-     *
-     * This is the last chance to modify the output.
-     *
-     * @param $output
-     */
     public function echoOutput($output)
     {
         echo $output;
