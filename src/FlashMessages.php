@@ -2,6 +2,8 @@
 
 namespace Sifo;
 
+use Sifo\Http\Session;
+
 /**
  * Class that keeps messages of errors, success, etc... in the registry.
  */

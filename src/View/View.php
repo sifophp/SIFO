@@ -3,8 +3,8 @@
 namespace Sifo\View;
 
 use Sifo\Debug\Debug;
-use Sifo\Domains;
-use Sifo\Urls;
+use Sifo\Http\Domains;
+use Sifo\Http\Urls;
 
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.

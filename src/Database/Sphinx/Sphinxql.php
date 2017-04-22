@@ -8,9 +8,9 @@
 namespace Sifo\Database\Sphinx;
 
 use Sifo\Config;
-use Sifo\Domains;
 use Sifo\Exception_500;
 use Sifo\Exception_Configuration;
+use Sifo\Http\Domains;
 
 /**
  * SphinxQL class. Use this class to execute queries against SphinxQL.

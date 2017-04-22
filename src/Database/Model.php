@@ -2,7 +2,7 @@
 
 namespace Sifo\Database;
 
-use Sifo\Domains;
+use Sifo\Http\Domains;
 use Sifo\I18N;
 use Sifo\Registry;
 use Sifo\unknown;

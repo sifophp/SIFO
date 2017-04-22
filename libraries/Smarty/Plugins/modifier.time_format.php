@@ -22,7 +22,7 @@ function smarty_modifier_time_format( $time, $decimals=3 )
 {
 	// Numeric locale vars.
 	// Remember to change the number_format modifier if you change the locales management here.
-	setlocale( LC_NUMERIC, \Sifo\Domains::getInstance()->getLanguage() );
+	setlocale( LC_NUMERIC, \Sifo\Http\Domains::getInstance()->getLanguage() );
 	$locale = localeconv();
 	setlocale( LC_NUMERIC, null );
 	$thousand_separator = ( $locale['thousands_sep'] == '' ) ? '.' : $locale['thousands_sep'];
@@ -32,7 +32,7 @@ function smarty_modifier_time_format( $time, $decimals=3 )
 	{
 		$decimals = 0;
 	}
-	
+
 	$time = $time*1000;
 
 	if ( $time < 100 )

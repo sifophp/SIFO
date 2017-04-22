@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+        colors="true"
+        bootstrap="./vendor/autoload.php"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        beStrictAboutCoversAnnotation="true"
+        beStrictAboutOutputDuringTests="true"
+        beStrictAboutTestSize="true"
+        beStrictAboutTestsThatDoNotTestAnything="false"
+        processIsolation="false"
+        stopOnFailure="false"
+        syntaxCheck="false">
+    <testsuites>
+        <testsuite name="sifo">
+            <directory suffix="Test.php">./test</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src/*</directory>
+            <exclude>
+                <directory>./vendor</directory>
+                <directory>./test</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>

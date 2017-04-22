@@ -4,7 +4,7 @@ namespace Sifo\Database\Mysql;
 
 use PDO;
 use Sifo\Benchmark;
-use Sifo\Domains;
+use Sifo\Http\Domains;
 
 /**
  * Database class. Uses PDO.

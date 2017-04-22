@@ -62,7 +62,7 @@ function smarty_function_filln($params, &$smarty)
         $_val = (string)$_val;
         $_tmp_result = str_replace($_delimiter . $_key . $_delimiter, $_val, $_tmp_result);
 
-        $normalized_url = \Sifo\Urls::normalize($_val);
+        $normalized_url = \Sifo\Http\Urls::normalize($_val);
         $_html_result = str_replace($_delimiter . $_key . $_delimiter, $normalized_url, $_html_result);
     }
 

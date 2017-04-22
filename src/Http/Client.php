@@ -1,6 +1,10 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
+
+use Sifo\FilterCustom;
+use Sifo\FilterServer;
+use Sifo\Registry;
 
 /**
  * Class for extracting info from application client: IP, origin country, region & city, browser (version, capabilities, preferences...), SO.

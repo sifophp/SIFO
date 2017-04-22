@@ -1,25 +1,9 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Http;
 
-/**
- * This class is used to update the runtime filter with the cookies changes.
- *
- * @author Albert Lombarte, Sergio Ambel
- */
-class FilterCookieRuntime extends FilterCookie
-{
-
-    static public function setCookie($key, $value)
-    {
-        self::getInstance()->request[$key] = $value;
-    }
-
-    static public function deleteCookie($key)
-    {
-        unset(self::getInstance()->request[$key]);
-    }
-}
+use Sifo\FilterCookie;
+use Sifo\Http;
 
 class Cookie
 {
@@ -57,7 +41,7 @@ class Cookie
         }
 
         // Filter runtime update:
-        FilterCookieRuntime::setCookie($name, $value);
+        Http\FilterCookieRuntime::setCookie($name, $value);
 
         return true;
     }
@@ -74,7 +58,7 @@ class Cookie
         }
 
         // Filter runtime update:
-        FilterCookieRuntime::deleteCookie($name);
+        Http\FilterCookieRuntime::deleteCookie($name);
 
         return true;
     }

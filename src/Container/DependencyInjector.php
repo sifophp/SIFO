@@ -1,7 +1,11 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Container;
 
+use Sifo\Bootstrap;
+use Sifo\Config;
+use Sifo\Exception_Configuration;
+use Sifo\Http\Domains;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Yaml\Yaml;
 
@@ -74,7 +78,7 @@ class DependencyInjector
      * @param string $service_key Identifier of the entry to look for.
      *
      * @return mixed|callable
-     * @throws Exception_DependencyInjector No entry was found for this identifier.
+     * @throws \Sifo\Container\Exception_DependencyInjector No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
     {
@@ -85,12 +89,12 @@ class DependencyInjector
 
         if (!array_key_exists($service_key, $this->service_definitions))
         {
-            throw new Exception_DependencyInjector('Undefined service "' . $service_key . '"');
+            throw new \Sifo\Container\Exception_DependencyInjector('Undefined service "' . $service_key . '"');
         }
 
         if ($this->loadingAPrivateService($service_key) && !$get_private_service)
         {
-            throw new Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
+            throw new \Sifo\Container\Exception_DependencyInjector('Trying to get a private service "' . $service_key . '"');
         }
 
         $uses_the_container_scope = $this->usingTheContainerScope($service_key);
@@ -518,11 +522,4 @@ class DependencyInjector
 
         return $dumped_services;
     }
-}
-
-/**
- * Exception for the process.
- */
-class Exception_DependencyInjector extends \Exception
-{
 }

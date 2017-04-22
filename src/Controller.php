@@ -3,7 +3,15 @@
 namespace Sifo;
 
 use Sifo\Cache\Cache;
+use Sifo\Container\DependencyInjector;
 use Sifo\Debug\Debug;
+use Sifo\Exception\SifoException;
+use Sifo\Form\Form;
+use Sifo\Http\Domains;
+use Sifo\Http\Headers;
+use Sifo\Http\Router;
+use Sifo\Http\Session;
+use Sifo\Http\Urls;
 use Sifo\View\Views;
 
 abstract class Controller
@@ -379,7 +387,7 @@ abstract class Controller
         {
             $return = $this->build();
         }
-        catch (SEO_Exception $e)
+        catch (SifoException $e)
         {
             $this->cacheException($e, $cache_key);
             throw new ControllerException("Controller Build has generated an exception.", null, $e);
@@ -723,7 +731,7 @@ abstract class Controller
             {
                 $module_content = $module->execute();
             }
-            catch (SEO_Exception $e)
+            catch (SifoException $e)
             {
                 $this->cacheException($e, $cache_key);
                 throw new ControllerException("Module Execute has generated an exception.", null, $e);
@@ -1140,14 +1148,10 @@ abstract class Controller
      */
     public function changeInstanceEnvironment($instance, $domain, $language, $i18n_messages = 'messages')
     {
-        \Sifo\Bootstrap::$instance = $instance;
-        \Sifo\Domains::getInstance()->changeDomain($domain);
-        \Sifo\I18N::setDomain($i18n_messages, $language, $instance);
+        Bootstrap::$instance = $instance;
+        Domains::getInstance()->changeDomain($domain);
+        I18N::setDomain($i18n_messages, $language, $instance);
         $this->__construct();
     }
 
-}
-
-class ControllerException extends \Exception
-{
 }
