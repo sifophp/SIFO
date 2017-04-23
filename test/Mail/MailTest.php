@@ -13,18 +13,24 @@ class MailTest extends TestCase
     /** @var Config|\PHPUnit_Framework_MockObject_MockObject */
     private $config;
 
+    public function tearDown()
+    {
+        $this->config = null;
+        $this->mail = null;
+    }
+
     /** @test */
-    public function hola()
+    public function mailShouldCallPhpmailerSendMethod()
     {
         $this->havingAPhpMailer();
         $this->havingAConfig();
+        $this->thenPhpmailerShouldCallSend();
         $this->whenSendingAnEmail();
     }
 
     private function havingAPhpMailer()
     {
         $this->mail = $this->getMockBuilder(\PHPMailer::class)->getMock();
-        $this->mail->expects($this->once())->method('Send')->willReturn(true);
     }
 
     private function havingAConfig()
@@ -36,6 +42,11 @@ class MailTest extends TestCase
     {
         $mail = new MailTestClass($this->mail, $this->config);
         $mail->send('donald@trump.com', 'Love message in a bottle', 'Back home, you arrogant mother fucker.');
+    }
+
+    private function thenPhpmailerShouldCallSend()
+    {
+        $this->mail->expects($this->once())->method('Send')->willReturn(true);
     }
 }
 

@@ -48,19 +48,19 @@ class Headers
      *
      * @var array
      */
-    protected static $headers = array();
+    protected static $headers = [];
 
     /**
      * Headers history.
      *
      * @var array
      */
-    protected static $history = array();
+    protected static $history = [];
 
     /**
      * Known HTTP codes by this framework.
      */
-    public static $http_codes = array(
+    public static $http_codes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -102,7 +102,7 @@ class Headers
         503 => 'Service Unavailable',
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported'
-    );
+    ];
 
     public static function setDefaultHeaders()
     {
@@ -112,25 +112,27 @@ class Headers
     /**
      * Creates a new header with the key and values passed.
      *
-     * @param      $key     string The header name (e.g: Content-Type)
-     * @param      $value   string The value for the header (e.g: application/json)
+     * @param string $key The header name (e.g: Content-Type)
+     * @param string $value The value for the header (e.g: application/json)
+     * @param int|null $http_code
      * @param bool $replace Adds an additional value to any existing key.
      */
-    public static function set($key, $value, $replace = true, $http_code = false)
+    public static function set(string $key, string $value, int $http_code = null, bool $replace = true)
     {
-        self::pushHeader($key, $value, $replace, self::FORMAT_KEY_VALUE, $http_code);
+        self::pushHeader($key, $value, self::FORMAT_KEY_VALUE, $http_code, $replace);
     }
 
     /**
      * Creates the status header with the HTTP code that will be sent to the client.
      *
-     * @param $http_code integer Http status code (e.g: 404)
+     * @param int $http_code Http status code (e.g: 404)
+     * @throws HeadersException
      */
-    public static function setResponseStatus($http_code)
+    public static function setResponseStatus(int $http_code)
     {
         if (isset(self::$http_codes[$http_code])) {
             $msg = self::$http_codes[$http_code];
-            self::pushHeader(( string )$http_code, $msg, true, self::FORMAT_TYPE_STATUS, false);
+            self::pushHeader($http_code, $msg, self::FORMAT_TYPE_STATUS);
         } else {
             throw new HeadersException("Unknown status code requested $http_code");
         }
@@ -139,19 +141,24 @@ class Headers
     /**
      * It formats the header and adds it to the stack.
      *
-     * @param $key       string Header name
-     * @param $value     string Header value
-     * @param $replace   boolean If the header overwrites any similar existing header.
-     * @param $format    string The sprintf format used to format the content.
-     * @param $http_code integer Additional set of HTTP status code with the header. Suitable for "Location" header.
+     * @param string $key Header name
+     * @param string $value Header value
+     * @param string $format The sprintf format used to format the content.
+     * @param int $http_code Additional set of HTTP status code with the header. Suitable for "Location" header.
+     * @param boolean $replace If the header overwrites any similar existing header.
      */
-    protected static function pushHeader($key, $value, $replace, $format, $http_code)
-    {
-        $header = array(
+    protected static function pushHeader(
+        string $key,
+        string $value,
+        string $format,
+        int $http_code = null,
+        bool $replace = true
+    ) {
+        $header = [
             'content' => sprintf($format, $key, $value),
             'replace' => $replace,
-            'http_code' => $http_code
-        );
+            'http_code' => $http_code ?: false
+        ];
 
         array_push(self::$headers, $header);
     }
@@ -185,7 +192,7 @@ class Headers
 
         // Clear the stack after writing:
         self::$history[] = self::$headers;
-        self::$headers = array();
+        self::$headers = [];
     }
 
     /**
