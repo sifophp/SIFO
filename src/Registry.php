@@ -27,8 +27,7 @@ class Registry
      */
     public static function getInstance()
     {
-        if (self::$instance === null)
-        {
+        if (self::$instance === null) {
             self::$instance = new self;
         }
 
@@ -54,8 +53,7 @@ class Registry
     {
         $instance = self::getInstance();
 
-        if (self::keyExists($key))
-        {
+        if (self::keyExists($key)) {
             return self::$storage[$key];
         }
 
@@ -65,8 +63,8 @@ class Registry
     /**
      * Stores the object with the name given in $key.
      *
-     * @param string $key   Name you want to store the value with.
-     * @param mixed  $value The object to store in the array.
+     * @param string $key Name you want to store the value with.
+     * @param mixed $value The object to store in the array.
      *
      * @return void
      */
@@ -84,8 +82,7 @@ class Registry
      */
     public static function invalidate($key)
     {
-        if (isset(self::$storage[$key]))
-        {
+        if (isset(self::$storage[$key])) {
             unset(self::$storage[$key]);
         }
     }
@@ -95,8 +92,8 @@ class Registry
      *
      * Example: array( $key => array( $subkey => $value ) )
      *
-     * @param string $key   Name you want to store the value with.
-     * @param mixed  $value The object to store in the array.
+     * @param string $key Name you want to store the value with.
+     * @param mixed $value The object to store in the array.
      *
      * @return void
      */
@@ -109,19 +106,17 @@ class Registry
      * Adds another element to the end of the array.
      *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return int New number of elements in the array.
      */
     public static function push($key, $value)
     {
-        if (!self::keyExists($key))
-        {
+        if (!self::keyExists($key)) {
             self::$storage[$key] = array();
         }
 
-        if (!is_array(self::$storage[$key]))
-        {
+        if (!is_array(self::$storage[$key])) {
             throw new Exception_Registry('Failed to PUSH an element in the registry because the given key is not an array.');
         }
 

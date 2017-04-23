@@ -34,8 +34,7 @@ class MysqlModel
     protected function inRegistry($key)
     {
         $reg = Registry::getInstance();
-        if ($reg->keyExists($key))
-        {
+        if ($reg->keyExists($key)) {
             return $reg->get($key);
         }
 
@@ -46,7 +45,7 @@ class MysqlModel
      * Stores in the registry a value with the given key.
      *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      */
     protected function storeInRegistry($key, $value)
     {
@@ -65,19 +64,18 @@ class MysqlModel
      */
     public function translate($subject, $var_1 = '', $var2 = '', $var_n = '')
     {
-        $args      = func_get_args();
+        $args = func_get_args();
         $variables = array();
-        if (1 < count($args))
-        {
-            foreach ($args as $key => $value)
-            {
+        if (1 < count($args)) {
+            foreach ($args as $key => $value) {
                 $variables['%' . $key] = $value;
             }
         }
 
         unset($variables['%0']);
 
-        return I18N::getInstance('messages', Domains::getInstance()->getLanguage())->getTranslation($subject, $variables);
+        return I18N::getInstance('messages', Domains::getInstance()->getLanguage())->getTranslation($subject,
+            $variables);
     }
 
     /**
@@ -89,8 +87,7 @@ class MysqlModel
      */
     protected function connectDb($profile = 'default')
     {
-        if (Domains::getInstance()->getDebugMode() !== true)
-        {
+        if (Domains::getInstance()->getDebugMode() !== true) {
             return Mysql::getInstance($profile);
         }
 
@@ -110,12 +107,9 @@ class MysqlModel
 
         $domain = Domains::getInstance()->getDomain();
 
-        if (isset($tablenames['names'][$domain][$attribute]))
-        {
+        if (isset($tablenames['names'][$domain][$attribute])) {
             return $tablenames['names'][$domain][$attribute];
-        }
-        elseif (isset($tablenames['names']['default'][$attribute]))
-        {
+        } elseif (isset($tablenames['names']['default'][$attribute])) {
             return $tablenames['names']['default'][$attribute];
         }
 

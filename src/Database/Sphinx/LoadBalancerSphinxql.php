@@ -23,13 +23,10 @@ class LoadBalancerSphinxql extends LoadBalancer
 
     protected function addNodeIfAvailable($index, $node_properties)
     {
-        try
-        {
+        try {
             $this->sphinxql_object->connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
-        }
-        catch (Exception_500 $e)
-        {
+        } catch (Exception_500 $e) {
             trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
         }
     }

@@ -28,27 +28,24 @@ class Dir
      * "absolute" => Absolute path
      * "folder" => Parent folder
      *
-     * @param string $base_path     Path to starting directory.
+     * @param string $base_path Path to starting directory.
      * @param string $relative_path Relative path added to base_path. If you have /path/to/dir and specify "dir" as relative_path then will list files in /path/to as
      *                              dir/file1, dir/file2 ...
      */
     public function getFileListRecursive($base_path, $relative_path = "")
     {
         // If base path ends in / remove it.
-        if (substr($base_path, -1, 1) == "/")
-        {
+        if (substr($base_path, -1, 1) == "/") {
             $base_path = substr($base_path, 0, -1);
         }
         // If relative path starts in / remove it.
-        if (substr($relative_path, 0, 1) == "/")
-        {
+        if (substr($relative_path, 0, 1) == "/") {
             $relative_path = substr($relative_path, 1);
         }
 
         $path = $base_path . "/" . $relative_path;
 
-        if (!is_dir($path))
-        {
+        if (!is_dir($path)) {
             return false;
         }
 
@@ -56,20 +53,23 @@ class Dir
 
         $directory = opendir("$path");
 
-        while ($file = readdir($directory))
-        {
-            if (!in_array($file, $this->ignored_files))
-            {
+        while ($file = readdir($directory)) {
+            if (!in_array($file, $this->ignored_files)) {
                 $f = $path . "/" . $file;
                 $f = preg_replace('/(\/){2,}/', '/', $f); // Replace double slashes.
-                if (is_file($f))
-                {
-                    $list[] = array("filename" => $file, "relative" => $relative_path . "/$file", "absolute" => $f, "folder" => $relative_path);
+                if (is_file($f)) {
+                    $list[] = array(
+                        "filename" => $file,
+                        "relative" => $relative_path . "/$file",
+                        "absolute" => $f,
+                        "folder" => $relative_path
+                    );
                 }
 
                 if (is_dir($f)) // Ignore _smarty dir
                 {
-                    $list = array_merge($list, $this->getFileListRecursive($base_path, $relative_path . "/$file")); // Recursive call.
+                    $list = array_merge($list,
+                        $this->getFileListRecursive($base_path, $relative_path . "/$file")); // Recursive call.
                 }
             }
         }
@@ -89,8 +89,7 @@ class Dir
      */
     public function getDirs($path)
     {
-        if (!is_dir($path))
-        {
+        if (!is_dir($path)) {
             return false;
         }
 
@@ -98,15 +97,12 @@ class Dir
 
         $directory = opendir("$path");
 
-        while ($file = readdir($directory))
-        {
-            if (!in_array($file, $this->ignored_files))
-            {
+        while ($file = readdir($directory)) {
+            if (!in_array($file, $this->ignored_files)) {
                 $f = $path . "/" . $file;
                 $f = preg_replace('/(\/){2,}/', '/', $f); // Replace double slashes.
 
-                if (is_dir($f))
-                {
+                if (is_dir($f)) {
                     $list[] = $file;
                 }
             }

@@ -21,8 +21,7 @@ class Benchmark
      */
     public static function getInstance()
     {
-        if (!isset (self::$instance))
-        {
+        if (!isset (self::$instance)) {
             self::$instance = new self();
         }
 
@@ -34,8 +33,8 @@ class Benchmark
      */
     public function __construct()
     {
-        self::$start_times  = array();
-        self::$stop_times   = array();
+        self::$start_times = array();
+        self::$stop_times = array();
         self::$delta_points = array();
     }
 
@@ -68,16 +67,12 @@ class Benchmark
      */
     public function timingCurrent($name = 'default')
     {
-        if (!isset(self::$start_times[$name]))
-        {
+        if (!isset(self::$start_times[$name])) {
             return 0;
         }
-        if (!isset(self::$stop_times[$name]))
-        {
+        if (!isset(self::$stop_times[$name])) {
             $stop_time = explode(' ', microtime());
-        }
-        else
-        {
+        } else {
             $stop_time = self::$stop_times[$name];
         }
         // do the big numbers first so the small ones aren't lost
@@ -97,12 +92,9 @@ class Benchmark
     public function timingCurrentToRegistry($name = 'default')
     {
         $num_elements = Debug::get('elements');
-        if (isset($num_elements[$name]))
-        {
+        if (isset($num_elements[$name])) {
             $num_elements = $num_elements[$name] + 1;
-        }
-        else
-        {
+        } else {
             $num_elements = 1;
         }
 
@@ -112,12 +104,9 @@ class Benchmark
 
         $actual_time = self::timingCurrent($name);
 
-        if (isset($total_times[$name]))
-        {
+        if (isset($total_times[$name])) {
             $total_times = $total_times[$name] + $actual_time;
-        }
-        else
-        {
+        } else {
             $total_times = $actual_time;
         }
 

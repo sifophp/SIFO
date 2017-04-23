@@ -25,16 +25,15 @@ class Disk extends Base
     /**
      * Stores variable "var" with "key" only if such key doesn't exist at the server yet.
      *
-     * @param string  $key
-     * @param mixed   $var
+     * @param string $key
+     * @param mixed $var
      * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
      *
      * @return bool
      */
     public function add($key, $var, $expire = 0)
     {
-        if (false != $this->get($key))
-        {
+        if (false != $this->get($key)) {
             return false;
         }
 
@@ -45,7 +44,7 @@ class Disk extends Base
     /**
      * Increment an existing integer value
      *
-     * @param string  $key
+     * @param string $key
      * @param integer $value
      * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
      *
@@ -53,8 +52,7 @@ class Disk extends Base
      */
     public function increment($key, $value = 1, $expire = 0)
     {
-        if (!is_numeric($current_value = $this->get($key)))
-        {
+        if (!is_numeric($current_value = $this->get($key))) {
             return false;
         }
 
@@ -66,7 +64,7 @@ class Disk extends Base
     /**
      * Increment an existing integer value
      *
-     * @param string  $key
+     * @param string $key
      * @param integer $value
      * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
      *
@@ -74,8 +72,7 @@ class Disk extends Base
      */
     public function decrement($key, $value = 1, $expire = 0)
     {
-        if (!is_numeric($current_value = $this->get($key)))
-        {
+        if (!is_numeric($current_value = $this->get($key))) {
             return false;
         }
 
@@ -87,8 +84,8 @@ class Disk extends Base
     /**
      * Write content in cache
      *
-     * @param string  $key
-     * @param string  $contents
+     * @param string $key
+     * @param string $contents
      * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
      *
      * @return boolean
@@ -98,9 +95,9 @@ class Disk extends Base
         $source_file = $this->getCacheFilename($key);
 
         $cache_content = array(
-            'key'        => $key,
+            'key' => $key,
             'expiration' => $expire,
-            'content'    => $contents
+            'content' => $contents
         );
 
         return file_put_contents($source_file, var_export($cache_content, true));
@@ -117,32 +114,27 @@ class Disk extends Base
      */
     public function get($key)
     {
-        if ($this->hasRebuild())
-        {
+        if ($this->hasRebuild()) {
             return false;
         }
 
         $source_file = $this->getCacheFilename($key);
 
         $file_content = @file_get_contents($source_file);
-        if (!$file_content)
-        {
+        if (!$file_content) {
             return false;
         }
 
         $cache_content = eval('return ' . $file_content . ';');
 
-        if (!isset($cache_content['expiration']) || !isset($cache_content['content']))
-        {
+        if (!isset($cache_content['expiration']) || !isset($cache_content['content'])) {
             return false;
         }
 
         // Check if content has expired (expiration=0 means persistent cache):
-        if ($cache_content['expiration'] > 0)
-        {
+        if ($cache_content['expiration'] > 0) {
             $mtime = filemtime($source_file);
-            if (($mtime + $cache_content['expiration']) < time())
-            {
+            if (($mtime + $cache_content['expiration']) < time()) {
                 // Delete the file.
                 @unlink($source_file);
 

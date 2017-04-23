@@ -4,7 +4,6 @@ namespace Sifo\Mail;
 
 use PHPUnit\Framework\TestCase;
 use Sifo\Config;
-use Sifo\Exception\SifoHttpException;
 
 class MailTest extends TestCase
 {
@@ -44,7 +43,7 @@ class MailTestClass extends Mail
 {
     public function __construct(\PHPMailer $php_mailer, Config $config_component)
     {
-        $this->mail   = $php_mailer;
+        $this->mail = $php_mailer;
         $this->config = $config_component;
     }
 

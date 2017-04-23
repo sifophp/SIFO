@@ -54,7 +54,7 @@ class Search extends OriginalSearch
 
         // Init Debug:
         $this->query_debug['current_query'] = 0;
-        $this->query_debug                  = array_merge($this->query_debug, $sphinx_config);
+        $this->query_debug = array_merge($this->query_debug, $sphinx_config);
 
         $this->query_debug['connection_data'] = $this->sphinx_config;
     }
@@ -71,7 +71,7 @@ class Search extends OriginalSearch
     {
         $this->sphinx->SetSortMode($mode, $sortby);
 
-        $this->query_context['sort']['mode']   = $this->sort_text[$mode];
+        $this->query_context['sort']['mode'] = $this->sort_text[$mode];
         $this->query_context['sort']['sortby'] = $sortby;
     }
 
@@ -89,7 +89,7 @@ class Search extends OriginalSearch
         $this->sphinx->SetGroupBy($attribute, $func, $groupsort);
 
         $this->query_context['group']['attribute'] = $attribute;
-        $this->query_context['group']['func']      = $this->group_text[$func];
+        $this->query_context['group']['func'] = $this->group_text[$func];
         $this->query_context['group']['groupsort'] = $groupsort;
     }
 
@@ -107,8 +107,8 @@ class Search extends OriginalSearch
         $this->sphinx->SetFilter($attribute, $values, $exclude);
 
         $filter_debug['attribute'] = $attribute;
-        $filter_debug['values']    = $values;
-        $filter_debug['exclude']   = $exclude;
+        $filter_debug['values'] = $values;
+        $filter_debug['exclude'] = $exclude;
 
         $this->query_context['filters'][] = $filter_debug;
     }
@@ -128,8 +128,8 @@ class Search extends OriginalSearch
         $this->sphinx->SetFilterRange($attribute, $min, $max, $exclude);
 
         $filter_debug['attribute'] = $attribute;
-        $filter_debug['values']    = $min . '-' . $max;
-        $filter_debug['exclude']   = $exclude;
+        $filter_debug['values'] = $min . '-' . $max;
+        $filter_debug['exclude'] = $exclude;
 
         $this->query_context['filters'][] = $filter_debug;
     }
@@ -163,27 +163,25 @@ class Search extends OriginalSearch
     {
         Benchmark::getInstance()->timingStart('search');
         $sphinx_results = $this->sphinx->RunQueries();
-        $sphinx_time    = Benchmark::getInstance()->timingCurrentToRegistry('search');
+        $sphinx_time = Benchmark::getInstance()->timingCurrentToRegistry('search');
 
-        if (is_array($sphinx_results))
-        {
-            foreach ($sphinx_results as $key => $result)
-            {
-                $this->query_debug['queries'][$key]['resultset']     = $result;
-                $this->query_debug['queries'][$key]['total_found']   = (isset($result['total_found'])) ? $result['total_found'] : 0;
+        if (is_array($sphinx_results)) {
+            foreach ($sphinx_results as $key => $result) {
+                $this->query_debug['queries'][$key]['resultset'] = $result;
+                $this->query_debug['queries'][$key]['total_found'] = (isset($result['total_found'])) ? $result['total_found'] : 0;
                 $this->query_debug['queries'][$key]['returned_rows'] = (isset($result['matches'])) ? count($result['matches']) : 0;
-                $this->query_debug['queries'][$key]['error']         = (isset($result['error'])) ? $result['error'] : '';
+                $this->query_debug['queries'][$key]['error'] = (isset($result['error'])) ? $result['error'] : '';
             }
         }
 
         $this->query_debug['controller'] = $this->getCallerClass();
-        $this->query_debug['time']       = $sphinx_time;
-        $this->query_debug['error']      = $this->sphinx->_error;
-        $this->query_debug['tag']        = $tag;
+        $this->query_debug['time'] = $sphinx_time;
+        $this->query_debug['error'] = $this->sphinx->_error;
+        $this->query_debug['tag'] = $tag;
 
         Debug::push('searches', $this->query_debug);
         unset($this->query_debug);
-        $this->query_context                = array();
+        $this->query_context = array();
         $this->query_debug['current_query'] = 0;
 
         return $sphinx_results;
@@ -207,12 +205,12 @@ class Search extends OriginalSearch
         $sphinx_time = Benchmark::getInstance()->timingCurrentToRegistry('search');
 
         $debug_sphinx = array(
-            "tag"        => $comment,
-            "query"      => $query,
+            "tag" => $comment,
+            "query" => $query,
             "connection" => $this->sphinx_config['config_file'],
-            "indexes"    => $index,
+            "indexes" => $index,
             "controller" => $this->getCallerClass(),
-            "time"       => $sphinx_time,
+            "time" => $sphinx_time,
         );
 
         $debug_sphinx = array_merge($debug_sphinx, $this->query_context);
@@ -239,23 +237,23 @@ class Search extends OriginalSearch
         $sphinx_time = Benchmark::getInstance()->timingCurrentToRegistry('search');
 
         $debug_sphinx = array(
-            "tag"        => $comment,
-            "query"      => $query_filters,
+            "tag" => $comment,
+            "query" => $query_filters,
             "connection" => $this->sphinx_config['config_file'],
-            "indexes"    => $sphinx_indexes,
-            "resultset"  => $sphinx_results,
-            "time"       => $sphinx_time,
-            "error"      => $this->sphinx->_error,
+            "indexes" => $sphinx_indexes,
+            "resultset" => $sphinx_results,
+            "time" => $sphinx_time,
+            "error" => $this->sphinx->_error,
             "controller" => $this->getCallerClass(),
         );
         $debug_sphinx = array_merge($debug_sphinx, $this->query_context);
 
         $this->query_debug['queries'][$this->query_debug['current_query']] = $debug_sphinx;
 
-        $this->query_debug['time']          = $sphinx_time;
-        $this->query_debug['error']         = $this->sphinx->_error;
-        $this->query_debug['tag']           = $comment;
-        $this->query_debug['total_found']   = $sphinx_results['total_found'];
+        $this->query_debug['time'] = $sphinx_time;
+        $this->query_debug['error'] = $this->sphinx->_error;
+        $this->query_debug['tag'] = $comment;
+        $this->query_debug['total_found'] = $sphinx_results['total_found'];
         $this->query_debug['returned_rows'] = (isset($sphinx_results['matches'])) ? count($sphinx_results['matches']) : 0;
 
         Debug::push('searches', $this->query_debug);
@@ -273,8 +271,7 @@ class Search extends OriginalSearch
     public function getCallerClass()
     {
         $trace = debug_backtrace();
-        foreach ($trace as $steps)
-        {
+        foreach ($trace as $steps) {
             $classes[$steps['class']] = $steps['class'];
         }
 

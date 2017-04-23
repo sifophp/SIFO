@@ -3,6 +3,7 @@
  *
  * Class CLBootstrap
  */
+
 namespace Sifo;
 
 use Sifo\Container\DependencyInjector;
@@ -19,13 +20,12 @@ class CLBootstrap extends Bootstrap
     /**
      * Starts the execution. Root path is passed to avoid recalculation.
      *
-     * @param null $instance_name   Name of the instance. Required for Bootsrap::execute compatibility.
+     * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
      * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
      */
     public static function execute($instance_name = null, $controller_name = null)
     {
-        if (!isset($controller_name))
-        {
+        if (!isset($controller_name)) {
             $controller_name = self::$script_controller;
         }
 
@@ -34,7 +34,7 @@ class CLBootstrap extends Bootstrap
         self::$container = DependencyInjector::getInstance();
 
         // Set paths:
-        self::$root        = ROOT_PATH;
+        self::$root = ROOT_PATH;
         self::$application = dirname(__FILE__);
 
         Benchmark::getInstance()->timingStart();
@@ -52,25 +52,21 @@ class CLBootstrap extends Bootstrap
         // Set Timezone as required by php 5.1+
         date_default_timezone_set('Europe/Madrid');
 
-        try
-        {
+        try {
 
             self::$language = 'en_US';
 
             // This is the controller to use:
-            $ctrl             = self::invokeController($controller);
+            $ctrl = self::invokeController($controller);
             self::$controller = $controller;
             $ctrl->build();
 
             // Debug:
-            if (Domains::getInstance()->getDebugMode())
-            {
+            if (Domains::getInstance()->getDebugMode()) {
                 $ctrl_debug = self::invokeController('DebugCommandLineDebug');
                 $ctrl_debug->build();
             }
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             echo($e->getMessage() . "\n" . $e->getTraceAsString());
             die;
         }
@@ -84,8 +80,8 @@ class CLBootstrap extends Bootstrap
     public static function get_available_domains()
     {
         $domain_configuration = Config::getInstance()->getConfig('domains');
-        $configuration_keys   = array_keys($domain_configuration);
-        $available_domains    = array_filter($configuration_keys, "self::is_domain");
+        $configuration_keys = array_keys($domain_configuration);
+        $available_domains = array_filter($configuration_keys, "self::is_domain");
 
         return $available_domains;
     }
@@ -102,13 +98,11 @@ preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
 // Set the real and active instance name.
 CLBootstrap::$instance = $matchs[1];
 
-if (extension_loaded('newrelic') && isset(CLBootstrap::$instance))
-{
+if (extension_loaded('newrelic') && isset(CLBootstrap::$instance)) {
     newrelic_set_appname(ucfirst(CLBootstrap::$instance));
 }
 
-if (!isset($argv[1]) || ('-h' == $argv[1]) || ('--help' == $argv[1]))
-{
+if (!isset($argv[1]) || ('-h' == $argv[1]) || ('--help' == $argv[1])) {
     // Dump help info:
     require_once ROOT_PATH . '/vendor/sifophp/sifo-common-instance/controllers/shared/commandLine.php';
 
