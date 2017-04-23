@@ -2,6 +2,7 @@
 
 namespace Sifo;
 
+use Psr\Container\ContainerInterface;
 use Sifo\Container\DependencyInjector;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
@@ -43,7 +44,7 @@ class Bootstrap
     /** @var string */
     public static $controller;
 
-    /** @var DependencyInjector */
+    /** @var ContainerInterface */
     public static $container;
 
     public static function execute(string $instance_name, string $controller_name = null)

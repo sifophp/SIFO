@@ -2,40 +2,24 @@
 
 namespace Sifo\Container;
 
+use Psr\Container\ContainerInterface;
 use Sifo\Bootstrap;
 use Sifo\Config;
-use Sifo\Exception\ContainerException;
+use Sifo\Exception\PrivateServiceException;
+use Sifo\Exception\ServiceNotFoundException;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Http\Domains;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Handles the dependency injection.
- */
 class DependencyInjector implements ContainerInterface
 {
-    /**
-     * Singleton instance being used.
-     *
-     * @var ContainerInterface|DependencyInjector
-     * @static
-     */
+    /** @var self **/
     static protected $instance;
 
-    /**
-     * Already instantiated container services.
-     *
-     * @var array
-     * @static
-     */
-    static protected $container_instances = array();
+    /** @var array */
+    static protected $container_instances = [];
 
-    /**
-     * Defined services.
-     *
-     * @var array
-     */
+    /** @var array */
     protected $service_definitions;
 
     /**
@@ -53,11 +37,9 @@ class DependencyInjector implements ContainerInterface
     }
 
     /**
-     * Gets an instance of the dependency injector class.
+     * @param string|null $instance_name
      *
-     * @static
-     * @param null $instance_name
-     * @return ContainerInterface|DependencyInjector Dependency injector instance.
+     * @return self
      */
     public static function getInstance($instance_name = null)
     {
@@ -80,7 +62,7 @@ class DependencyInjector implements ContainerInterface
      * @param string $service_key Identifier of the entry to look for.
      * @param bool $get_private_service
      * @return mixed|callable
-     * @throws ContainerException No entry was found for this identifier.
+     * @throws ServiceNotFoundException No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
     {
@@ -91,12 +73,12 @@ class DependencyInjector implements ContainerInterface
 
         if (!array_key_exists($service_key, $this->service_definitions))
         {
-            throw new ContainerException('Undefined service "' . $service_key . '"');
+            throw new ServiceNotFoundException('Not found service "' . $service_key . '"');
         }
 
         if ($this->loadingAPrivateService($service_key) && !$get_private_service)
         {
-            throw new ContainerException('Trying to get a private service "' . $service_key . '"');
+            throw new PrivateServiceException('Trying to get a private service "' . $service_key . '"');
         }
 
         $uses_the_container_scope = $this->usingTheContainerScope($service_key);
