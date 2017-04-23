@@ -3,11 +3,9 @@
 namespace Sifo\Http;
 
 use Sifo\Config;
-use Sifo\Exception\Exception_301;
 use Sifo\Exception\ConfigurationException;
-use Sifo\Exception_500;
+use Sifo\Exception\SifoHttpException;
 use Sifo\FilterServer;
-use Sifo\unknown_type;
 
 /**
  * Maps an URL with a controller
@@ -58,12 +56,7 @@ class Router
         return $used_url;
     }
 
-    /**
-     * Looks if the path has a known pattern handled by a controller.
-     *
-     * @param unknown_type $path
-     */
-    public function __construct($path, $instance, $subdomain = false, $language = false, $www_mode = false)
+    public function __construct(string $path, string $instance, string $subdomain = null, string $language = null, bool $www_mode = false)
     {
         // Look for routes:
         $routes = Config::getInstance($instance)->getConfig('router');
@@ -71,7 +64,7 @@ class Router
         // Failed to parse routes file.
         if (!$routes)
         {
-            throw new Exception_500("Failed opening router conifiguration file");
+            throw SifoHttpException::InternalServerError("Failed opening router configuration file");
         }
 
         if ($language)
@@ -81,19 +74,19 @@ class Router
                 self::$routes_for_this_language = Config::getInstance($instance)->getConfig('lang/router_' . $language);
 
                 // Translation of URLs:
-                foreach (self::$routes_for_this_language as $translated_route => $destiny)
+                foreach (self::$routes_for_this_language as $translated_route => $destination)
                 {
-                    if (isset($routes[$translated_route]) && $translated_route != $destiny)
+                    if (isset($routes[$translated_route]) && $translated_route != $destination)
                     {
                         // Replace a translation of the URL by the english entry.
-                        $routes[$destiny] = $routes[$translated_route];
+                        $routes[$destination] = $routes[$translated_route];
 
                         // Delete the English entry.
                         unset($routes[$translated_route]);
                     }
 
                     // Create a mapping table with the association translated => original
-                    self::$reversal_map[$destiny] = $translated_route;
+                    self::$reversal_map[$destination] = $translated_route;
                 }
             }
             catch (ConfigurationException $e)
@@ -134,12 +127,12 @@ class Router
                     $used_url = self::getUsedUrl();
                     foreach ($rules_301 as $regexp => $replacement)
                     {
-                        $destiny = preg_replace($regexp, $replacement, $used_url, -1, $count);
+                        $destination = preg_replace($regexp, $replacement, $used_url, -1, $count);
 
                         // $count indicates the replaces. If $count gt 0 means that was matchs.
                         if ($count)
                         {
-                            throw new Exception_301($destiny);
+                            throw SifoHttpException::PermanentRedirect($destination);
                         }
                     }
                 }
