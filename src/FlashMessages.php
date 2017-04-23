@@ -18,9 +18,9 @@ class FlashMessages
     /**
      * Store the message in registry.
      *
-     * @param mixed  $message The message string or an error list (array).
-     * @param string $type    The class associated to this message, depending on the result.
-     * @param int    $storage_engine
+     * @param mixed $message The message string or an error list (array).
+     * @param string $type The class associated to this message, depending on the result.
+     * @param int $storage_engine
      *
      * @throws \Exception
      */
@@ -30,17 +30,14 @@ class FlashMessages
 
         $registry = self::_getStorageEngine($storage_engine);
 
-        if ($registry->keyExists('flash_messages'))
-        {
+        if ($registry->keyExists('flash_messages')) {
             $flash_messages = $registry->get('flash_messages');
         }
 
         if (is_array($message)) // Dump of errors.
         {
             $flash_messages[$type] = $message;
-        }
-        else
-        {
+        } else {
             $flash_messages[$type][] = $message;
         }
 
@@ -51,13 +48,11 @@ class FlashMessages
     {
         $existing_messages = self::_getMsgs($storage_engine);
 
-        if (null === $type)
-        {
+        if (null === $type) {
             return $existing_messages;
         }
 
-        if (isset($existing_messages[$type]))
-        {
+        if (isset($existing_messages[$type])) {
             return $existing_messages[$type];
         }
 
@@ -76,13 +71,11 @@ class FlashMessages
         $registry = self::_getStorageEngine($storage_engine);
         $messages = $registry->get('flash_messages');
 
-        if ($messages && $storage_engine === self::STORAGE_SESSION)
-        {
+        if ($messages && $storage_engine === self::STORAGE_SESSION) {
             $registry->delete('flash_messages');
         }
 
-        if ($messages)
-        {
+        if ($messages) {
             return $messages;
         }
 
@@ -91,8 +84,7 @@ class FlashMessages
 
     static private function _getStorageEngine($engine)
     {
-        switch ($engine)
-        {
+        switch ($engine) {
             case self::STORAGE_SESSION:
                 return Session::getInstance();
             case self::STORAGE_REGISTRY:
@@ -104,8 +96,7 @@ class FlashMessages
 
     private static function validateType($type)
     {
-        switch ($type)
-        {
+        switch ($type) {
             case self::MSG_KO:
             case self::MSG_OK:
             case self::MSG_WARNING:

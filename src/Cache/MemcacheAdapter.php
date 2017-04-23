@@ -15,8 +15,8 @@ class MemcacheAdapter extends Memcache
      *
      * The params order is changed to make it compatible with the rest of caching systems.
      *
-     * @param string  $key
-     * @param mixed   $content
+     * @param string $key
+     * @param mixed $content
      * @param integer $expire Timestamp or number of seconds until expiration. If passed in seconds value over 30 days is not understood.
      *
      * @return boolean True on success or false on failure.

@@ -41,10 +41,9 @@ class Search
         $this->sphinx_config = $this->getConnectionParams($profile);
 
         // Check if Sphinx is enabled by configuration:
-        if (true === $this->sphinx_config['active'])
-        {
+        if (true === $this->sphinx_config['active']) {
             self::$search_engine = 'Sphinx';
-            $this->sphinx        = self::connect($this->sphinx_config);
+            $this->sphinx = self::connect($this->sphinx_config);
         }
 
         return $this->sphinx_config;
@@ -59,14 +58,10 @@ class Search
      */
     public static function getInstance($profile = 'default')
     {
-        if (!isset (self::$instance[$profile]))
-        {
-            if (Domains::getInstance()->getDebugMode() !== true)
-            {
+        if (!isset (self::$instance[$profile])) {
+            if (Domains::getInstance()->getDebugMode() !== true) {
                 self::$instance[$profile] = new Search($profile);
-            }
-            else
-            {
+            } else {
                 self::$instance[$profile] = new Search($profile);
             }
         }
@@ -87,41 +82,29 @@ class Search
         // The domains.config file has priority, let's fetch it.
         $sphinx_config = \Sifo\Http\Domains::getInstance()->getParam('sphinx');
 
-        if (empty($sphinx_config))
-        {
-            try
-            {
+        if (empty($sphinx_config)) {
+            try {
                 // If the domains.config doesn't define the params, we use the sphinx.config.
                 $sphinx_config = Config::getInstance()->getConfig('sphinx');
 
-                if (isset($sphinx_config[$profile]))
-                {
+                if (isset($sphinx_config[$profile])) {
                     $sphinx_config = $this->checkBalancedProfile($sphinx_config[$profile]);
-                }
-                elseif (isset($sphinx_config['default']))
-                {
+                } elseif (isset($sphinx_config['default'])) {
                     // Is using profiles but there isn't the required one.
                     throw new \Sifo\Exception_500("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
-                }
-                // Deprecated:
-                else
-                {
-                    if (Domains::getInstance()->getDebugMode() === true)
-                    {
+                } // Deprecated:
+                else {
+                    if (Domains::getInstance()->getDebugMode() === true) {
                         trigger_error(
                             "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)"
                         );
                     }
                 }
                 $sphinx_config['config_file'] = 'sphinx';
-            }
-            catch (ConfigurationException $e)
-            {
+            } catch (ConfigurationException $e) {
                 throw new \Sifo\Exception_500('You must define the connection params in sphinx.config or domains.config file');
             }
-        }
-        else
-        {
+        } else {
             $sphinx_config['config_file'] = 'domains';
         }
 
@@ -137,12 +120,11 @@ class Search
      */
     private function checkBalancedProfile($sphinx_config)
     {
-        if (isset($sphinx_config[0]) && is_array($sphinx_config[0]))
-        {
+        if (isset($sphinx_config[0]) && is_array($sphinx_config[0])) {
             $lb = new Database\LoadBalancerSearch();
             $lb->setNodes($sphinx_config);
             $selected_server = $lb->get();
-            $sphinx_config   = $sphinx_config[$selected_server];
+            $sphinx_config = $sphinx_config[$selected_server];
         }
 
         return $sphinx_config;
@@ -152,14 +134,13 @@ class Search
      * Delegate all calls to the proper class.
      *
      * @param string $method
-     * @param mixed  $args
+     * @param mixed $args
      *
      * @return mixed
      */
     function __call($method, $args)
     {
-        if (is_object($this->sphinx))
-        {
+        if (is_object($this->sphinx)) {
             return call_user_func_array(array($this->sphinx, $method), $args);
         }
 
@@ -176,20 +157,17 @@ class Search
      */
     static function connect($node_properties)
     {
-        if (true === $node_properties['active'])
-        {
+        if (true === $node_properties['active']) {
             $sphinx = new \SphinxClient();
             $sphinx->SetServer($node_properties['server'], $node_properties['port']);
 
             // If it's defined a time out connection in config file:
-            if (isset($node_properties['time_out']))
-            {
+            if (isset($node_properties['time_out'])) {
                 $sphinx->SetConnectTimeout($node_properties['time_out']);
             }
 
             // Check if Sphinx is listening:
-            if (false === $sphinx->Status())
-            {
+            if (false === $sphinx->Status()) {
                 throw new \Sifo\Exception_500('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
             }
         }

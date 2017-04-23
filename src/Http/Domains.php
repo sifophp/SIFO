@@ -34,8 +34,7 @@ class Domains
 
     static public function getInstance()
     {
-        if (!isset(self::$singleton))
-        {
+        if (!isset(self::$singleton)) {
             self::$singleton = new Domains();
         }
 
@@ -50,48 +49,37 @@ class Domains
         $this->http_host = $host;
 
         // In other case we use the server host.
-        if (null === $host)
-        {
-            $host_data       = explode(':', $filter_server->getString("HTTP_HOST")); // Explode hostname and port.
+        if (null === $host) {
+            $host_data = explode(':', $filter_server->getString("HTTP_HOST")); // Explode hostname and port.
             $this->http_host = $host_data[0];
-            $this->port      = isset($host_data[1]) ? $host_data[1] : null;
+            $this->port = isset($host_data[1]) ? $host_data[1] : null;
         }
 
         $this->domain_configuration = Config::getInstance()->getConfig('domains');
 
-        if (isset($this->domain_configuration['instance_type']))
-        {
+        if (isset($this->domain_configuration['instance_type'])) {
             unset($this->domain_configuration['instance_type']);
         }
 
-        if (isset($this->domain_configuration['core_inheritance']))
-        {
+        if (isset($this->domain_configuration['core_inheritance'])) {
             $this->core_inheritance = $this->domain_configuration['core_inheritance'];
             unset($this->domain_configuration['core_inheritance']);
-        }
-        else
-        {
+        } else {
             $this->core_inheritance = array('Sifo');
         }
 
         // Get the domain inheritance.
-        if (isset($this->domain_configuration['instance_inheritance']))
-        {
+        if (isset($this->domain_configuration['instance_inheritance'])) {
             $this->instance_inheritance = $this->domain_configuration['instance_inheritance'];
             unset($this->domain_configuration['instance_inheritance']);
-        }
-        else
-        {
+        } else {
             $this->instance_inheritance = array('common');
         }
 
-        if (isset($this->domain_configuration['redirections']) && is_array($this->domain_configuration['redirections']))
-        {
+        if (isset($this->domain_configuration['redirections']) && is_array($this->domain_configuration['redirections'])) {
 
-            foreach ($this->domain_configuration['redirections'] as $redirection)
-            {
-                if (strtolower($this->http_host == $redirection['from']))
-                {
+            foreach ($this->domain_configuration['redirections'] as $redirection) {
+                if (strtolower($this->http_host == $redirection['from'])) {
                     $this->redirect = $redirection['to'];
                     $this->redirect .= isset($this->port) ? ':' . $this->port : null;
                     $this->redirect .= $filter_server->getString('REQUEST_URI');
@@ -103,40 +91,29 @@ class Domains
         }
 
         // Iterates over all known domains and sets the first match as the current domain.
-        foreach ($this->domain_configuration as $host => $settings)
-        {
-            if (isset($settings['libraries_profile']))
-            {
+        foreach ($this->domain_configuration as $host => $settings) {
+            if (isset($settings['libraries_profile'])) {
                 Config::$libraries_profile = $settings['libraries_profile'];
             }
             // Domain configuration forces language.
-            if (isset($settings['language']) && isset($settings['language_domain']))
-            {
+            if (isset($settings['language']) && isset($settings['language_domain'])) {
                 $this->setLanguage($settings['language']);
                 $this->language_domain = $settings['language_domain'];
-            }
-            else
-            {
+            } else {
                 throw SifoHttpException::InternalServerError('The language MUST be declared in domains.config file');
             }
 
-            if (false !== strstr(strtolower($this->http_host), $host))
-            {
+            if (false !== strstr(strtolower($this->http_host), $host)) {
                 $subdomain = str_replace('.' . $host, '', $this->http_host);
-                if ($subdomain != $host)
-                {
+                if ($subdomain != $host) {
                     // The language is stated in the domain.
-                    if (isset($settings['lang_in_subdomain']) && false != $settings['lang_in_subdomain'])
-                    {
+                    if (isset($settings['lang_in_subdomain']) && false != $settings['lang_in_subdomain']) {
                         $subdomain_pieces = explode('.', $subdomain);
-                        $language         = array_pop($subdomain_pieces);
+                        $language = array_pop($subdomain_pieces);
                         // Check if the language is known by the configuration:
-                        if (isset($settings['lang_in_subdomain'][$language]))
-                        {
+                        if (isset($settings['lang_in_subdomain'][$language])) {
                             $this->setLanguage($settings['lang_in_subdomain'][$language]);
-                        }
-                        else
-                        {
+                        } else {
                             // Language by default:
                             $this->setLanguage($settings['language']);
                             $this->valid_domain = false;
@@ -150,60 +127,49 @@ class Domains
                     $this->subdomain = $subdomain;
                 }
 
-                if (isset($settings['www_as_subdomain']) && true === $settings['www_as_subdomain'])
-                {
+                if (isset($settings['www_as_subdomain']) && true === $settings['www_as_subdomain']) {
                     $this->www_mode = true;
-                }
-                else
-                {
+                } else {
                     $this->www_mode = false;
                 }
 
-                $this->domain    = $host;
-                $this->dev_mode  = ($settings['devel'] === true);
+                $this->domain = $host;
+                $this->dev_mode = ($settings['devel'] === true);
                 $this->has_debug = isset($settings['has_debug']) ? $settings['has_debug'] === true : $this->dev_mode;
 
                 // See if the domain changes the instance used, otherwise 'default' is assumed.
-                if (isset($settings['instance']) && !empty($settings['instance']))
-                {
+                if (isset($settings['instance']) && !empty($settings['instance'])) {
                     $this->instance = $settings['instance'];
                     // Add the current instance to the inheritance:
                     $this->instance_inheritance[] = $settings['instance'];
                 }
 
                 // Domain requires auth:
-                if (isset($settings['auth']) && $settings['auth'] != false)
-                {
-                    $auth_parts                  = explode(',', $settings['auth']);
-                    $this->auth_data['user']     = $auth_parts[0];
+                if (isset($settings['auth']) && $settings['auth'] != false) {
+                    $auth_parts = explode(',', $settings['auth']);
+                    $this->auth_data['user'] = $auth_parts[0];
                     $this->auth_data['password'] = $auth_parts[1];
-                    $this->auth_data['hash']     = sha1(date('hdmY') . $settings['auth']);
+                    $this->auth_data['hash'] = sha1(date('hdmY') . $settings['auth']);
                 }
 
-                if (isset($settings['static_host']))
-                {
+                if (isset($settings['static_host'])) {
                     $this->static_host = $settings['static_host'];
                 }
 
-                if (isset($settings['media_host']))
-                {
+                if (isset($settings['media_host'])) {
                     $this->media_host = $settings['media_host'];
                 }
 
-                if (isset($settings['lang_in_subdomain']) && is_array($settings['lang_in_subdomain']))
-                {
-                    foreach ($settings['lang_in_subdomain'] as $subdomain => $lang)
-                    {
-                        if ($this->language == $lang)
-                        {
+                if (isset($settings['lang_in_subdomain']) && is_array($settings['lang_in_subdomain'])) {
+                    foreach ($settings['lang_in_subdomain'] as $subdomain => $lang) {
+                        if ($this->language == $lang) {
                             $this->language_subdomain = $subdomain;
                             break;
                         }
                     }
                 }
 
-                if ((isset($settings['php_ini_sets']) && !empty($settings['php_ini_sets'])))
-                {
+                if ((isset($settings['php_ini_sets']) && !empty($settings['php_ini_sets']))) {
                     $this->php_inis = $settings['php_ini_sets'];
                 }
 
@@ -212,8 +178,7 @@ class Domains
         }
 
         // If a domain is not configured, we launch a 404 error.
-        if (!isset($this->instance) && !isset($this->redirect))
-        {
+        if (!isset($this->instance) && !isset($this->redirect)) {
             throw new UnknownDomainException('Unknown domain.');
         }
     }
@@ -275,7 +240,7 @@ class Domains
      */
     public function setDebugMode($mode)
     {
-        $this->has_debug = (bool) $mode;
+        $this->has_debug = (bool)$mode;
     }
 
     /**
@@ -287,8 +252,7 @@ class Domains
      */
     public function getParam($param_name)
     {
-        if (isset($this->domain_configuration[$this->getDomain()][$param_name]))
-        {
+        if (isset($this->domain_configuration[$this->getDomain()][$param_name])) {
             return $this->domain_configuration[$this->getDomain()][$param_name];
         }
 
@@ -355,8 +319,7 @@ class Domains
         $filter_server = FilterServer::getInstance();
 
         // Fix for hostings where the HTTPS server value is not empty but "off" (like Webfaction).
-        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https')
-        {
+        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
             return str_replace('http://', 'https://', $this->static_host);
         }
 
@@ -372,8 +335,7 @@ class Domains
     {
         $filter_server = FilterServer::getInstance();
 
-        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https')
-        {
+        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
             return str_replace('http://', 'https://', $this->media_host);
         }
 

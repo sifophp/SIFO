@@ -61,7 +61,7 @@ class DirectoryList
      * Non-recursive function.
      *
      * @param string $path Directory where you want to start parsing.
-     * @param array  $valid_extensions
+     * @param array $valid_extensions
      *
      * @return \IteratorIterator
      */
@@ -71,14 +71,11 @@ class DirectoryList
         $recursive_dir_iterator = new \RecursiveDirectoryIterator($path);
         $recursive_dir_iterator->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
 
-        if (!empty($valid_extensions))
-        {
+        if (!empty($valid_extensions)) {
             return new Filesystem\FilterFilesByExtensionIterator(
                 new \IteratorIterator($recursive_dir_iterator), $valid_extensions
             );
-        }
-        else
-        {
+        } else {
 
             return new \IteratorIterator($recursive_dir_iterator);
         }
@@ -88,29 +85,27 @@ class DirectoryList
      * Recursive listing of directory, files and dirs. If a set of extensions is
      * passed only matching files will be returned (do not pass the dot in the extensions)
      *
-     * @param string $path             Directory where you want to start parsing.
-     * @param bool   $accept_directories
-     * @param array  $valid_extensions List of accepted extensions in the list, empty array for no filtering.
+     * @param string $path Directory where you want to start parsing.
+     * @param bool $accept_directories
+     * @param array $valid_extensions List of accepted extensions in the list, empty array for no filtering.
      *
      * @return \RecursiveIteratorIterator|\Sifo\Filesystem\FilterFilesByExtensionIterator ratorIterator of RecursiveDirectoryIterator
      */
     public function getRecursiveList($path, $accept_directories = true, $valid_extensions = array())
     {
-        $mode                   = $this->_getIteratorMode($accept_directories);
+        $mode = $this->_getIteratorMode($accept_directories);
         $recursive_dir_iterator = new \RecursiveDirectoryIterator($path);
         $recursive_dir_iterator->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
 
-        if (!empty($valid_extensions))
-        {
+        if (!empty($valid_extensions)) {
             return new Filesystem\FilterFilesByExtensionIterator(
                 new \RecursiveIteratorIterator(
                     $recursive_dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD
                 ), $valid_extensions
             );
-        }
-        else
-        {
-            return new \RecursiveIteratorIterator($recursive_dir_iterator, $mode, \RecursiveIteratorIterator::CATCH_GET_CHILD);
+        } else {
+            return new \RecursiveIteratorIterator($recursive_dir_iterator, $mode,
+                \RecursiveIteratorIterator::CATCH_GET_CHILD);
         }
     }
 

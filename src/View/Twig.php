@@ -15,19 +15,18 @@ class Twig implements ViewInterface
 
     public function __construct()
     {
-        $loader     = new \Twig_Loader_Filesystem(ROOT_PATH);
+        $loader = new \Twig_Loader_Filesystem(ROOT_PATH);
         $this->twig = new \Twig_Environment(
             $loader, [
                 'autoescape' => false,
-                'cache'      => ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/compile/'
+                'cache' => ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/compile/'
             ]
         );
 
         $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
 
         $function = new \Twig_SimpleFunction(
-            't', function ($text)
-        {
+            't', function ($text) {
             return I18N::getTranslation($text);
         }
         );
@@ -46,12 +45,9 @@ class Twig implements ViewInterface
 
         $template_path = str_replace(ROOT_PATH, '', $template_path);
 
-        try
-        {
+        try {
             $result = $this->twig->render($template_path, $this->variables);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             trigger_error($e->getMessage(), E_USER_ERROR);
             $result = null;
         }

@@ -42,8 +42,7 @@ class Views
 
     private function assignVariables()
     {
-        foreach ($this->variables as $variable => $value)
-        {
+        foreach ($this->variables as $variable => $value) {
             $this->templating_engine->assign($variable, $value);
         }
     }
@@ -52,20 +51,16 @@ class Views
     {
         $file_extension = pathinfo($this->template_path, PATHINFO_EXTENSION);
 
-        if ('twig' != $file_extension)
-        {
+        if ('twig' != $file_extension) {
             $this->setSmartyTemplatingEngine();
-        }
-        else
-        {
+        } else {
             $this->setTwigTemplatingEngine();
         }
     }
 
     private function setSmartyTemplatingEngine()
     {
-        if ($this->templating_engine instanceof Smarty)
-        {
+        if ($this->templating_engine instanceof Smarty) {
             return;
         }
 
@@ -74,8 +69,7 @@ class Views
 
     private function setTwigTemplatingEngine()
     {
-        if ($this->templating_engine instanceof Twig)
-        {
+        if ($this->templating_engine instanceof Twig) {
             return;
         }
 
@@ -85,16 +79,14 @@ class Views
     public static function customErrorHandler($errno, $errstr, $errfile, $errline)
     {
         $error_friendly = Debug::friendlyErrorType($errno);
-        $error_string   = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
+        $error_string = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
-        if (Domains::getInstance()->getDebugMode())
-        {
+        if (Domains::getInstance()->getDebugMode()) {
             Debug::subSet('smarty_errors', $errfile, '<pre>' . $error_string . '</pre>', true);
         }
 
         // Smarty only write PHP USER errors to log:
-        if (($raw_url = Urls::$actual_url))
-        {
+        if (($raw_url = Urls::$actual_url)) {
             error_log("URL '{$raw_url}' launched the following Smarty error: {$error_string}");
 
             return true;

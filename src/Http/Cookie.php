@@ -17,7 +17,7 @@ class Cookie
         self::$cookies = array();
         // Take domain from configuration to allow multiple subdomain compatibility with cookies.
         self::$domain = Domains::getInstance()->getDomain();
-        self::$path   = '/';
+        self::$path = '/';
     }
 
     static public function set($name, $value, $days = 14, $domain = false)
@@ -25,16 +25,12 @@ class Cookie
 
         $domain ?: self::_initDomain();
 
-        if (0 == $days)
-        {
+        if (0 == $days) {
             $result = setcookie($name, $value, 0, self::$path, self::$domain);
-        }
-        else
-        {
+        } else {
             $result = setcookie($name, $value, time() + (86400 * $days), self::$path, self::$domain);
         }
-        if (!$result)
-        {
+        if (!$result) {
             trigger_error("COOKIE WRITE FAIL: Tried to write '$name' with value '$value' but failed.");
 
             return false;
@@ -50,8 +46,7 @@ class Cookie
     {
         self::_initDomain();
         $result = setcookie($name, '', time() - 3600, self::$path, self::$domain);
-        if (!$result)
-        {
+        if (!$result) {
             trigger_error("COOKIE DELETE FAIL: Tried to delete '$name' but failed.");
 
             return false;
@@ -76,22 +71,17 @@ class Cookie
     {
         trigger_error("'Cookie::get' is deprecated, please use 'FilterCookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );");
 
-        if (is_array($cookies))
-        {
-            foreach ($cookies as $cookie)
-            {
+        if (is_array($cookies)) {
+            foreach ($cookies as $cookie) {
                 $values[$cookie] = self::_sanitizeCookie($cookie);
             }
 
-            if (!isset($values))
-            {
+            if (!isset($values)) {
                 return false;
             }
 
             return $values;
-        }
-        else
-        {
+        } else {
             return self::_sanitizeCookie($cookies);
         }
     }
@@ -105,8 +95,7 @@ class Cookie
      */
     static private function _sanitizeCookie($cookie)
     {
-        if (FilterCookie::getInstance()->isSent($cookie))
-        {
+        if (FilterCookie::getInstance()->isSent($cookie)) {
             return FilterCookie::getInstance()->getString($cookie);
         }
 

@@ -63,50 +63,45 @@ class SifoHttpException extends \Exception
 
     private function setInternalDefaultPropertiesValue()
     {
-        if (empty($this->code))
-        {
+        if (empty($this->code)) {
             $this->code = $this->http_code;
         }
 
-        if (empty($this->message))
-        {
+        if (empty($this->message)) {
             $this->message = $this->http_code_msg;
         }
     }
 
     private function validateHttpCode(int $http_code)
     {
-        if (!$this->existsHttpCode($http_code))
-        {
-            $this->http_code     = 500;
+        if (!$this->existsHttpCode($http_code)) {
+            $this->http_code = 500;
             $this->http_code_msg = 'Internal Server Error';
 
             return;
         }
 
-        if ($this->isRedirect() && !$this->hasBeenProvidedAValidRedirectLocation())
-        {
-            trigger_error("Exception " . $this->http_code . " raised with an empty or invalid location (" . $this->message . ") " . $this->getTraceAsString(), E_ERROR);
+        if ($this->isRedirect() && !$this->hasBeenProvidedAValidRedirectLocation()) {
+            trigger_error("Exception " . $this->http_code . " raised with an empty or invalid location (" . $this->message . ") " . $this->getTraceAsString(),
+                E_ERROR);
             Headers::setResponseStatus(500);
             Headers::send();
             exit;
         }
 
-        $this->http_code     = $http_code;
+        $this->http_code = $http_code;
         $this->http_code_msg = Headers::$http_codes[$http_code];
     }
 
     public function getRedirectLocation()
     {
-        if (!$this->isRedirect())
-        {
+        if (!$this->isRedirect()) {
             throw new \Exception('You can\'t recover location from a non-redirect http exception.');
         }
 
         $path = trim($this->http_code_msg, '/');
 
-        if (false !== strpos($path, '://'))
-        {
+        if (false !== strpos($path, '://')) {
             return $path;
         }
 

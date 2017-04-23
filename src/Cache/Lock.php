@@ -27,14 +27,14 @@ class Lock
 
     private function __construct($key, $cache_instance)
     {
-        $this->lock_id      = uniqid();
-        $this->key          = $key;
+        $this->lock_id = uniqid();
+        $this->key = $key;
         $this->cache_object = $cache_instance;
     }
 
     /**
      * @param string $original_key
-     * @param Base   $cache_instance
+     * @param Base $cache_instance
      *
      * @return Lock
      */
@@ -42,8 +42,7 @@ class Lock
     {
         $key = self::KEY_PREFIX . $original_key;
 
-        if (!isset(self::$instances[$key]))
-        {
+        if (!isset(self::$instances[$key])) {
             self::$instances[$key] = new self($key, $cache_instance);
         }
 
@@ -92,8 +91,7 @@ class Lock
      */
     public function __destruct()
     {
-        if (!empty(self::$instances[$this->key]))
-        {
+        if (!empty(self::$instances[$this->key])) {
             $this->release();
         }
     }

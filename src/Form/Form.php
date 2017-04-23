@@ -96,8 +96,7 @@ class Form
      */
     static public function getInstance(Filter $filter)
     {
-        if (!self::$instance)
-        {
+        if (!self::$instance) {
             self::$instance = new self ($filter);
         }
 
@@ -108,40 +107,35 @@ class Form
      * Validates a single form element.
      *
      * @param boolean $mandatory
-     * @param string  $name        INPUT name
-     * @param string  $filter_rule rule used in Filter
-     * @param array   $parameters  Array with parameters, defaults to an empty array()
+     * @param string $name INPUT name
+     * @param string $filter_rule rule used in Filter
+     * @param array $parameters Array with parameters, defaults to an empty array()
      *
      * @return boolean
      */
     public function validateSingleElement($mandatory, $name, $filter_rule, $parameters = array())
     {
-        if (method_exists($this->filter, $filter_rule) === false)
-        {
+        if (method_exists($this->filter, $filter_rule) === false) {
             throw new Form\Exception_Form("The method $filter_rule is not present in Filter");
         }
 
-        if (!$mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name)))
-        {
+        if (!$mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name))) {
             return true;
         }
 
-        if ($mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name)))
-        {
+        if ($mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name))) {
             return false;
         }
 
         $total_params = array($name);
-        if (!empty($parameters) && is_array($parameters))
-        {
+        if (!empty($parameters) && is_array($parameters)) {
             $total_params = array_merge($total_params, array_values($parameters));
         }
 
         $filter_result = call_user_func_array(array($this->filter, $filter_rule), $total_params);
 
         // The filter might sanitize the given string, so must be returned cleaned up. Apply filter:
-        if (!is_bool($filter_result) || $filter_rule === 'getBoolean')
-        {
+        if (!is_bool($filter_result) || $filter_rule === 'getBoolean') {
             $this->fields[$name] = $filter_result;
         }
 
@@ -151,15 +145,14 @@ class Form
     /**
      * Validate an array with several INPUT names that need the same filter rule.
      *
-     * @param array  $names
+     * @param array $names
      * @param string $filter_rule
-     * @param array  $parameters
+     * @param array $parameters
      */
     public function validateEqualElements(Array $names, $filter_rule, $parameters = array())
     {
         $res = true;
-        foreach ($names as $name)
-        {
+        foreach ($names as $name) {
             $res = $res && $this->validateSingleElement(true, $name, $filter_rule, $parameters);
         }
     }
@@ -182,10 +175,9 @@ class Form
     public function getRequirements($form_config)
     {
         $form_elements = Config::getInstance()->getConfig($form_config);
-        $requirements  = array();
+        $requirements = array();
 
-        foreach ($form_elements as $element)
-        {
+        foreach ($form_elements as $element) {
             $requirements[$element['name']] = $element['required'];
         }
 
@@ -201,11 +193,10 @@ class Form
     {
         $form_elements = Config::getInstance()->getConfig($form_config);
 
-        foreach ($form_elements as $key => $element)
-        {
-            if (!isset($element['name']) || !isset($element['filter']))
-            {
-                throw new Form\Exception_Form('A form element was passed without the minimum required definition parameters. Element was: ' . var_export($element, true));
+        foreach ($form_elements as $key => $element) {
+            if (!isset($element['name']) || !isset($element['filter'])) {
+                throw new Form\Exception_Form('A form element was passed without the minimum required definition parameters. Element was: ' . var_export($element,
+                        true));
             }
 
             $single_element_validation = $this->validateSingleElement(
@@ -215,10 +206,8 @@ class Form
                 (isset($element['params']) ? $element['params'] : array()) // Passed params
             );
 
-            if (!$single_element_validation)
-            {
-                if (isset($element['error']))
-                {
+            if (!$single_element_validation) {
+                if (isset($element['error'])) {
                     $this->errors[$element['name']] = $element['error'];
                 }
                 $this->is_valid = false;
@@ -260,8 +249,7 @@ class Form
 
     public function getField($key)
     {
-        if (isset($this->fields[$key]))
-        {
+        if (isset($this->fields[$key])) {
             return $this->fields[$key];
         }
 
@@ -284,23 +272,19 @@ class Form
      * Validates the elements ensuring that the form has been on screen enough seconds.
      *
      * @param string $form_config Configuration file with form definition.
-     * @param string $input_name  Optional input name that contains the security hash.
+     * @param string $input_name Optional input name that contains the security hash.
      *
      * @return boolean
      */
     public function isValidTimeHash($input_name)
     {
-        if (!$this->filter->isSent($input_name) || $this->filter->isEmpty($input_name))
-        {
+        if (!$this->filter->isSent($input_name) || $this->filter->isEmpty($input_name)) {
             $this->errors[$input_name] = 'Security hash not sent'; // You shouldn't display this error. Hackers don't need info.
             return false;
-        }
-        else
-        {
+        } else {
             $time_printed = intval(Crypt::decrypt($this->filter->getString($input_name)));
 
-            if (time() < $time_printed)
-            {
+            if (time() < $time_printed) {
                 // Too fast cowboy!
                 $this->errors[$input_name] = 'Form submitted too fast, might be a BOT';
 

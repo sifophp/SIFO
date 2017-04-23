@@ -84,8 +84,7 @@ class I18N
      */
     static public function getInstance($domain, $locale)
     {
-        if (!isset(self::$instance))
-        {
+        if (!isset(self::$instance)) {
             self::$instance = new self();
         }
 
@@ -104,8 +103,8 @@ class I18N
     {
         // Active domain is an indentifier in the format 'messages_es_ES' for internal use only.
         self::$active_domain_and_locale = $domain . '_' . $locale;
-        self::$locale                   = $locale;
-        self::$domain                   = $domain;
+        self::$locale = $locale;
+        self::$domain = $domain;
         self::bindTextDomain($instance);
     }
 
@@ -114,32 +113,27 @@ class I18N
      */
     static protected function bindTextDomain($instance = null)
     {
-        if (empty($instance))
-        {
+        if (empty($instance)) {
             $instance = Bootstrap::$instance;
         }
 
         // Loads all the messages into memory in case they aren't loaded before, or current instance is different than instance passed.
-        if (!isset(self::$translations[self::$active_domain_and_locale]) || self::$current_instance !== $instance)
-        {
+        if (!isset(self::$translations[self::$active_domain_and_locale]) || self::$current_instance !== $instance) {
             self::$current_instance = $instance;
 
             // Include instance messages file in case we don't have previously stored translations for this instance, domain and language.
-            if (!isset(self::$instance_translations[self::$current_instance][self::$active_domain_and_locale]))
-            {
-                $translations_file = Config::getInstance($instance)->getConfig('locale', self::$active_domain_and_locale);
+            if (!isset(self::$instance_translations[self::$current_instance][self::$active_domain_and_locale])) {
+                $translations_file = Config::getInstance($instance)->getConfig('locale',
+                    self::$active_domain_and_locale);
                 include(ROOT_PATH . "/$translations_file");
 
-                if (!isset($translations))
-                {
+                if (!isset($translations)) {
                     throw new Exception_500('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
                 }
 
-                self::$translations[self::$active_domain_and_locale]                                   = $translations;
+                self::$translations[self::$active_domain_and_locale] = $translations;
                 self::$instance_translations[self::$current_instance][self::$active_domain_and_locale] = $translations;
-            }
-            else
-            {
+            } else {
                 self::$translations[self::$active_domain_and_locale] = self::$instance_translations[self::$current_instance][self::$active_domain_and_locale];
             }
         }
@@ -149,21 +143,18 @@ class I18N
      * Returns the translated message.
      *
      * @param       $message string Message in source language (usually English)
-     * @param array $params  If the message needs replacement of variables pass them here, in the format "%1" => $param1, "%2" => $param2
+     * @param array $params If the message needs replacement of variables pass them here, in the format "%1" => $param1, "%2" => $param2
      *
      * @return <type>
      */
     static public function getTranslation($message, $params = null)
     {
-        if (isset(self::$translations[self::$active_domain_and_locale][$message]) && '' != self::$translations[self::$active_domain_and_locale][$message])
-        {
+        if (isset(self::$translations[self::$active_domain_and_locale][$message]) && '' != self::$translations[self::$active_domain_and_locale][$message]) {
             $message = stripslashes(self::$translations[self::$active_domain_and_locale][$message]);
         }
 
-        if (null !== $params && is_array($params))
-        {
-            foreach ($params as $key => $variable)
-            {
+        if (null !== $params && is_array($params)) {
+            foreach ($params as $key => $variable) {
                 $message = str_replace($key, $variable, $message);
             }
         }
@@ -180,8 +171,7 @@ class I18N
      */
     static public function getReverseTranslation($message)
     {
-        if ($key = array_search($message, self::$translations[self::$active_domain_and_locale]))
-        {
+        if ($key = array_search($message, self::$translations[self::$active_domain_and_locale])) {
             $message = $key;
         }
 

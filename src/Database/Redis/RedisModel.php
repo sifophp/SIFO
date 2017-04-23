@@ -32,30 +32,24 @@ class RedisModel
      */
     public function connect($profile = null)
     {
-        if (!isset(self::$connected_client[$profile]))
-        {
+        if (!isset(self::$connected_client[$profile])) {
             \Predis\Autoloader::register(true);
 
-            if (null == $profile)
-            {
-                try
-                {
+            if (null == $profile) {
+                try {
                     // Load "default" profile from redis.config.php:
                     $db_params = Config::getInstance()->getConfig('redis', 'default');
-                }
-                catch (ConfigurationException $e)
-                {
+                } catch (ConfigurationException $e) {
                     // Connection taken from domains.config.php:
                     $db_params = Domains::getInstance()->getParam('redis');
                 }
-            }
-            else // Advanced configuration taken from redis.config.php
+            } else // Advanced configuration taken from redis.config.php
             {
                 $db_params = Config::getInstance()->getConfig('redis', $profile);
             }
 
             self::$connected_client[$profile] = PredisProxyClient::getInstance($db_params);
-            $this->profile                    = $profile;
+            $this->profile = $profile;
         }
 
         return self::$connected_client[$profile];
@@ -75,8 +69,7 @@ class RedisModel
      */
     public function __destruct()
     {
-        foreach (self::$connected_client as $client)
-        {
+        foreach (self::$connected_client as $client) {
             $client->disconnect();
         }
     }

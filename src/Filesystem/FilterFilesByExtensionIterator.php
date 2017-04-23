@@ -27,17 +27,13 @@ class FilterFilesByExtensionIterator extends \FilterIterator
     {
         // If directories are passed, we accept them. Is duty of the calling function:
 
-        if ($this->current()->isDir())
-        {
+        if ($this->current()->isDir()) {
             return true;
         }
 
-        if (!empty($this->allowed_extensions))
-        {
-            foreach ($this->allowed_extensions as $ext)
-            {
-                if (pathinfo($this->getBaseName(), PATHINFO_EXTENSION) == $ext)
-                {
+        if (!empty($this->allowed_extensions)) {
+            foreach ($this->allowed_extensions as $ext) {
+                if (pathinfo($this->getBaseName(), PATHINFO_EXTENSION) == $ext) {
                     return true;
                 }
             }

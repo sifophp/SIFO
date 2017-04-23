@@ -5,6 +5,7 @@
  * Date: 22/4/17
  * Time: 13:53
  */
+
 namespace Sifo\Database;
 
 class LoadBalancerSearch extends LoadBalancer
@@ -18,13 +19,10 @@ class LoadBalancerSearch extends LoadBalancer
 
     protected function addNodeIfAvailable($index, $node_properties)
     {
-        try
-        {
+        try {
             Search::connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
-        }
-        catch (\Sifo\Exception_500 $e)
-        {
+        } catch (\Sifo\Exception_500 $e) {
             trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
         }
     }
