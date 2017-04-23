@@ -2,6 +2,7 @@
 
 namespace Sifo;
 
+use Psr\Container\ContainerInterface;
 use Sifo\Cache\Cache;
 use Sifo\Container\DependencyInjector;
 use Sifo\Debug\Debug;
@@ -149,9 +150,9 @@ abstract class Controller
     /**
      * Sets the dependency injection container.
      *
-     * @param DependencyInjector $container The container to use.
+     * @param ContainerInterface $container The container to use.
      */
-    public function setContainer(DependencyInjector $container)
+    public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
     }
