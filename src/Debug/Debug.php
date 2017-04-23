@@ -44,8 +44,7 @@ class Debug
     private function __construct()
     {
         self::$debug_config = Config::getInstance()->getConfig('debug_config', 'debug');
-        if (!empty(self::$debug_config))
-        {
+        if (!empty(self::$debug_config)) {
             self::$all_modules_available = false;
         }
     }
@@ -53,8 +52,8 @@ class Debug
     /**
      * @static
      *
-     * @param mixed  $message String, variable or object you want to show in the debug.
-     * @param string $type    Type of debug you want. Accepted values are [log|error|warn].
+     * @param mixed $message String, variable or object you want to show in the debug.
+     * @param string $type Type of debug you want. Accepted values are [log|error|warn].
      * @param string $display [html|browser_console|alert] Shown in the html debug, the console or as javascript alert.
      *
      * @author Javier Ferrer
@@ -62,22 +61,18 @@ class Debug
     public static function log($message, $type = 'log', $display = 'html')
     {
         $is_object = false;
-        if ($display != 'html')
-        {
-            if (is_array($message) || is_object($message))
-            {
+        if ($display != 'html') {
+            if (is_array($message) || is_object($message)) {
                 $is_object = true;
-                $message   = "'" . str_replace("'", "\\'", json_encode($message)) . "'";
-            }
-            else
-            {
+                $message = "'" . str_replace("'", "\\'", json_encode($message)) . "'";
+            } else {
                 $message = "'" . str_replace("'", "\\'", $message) . "'";
             }
         }
 
-        $message_log['type']      = $type;
+        $message_log['type'] = $type;
         $message_log['is_object'] = $is_object;
-        $message_log['message']   = $message;
+        $message_log['message'] = $message;
 
         self::$storage['log_messages'][$display][] = $message_log;
     }
@@ -86,24 +81,21 @@ class Debug
      * Adds another element to the end of the array.
      *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return int New number of elements in the array.
      */
     public static function push($key, $value)
     {
-        if (false === self::moduleAvailable($key))
-        {
+        if (false === self::moduleAvailable($key)) {
             return null;
         }
 
-        if (!isset(self::$storage[$key]))
-        {
+        if (!isset(self::$storage[$key])) {
             self::$storage[$key] = array();
         }
 
-        if (!is_array(self::$storage[$key]))
-        {
+        if (!is_array(self::$storage[$key])) {
             throw new \UnexpectedValueException('Failed to PUSH an element in the debug because the given key is not an array.');
         }
 
@@ -113,12 +105,9 @@ class Debug
     protected static function moduleAvailable($key)
     {
         self::$debug_config = Config::getInstance()->getConfig('debug_config', 'debug');
-        if (empty(self::$debug_config))
-        {
+        if (empty(self::$debug_config)) {
             return true;
-        }
-        elseif (isset(self::$debug_config[$key]) && true === self::$debug_config[$key])
-        {
+        } elseif (isset(self::$debug_config[$key]) && true === self::$debug_config[$key]) {
             return true;
         }
 
@@ -130,20 +119,17 @@ class Debug
      *
      * Example: array( $key => array( $subkey => $value ) )
      *
-     * @param string  $key    Name you want to store the value with.
-     * @param mixed   $value  The object to store in the array.
+     * @param string $key Name you want to store the value with.
+     * @param mixed $value The object to store in the array.
      * @param boolean $append When true append the value to the end if sub_key exists.
      *
      * @return void
      */
     public static function subSet($key, $sub_key, $value, $append = false)
     {
-        if (!isset(self::$storage[$key][$sub_key]) || false == $append)
-        {
+        if (!isset(self::$storage[$key][$sub_key]) || false == $append) {
             self::$storage[$key][$sub_key] = $value;
-        }
-        else
-        {
+        } else {
             self::$storage[$key][$sub_key] = (self::$storage[$key][$sub_key] . $value);
         }
     }
@@ -157,11 +143,9 @@ class Debug
      */
     public static function get($key, $pull = false)
     {
-        if (isset(self::$storage[$key]))
-        {
+        if (isset(self::$storage[$key])) {
             $value = self::$storage[$key];
-            if (true === $pull)
-            {
+            if (true === $pull) {
                 unset(self::$storage[$key]);
             }
 
@@ -189,8 +173,7 @@ class Debug
      */
     public static function friendlyErrorType($type)
     {
-        switch ($type)
-        {
+        switch ($type) {
             case E_ERROR: // 1 //
                 return 'E_ERROR';
             case E_WARNING: // 2 //
@@ -233,8 +216,7 @@ class Debug
 
     public static function getExecutionKey()
     {
-        if (!isset(self::$execution_key))
-        {
+        if (!isset(self::$execution_key)) {
             self::$execution_key = md5(time() . rand());
         }
 

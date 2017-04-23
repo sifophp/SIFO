@@ -28,8 +28,7 @@ class Mysql extends OriginalMysql
      */
     static public function getInstance($profile = 'default')
     {
-        if (!isset(self::$instance[$profile]))
-        {
+        if (!isset(self::$instance[$profile])) {
             Benchmark::getInstance()->timingStart('db_connections');
 
             self::$instance[$profile] = new self($profile);
@@ -55,7 +54,7 @@ class Mysql extends OriginalMysql
     public function query($statement)
     {
         preg_match('/\/\* (.+)? \*\/\n(.*)/s', $statement, $matches);
-        $context   = $matches[1];
+        $context = $matches[1];
         $statement = $matches[2];
 
         Benchmark::getInstance()->timingStart('db_queries');
@@ -72,8 +71,8 @@ class Mysql extends OriginalMysql
     /**
      * Calls a pdo method.
      *
-     * @param string $method    A method in the pdo object.
-     * @param array  $arguments The array of arguments to pass to the method.
+     * @param string $method A method in the pdo object.
+     * @param array $arguments The array of arguments to pass to the method.
      *
      * @return mixed
      */
@@ -85,8 +84,7 @@ class Mysql extends OriginalMysql
 
         $query_time = Benchmark::getInstance()->timingCurrentToRegistry('db_' . $method);
 
-        if ($arguments !== array())
-        {
+        if ($arguments !== array()) {
             self::setDebug($arguments[0], $query_time, $arguments[1], $result, $this->db_params);
         }
 
@@ -96,47 +94,43 @@ class Mysql extends OriginalMysql
     /**
      * Fills some debug data to be displayed in the debug interface.
      *
-     * @param string        $statement  The sql statement being queried.
-     * @param float         $query_time The time that the query needed to be completed.
-     * @param string        $context    The context of the sql query.
-     * @param integer|array $resultset  The result of the query.
+     * @param string $statement The sql statement being queried.
+     * @param float $query_time The time that the query needed to be completed.
+     * @param string $context The context of the sql query.
+     * @param integer|array $resultset The result of the query.
      */
     public static function setDebug($statement, $query_time, $context, $resultset, $db_params, $pdo = null)
     {
-        if ($resultset !== false)
-        {
-            $error           = $resultset->errorInfo();
+        if ($resultset !== false) {
+            $error = $resultset->errorInfo();
             $resultset_array = $resultset->fetchAll();
-            $rows_num        = $resultset->rowCount();
-        }
-        else
-        {
-            $error           = $pdo->errorInfo();
+            $rows_num = $resultset->rowCount();
+        } else {
+            $error = $pdo->errorInfo();
             $resultset_array = 0;
-            $rows_num        = 0;
+            $rows_num = 0;
         }
 
-        $sql         = '/* ' . $context . ' */' . PHP_EOL . $statement;
+        $sql = '/* ' . $context . ' */' . PHP_EOL . $statement;
         $debug_query = array(
-            "tag"       => $context,
-            "sql"       => $sql,
-            "type"      => ((0 === stripos($statement, 'SELECT')) ? 'read' : 'write'),
-            "host"      => $db_params['db_host'],
-            "database"  => $db_params['db_name'],
-            "user"      => $db_params['db_user'],
-            "trace"     => self::generateTrace(debug_backtrace(false)),
+            "tag" => $context,
+            "sql" => $sql,
+            "type" => ((0 === stripos($statement, 'SELECT')) ? 'read' : 'write'),
+            "host" => $db_params['db_host'],
+            "database" => $db_params['db_name'],
+            "user" => $db_params['db_user'],
+            "trace" => self::generateTrace(debug_backtrace(false)),
             // Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
             "resultset" => $resultset_array,
-            "time"      => $query_time,
-            "error"     => (isset($error[2]) !== false) ? $error[2] : false
+            "time" => $query_time,
+            "error" => (isset($error[2]) !== false) ? $error[2] : false
         );
 
         $debug_query['rows_num'] = $rows_num;
 
-        if ($debug_query['error'] !== false)
-        {
+        if ($debug_query['error'] !== false) {
             $database_data = Domains::getInstance()->getDatabaseParams();
-            $path          = !empty($database_data['error_log_path']) ? $database_data['error_log_path'] : ROOT_PATH . '/logs/errors_database.log';
+            $path = !empty($database_data['error_log_path']) ? $database_data['error_log_path'] : ROOT_PATH . '/logs/errors_database.log';
 
             // Log mysql_errors to disk:
             file_put_contents(
@@ -147,8 +141,7 @@ class Mysql extends OriginalMysql
             Debug::push('queries_errors', $error);
         }
 
-        if (in_array($sql, self::$executed_queries))
-        {
+        if (in_array($sql, self::$executed_queries)) {
             $debug_query['duplicated'] = true;
             Debug::push('duplicated_queries', 1);
         }
@@ -168,10 +161,8 @@ class Mysql extends OriginalMysql
         array_shift($debug_backtrace);
 
         $trace = '';
-        foreach ($debug_backtrace as $key => $step)
-        {
-            if (!(isset($step['file']) && isset($step['line']) && isset($step['class']) && isset($step['function'])))
-            {
+        foreach ($debug_backtrace as $key => $step) {
+            if (!(isset($step['file']) && isset($step['line']) && isset($step['class']) && isset($step['function']))) {
                 $trace .= "#$key {$step['function']}\n";
                 continue;
             }

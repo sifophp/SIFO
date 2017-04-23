@@ -117,21 +117,22 @@ abstract class Controller
 
         $this->url_definition = Urls::getInstance($this->instance)->getUrlDefinition();
 
-        $urls        = Urls::getInstance($this->instance)->getUrlConfig();
-        $current_url = $this->getUrl(Urls::getInstance(Bootstrap::$instance)->getPath(), Urls::getInstance($this->instance)->getParams());
+        $urls = Urls::getInstance($this->instance)->getUrlConfig();
+        $current_url = $this->getUrl(Urls::getInstance(Bootstrap::$instance)->getPath(),
+            Urls::getInstance($this->instance)->getParams());
 
         $urls['current_url'] = $current_url;
-        $this->params        = array(
+        $this->params = array(
             // Sanitizes the current URL in case is dirty:
             'current_url' => $current_url,
-            'instance'    => Bootstrap::$instance,
-            'controller'  => get_class($this),
-            'path'        => Urls::getInstance($this->instance)->getPath(),
-            'path_parts'  => Urls::getInstance($this->instance)->getPathParts(),
-            'params'      => Urls::getInstance($this->instance)->getParams(),
-            'has_debug'   => Domains::getInstance()->getDebugMode(),
-            'lang'        => $this->language,
-            'url'         => $urls,
+            'instance' => Bootstrap::$instance,
+            'controller' => get_class($this),
+            'path' => Urls::getInstance($this->instance)->getPath(),
+            'path_parts' => Urls::getInstance($this->instance)->getPathParts(),
+            'params' => Urls::getInstance($this->instance)->getParams(),
+            'has_debug' => Domains::getInstance()->getDebugMode(),
+            'lang' => $this->language,
+            'url' => $urls,
 
             // 'definition' => $this->url_definition, // In case you want to see the URL definition
         );
@@ -141,10 +142,10 @@ abstract class Controller
 
         // Parse Key-Value parameters
         $this->params['parsed_params'] = $this->parseParams();
-        $this->params['page']          = $this->getCurrentPage();
+        $this->params['page'] = $this->getCurrentPage();
 
         $this->cache = Cache::getInstance(Cache::CACHE_TYPE_AUTODISCOVER);
-        $this->view  = new Views();
+        $this->view = new Views();
     }
 
     /**
@@ -172,7 +173,7 @@ abstract class Controller
      *
      * @param string $submit_button
      * @param string $form_config
-     * @param array  $default_fields
+     * @param array $default_fields
      *
      * @return null if no submit sent. True if validated correctly, false otherwise.
      */
@@ -181,17 +182,13 @@ abstract class Controller
         $post = FilterPost::getInstance();
 
         $form = new Form($post, $this->view);
-        if ($post->isSent($submit_button))
-        {
+        if ($post->isSent($submit_button)) {
             $return = $form->validateElements($form_config);
 
-            if ($return)
-            {
+            if ($return) {
                 $return = $form;
             }
-        }
-        else
-        {
+        } else {
             $form->addFields($default_fields);
             $return = null;
         }
@@ -206,36 +203,28 @@ abstract class Controller
     public function getUrl($relative_path, $params = null)
     {
         $url = Urls::getInstance($this->instance)->getUrl($relative_path);
-        if ((!$url) && ('' != $relative_path))
-        {
+        if ((!$url) && ('' != $relative_path)) {
             /*
              * The relative_path exists but the first getUrl try not found it.
              * We try with the path translations:
             */
-            if (Router::getReversalRoute($relative_path))
-            {
-                if (!($url = Urls::getInstance($this->instance)->getUrl(Router::getReversalRoute($relative_path))))
-                {
+            if (Router::getReversalRoute($relative_path)) {
+                if (!($url = Urls::getInstance($this->instance)->getUrl(Router::getReversalRoute($relative_path)))) {
                     // Fixed the current_url in url like word1_word2 for url word1-word2
-                    $url = Urls::getInstance($this->instance)->getUrl(Router::getReversalRoute(str_replace('-', '_', $relative_path)));
+                    $url = Urls::getInstance($this->instance)->getUrl(Router::getReversalRoute(str_replace('-', '_',
+                        $relative_path)));
                 }
-            }
-            else
-            {
+            } else {
                 $url = Urls::$base_url . '/' . $relative_path;
             }
         }
 
-        if ($params)
-        {
+        if ($params) {
             $url .= $this->url_definition['params_separator'];
 
-            if (is_array($params))
-            {
+            if (is_array($params)) {
                 $url .= implode($this->url_definition['params_separator'], $params);
-            }
-            else
-            {
+            } else {
                 $url .= $params;
             }
         }
@@ -280,14 +269,13 @@ abstract class Controller
      * Assign a variable to the template.
      *
      * @param string|array $tpl_var
-     * @param mixed        $value
+     * @param mixed $value
      *
      * @return \Smarty_Internal_Data
      */
     public function assign($tpl_var, $value)
     {
-        if ($tpl_var != 'modules')
-        {
+        if ($tpl_var != 'modules') {
             $this->addToDebug($tpl_var, $value, 'assigns');
         }
 
@@ -299,13 +287,12 @@ abstract class Controller
      */
     protected function executeNestedModules()
     {
-        if (count($this->modules) > 0)
-        {
+        if (count($this->modules) > 0) {
             $modules = array();
             // Execute additional modules and put their result in the 'modules' variable.
-            foreach ($this->modules as $module_name => $controller)
-            {
-                $modules[$module_name] = $this->dispatchSingleController($controller, array('module_name' => $module_name));
+            foreach ($this->modules as $module_name => $controller) {
+                $modules[$module_name] = $this->dispatchSingleController($controller,
+                    array('module_name' => $module_name));
             }
             unset($this->modules);
 
@@ -322,9 +309,9 @@ abstract class Controller
      */
     protected function cacheException($e, $cache_key)
     {
-        if ((false !== $cache_key) && (!FilterPost::getInstance()->countVars()))
-        {
-            $expiration = in_array($e->http_code, array(301, 302, 404)) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
+        if ((false !== $cache_key) && (!FilterPost::getInstance()->countVars())) {
+            $expiration = in_array($e->http_code,
+                array(301, 302, 404)) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
             $this->cache->set($cache_key['name'], $e, $expiration);
         }
     }
@@ -334,20 +321,15 @@ abstract class Controller
      */
     public function dispatch()
     {
-        if (Domains::getInstance()->getDebugMode() && (FilterGet::getInstance()->getInteger('kill_session')))
-        {
+        if (Domains::getInstance()->getDebugMode() && (FilterGet::getInstance()->getInteger('kill_session'))) {
             @Session::getInstance()->destroy();
         }
 
-        if ($this->is_json)
-        {
+        if ($this->is_json) {
             // Set headers before cache:
-            if ($json_callback = FilterGet::getInstance()->getString('json_callback'))
-            {
+            if ($json_callback = FilterGet::getInstance()->getString('json_callback')) {
                 Headers::set('Content-type', 'text/javascript');
-            }
-            else
-            {
+            } else {
                 Headers::set('Content-type', 'application/json');
             }
         }
@@ -358,18 +340,15 @@ abstract class Controller
         $this->preDispatch();
         $cached_content = $this->grabCache();
 
-        if (false !== $cached_content)
-        {
-            if ($cached_content instanceof SifoHttpException)
-            {
+        if (false !== $cached_content) {
+            if ($cached_content instanceof SifoHttpException) {
                 throw new ControllerException("Controller Build has generated an exception (cached).", $cached_content);
             }
             $this->postDispatch();
             $cached_content = $this->_realTimeReplacement($cached_content);
             Headers::send();
 
-            if (extension_loaded('newrelic'))
-            {
+            if (extension_loaded('newrelic')) {
                 newrelic_name_transaction($this->params['controller']);
             }
 
@@ -380,18 +359,14 @@ abstract class Controller
 
         $cache_key = $this->parseCache();
 
-        if (false !== $cache_key)
-        {
+        if (false !== $cache_key) {
             $this->addToDebug('name', $cache_key['name'], 'Cache properties');
             $this->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
         }
 
-        try
-        {
+        try {
             $return = $this->build();
-        }
-        catch (SifoHttpException $e)
-        {
+        } catch (SifoHttpException $e) {
             $this->cacheException($e, $cache_key);
             throw new ControllerException("Controller Build has generated an exception.", $e);
         }
@@ -400,31 +375,27 @@ abstract class Controller
         $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
         $this->executeNestedModules();
 
-        if ($this->is_json)
-        {
+        if ($this->is_json) {
             // Json Debug.
-            if (Domains::getInstance()->getDebugMode() && is_array($return))
-            {
+            if (Domains::getInstance()->getDebugMode() && is_array($return)) {
                 $this->stopBench($benchmark_key, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
                 Debug::subSet('controllers', get_class($this), $this->debug_info);
 
                 $return['debug_total_time'] = \Sifo\Benchmark::getInstance()->timingCurrent();
 
-                $this->dispatchSingleController('DebugIndex', array('show_debug_timers' => false, 'executed_controller_is_json' => true));
+                $this->dispatchSingleController('DebugIndex',
+                    array('show_debug_timers' => false, 'executed_controller_is_json' => true));
 
                 $return['debug_execution_key'] = \Sifo\Debug\Debug::getExecutionKey();
             }
 
             $json_callback = FilterGet::getInstance()->getString('json_callback');
-            $content       = ($json_callback ? $json_callback . '(' . json_encode($return) . ')' : json_encode($return));
-        }
-        else
-        {
+            $content = ($json_callback ? $json_callback . '(' . json_encode($return) . ')' : json_encode($return));
+        } else {
             $content = $this->grabHtml();
         }
 
-        if (false !== $cache_key)
-        {
+        if (false !== $cache_key) {
             $this->cache->set($cache_key['name'], $content, $cache_key['expiration']);
         }
 
@@ -434,8 +405,7 @@ abstract class Controller
         $content = $this->_realTimeReplacement($content);
         Headers::send();
 
-        if (extension_loaded('newrelic'))
-        {
+        if (extension_loaded('newrelic')) {
             newrelic_name_transaction($this->params['controller']);
         }
 
@@ -451,8 +421,7 @@ abstract class Controller
     protected function grabHtml()
     {
         $class_name = get_class($this);
-        if (!$this->is_json && !isset($this->layout))
-        {
+        if (!$this->is_json && !isset($this->layout)) {
             throw new Exception_500('Layout not set in controller ' . $class_name);
         }
 
@@ -477,15 +446,13 @@ abstract class Controller
     protected function grabCache()
     {
         // When DATA is sent, invalidate cache:
-        if (0 < FilterPost::getInstance()->countVars())
-        {
+        if (0 < FilterPost::getInstance()->countVars()) {
             return false;
         }
 
         $cache_key = $this->parseCache();
         // Controller does not uses cache:
-        if (!$cache_key)
-        {
+        if (!$cache_key) {
             return false;
         }
 
@@ -493,16 +460,15 @@ abstract class Controller
         $content = $this->cache->get($cache_key['name']);
         Benchmark::getInstance()->timingCurrentToRegistry('cache');
 
-        if ($content)
-        {
-            if (false !== strpos(Cache::$cache_type, 'MEMCACHE'))
-            {
+        if ($content) {
+            if (false !== strpos(Cache::$cache_type, 'MEMCACHE')) {
                 $this->addToDebug('Stored in Memcache as', sha1($cache_key['name']), 'Cache properties');
             }
             // Add another key inside the debug key:
             $this->addToDebug('Cache definition', $cache_key, 'Cache properties');
 
-            Debug::subSet('controllers', get_class($this) . ' <small>- ' . Cache::$cache_type . ' HIT</small>', $this->debug_info);
+            Debug::subSet('controllers', get_class($this) . ' <small>- ' . Cache::$cache_type . ' HIT</small>',
+                $this->debug_info);
 
             return $content;
         }
@@ -519,25 +485,21 @@ abstract class Controller
      */
     protected function parseCache()
     {
-        if (isset($this->cache_definition))
-        {
+        if (isset($this->cache_definition)) {
             return $this->cache_definition;
         }
 
         $this->cache_definition = $this->getCacheDefinition();
 
-        if (false === $this->cache_definition || '' === $this->cache_definition)
-        {
+        if (false === $this->cache_definition || '' === $this->cache_definition) {
             return $this->cache_definition = false;
         }
 
-        if (!is_array($this->cache_definition))
-        {
+        if (!is_array($this->cache_definition)) {
             $this->cache_definition = array('name' => $this->cache_definition);
         }
 
-        if (empty($this->cache_definition['expiration']))
-        {
+        if (empty($this->cache_definition['expiration'])) {
             $this->cache_definition['expiration'] = self::CACHE_DEFAULT_EXPIRATION;
         }
 
@@ -557,8 +519,7 @@ abstract class Controller
     private function _getFinalCacheKeyName(array $definition)
     {
         // Add the controller class name when 'name' is empty.
-        if (!isset($definition['name']))
-        {
+        if (!isset($definition['name'])) {
             $definition['name'] = get_class($this);
         }
 
@@ -586,8 +547,7 @@ abstract class Controller
      */
     public function deleteCache($key_definition)
     {
-        if (!is_array($key_definition))
-        {
+        if (!is_array($key_definition)) {
             $key_definition = array('name' => $key_definition);
         }
 
@@ -622,15 +582,12 @@ abstract class Controller
      */
     public function fetch($template)
     {
-        try
-        {
+        try {
             $template = $this->getTemplate($template);
             $this->assignCommonVars();
 
             return $this->view->fetch($template);
-        }
-        catch (ConfigurationException $e)
-        {
+        } catch (ConfigurationException $e) {
             return false;
         }
     }
@@ -642,12 +599,11 @@ abstract class Controller
      */
     public function execute()
     {
-        $result            = $this->build();
+        $result = $this->build();
         $controller_params = array_merge(array('layout' => $this->layout), $this->getParams());
         $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
 
-        if ($this->is_json)
-        {
+        if ($this->is_json) {
             return $result;
         }
 
@@ -670,7 +626,8 @@ abstract class Controller
         $this->startBench($benchmark_key);
 
         // Only letters, numbers _ and . ALLOWED. Take care with parameters.
-        $buffer = preg_replace_callback('/<\!--\s*REPLACE\:([a-zA-Z0-9:_\.\-,\/\+]*)\s*-->/', array($this, '_executeReplacementModule'), $buffer);
+        $buffer = preg_replace_callback('/<\!--\s*REPLACE\:([a-zA-Z0-9:_\.\-,\/\+]*)\s*-->/',
+            array($this, '_executeReplacementModule'), $buffer);
 
         $this->stopBench($benchmark_key, "---- TOTAL REALTIME REPLACEMENTS ----");
 
@@ -688,7 +645,7 @@ abstract class Controller
     {
         // Take params set by tag <!-- REPLACE -->:
         $replace_params = explode('::', $matches[1]);
-        $controller     = $replace_params[0];
+        $controller = $replace_params[0];
         unset ($replace_params[0]);
 
         return $this->dispatchSingleController($controller, array('params' => array_values($replace_params)));
@@ -698,7 +655,7 @@ abstract class Controller
      * Dispatch a single controller. Fetch from cache (if any), execute, store cache, return output.
      *
      * @param string $controller Name of controller to execute.
-     * @param array  $params     Additional parameters needed by the controller
+     * @param array $params Additional parameters needed by the controller
      *
      * @throws ControllerException
      * @return string
@@ -712,30 +669,22 @@ abstract class Controller
         $module->setParams(array_merge($this->getParams(), $params));
         $module->preDispatch();
         $cached_content = $module->grabCache();
-        $class_name     = get_class($module);
+        $class_name = get_class($module);
 
-        if (false !== $cached_content)
-        {
-            if ($cached_content instanceof SifoHttpException)
-            {
+        if (false !== $cached_content) {
+            if ($cached_content instanceof SifoHttpException) {
                 throw new ControllerException("Module Execute has generated an exception (cached).", $cached_content);
             }
             $module_content = $cached_content;
-        }
-        else
-        {
+        } else {
             $cache_key = $module->parseCache();
-            if (false !== $cache_key)
-            {
+            if (false !== $cache_key) {
                 $module->addToDebug('name', $cache_key['name'], 'Cache properties');
                 $module->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
             }
-            try
-            {
+            try {
                 $module_content = $module->execute();
-            }
-            catch (SifoHttpException $e)
-            {
+            } catch (SifoHttpException $e) {
                 $this->cacheException($e, $cache_key);
                 throw new ControllerException("Module Execute has generated an exception.", $e);
             }
@@ -743,8 +692,7 @@ abstract class Controller
 
         $cache_key = $module->parseCache();
 
-        if (false !== $cache_key)
-        {
+        if (false !== $cache_key) {
             $this->cache->set($cache_key['name'], $module_content, $cache_key['expiration']);
         }
 
@@ -795,8 +743,7 @@ abstract class Controller
      */
     public function getParam($param_name)
     {
-        if (isset($this->params[$param_name]))
-        {
+        if (isset($this->params[$param_name])) {
             return $this->params[$param_name];
         }
 
@@ -812,8 +759,7 @@ abstract class Controller
      */
     public function getParsedParam($param_name)
     {
-        if (!empty($this->params['parsed_params']) && isset($param_name, $this->params['parsed_params'], $this->params['parsed_params'][$param_name]))
-        {
+        if (!empty($this->params['parsed_params']) && isset($param_name, $this->params['parsed_params'], $this->params['parsed_params'][$param_name])) {
             return $this->params['parsed_params'][$param_name];
         }
 
@@ -829,8 +775,7 @@ abstract class Controller
      */
     public function getUrlParam($number)
     {
-        if (isset($this->params['params'][$number]))
-        {
+        if (isset($this->params['params'][$number])) {
             return $this->params['params'][$number];
         }
 
@@ -852,10 +797,8 @@ abstract class Controller
         $args = func_get_args();
 
         $variables = array();
-        if (1 < count($args))
-        {
-            foreach ($args as $key => $value)
-            {
+        if (1 < count($args)) {
+            foreach ($args as $key => $value) {
                 $variables['%' . $key] = $value;
             }
         }
@@ -903,8 +846,7 @@ abstract class Controller
      */
     public function addModules(array $modules = array())
     {
-        foreach ($modules as $key => $val)
-        {
+        foreach ($modules as $key => $val) {
             $this->modules[$key] = $val;
         }
     }
@@ -929,10 +871,8 @@ abstract class Controller
     protected function addToDebug($key, $value, $context = null)
     {
         // Store everything in the debug in the registry.
-        if (Domains::getInstance()->getDebugMode())
-        {
-            if (null === $context)
-            {
+        if (Domains::getInstance()->getDebugMode()) {
+            if (null === $context) {
                 $context = '__other__';
             }
 
@@ -953,7 +893,7 @@ abstract class Controller
     /**
      * Stops the timer for the bench.
      *
-     * @param string $key   Identifier that you used to start the bench.
+     * @param string $key Identifier that you used to start the bench.
      * @param string $label Text that will be shown in the benchmarks table.
      */
     protected function stopBench($key, $label)
@@ -965,15 +905,14 @@ abstract class Controller
      * Get config from the current instance or a given one.
      *
      * @param string $config_name Config name.
-     * @param string $instance    If null, the config is taken from the current instance.
+     * @param string $instance If null, the config is taken from the current instance.
      *
      * @return Config
      */
     protected function getConfig($config_name, $instance = null)
     {
         $current_instance = $this->instance;
-        if (null !== $instance)
-        {
+        if (null !== $instance) {
             $current_instance = $instance;
         }
 
@@ -1006,39 +945,33 @@ abstract class Controller
      */
     protected function parseParams()
     {
-        $expected_params     = array();
+        $expected_params = array();
         $expected_url_params = $this->getParamsDefinition();
 
-        if (empty($expected_url_params))
-        {
+        if (empty($expected_url_params)) {
             // The controller didn't declare any parameters, nothing to do.
             return array();
         }
 
         // Build "reverse" keys array.
-        foreach ($expected_url_params as $key => $value)
-        {
+        foreach ($expected_url_params as $key => $value) {
             $expected_url_keys[$value['internal_key']] = $key;
 
             // Check if a "default_value" is used when there aren't any parameters in the URL.
-            if (isset($expected_url_params[$key]['default_value']))
-            {
+            if (isset($expected_url_params[$key]['default_value'])) {
                 $expected_params[$key] = ($expected_url_params[$key]['default_value']);
             }
         }
 
-        if (empty($expected_params) && (empty($this->params['params']) || empty($expected_url_params)))
-        {
+        if (empty($expected_params) && (empty($this->params['params']) || empty($expected_url_params))) {
             return array();
         }
 
         // Expected params:
         $max = (count($this->params['params']) - 1); // -1 because the last param never is a param key and to avoid asking a non existing key.
 
-        if (count($expected_url_params))
-        {
-            for ($i = 0; $i < $max; $i++)
-            {
+        if (count($expected_url_params)) {
+            for ($i = 0; $i < $max; $i++) {
                 $param = $this->params['params'][$i];
 
                 if ((3 >= strlen($param))
@@ -1052,31 +985,24 @@ abstract class Controller
                             $this->params['params'][$i + 1],
                             FILTER_DEFAULT
                         )) // The value is a valid string and is not empty.
-                )
-                {
+                ) {
                     $value = $this->params['params'][$i + 1];
 
-                    if ($expected_url_params[$expected_url_keys[$param]]['is_list'])
-                    {
+                    if ($expected_url_params[$expected_url_keys[$param]]['is_list']) {
                         $value = explode(',', $value);
                     }
 
-                    if ($expected_url_params[$expected_url_keys[$param]]['apply_translation'])
-                    {
+                    if ($expected_url_params[$expected_url_keys[$param]]['apply_translation']) {
                         // Save current domain:
                         $current_domain = $this->i18n->getDomain();
 
                         $this->i18n->setDomain('urlparams', $this->language);
-                        if (is_array($value))
-                        {
+                        if (is_array($value)) {
                             // Try to translate all the params.
-                            foreach ($value as &$item)
-                            {
+                            foreach ($value as &$item) {
                                 $item = $this->i18n->getReverseTranslation($item);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             $value = $this->i18n->getReverseTranslation($value);
                         }
 
@@ -1084,15 +1010,16 @@ abstract class Controller
                         $this->i18n->setDomain($current_domain, $this->language);
                     }
 
-                    if (isset($expected_url_params[$expected_url_keys[$param]]['accepted_values']))
-                    {
-                        if (is_array($value) && count(array_diff($value, $expected_url_params[$expected_url_keys[$param]]['accepted_values'])))
-                        {
+                    if (isset($expected_url_params[$expected_url_keys[$param]]['accepted_values'])) {
+                        if (is_array($value) && count(array_diff($value,
+                                $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
+                        ) {
                             throw new Exception_404('The value passed in the parameters is not included in the "accepted_values"');
                         }
 
-                        if (!is_array($value) && (!in_array($value, $expected_url_params[$expected_url_keys[$param]]['accepted_values'])))
-                        {
+                        if (!is_array($value) && (!in_array($value,
+                                $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
+                        ) {
                             throw new Exception_404('The value passed is the parameters is not included in the "accepted_values"');
                         }
                     }
@@ -1115,8 +1042,7 @@ abstract class Controller
     protected function getCurrentPage()
     {
         // Functions as is_numeric do not work properly with large integers in 64bit machines.
-        if (!empty($this->params['params']) && preg_match('/^[0-9]+$/', end($this->params['params'])))
-        {
+        if (!empty($this->params['params']) && preg_match('/^[0-9]+$/', end($this->params['params']))) {
             return array_pop($this->params['params']);
         }
 

@@ -5,6 +5,7 @@
  * Date: 22/4/17
  * Time: 13:47
  */
+
 namespace Sifo\Database;
 
 use Sifo\Bootstrap;
@@ -72,31 +73,26 @@ abstract class LoadBalancer
      */
     public function setNodes(Array $nodes)
     {
-        $cache             = Cache::getInstance();
+        $cache = Cache::getInstance();
         $available_servers = trim($cache->get($this->loadbalancer_cache_key)); // CacheDisk returns " " when no cache.
 
-        if (empty($available_servers))
-        {
-            foreach ($nodes as $key => $node_properties)
-            {
+        if (empty($available_servers)) {
+            foreach ($nodes as $key => $node_properties) {
                 $this->addNodeIfAvailable($key, $node_properties);
             }
 
             // Save in cache available servers (even if none):
             $serialized_nodes = serialize(array('nodes' => $this->nodes, 'total_weights' => $this->total_weights));
             $cache->set($this->loadbalancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION);
-        }
-        else
-        {
-            $available_servers   = unserialize($available_servers);
-            $this->nodes         = $available_servers['nodes'];
+        } else {
+            $available_servers = unserialize($available_servers);
+            $this->nodes = $available_servers['nodes'];
             $this->total_weights = $available_servers['total_weights'];
         }
 
         $num_nodes = count($this->nodes);
 
-        if (1 > $num_nodes)
-        {
+        if (1 > $num_nodes) {
             // This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
             $message = "No available servers in profile";
             trigger_error($message);
@@ -109,15 +105,15 @@ abstract class LoadBalancer
     /**
      * Adds a server to the battery of available.
      *
-     * @param integer $index  Number of server.
+     * @param integer $index Number of server.
      * @param integer $weight Weight of this server.
      *
      * @return integer Position in battery
      */
     protected function addServer($index, $weight)
     {
-        $x                      = count($this->nodes);
-        $this->nodes[$x]        = new \stdClass;
+        $x = count($this->nodes);
+        $this->nodes[$x] = new \stdClass;
         $this->nodes[$x]->index = $index;
         $this->total_weights += ($this->nodes[$x]->weight = abs($weight));
 
@@ -129,19 +125,16 @@ abstract class LoadBalancer
      */
     public function get()
     {
-        if (!isset($this->nodes))
-        {
+        if (!isset($this->nodes)) {
             throw new LoadBalancerException("There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?");
         }
 
         $x = round(mt_rand(0, $this->total_weights));
 
         $max = ($i = 0);
-        do
-        {
+        do {
             $max += $this->nodes[$i++]->weight;
-        }
-        while ($x > $max);
+        } while ($x > $max);
 
         return $this->nodes[($i - 1)]->index;
     }
@@ -153,8 +146,7 @@ abstract class LoadBalancer
      */
     public function removeServer($index)
     {
-        if (isset($this->nodes[$index]))
-        {
+        if (isset($this->nodes[$index])) {
             $this->total_weights -= $this->nodes[$index]->weight;
             unset($this->nodes[$index]);
             $this->nodes = array_values($this->nodes);

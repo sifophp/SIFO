@@ -51,7 +51,7 @@ class Base
      * Derive all unknown/unimplemented calls to the original cache object.
      *
      * @param string $method
-     * @param mixed  $args
+     * @param mixed $args
      *
      * @return mixed
      */
@@ -95,47 +95,35 @@ class Base
      */
     public function get($key)
     {
-        if ($this->hasRebuild())
-        {
+        if ($this->hasRebuild()) {
             return false;
-        }
-        else
-        {
+        } else {
             $sha1 = sha1($key);
-            if (!($content = $this->cache_object->get($sha1)))
-            {
-                if (!$this->use_locking)
-                {
+            if (!($content = $this->cache_object->get($sha1))) {
+                if (!$this->use_locking) {
                     return false;
                 }
 
                 $lock = Lock::getInstance($sha1, $this->cache_object);
 
-                if ($lock->isLocked())
-                {
-                    do
-                    {
+                if ($lock->isLocked()) {
+                    do {
                         usleep(Lock::WAIT_TIME);
-                    }
-                    while ($lock->isLocked());
+                    } while ($lock->isLocked());
 
-                    if (!($content = $this->cache_object->get($sha1)))
-                    {
+                    if (!($content = $this->cache_object->get($sha1))) {
                         trigger_error(
                             "Cache lock timeout.Lock for $key (SHA1: $sha1) has not released after " . Lock::TTL . " seconds of script running.",
                             E_USER_WARNING
                         );
                     }
-                }
-                else
-                {
+                } else {
                     $lock->acquire();
                 }
             }
 
             // Check for any possible SHA1 collisions:
-            if (isset($content['content']) && $content['key'] == $key)
-            {
+            if (isset($content['content']) && $content['key'] == $key) {
                 return $content['content'];
             }
 
@@ -155,15 +143,14 @@ class Base
     public function set($key, $content, $expiration)
     {
         $content = array(
-            'key'     => $key,
+            'key' => $key,
             'content' => $content
         );
 
-        $hash       = sha1($key);
+        $hash = sha1($key);
         $set_result = $this->cache_object->set($hash, $content, $expiration);
 
-        if ($this->use_locking)
-        {
+        if ($this->use_locking) {
             Lock::getInstance($hash, $this->cache_object)->release();
         }
 
@@ -185,8 +172,8 @@ class Base
     /**
      * Construct the cache tag if it's defined in config.
      *
-     * @param string $tag   Cache tag.
-     * @param mixed  $value Cache value.
+     * @param string $tag Cache tag.
+     * @param mixed $value Cache value.
      *
      * @return string
      */
@@ -196,15 +183,15 @@ class Base
 
         $cache_config = Config::getInstance()->getConfig('cache');
 
-        if (isset($cache_config['cache_tags']) && in_array($tag, $cache_config['cache_tags']))
-        {
-            if (!($pointer = $this->cache_object->get($key_tag = sprintf(self::CACHE_TAG_STORE_FORMAT, $tag, $value))))
-            {
+        if (isset($cache_config['cache_tags']) && in_array($tag, $cache_config['cache_tags'])) {
+            if (!($pointer = $this->cache_object->get($key_tag = sprintf(self::CACHE_TAG_STORE_FORMAT, $tag,
+                $value)))
+            ) {
                 // Default declaration when the tag is not initialized.
                 // This code piece is required to the cache lock release.
                 $this->cache_object->set($key_tag, 0, 0); // $expiration = 0 => Unexpirable.
             }
-            $cache_tag .= '/' . ( int ) $pointer;
+            $cache_tag .= '/' . ( int )$pointer;
         }
 
         return $cache_tag;
@@ -219,7 +206,7 @@ class Base
      */
     public function getCacheKeyName(array $definition)
     {
-        $cache_key      = array();
+        $cache_key = array();
         $cache_base_key = array();
 
         // First of all, let's construct the cache base with domain, language and controller name.
@@ -229,10 +216,8 @@ class Base
         // Now we add the rest of identifiers of the definition excluding the "expiration".
         unset($definition['expiration']);
 
-        if (!empty($definition))
-        {
-            foreach ($definition as $key => $val)
-            {
+        if (!empty($definition)) {
+            foreach ($definition as $key => $val) {
                 $cache_key[] = $this->getCacheTag($key, $val);
             }
             sort($cache_key);
@@ -244,8 +229,8 @@ class Base
     /**
      * Delete cache from all the keys that contain the given tag in that value.
      *
-     * @param string $tag   Cache tag.
-     * @param mixed  $value Cache value.
+     * @param string $tag Cache tag.
+     * @param mixed $value Cache value.
      *
      * @return boolean Always returns true
      */
@@ -253,8 +238,7 @@ class Base
     {
         $stored_tag = sprintf(self::CACHE_TAG_STORE_FORMAT, $tag, $value);
 
-        if (false === $this->cache_object->add($stored_tag, 1))
-        {
+        if (false === $this->cache_object->add($stored_tag, 1)) {
             $this->cache_object->increment($stored_tag);
         }
 

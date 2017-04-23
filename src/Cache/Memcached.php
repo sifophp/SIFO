@@ -21,18 +21,14 @@ class Memcached extends Base
     {
         $this->cache_object = new \Memcached();
 
-        try
-        {
+        try {
             $servers = Config::getInstance()->getConfig('cache', 'servers');
-        }
-        catch (ConfigurationException $e)
-        {
+        } catch (ConfigurationException $e) {
             // Default memcached address and listening port.
             $servers = array(array('127.0.0.1' => 11211));
         }
 
-        foreach ($servers[0] as $server => $port)
-        {
+        foreach ($servers[0] as $server => $port) {
             $this->cache_object->addServer($server, $port);
         }
     }

@@ -5,6 +5,7 @@
  * Date: 22/4/17
  * Time: 13:53
  */
+
 namespace Sifo\Database\Sphinx;
 
 use Sifo\Config;
@@ -54,22 +55,38 @@ class Sphinxql
      * @var array
      */
     protected $allowed_options = array(
-        'agent_query_timeout', // integer, max time in milliseconds to wait for remote queries to complete.
-        'boolean_simplify', // 0 or 1, enables simplifying the query to speed it up.
-        'comment', // string, user comment that gets copied to a query log file.
-        'cutoff', // integer, max found matches threshold.
-        'field_weights', // a named integer list, per-field user weights for ranking, pe: "( title = 10, body = 5 )".
-        'index_weights', // a named integer list, per-index user weights for ranking.
-        'max_matches', // integer, per-query max matches value.
-        'max_query_time', // integer, max search time threshold in msec.
-        'max_predicted_time', // integer, max predicted search time.
-        'ranker', // any of 'proximity_bm25', 'bm25', 'none', 'wordcount', 'proximity', 'matchany', 'fieldmask', 'sph04', 'expr', or 'export'.
-        'retry_count', // integer distributed retries count.
-        'retry_delay', // integer distributed retry delay in msec.
-        'reverse_scan', // 0 or 1, lets you control the order in which full-scan query processes the rows.
-        'global_idf', // use global statistics (frequencies) from the global_idf file for IDF computations, >= 2.1.1-beta.
-        'idf', // a quoted, comma-separated list of IDF computation flags, >= 2.1.1-beta.
-        'sort_method' // 'pq' priority queue (set by default) or 'kbuffer' gives faster sorting for already pre-sorted data, >= 2.1.1-beta.
+        'agent_query_timeout',
+        // integer, max time in milliseconds to wait for remote queries to complete.
+        'boolean_simplify',
+        // 0 or 1, enables simplifying the query to speed it up.
+        'comment',
+        // string, user comment that gets copied to a query log file.
+        'cutoff',
+        // integer, max found matches threshold.
+        'field_weights',
+        // a named integer list, per-field user weights for ranking, pe: "( title = 10, body = 5 )".
+        'index_weights',
+        // a named integer list, per-index user weights for ranking.
+        'max_matches',
+        // integer, per-query max matches value.
+        'max_query_time',
+        // integer, max search time threshold in msec.
+        'max_predicted_time',
+        // integer, max predicted search time.
+        'ranker',
+        // any of 'proximity_bm25', 'bm25', 'none', 'wordcount', 'proximity', 'matchany', 'fieldmask', 'sph04', 'expr', or 'export'.
+        'retry_count',
+        // integer distributed retries count.
+        'retry_delay',
+        // integer distributed retry delay in msec.
+        'reverse_scan',
+        // 0 or 1, lets you control the order in which full-scan query processes the rows.
+        'global_idf',
+        // use global statistics (frequencies) from the global_idf file for IDF computations, >= 2.1.1-beta.
+        'idf',
+        // a quoted, comma-separated list of IDF computation flags, >= 2.1.1-beta.
+        'sort_method'
+        // 'pq' priority queue (set by default) or 'kbuffer' gives faster sorting for already pre-sorted data, >= 2.1.1-beta.
     );
 
     /**
@@ -82,8 +99,7 @@ class Sphinxql
         $this->sphinx_config = $this->getConnectionParams($profile);
 
         // Check if Sphinx is enabled by configuration:
-        if (true === $this->sphinx_config['active'])
-        {
+        if (true === $this->sphinx_config['active']) {
             $this->sphinxql = $this->connect($this->sphinx_config);
         }
 
@@ -99,14 +115,10 @@ class Sphinxql
      */
     public static function getInstance($profile = 'default')
     {
-        if (!isset (self::$instance[$profile]))
-        {
-            if (Domains::getInstance()->getDebugMode() !== true)
-            {
+        if (!isset (self::$instance[$profile])) {
+            if (Domains::getInstance()->getDebugMode() !== true) {
                 self::$instance[$profile] = new Sphinxql($profile);
-            }
-            else
-            {
+            } else {
                 self::$instance[$profile] = new Sphinxql($profile);
             }
         }
@@ -124,20 +136,16 @@ class Sphinxql
      */
     protected function getConnectionParams($profile)
     {
-        try
-        {
+        try {
             // If the domains.config doesn't define the params, we use the sphinx.config.
             $sphinx_config = Config::getInstance()->getConfig('sphinx');
 
-            if (empty($sphinx_config[$profile]))
-            {
+            if (empty($sphinx_config[$profile])) {
                 throw new \Sifo\Exception_500("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
             }
 
             $sphinx_config = $this->checkBalancedProfile($sphinx_config[$profile]);
-        }
-        catch (ConfigurationException $e)
-        {
+        } catch (ConfigurationException $e) {
             throw new \Sifo\Exception_500('You must define the connection params in sphinx.config');
         }
 
@@ -153,13 +161,12 @@ class Sphinxql
      */
     private function checkBalancedProfile($sphinx_config)
     {
-        if (isset($sphinx_config[0]) && is_array($sphinx_config[0]))
-        {
+        if (isset($sphinx_config[0]) && is_array($sphinx_config[0])) {
             $lb = new LoadBalancerSphinxql();
             $lb->injectObject($this);
             $lb->setNodes($sphinx_config);
             $selected_server = $lb->get();
-            $sphinx_config   = $sphinx_config[$selected_server];
+            $sphinx_config = $sphinx_config[$selected_server];
         }
 
         return $sphinx_config;
@@ -177,8 +184,7 @@ class Sphinxql
     {
         $mysqli = mysqli_connect($node_properties['server'], '', '', '', $node_properties['port']);
 
-        if (!$mysqli || $mysqli->connect_error)
-        {
+        if (!$mysqli || $mysqli->connect_error) {
             throw new \Sifo\Exception_500('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
         }
 
@@ -201,8 +207,7 @@ class Sphinxql
         $results = $this->multiQuery($tag);
 
         // If we called this method we expect only one result...
-        if (!empty($results))
-        {
+        if (!empty($results)) {
             // ...so we pop it from the resultset.
             return array_pop($results);
         }
@@ -214,7 +219,7 @@ class Sphinxql
      * Add query to be executed using the multi query feature.
      *
      * @param       $query
-     * @param null  $tag
+     * @param null $tag
      * @param array $parameters
      *
      * @return string The query after being prepared.
@@ -228,8 +233,7 @@ class Sphinxql
         $query = $this->prepareQuery($query, $parameters);
 
         $this->multi_query .= $query;
-        if (!preg_match('/^CALL|^INSERT|^DELETE|^REPLACE/i', $query))
-        {
+        if (!preg_match('/^CALL|^INSERT|^DELETE|^REPLACE/i', $query)) {
             $this->multi_query .= ';';
         }
 
@@ -248,27 +252,20 @@ class Sphinxql
     public function multiQuery($tag = null)
     {
         $final_result = false;
-        $response     = $this->sphinxql->multi_query($this->multi_query);
+        $response = $this->sphinxql->multi_query($this->multi_query);
 
-        if (!$response || $this->sphinxql->errno)
-        {
+        if (!$response || $this->sphinxql->errno) {
             $this->logError($this->sphinxql->error);
-        }
-        else
-        {
-            do
-            {
-                if ($result = $this->sphinxql->store_result())
-                {
-                    for ($res = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);)
-                    {
+        } else {
+            do {
+                if ($result = $this->sphinxql->store_result()) {
+                    for ($res = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) {
                         $res[] = $tmp;
                     }
                     $final_result[] = $res;
                     $result->free();
                 }
-            }
-            while ($this->sphinxql->more_results() && $this->sphinxql->next_result());
+            } while ($this->sphinxql->more_results() && $this->sphinxql->next_result());
         }
 
         $this->multi_query = '';
@@ -284,35 +281,27 @@ class Sphinxql
      *    $sql = 'SELECT * FROM index WHERE tag = :tag_name';
      *    $results = $sphinx->query( $sql, 'label', array( ':tag_name' => 'some-tag' ) );
      *
-     * @param string $query      SphinxQL query.
-     * @param array  $parameters List of parameters.
+     * @param string $query SphinxQL query.
+     * @param array $parameters List of parameters.
      *
      * @return string Prepared query.
      */
     protected function prepareQuery($query, $parameters)
     {
-        if (empty($parameters))
-        {
+        if (empty($parameters)) {
             return $query;
         }
 
-        foreach ($parameters as &$parameter)
-        {
-            if (is_null($parameter))
-            {
+        foreach ($parameters as &$parameter) {
+            if (is_null($parameter)) {
                 $parameter = 'NULL';
-            }
-            elseif (is_int($parameter) || is_float($parameter))
-            {
+            } elseif (is_int($parameter) || is_float($parameter)) {
                 // Locale unaware number representation.
                 $parameter = sprintf('%.12F', $parameter);
-                if (false !== strpos($parameter, '.'))
-                {
+                if (false !== strpos($parameter, '.')) {
                     $parameter = rtrim(rtrim($parameter, '0'), '.');
                 }
-            }
-            else
-            {
+            } else {
                 $parameter = "'" . $this->sphinxql->real_escape_string($parameter) . "'";
             }
         }
@@ -323,21 +312,19 @@ class Sphinxql
     /**
      * Append the OPTION clause to the end of the query if an option list is defined.
      *
-     * @param string $query   The SphinxQL query.
-     * @param array  $options Option list.
+     * @param string $query The SphinxQL query.
+     * @param array $options Option list.
      *
      * @return string
      */
     protected function appendOptionsToQuery($query, array $options)
     {
-        if (empty($options))
-        {
+        if (empty($options)) {
             return $query;
         }
 
         $options_list = array();
-        foreach ($options as $option => $value)
-        {
+        foreach ($options as $option => $value) {
             $options_list[] = $option . ' = ' . $value;
         }
 
@@ -351,14 +338,10 @@ class Sphinxql
      */
     public function setOptions(array $options)
     {
-        foreach ($options as $option => $value)
-        {
-            if (!in_array($option, $this->allowed_options))
-            {
+        foreach ($options as $option => $value) {
+            if (!in_array($option, $this->allowed_options)) {
                 trigger_error('SphinxQL - The defined option "' . $option . '" is not allowed', E_USER_WARNING);
-            }
-            else
-            {
+            } else {
                 $this->options[$option] = $value;
             }
         }

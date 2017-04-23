@@ -26,8 +26,7 @@ class Mail
      */
     public static function getInstance()
     {
-        if (!isset (self::$instance))
-        {
+        if (!isset (self::$instance)) {
             self::$instance = new self();
         }
 
@@ -36,7 +35,7 @@ class Mail
 
     protected function setDependencies()
     {
-        $this->mail   = new \PHPMailer();
+        $this->mail = new \PHPMailer();
         $this->config = Config::getInstance();
     }
 
@@ -45,8 +44,7 @@ class Mail
         $this->setDependencies();
         $email_properties = $this->config->getConfig('mail');
 
-        foreach ($email_properties as $property => $value)
-        {
+        foreach ($email_properties as $property => $value) {
             $this->mail->{$property} = $value;
         }
 
@@ -57,7 +55,7 @@ class Mail
      * Calls the PHPmailer methods.
      *
      * @param string $method
-     * @param mixed  $args
+     * @param mixed $args
      *
      * @return mixed
      */
@@ -80,7 +78,7 @@ class Mail
      * Set any phpmailer attribute.
      *
      * @param string $property
-     * @param mixed  $value
+     * @param mixed $value
      */
     public function __set($property, $value)
     {
@@ -103,8 +101,7 @@ class Mail
         $this->mail->AddAddress($to);
         $this->mail->MsgHTML($body);
 
-        if (!$this->mail->Send())
-        {
+        if (!$this->mail->Send()) {
             throw new NotSendMailException($this->mail->ErrorInfo);
         }
 

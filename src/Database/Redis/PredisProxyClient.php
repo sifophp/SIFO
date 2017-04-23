@@ -19,17 +19,13 @@ class PredisProxyClient
         asort($connection_params);
 
         $key = md5(serialize($connection_params));
-        if (isset(self::$instance[$key]))
-        {
+        if (isset(self::$instance[$key])) {
             return self::$instance[$key];
         }
 
-        if (true !== Domains::getInstance()->getDebugMode())
-        {
+        if (true !== Domains::getInstance()->getDebugMode()) {
             self::$instance[$key] = new self($connection_params);
-        }
-        else
-        {
+        } else {
             self::$instance[$key] = new PredisProxyClient($connection_params);
         }
 
@@ -39,13 +35,12 @@ class PredisProxyClient
     protected function __construct(Array $connection_params)
     {
         $this->connection_params = $connection_params;
-        $this->client            = new \Predis\Client($connection_params);
+        $this->client = new \Predis\Client($connection_params);
     }
 
     public function __call($method, $args)
     {
-        if (is_object($this->client))
-        {
+        if (is_object($this->client)) {
             return call_user_func_array(array($this->client, $method), $args);
         }
 

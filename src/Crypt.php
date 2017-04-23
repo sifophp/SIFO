@@ -22,11 +22,10 @@ class Crypt
     static public function encrypt($string)
     {
         $result = '';
-        for ($i = 0; $i < strlen($string); $i++)
-        {
-            $char    = substr($string, $i, 1);
+        for ($i = 0; $i < strlen($string); $i++) {
+            $char = substr($string, $i, 1);
             $keychar = substr(self::$seed, ($i % strlen(self::$seed)) - 1, 1);
-            $char    = chr(ord($char) + ord($keychar));
+            $char = chr(ord($char) + ord($keychar));
             $result .= $char;
         }
 
@@ -38,11 +37,10 @@ class Crypt
         $result = '';
         $string = base64_decode($string);
 
-        for ($i = 0; $i < strlen($string); $i++)
-        {
-            $char    = substr($string, $i, 1);
+        for ($i = 0; $i < strlen($string); $i++) {
+            $char = substr($string, $i, 1);
             $keychar = substr(self::$seed, ($i % strlen(self::$seed)) - 1, 1);
-            $char    = chr(ord($char) - ord($keychar));
+            $char = chr(ord($char) - ord($keychar));
             $result .= $char;
         }
 

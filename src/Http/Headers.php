@@ -128,13 +128,10 @@ class Headers
      */
     public static function setResponseStatus($http_code)
     {
-        if (isset(self::$http_codes[$http_code]))
-        {
+        if (isset(self::$http_codes[$http_code])) {
             $msg = self::$http_codes[$http_code];
-            self::pushHeader(( string ) $http_code, $msg, true, self::FORMAT_TYPE_STATUS, false);
-        }
-        else
-        {
+            self::pushHeader(( string )$http_code, $msg, true, self::FORMAT_TYPE_STATUS, false);
+        } else {
             throw new HeadersException("Unknown status code requested $http_code");
         }
     }
@@ -151,8 +148,8 @@ class Headers
     protected static function pushHeader($key, $value, $replace, $format, $http_code)
     {
         $header = array(
-            'content'   => sprintf($format, $key, $value),
-            'replace'   => $replace,
+            'content' => sprintf($format, $key, $value),
+            'replace' => $replace,
             'http_code' => $http_code
         );
 
@@ -161,8 +158,7 @@ class Headers
 
     public static function get($key)
     {
-        if (!isset(self::$headers[$key]))
-        {
+        if (!isset(self::$headers[$key])) {
             return false;
         }
 
@@ -179,21 +175,17 @@ class Headers
      */
     public static function send()
     {
-        foreach (self::$headers as $header => $values)
-        {
-            if ($values['http_code'])
-            {
+        foreach (self::$headers as $header => $values) {
+            if ($values['http_code']) {
                 header($values['content'], $values['replace'], $values['http_code']);
-            }
-            else
-            {
+            } else {
                 header($values['content'], $values['replace']);
             }
         }
 
         // Clear the stack after writing:
         self::$history[] = self::$headers;
-        self::$headers   = array();
+        self::$headers = array();
     }
 
     /**

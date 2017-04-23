@@ -95,13 +95,11 @@ class Urls
      */
     static public function getInstance($instance_name = null)
     {
-        if (null === $instance_name)
-        {
+        if (null === $instance_name) {
             $instance_name = Bootstrap::$instance;
         }
 
-        if (!isset(self::$instance[$instance_name]))
-        {
+        if (!isset(self::$instance[$instance_name])) {
             self::$instance[$instance_name] = new self($instance_name);
         }
 
@@ -110,42 +108,36 @@ class Urls
 
     private function __construct($instance_name)
     {
-        $domains       = Domains::getInstance($instance_name);
+        $domains = Domains::getInstance($instance_name);
         $filter_server = FilterServer::getInstance();
 
         $clean_host = preg_replace('/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain());
 
-        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https')
-        {
+        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
             self::$scheme = 'https';
         }
 
-        if (true === $domains->www_mode)
-        {
+        if (true === $domains->www_mode) {
             self::$main_url = 'http://www.' . $clean_host;
-        }
-        else
-        {
+        } else {
             self::$main_url = 'http://' . $clean_host;
         }
 
         // E.g: http://domain.com/folder1/subfolder1/subfolder11
-        self::$base_url       = self::$scheme . '://' . $filter_server->getString('HTTP_HOST');
+        self::$base_url = self::$scheme . '://' . $filter_server->getString('HTTP_HOST');
         self::$url_definition = Config::getInstance($instance_name)->getConfig('url_definition');
 
         $original_path = $filter_server->getString('REQUEST_URI');
-        $query_string  = $filter_server->getString('QUERY_STRING');
-        $path          = urldecode(str_replace('?' . $query_string, '', $original_path));
+        $query_string = $filter_server->getString('QUERY_STRING');
+        $path = urldecode(str_replace('?' . $query_string, '', $original_path));
 
         // E.g: http://subdomain.domain.com/folder1_param:x:value:y:value?utm_campaign=enloquecer_al_larry
         self::$actual_url = self::$base_url . $original_path;
 
         // If url ends in slash, remove it and redirect:
-        if ((strlen($path) > 1) && (substr($path, -1) == '/'))
-        {
+        if ((strlen($path) > 1) && (substr($path, -1) == '/')) {
             $path = trim($path, '/');
-            if (!empty($query_string))
-            {
+            if (!empty($query_string)) {
                 $path .= '?' . urldecode($query_string);
             }
 
@@ -161,12 +153,9 @@ class Urls
         // Path is the first part of the explode, rest are parameters.
         self::$path = array_shift($params_parts);
 
-        if (count($params_parts) > 0)
-        {
+        if (count($params_parts) > 0) {
             self::$params = $params_parts;
-        }
-        else
-        {
+        } else {
             self::$params = array();
         }
 
@@ -184,7 +173,7 @@ class Urls
     public function resetPath(Array $parts)
     {
         self::$path_parts = $parts;
-        self::$path       = implode(self::$url_definition['context_separator'], self::$path_parts);
+        self::$path = implode(self::$url_definition['context_separator'], self::$path_parts);
     }
 
     /**
@@ -246,8 +235,7 @@ class Urls
      */
     static public function getUrl($url_config_key)
     {
-        if (isset(self::$url_config[$url_config_key]))
-        {
+        if (isset(self::$url_config[$url_config_key])) {
             return self::$url_config[$url_config_key];
         }
 
@@ -303,18 +291,17 @@ class Urls
     /**
      * Builds an standard Sifo url.
      *
-     * @param string $hostname   The hostname of the url to be built. Must be a key in the url.config.
+     * @param string $hostname The hostname of the url to be built. Must be a key in the url.config.
      * @param string $controller The controller part of the url as defined in the router. Must be a key in the url.config.
-     * @param array  $actions    An array of parameters that will be available in the $params['path_parts'] array.
-     * @param array  $params     Url parameters that will be available in the $params['params'] array.
+     * @param array $actions An array of parameters that will be available in the $params['path_parts'] array.
+     * @param array $params Url parameters that will be available in the $params['params'] array.
      *
      * @return string A sifo url.
      */
     static public function buildUrl($hostname, $controller, array $actions = [], array $params = [])
     {
-        $url      = self::getUrl($hostname) . '/';
-        $callback = function ($a)
-        {
+        $url = self::getUrl($hostname) . '/';
+        $callback = function ($a) {
             return urlencode($a);
         };
 
@@ -322,8 +309,7 @@ class Urls
         array_unshift($actions, self::getUrl($controller));
         $url .= implode(self::$url_definition['context_separator'], $actions);
 
-        if (array() !== $params)
-        {
+        if (array() !== $params) {
             $url .= self::$url_definition['params_separator'];
         }
         $url .= implode(self::$url_definition['params_separator'], $params);
