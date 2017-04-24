@@ -422,7 +422,7 @@ abstract class Controller
     {
         $class_name = get_class($this);
         if (!$this->is_json && !isset($this->layout)) {
-            throw new Exception_500('Layout not set in controller ' . $class_name);
+            throw SifoHttpException::InternalServerError('Layout not set in controller ' . $class_name);
         }
 
         $this->startBench("view_$class_name");
@@ -1014,13 +1014,13 @@ abstract class Controller
                         if (is_array($value) && count(array_diff($value,
                                 $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
                         ) {
-                            throw new Exception_404('The value passed in the parameters is not included in the "accepted_values"');
+                            throw SifoHttpException::NotFound('The value passed in the parameters is not included in the "accepted_values"');
                         }
 
                         if (!is_array($value) && (!in_array($value,
                                 $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
                         ) {
-                            throw new Exception_404('The value passed is the parameters is not included in the "accepted_values"');
+                            throw SifoHttpException::NotFound('The value passed is the parameters is not included in the "accepted_values"');
                         }
                     }
 
