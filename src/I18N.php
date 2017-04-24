@@ -2,6 +2,8 @@
 
 namespace Sifo;
 
+use Sifo\Exception\SifoHttpException;
+
 /**
  * I18N. This class manages internationalization & localization.
  */
@@ -128,7 +130,7 @@ class I18N
                 include(ROOT_PATH . "/$translations_file");
 
                 if (!isset($translations)) {
-                    throw new Exception_500('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
+                    throw SifoHttpException::InternalServerError('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
                 }
 
                 self::$translations[self::$active_domain_and_locale] = $translations;
