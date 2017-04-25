@@ -2,7 +2,7 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Http\Session;
 
 class FlashMessages
@@ -90,20 +90,20 @@ class FlashMessages
             case self::STORAGE_REGISTRY:
                 return Registry::getInstance();
             default:
-                throw SifoHttpException::InternalServerError('Invalid storage type.');
+                throw new \InvalidArgumentException('Invalid storage type.');
         }
     }
 
     private static function validateType($type)
     {
-        switch ($type) {
-            case self::MSG_KO:
-            case self::MSG_OK:
-            case self::MSG_WARNING:
-            case self::MSG_INFO:
-                break;
-            default:
-                throw new \Exception('Unknown type of FlashMessage');
+        if (!in_array($type, [
+            self::MSG_KO,
+            self::MSG_OK,
+            self::MSG_WARNING,
+            self::MSG_INFO
+        ])
+        ) {
+            throw new \InvalidArgumentException('Unknown type of FlashMessage');
         }
     }
 }

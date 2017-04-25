@@ -8,6 +8,8 @@
 
 namespace Sifo\Database;
 
+use Sifo\Exception\Http\InternalServerError;
+
 class LoadBalancerSearch extends LoadBalancer
 {
     /**
@@ -22,8 +24,8 @@ class LoadBalancerSearch extends LoadBalancer
         try {
             Search::connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
-        } catch (\Sifo\Exception_500 $e) {
-            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
+        } catch (InternalServerError $e) {
+            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!', E_ERROR);
         }
     }
 }

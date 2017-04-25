@@ -1,11 +1,11 @@
 <?php
 
-namespace Sifo\Exception;
+namespace Sifo\Exception\Http;
 
 use Sifo\Http\Headers;
 use Sifo\Http\Urls;
 
-class SifoHttpException extends \Exception
+abstract class BaseException extends \Exception
 {
     /** @var integer */
     private $http_code;
@@ -19,31 +19,6 @@ class SifoHttpException extends \Exception
 
         $this->validateHttpCode($http_code);
         $this->setInternalDefaultPropertiesValue();
-    }
-
-    public static function PermanentRedirect(... $regular_regular_exception_arguments)
-    {
-        return new self(301, ... $regular_regular_exception_arguments);
-    }
-
-    public static function TemporalRedirect(... $regular_regular_exception_arguments)
-    {
-        return new self(302, ... $regular_regular_exception_arguments);
-    }
-
-    public static function NotAuthorized(... $regular_regular_exception_arguments)
-    {
-        return new self(401, ... $regular_regular_exception_arguments);
-    }
-
-    public static function NotFound(... $regular_regular_exception_arguments)
-    {
-        return new self(404, ... $regular_regular_exception_arguments);
-    }
-
-    public static function InternalServerError(... $regular_regular_exception_arguments)
-    {
-        return new self(500, ... $regular_regular_exception_arguments);
     }
 
     public function isRedirect()
@@ -82,7 +57,8 @@ class SifoHttpException extends \Exception
         }
 
         if ($this->isRedirect() && !$this->hasBeenProvidedAValidRedirectLocation()) {
-            trigger_error("Exception " . $this->http_code . " raised with an empty or invalid location (" . $this->message . ") " . $this->getTraceAsString(),
+            trigger_error("Exception " . $this->http_code . " raised with an empty or invalid location" .
+                " (" . $this->message . ") " . $this->getTraceAsString(),
                 E_ERROR);
             Headers::setResponseStatus(500);
             Headers::send();

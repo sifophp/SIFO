@@ -6,36 +6,23 @@ use Sifo\Config;
 use Sifo\Current;
 use Sifo\Database;
 use Sifo\Exception\ConfigurationException;
-use Sifo\Exception_500;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Http\Domains;
 
 class Search
 {
-    /**
-     * @var Current instance.
-     */
+    /** @var self */
     static protected $instance;
 
-    /**
-     * @var string Singleton search engine object.
-     */
+    /** @var string Singleton search engine object. */
     static public $search_engine;
 
-    /**
-     * @var \SphinxClient Sphinx object.
-     */
+    /** @var \SphinxClient Sphinx object. */
     protected $sphinx;
 
-    /**
-     * @var array Config used to load this connection.
-     */
+    /** @var array Config used to load this connection. */
     protected $sphinx_config;
 
-    /**
-     * Initialize this class.
-     *
-     * @param $profile
-     */
     protected function __construct($profile)
     {
         $this->sphinx_config = $this->getConnectionParams($profile);
@@ -74,7 +61,7 @@ class Search
      *
      * @param $profile
      *
-     * @throws Exception_500
+     * @throws InternalServerError
      * @return array
      */
     protected function getConnectionParams($profile)
@@ -91,18 +78,19 @@ class Search
                     $sphinx_config = $this->checkBalancedProfile($sphinx_config[$profile]);
                 } elseif (isset($sphinx_config['default'])) {
                     // Is using profiles but there isn't the required one.
-                    throw new \Sifo\Exception_500("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
+                    throw new InternalServerError("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
                 } // Deprecated:
                 else {
                     if (Domains::getInstance()->getDebugMode() === true) {
                         trigger_error(
-                            "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)"
+                            "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)",
+                            E_WARNING
                         );
                     }
                 }
                 $sphinx_config['config_file'] = 'sphinx';
             } catch (ConfigurationException $e) {
-                throw new \Sifo\Exception_500('You must define the connection params in sphinx.config or domains.config file');
+                throw new InternalServerError('You must define the connection params in sphinx.config or domains.config file');
             }
         } else {
             $sphinx_config['config_file'] = 'domains';
@@ -152,8 +140,8 @@ class Search
      *
      * @param $node_properties
      *
+     * @throws InternalServerError
      * @return \SphinxClient
-     * @throws Exception_500
      */
     static function connect($node_properties)
     {
@@ -168,10 +156,10 @@ class Search
 
             // Check if Sphinx is listening:
             if (false === $sphinx->Status()) {
-                throw new \Sifo\Exception_500('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
+                throw new InternalServerError('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
             }
-        }
 
-        return $sphinx;
+            return $sphinx;
+        }
     }
 }

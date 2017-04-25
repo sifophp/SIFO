@@ -3,7 +3,7 @@
 namespace Sifo\Http;
 
 use Sifo\Config;
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\UnknownDomainException;
 use Sifo\FilterServer;
 
@@ -100,7 +100,7 @@ class Domains
                 $this->setLanguage($settings['language']);
                 $this->language_domain = $settings['language_domain'];
             } else {
-                throw SifoHttpException::InternalServerError('The language MUST be declared in domains.config file');
+                throw new InternalServerError('The language MUST be declared in domains.config file');
             }
 
             if (false !== strstr(strtolower($this->http_host), $host)) {
@@ -117,9 +117,6 @@ class Domains
                             // Language by default:
                             $this->setLanguage($settings['language']);
                             $this->valid_domain = false;
-
-                            // The subdomain given is unknown. Apache shouldn't let the application arrive at this point.
-                            // throw new Exception_404( "Unknown language subdomain $language in domain $host" );
                         }
 
                         $subdomain = implode('.', $subdomain_pieces);

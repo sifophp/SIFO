@@ -8,7 +8,9 @@ use Sifo\Container\DependencyInjector;
 use Sifo\Debug\Debug;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\BaseException;
+use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\Http\NotFound;
 use Sifo\Form\Form;
 use Sifo\Http\Domains;
 use Sifo\Http\Headers;
@@ -341,7 +343,7 @@ abstract class Controller
         $cached_content = $this->grabCache();
 
         if (false !== $cached_content) {
-            if ($cached_content instanceof SifoHttpException) {
+            if ($cached_content instanceof BaseException) {
                 throw new ControllerException("Controller Build has generated an exception (cached).", $cached_content);
             }
             $this->postDispatch();
@@ -366,7 +368,7 @@ abstract class Controller
 
         try {
             $return = $this->build();
-        } catch (SifoHttpException $e) {
+        } catch (BaseException $e) {
             $this->cacheException($e, $cache_key);
             throw new ControllerException("Controller Build has generated an exception.", $e);
         }
@@ -415,14 +417,14 @@ abstract class Controller
     /**
      * Grabs the HTML for a smarty template.
      *
-     * @throws Exception_500
-     * @return string html
+     * @throws InternalServerError
+     * @return string
      */
     protected function grabHtml()
     {
         $class_name = get_class($this);
         if (!$this->is_json && !isset($this->layout)) {
-            throw SifoHttpException::InternalServerError('Layout not set in controller ' . $class_name);
+            throw new InternalServerError('Layout not set in controller ' . $class_name);
         }
 
         $this->startBench("view_$class_name");
@@ -672,7 +674,7 @@ abstract class Controller
         $class_name = get_class($module);
 
         if (false !== $cached_content) {
-            if ($cached_content instanceof SifoHttpException) {
+            if ($cached_content instanceof BaseException) {
                 throw new ControllerException("Module Execute has generated an exception (cached).", $cached_content);
             }
             $module_content = $cached_content;
@@ -684,7 +686,7 @@ abstract class Controller
             }
             try {
                 $module_content = $module->execute();
-            } catch (SifoHttpException $e) {
+            } catch (BaseException $e) {
                 $this->cacheException($e, $cache_key);
                 throw new ControllerException("Module Execute has generated an exception.", $e);
             }
@@ -940,7 +942,7 @@ abstract class Controller
      * Parse the url params in params array searching for some expected params. If someone is found modify the array.
      * $params array is referenced.
      *
-     * @throws Exception_404
+     * @throws NotFound
      * @return array
      */
     protected function parseParams()
@@ -1014,13 +1016,13 @@ abstract class Controller
                         if (is_array($value) && count(array_diff($value,
                                 $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
                         ) {
-                            throw SifoHttpException::NotFound('The value passed in the parameters is not included in the "accepted_values"');
+                            throw new NotFound('The value passed in the parameters is not included in the "accepted_values"');
                         }
 
                         if (!is_array($value) && (!in_array($value,
                                 $expected_url_params[$expected_url_keys[$param]]['accepted_values']))
                         ) {
-                            throw SifoHttpException::NotFound('The value passed is the parameters is not included in the "accepted_values"');
+                            throw new NotFound('The value passed is the parameters is not included in the "accepted_values"');
                         }
                     }
 
