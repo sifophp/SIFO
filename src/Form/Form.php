@@ -116,7 +116,7 @@ class Form
     public function validateSingleElement($mandatory, $name, $filter_rule, $parameters = array())
     {
         if (method_exists($this->filter, $filter_rule) === false) {
-            throw new Form\Exception_Form("The method $filter_rule is not present in Filter");
+            throw new \InvalidArgumentException("The method $filter_rule is not present in Filter");
         }
 
         if (!$mandatory && (!$this->filter->isSent($name) || $this->filter->isEmpty($name))) {
@@ -188,6 +188,9 @@ class Form
      * Validates a series of form elements. See header of Form.php file for usage.
      *
      * @param string $form_config
+     *
+     * @throws \InvalidArgumentException
+     * @return bool
      */
     public function validateElements($form_config)
     {
@@ -195,7 +198,7 @@ class Form
 
         foreach ($form_elements as $key => $element) {
             if (!isset($element['name']) || !isset($element['filter'])) {
-                throw new Form\Exception_Form('A form element was passed without the minimum required definition parameters. Element was: ' . var_export($element,
+                throw new \InvalidArgumentException('A form element was passed without the minimum required definition parameters. Element was: ' . var_export($element,
                         true));
             }
 
@@ -259,9 +262,9 @@ class Form
     /**
      * Returns a security string that encodes a timestamp in the future.
      *
-     * @param  <type> $time
+     * @param int $time
      *
-     * @return <type>
+     * @return string
      */
     public function getTimeHash($time = 5)
     {
@@ -271,10 +274,8 @@ class Form
     /**
      * Validates the elements ensuring that the form has been on screen enough seconds.
      *
-     * @param string $form_config Configuration file with form definition.
      * @param string $input_name Optional input name that contains the security hash.
-     *
-     * @return boolean
+     * @return bool
      */
     public function isValidTimeHash($input_name)
     {

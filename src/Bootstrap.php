@@ -6,7 +6,12 @@ use Psr\Container\ContainerInterface;
 use Sifo\Container\DependencyInjector;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\BaseException;
+use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\Http\NotAuthorized;
+use Sifo\Exception\Http\NotFound;
+use Sifo\Exception\Http\PermanentRedirect;
+use Sifo\Exception\Http\Redirect;
 use Sifo\Exception\UnknownDomainException;
 use Sifo\Http\Cookie;
 use Sifo\Http\Domains;
@@ -92,8 +97,8 @@ class Bootstrap
      *
      * @param string $classname
      *
-     * @throws SifoHttpException
-     * @return string The classname you asked for.
+     * @throws InternalServerError
+     * @return string The class name you asked for.
      */
     public static function includeFile($classname)
     {
@@ -110,7 +115,7 @@ class Bootstrap
         $class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
 
         if (!file_exists($class_path)) {
-            throw SifoHttpException::InternalServerError("Doesn't exist in expected path {$class_info['path']}");
+            throw new InternalServerError("Doesn't exist in expected path {$class_info['path']}");
         }
 
         include_once($class_path);
@@ -125,7 +130,7 @@ class Bootstrap
             $destination = $domain->getRedirect();
 
             if (!empty($destination)) {
-                throw SifoHttpException::PermanentRedirect($destination);
+                throw new PermanentRedirect($destination);
             }
 
             $auth_data = $domain->getAuthData();
@@ -138,7 +143,7 @@ class Bootstrap
                     Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
                     Headers::send();
 
-                    throw SifoHttpException::NotAuthorized('You should enter a valid credentials.');
+                    throw new NotAuthorized('You should enter a valid credentials.');
                 }
 
                 // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
@@ -156,7 +161,7 @@ class Bootstrap
             $path_parts = $url->getPathParts();
 
             if (!$domain->valid_domain) {
-                throw SifoHttpException::NotFound('Unknown language in domain');
+                throw new NotFound('Unknown language in domain');
             }
 
             if (null === $controller) {
@@ -182,21 +187,18 @@ class Bootstrap
             Headers::send();
             echo "<h1>{$d->getMessage()}</h1>";
             die;
-        } catch (SifoHttpException $e) {
-            if ($e->isRedirect()) {
-                self::dispatchRedirect($e);
-            } else {
-                self::dispatchErrorController($e);
-            }
+        } catch (Redirect $e) {
+            self::dispatchRedirect($e);
+        } catch (BaseException $e) {
+            self::dispatchErrorController($e);
         } catch (ControllerException $e) {
             self::dispatchErrorController($e->getPrevious());
         } catch (\Exception $e) {
-            $exception = SifoHttpException::InternalServerError($e->getMessage(), $e->getCode(), $e->getPrevious());
-            self::dispatchErrorController($exception);
+            self::dispatchErrorController(new InternalServerError($e->getMessage(), $e->getCode(), $e->getPrevious()));
         }
     }
 
-    private static function dispatchRedirect(SifoHttpException $exception)
+    private static function dispatchRedirect(Redirect $exception)
     {
         $new_location = $exception->getRedirectLocation();
 
@@ -225,7 +227,7 @@ class Bootstrap
         Headers::send();
     }
 
-    private static function dispatchErrorController(SifoHttpException $exception)
+    private static function dispatchErrorController(BaseException $exception)
     {
         Headers::setResponseStatus($exception->getHttpCode());
         Headers::send();
