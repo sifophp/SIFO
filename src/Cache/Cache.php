@@ -32,8 +32,7 @@ class Cache
      * @param int $lock_enabled
      *
      * @return Base
-     *
-     * @throws Exception_500
+     * @throws SifoHttpException
      */
     static public function getInstance(
         $type = self::CACHE_TYPE_AUTODISCOVER,

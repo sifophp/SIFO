@@ -4,9 +4,6 @@ namespace Sifo;
 
 use Sifo\Exception\ConfigurationException;
 
-/**
- * Configuration file parser.
- */
 class Config
 {
 
@@ -20,7 +17,7 @@ class Config
     /**
      * Singleton instance.
      *
-     * @var    Config
+     * @var self
      */
     static protected $instance;
 
@@ -29,7 +26,7 @@ class Config
      *
      * @var string
      */
-    protected $configuration_files = 'configuration_files.config.php';
+    protected $configuration_files_path = 'configuration_files.config.php';
 
     /**
      * Variables taken from the config are stored here in the class context.
@@ -39,22 +36,21 @@ class Config
     protected $config_values;
 
     /**
-     * Content inside the $configuration_files file specififying in which instance is found every config.
+     * Content inside the $configuration_files file specifying in which instance is found every config.
      *
-     * @var unknown_type
+     * @var array
      */
-    protected $paths_to_configs = array();
+    protected $paths_to_configs = [];
 
     protected function __construct($instance_name)
     {
-        $this->instance_name = $instance_name;
         if ($instance_name === 'tests') {
-            $this->config_path = ROOT_PATH . '/' . $instance_name . "/config/";
+            $config_path = ROOT_PATH . '/' . $instance_name . "/config/";
         } else {
-            $this->config_path = ROOT_PATH . "/instances/" . $instance_name . "/config/";
+            $config_path = ROOT_PATH . "/instances/" . $instance_name . "/config/";
         }
 
-        include($this->config_path . $this->configuration_files);
+        include($config_path . $this->configuration_files_path);
         $this->paths_to_configs = $config;
     }
 
@@ -67,7 +63,6 @@ class Config
      */
     public static function getInstance($instance_name = null)
     {
-        // Load instance from bootsrap
         if (!isset($instance_name)) {
             $instance_name = Bootstrap::$instance;
         }
@@ -91,19 +86,18 @@ class Config
     {
         if (!isset($this->paths_to_configs[$profile])) {
             throw new ConfigurationException("The profile '$profile' was not found");
-        } else {
-            if (!include(ROOT_PATH . '/' . $this->paths_to_configs[$profile])) {
-                throw new ConfigurationException("Failed to include file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile],
-                    E_USER_ERROR);
-            } else {
-                // The file was correctly included. We include the variable $config found.
-                if (!isset($config)) {
-                    throw new ConfigurationException('The configuration files must have a variable named $config');
-                }
-
-                return $config;
-            }
         }
+
+        if (!include(ROOT_PATH . '/' . $this->paths_to_configs[$profile])) {
+            throw new ConfigurationException("Failed to include file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile]);
+        }
+
+        // The file was correctly included. We include the variable $config found.
+        if (!isset($config)) {
+            throw new ConfigurationException('The configuration files must have a variable named $config');
+        }
+
+        return $config;
     }
 
     /**
@@ -124,6 +118,7 @@ class Config
         if (is_null($group)) {
             return $this->config_values[$profile];
         }
+
         if (isset($this->config_values[$profile][$group])) {
             return $this->config_values[$profile][$group];
         }
@@ -178,21 +173,12 @@ class Config
     }
 
     /**
-     * Instance name.
-     *
-     * @return string
-     */
-    public function getInstanceName()
-    {
-        return $this->instance_name;
-    }
-
-    /**
      * Returns the library assigned to the given alias.
      *
      * @param string $alias Alias of the library, e.g: 'smarty'
      *
      * @return string Effective name of the folder with the library
+     * @throws ConfigurationException
      */
     public function getLibrary($alias)
     {
