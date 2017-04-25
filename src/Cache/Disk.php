@@ -86,7 +86,7 @@ class Disk extends Base
      * @param string $contents
      * @param integer $expire Seconds until this item will expire. Zero for persistent caching (never expire).
      *
-     * @return boolean
+     * @return bool
      */
     public function set($key, $contents, $expire = 0)
     {
@@ -98,7 +98,7 @@ class Disk extends Base
             'content' => $contents
         );
 
-        return file_put_contents($source_file, var_export($cache_content, true));
+        return (bool) file_put_contents($source_file, var_export($cache_content, true));
     }
 
     /**

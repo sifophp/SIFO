@@ -69,7 +69,7 @@ abstract class Base
     /**
      * Check if Memcache is active and right connected
      *
-     * @return integer
+     * @return bool
      */
     abstract public function isActive();
 

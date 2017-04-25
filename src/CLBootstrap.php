@@ -13,24 +13,24 @@ require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Bootstrap.php';
 
 class CLBootstrap extends Bootstrap
 {
-    static $script_controller;
-    static $command_line_params;
-    static $controller = null;
+    public static $script_controller;
+    public static $command_line_params;
+    public static $controller = null;
 
     /**
      * Starts the execution. Root path is passed to avoid recalculation.
      *
-     * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
-     * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
+     * @param string $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
+     * @param string $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
      */
-    public static function execute($instance_name = null, $controller_name = null)
+    public static function execute(string $instance_name = null, string $controller_name = null)
     {
         if (!isset($controller_name)) {
             $controller_name = self::$script_controller;
         }
 
         // Register autoloader:
-        spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
+        spl_autoload_register(['\\Sifo\\Bootstrap', 'includeFile']);
         self::$container = DependencyInjector::getInstance();
 
         // Set paths:

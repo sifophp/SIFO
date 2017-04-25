@@ -6,10 +6,7 @@ use Sifo\Debug\Debug;
 use Sifo\Http\Domains;
 use Sifo\Http\Urls;
 
-/**
- * Templating engine. Compiles some smarty stuff for an easier management.
- */
-class Views
+class View
 {
     /** @var string */
     private $template_path;
