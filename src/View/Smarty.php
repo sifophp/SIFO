@@ -58,7 +58,7 @@ class Smarty implements ViewInterface
     {
         $this->template_path = $template;
 
-        set_error_handler(array(Views::class, "customErrorHandler"));
+        set_error_handler(array(View::class, "customErrorHandler"));
         \Smarty::muteExpectedErrors();
 
         try {

@@ -41,7 +41,7 @@ class Twig implements ViewInterface
 
     public function fetch($template_path)
     {
-        set_error_handler(array(Views::class, "customErrorHandler"));
+        set_error_handler(array(View::class, "customErrorHandler"));
 
         $template_path = str_replace(ROOT_PATH, '', $template_path);
 

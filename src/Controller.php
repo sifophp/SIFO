@@ -3,8 +3,8 @@
 namespace Sifo;
 
 use Psr\Container\ContainerInterface;
+use Sifo\Cache\Base as CacheBase;
 use Sifo\Cache\Cache;
-use Sifo\Container\DependencyInjector;
 use Sifo\Debug\Debug;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
@@ -17,13 +17,11 @@ use Sifo\Http\Headers;
 use Sifo\Http\Router;
 use Sifo\Http\Session;
 use Sifo\Http\Urls;
-use Sifo\View\Views;
+use Sifo\View\View;
 
 abstract class Controller
 {
-    /**
-     * Cache expiration time default for exceptions.
-     */
+    /** Cache expiration time default for exceptions.*/
     const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
 
     /**
@@ -33,82 +31,44 @@ abstract class Controller
      */
     const CACHE_DEFAULT_EXPIRATION = 14400;
 
-    /**
-     * Information useful for debugging.
-     *
-     * @var array
-     */
-    protected $debug_info = array();
+    /** @var array */
+    protected $debug_info = [];
 
-    /**
-     * Associated modules being executed as dependencies.
-     *
-     * @var array
-     */
-    protected $modules = array();
+    /** @var array */
+    protected $modules = [];
 
-    /**
-     * Flag controlling if the controller should behave like a normal HTML or as json response.
-     *
-     * @var boolean
-     */
+    /** @var boolean */
     public $is_json = false;
 
-    /**
-     * Parameters used in the controller.
-     *
-     * @var array
-     */
+    /** @var array */
     protected $params;
 
-    /**
-     * Language used in this controller. Eg.: en_US.
-     *
-     * @var string
-     */
+    /** @var string */
     protected $language;
 
-    /**
-     * View object
-     *
-     * @var Views
-     */
+    /** @var View */
     protected $view;
 
-    /**
-     * Stores the cache object.
-     *
-     * @var Cache
-     */
+    /** @var CacheBase */
     protected $cache;
 
-    /**
-     * Stores the cache definition once is calculated for the next queries.
-     *
-     * @var string
-     */
+    /** @var string */
     protected $cache_definition;
 
-    /**
-     * The dependency injection container.
-     *
-     * @var DependencyInjector|\Symfony\Component\DependencyInjection\ContainerInterface
-     */
+    /** @var ContainerInterface */
     protected $container;
 
-    /**
-     * I18n object
-     *
-     * @var I18N
-     */
+    /** @var I18N */
     public $i18n;
 
-    /**
-     * Template used as layout.
-     *
-     * @var string
-     */
+    /** @var string */
     protected $layout;
+
+    /** @var string */
+    private $instance;
+
+    /** @var array */
+    private $url_definition;
 
     abstract function build();
 
@@ -124,7 +84,7 @@ abstract class Controller
             Urls::getInstance($this->instance)->getParams());
 
         $urls['current_url'] = $current_url;
-        $this->params = array(
+        $this->params = [
             // Sanitizes the current URL in case is dirty:
             'current_url' => $current_url,
             'instance' => Bootstrap::$instance,
@@ -135,9 +95,7 @@ abstract class Controller
             'has_debug' => Domains::getInstance()->getDebugMode(),
             'lang' => $this->language,
             'url' => $urls,
-
-            // 'definition' => $this->url_definition, // In case you want to see the URL definition
-        );
+        ];
 
         // Init i18n configuration.
         $this->i18n = I18N::getInstance(Domains::getInstance()->getLanguageDomain(), $this->language);
@@ -147,14 +105,9 @@ abstract class Controller
         $this->params['page'] = $this->getCurrentPage();
 
         $this->cache = Cache::getInstance(Cache::CACHE_TYPE_AUTODISCOVER);
-        $this->view = new Views();
+        $this->view = new View();
     }
 
-    /**
-     * Sets the dependency injection container.
-     *
-     * @param ContainerInterface $container The container to use.
-     */
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
@@ -270,10 +223,8 @@ abstract class Controller
     /**
      * Assign a variable to the template.
      *
-     * @param string|array $tpl_var
+     * @param string $tpl_var
      * @param mixed $value
-     *
-     * @return \Smarty_Internal_Data
      */
     public function assign($tpl_var, $value)
     {
@@ -281,7 +232,7 @@ abstract class Controller
             $this->addToDebug($tpl_var, $value, 'assigns');
         }
 
-        return $this->view->assign($tpl_var, $value);
+        $this->view->assign($tpl_var, $value);
     }
 
     /**
@@ -306,8 +257,8 @@ abstract class Controller
      * Cache a resulting exception when a cache_key is defined and hasn't any Post vars.
      * Use the CACHE_DEFAULT_EXPIRATION_EXCEPTIONS for all the exception less 301,302 and 404.
      *
-     * @param $e Catched exception.
-     * @param $cache_key
+     * @param \Exception $eCatched exception.
+     * @param string $cache_key
      */
     protected function cacheException($e, $cache_key)
     {
@@ -867,7 +818,7 @@ abstract class Controller
      * Adds an element in the debug as a new entry. You can set the context to create groups.
      *
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      * @param string $context
      */
     protected function addToDebug($key, $value, $context = null)
