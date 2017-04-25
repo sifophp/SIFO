@@ -17,41 +17,41 @@ $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
  */
 class Database
 {
-    static private $adodb = null;
-    static private $instance = null;
+    static private $adodb;
+    static private $instance;
     static public $launch_in_master = false;
 
     /**
      * Stores the current query type needed.
      *
-     * @var integer
+     * @var string
      */
     static private $destination_type;
 
     /**
      * Identifies a query as write operation and is sent to the master.
      *
-     * @var integer
+     * @var string
      */
     const TYPE_MASTER = 'master';
 
     /**
      * Identifies a query as read operation and is sent to a slave.
      *
-     * @var integer
+     * @var string
      */
     const TYPE_SLAVE = 'slave';
 
     /**
      * No need to identify a query because is a single server.
      *
-     * @var integer
+     * @var string
      */
     const TYPE_SINGLE_SERVER = 'single_server';
 
     // Methods capable to be marked as duplicates:
     // Input in lower case:
-    private $methods_whitout_duplicated_validation = array(
+    private $methods_without_duplicated_validation = array(
         'prepare',
         'affected_rows',
         'insert_id',
@@ -59,15 +59,10 @@ class Database
         'errormsg',
     );
 
-    /**
-     * Dummy Singleton
-     *
-     * @return self
-     */
     static public function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new Database(); //create class instance
+            self::$instance = new Database();
         }
 
         return self::$instance;
@@ -291,7 +286,7 @@ class Database
 
         $debug_query = array(
             "tag" => $tag,
-            "sql" => in_array(strtolower($method), $this->methods_whitout_duplicated_validation) ? $method : $query,
+            "sql" => in_array(strtolower($method), $this->methods_without_duplicated_validation) ? $method : $query,
             "type" => ($read_operation ? 'read' : 'write'),
             "destination" => self::$destination_type,
             "host" => self::$adodb[self::$destination_type]->host,
@@ -315,7 +310,7 @@ class Database
         }
 
         // Check duplicated queries.
-        if (!in_array(strtolower($method), $this->methods_whitout_duplicated_validation)) {
+        if (!in_array(strtolower($method), $this->methods_without_duplicated_validation)) {
             $queries_executed = Debug::get('executed_queries');
             if (!empty($queries_executed) && isset($queries_executed[$debug_query['sql']])) {
                 $debug_query['duplicated'] = true;

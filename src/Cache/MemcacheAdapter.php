@@ -2,9 +2,7 @@
 
 namespace Sifo\Cache;
 
-use Memcache;
-
-class MemcacheAdapter extends Memcache
+class MemcacheAdapter extends \Memcache
 {
 
     /**

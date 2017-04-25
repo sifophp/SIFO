@@ -6,14 +6,14 @@ use Psr\Container\ContainerInterface;
 use Sifo\Bootstrap;
 use Sifo\Config;
 use Sifo\Exception\ConfigurationException;
+use Sifo\Exception\NotFoundServiceException;
 use Sifo\Exception\PrivateServiceException;
-use Sifo\Exception\ServiceNotFoundException;
 use Sifo\Http\Domains;
 use Symfony\Component\Yaml\Yaml;
 
 class DependencyInjector implements ContainerInterface
 {
-    /** @var self * */
+    /** @var self */
     static protected $instance;
 
     /** @var array */
@@ -43,7 +43,7 @@ class DependencyInjector implements ContainerInterface
      */
     public static function getInstance($instance_name = null)
     {
-        if (null == $instance_name) {
+        if (null === $instance_name) {
             $instance_name = Bootstrap::$instance;
         }
 
@@ -58,18 +58,21 @@ class DependencyInjector implements ContainerInterface
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $service_key Identifier of the entry to look for.
+     * @param bool $get_private_service
      *
-     * @return mixed|callable
-     * @throws ServiceNotFoundException No entry was found for this identifier.
+     * @throws PrivateServiceException
+     * @throws NotFoundServiceException
+     *
+     * @return callable|mixed
      */
     public function get($service_key, $get_private_service = false)
     {
-        if (!$this->service_definitions) {
+        if (empty($this->service_definitions)) {
             $this->loadServiceDefinitions();
         }
 
         if (!array_key_exists($service_key, $this->service_definitions)) {
-            throw new ServiceNotFoundException('Not found service "' . $service_key . '"');
+            throw new NotFoundServiceException('Not found service "' . $service_key . '"');
         }
 
         if ($this->loadingAPrivateService($service_key) && !$get_private_service) {

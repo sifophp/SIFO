@@ -70,7 +70,7 @@ abstract class LoadBalancer
      * @throws InternalServerError
      * @return int
      */
-    public function setNodes(Array $nodes)
+    public function setNodes(array $nodes)
     {
         $cache = Cache::getInstance();
         $available_servers = trim($cache->get($this->loadbalancer_cache_key)); // CacheDisk returns " " when no cache.
@@ -94,7 +94,7 @@ abstract class LoadBalancer
         if (1 > $num_nodes) {
             // This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
             $message = "No available servers in profile";
-            trigger_error($message);
+            trigger_error($message, E_ERROR);
             throw new InternalServerError($message);
         }
 
