@@ -2,6 +2,9 @@
 
 namespace Sifo\Cache;
 
+use Sifo\Config;
+use Sifo\Exception\ConfigurationException;
+
 /**
  * Wrapper for the PECL Memcache extension.
  *
@@ -17,16 +20,20 @@ class Memcache extends Base
     public function __construct()
     {
         try {
-            $servers = \Sifo\Config::getInstance()->getConfig('cache', 'servers');
-        } catch (\Sifo\Exception\ConfigurationException $e) {
-            // Default memcached address and listening port.
+            $servers = Config::getInstance()->getConfig('cache', 'servers');
+        } catch (ConfigurationException $e) {
             $servers = array(array('127.0.0.1' => 11211));
         }
 
-        $this->cache_object = new \Sifo\Cache\MemcacheAdapter();
+        $this->cache_object = new MemcacheAdapter();
 
         foreach ($servers[0] as $server => $port) {
             $this->cache_object->addServer($server, $port);
         }
+    }
+
+    public function isActive()
+    {
+        return (false != $this->cache_object->getVersion());
     }
 }

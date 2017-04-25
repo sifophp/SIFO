@@ -13,7 +13,6 @@ use Sifo\Exception\ConfigurationException;
  */
 class Memcached extends Base
 {
-
     /**
      * Returns an instance of the Memcached object with the configured servers.
      */
@@ -31,5 +30,10 @@ class Memcached extends Base
         foreach ($servers[0] as $server => $port) {
             $this->cache_object->addServer($server, $port);
         }
+    }
+
+    public function isActive()
+    {
+        return (false != $this->cache_object->getVersion());
     }
 }
