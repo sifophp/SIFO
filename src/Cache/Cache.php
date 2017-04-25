@@ -3,7 +3,7 @@
 namespace Sifo\Cache;
 
 use Sifo\Config;
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\InternalServerError;
 
 /**
  * Proxy class that handles all Cache types in a single interface.
@@ -31,8 +31,8 @@ class Cache
      * @param string $type
      * @param int $lock_enabled
      *
+     * @throws InternalServerError
      * @return Base
-     * @throws SifoHttpException
      */
     static public function getInstance(
         $type = self::CACHE_TYPE_AUTODISCOVER,
@@ -63,7 +63,7 @@ class Cache
                 $cache_object = new Disk();
                 break;
             default:
-                throw SifoHttpException::InternalServerError("Unknown cache type requested: '{$type}'");
+                throw new InternalServerError("Unknown cache type requested: '{$type}'");
         }
 
         // Memcache is down, we cache on disk to handle this dangerous situation:

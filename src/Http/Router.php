@@ -4,7 +4,8 @@ namespace Sifo\Http;
 
 use Sifo\Config;
 use Sifo\Exception\ConfigurationException;
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\Http\PermanentRedirect;
 use Sifo\FilterServer;
 
 /**
@@ -61,7 +62,7 @@ class Router
 
         // Failed to parse routes file.
         if (!$routes) {
-            throw SifoHttpException::InternalServerError("Failed opening router configuration file");
+            throw new InternalServerError("Failed opening router configuration file");
         }
 
         if ($language) {
@@ -112,7 +113,7 @@ class Router
 
                         // $count indicates the replaces. If $count gt 0 means that was matchs.
                         if ($count) {
-                            throw SifoHttpException::PermanentRedirect($destination);
+                            throw new PermanentRedirect($destination);
                         }
                     }
                 }

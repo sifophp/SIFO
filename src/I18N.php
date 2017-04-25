@@ -2,7 +2,7 @@
 
 namespace Sifo;
 
-use Sifo\Exception\SifoHttpException;
+use Sifo\Exception\Http\InternalServerError;
 
 /**
  * I18N. This class manages internationalization & localization.
@@ -130,7 +130,7 @@ class I18N
                 include(ROOT_PATH . "/$translations_file");
 
                 if (!isset($translations)) {
-                    throw SifoHttpException::InternalServerError('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
+                    throw new InternalServerError('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
                 }
 
                 self::$translations[self::$active_domain_and_locale] = $translations;
@@ -144,10 +144,10 @@ class I18N
     /**
      * Returns the translated message.
      *
-     * @param       $message string Message in source language (usually English)
+     * @param string $message string Message in source language (usually English)
      * @param array $params If the message needs replacement of variables pass them here, in the format "%1" => $param1, "%2" => $param2
      *
-     * @return <type>
+     * @return string
      */
     static public function getTranslation($message, $params = null)
     {

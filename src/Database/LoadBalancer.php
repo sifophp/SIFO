@@ -10,8 +10,8 @@ namespace Sifo\Database;
 
 use Sifo\Bootstrap;
 use Sifo\Cache\Cache;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\LoadBalancerException;
-use Sifo\Exception_500;
 use Sifo\unknown_type;
 
 /**
@@ -52,11 +52,10 @@ abstract class LoadBalancer
     /**
      * Checks if the service is currently available.
      *
-     * @param unknown_type $index
-     * @param unknown_type $node_properties
+     * @param int $index
+     * @param array $node_properties
      */
     abstract protected function addNodeIfAvailable($index, $node_properties);
-
 
     public function __construct()
     {
@@ -68,8 +67,8 @@ abstract class LoadBalancer
      *
      * @param array $nodes
      *
-     * @throws Exception_500
-     * @return integer Number of nodes added.
+     * @throws InternalServerError
+     * @return int
      */
     public function setNodes(Array $nodes)
     {
@@ -96,7 +95,7 @@ abstract class LoadBalancer
             // This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
             $message = "No available servers in profile";
             trigger_error($message);
-            throw new Exception_500($message);
+            throw new InternalServerError($message);
         }
 
         return $num_nodes;
@@ -140,7 +139,7 @@ abstract class LoadBalancer
     }
 
     /**
-     * Removes a server from the list of availables.
+     * Removes a server from the list of available.
      *
      * @param integer $index
      */

@@ -4,9 +4,8 @@ namespace Sifo\Database;
 
 use Sifo\Benchmark;
 use Sifo\Config;
-use Sifo\Db;
 use Sifo\Debug\Debug;
-use Sifo\Exception_500;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\FilterServer;
 use Sifo\Http\Domains;
 
@@ -63,7 +62,7 @@ class Database
     /**
      * Dummy Singleton
      *
-     * @return Db
+     * @return self
      */
     static public function getInstance()
     {
@@ -128,7 +127,7 @@ class Database
                 $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
             } // If connection to database fails throw a SIFO 500 error.
             catch (\ADODB_Exception $e) {
-                throw new Exception_500($e->getMessage(), $e->getCode());
+                throw new InternalServerError($e->getMessage(), $e->getCode());
             }
 
             Benchmark::getInstance()->timingCurrentToRegistry('db_connections');

@@ -3,22 +3,14 @@
 namespace Sifo\Database\Sphinx;
 
 use Sifo\Database\LoadBalancer;
-use Sifo\Exception_500;
+use Sifo\Exception\Http\InternalServerError;
 
-/**
- * Class LoadBalancerSphinxql
- *
- * @package Sifo
- */
 class LoadBalancerSphinxql extends LoadBalancer
 {
-    /**
-     * Name of the cache where the results of server status are stored.
-     *
-     * @var string
-     */
+    /** @var string */
     public $loadbalancer_cache_key = '__sphinxql_loadbalancer_available_nodes';
 
+    /** @var Sphinxql */
     private $sphinxql_object;
 
     protected function addNodeIfAvailable($index, $node_properties)
@@ -26,8 +18,9 @@ class LoadBalancerSphinxql extends LoadBalancer
         try {
             $this->sphinxql_object->connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
-        } catch (Exception_500 $e) {
-            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
+        } catch (InternalServerError $e) {
+            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!',
+                E_ERROR);
         }
     }
 

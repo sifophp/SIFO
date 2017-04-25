@@ -10,7 +10,7 @@ namespace Sifo\Database\Sphinx;
 
 use Sifo\Config;
 use Sifo\Exception\ConfigurationException;
-use Sifo\Exception_500;
+use Sifo\Exception\Http\InternalServerError;
 use Sifo\Http\Domains;
 
 /**
@@ -131,7 +131,7 @@ class Sphinxql
      *
      * @param $profile
      *
-     * @throws Exception_500
+     * @throws InternalServerError
      * @return array
      */
     protected function getConnectionParams($profile)
@@ -141,12 +141,12 @@ class Sphinxql
             $sphinx_config = Config::getInstance()->getConfig('sphinx');
 
             if (empty($sphinx_config[$profile])) {
-                throw new \Sifo\Exception_500("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
+                throw new InternalServerError("Expected sphinx settings not defined for profile {$profile} in sphinx.config.");
             }
 
             $sphinx_config = $this->checkBalancedProfile($sphinx_config[$profile]);
         } catch (ConfigurationException $e) {
-            throw new \Sifo\Exception_500('You must define the connection params in sphinx.config');
+            throw new InternalServerError('You must define the connection params in sphinx.config');
         }
 
         return $sphinx_config;
@@ -177,15 +177,15 @@ class Sphinxql
      *
      * @param $node_properties
      *
+     * @throws InternalServerError
      * @return \mysqli
-     * @throws Exception_500
      */
     public function connect($node_properties)
     {
         $mysqli = mysqli_connect($node_properties['server'], '', '', '', $node_properties['port']);
 
         if (!$mysqli || $mysqli->connect_error) {
-            throw new \Sifo\Exception_500('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
+            throw new InternalServerError('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!');
         }
 
         return $mysqli;
