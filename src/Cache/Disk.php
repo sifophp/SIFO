@@ -18,8 +18,6 @@ class Disk extends Base
     {
         // CacheBase uses this attribute, for proxy access:
         $this->cache_object = &$this;
-
-        return $this;
     }
 
     /**

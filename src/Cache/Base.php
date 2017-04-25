@@ -10,7 +10,7 @@ use Sifo\Http\Domains;
 /**
  * Common methods available to every Cache instance.
  */
-class Base
+abstract class Base
 {
     /**
      * Define the format of the stored cache tag.
@@ -29,7 +29,7 @@ class Base
     /**
      * Contains the original cache object.
      *
-     * @var \Memcache|\Memcached|Disk
+     * @var Memcache|Memcached|Disk
      */
     protected $cache_object;
 
@@ -71,10 +71,7 @@ class Base
      *
      * @return integer
      */
-    public function isActive()
-    {
-        return (false != $this->cache_object->getVersion());
-    }
+    abstract public function isActive();
 
     /**
      * Returns if current execution allows rebuilding the page.
