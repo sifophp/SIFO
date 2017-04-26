@@ -16,9 +16,10 @@
  *
  * @param integer $size Size of a file.
  * @param integer $decimals Number of decimals.
+ *
  * @return string
  */
-function smarty_modifier_size_format( $size, $decimals=null )
+function smarty_modifier_size_format($size, $decimals = null)
 {
 	// Numeric locale vars.
 	// Remember to change the number_format modifier if you change the locales management here.

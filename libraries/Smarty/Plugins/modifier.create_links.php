@@ -61,7 +61,3 @@ REGEXP;
 
 	return preg_replace( $regexp, '<a href="\1\4">\1\4</a>', $string );
 }
-
-/* vim: set expandtab: */
-
-?>

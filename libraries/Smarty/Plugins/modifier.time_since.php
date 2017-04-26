@@ -16,11 +16,11 @@ include_once('block.t.php');
  * Name:     size_format<br>
  * Purpose:  format sizes directly from DB.
  *
- * @param integer $size Size of a file.
- * @param integer $decimals Number of decimals.
+ * @param $diff_time
+ *
  * @return string
  */
-function smarty_modifier_time_since( $diff_time )
+function smarty_modifier_time_since($diff_time)
 {
 	if ( !is_numeric ( $diff_time ) )
 		$diff_time = strtotime( date("Y-m-d H:i:s") ) - strtotime($diff_time);

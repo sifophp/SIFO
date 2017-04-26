@@ -16,9 +16,10 @@
  *
  * @param integer $time Time given in ms.
  * @param integer $decimals Number of decimals.
+ *
  * @return string
  */
-function smarty_modifier_time_format( $time, $decimals=3 )
+function smarty_modifier_time_format($time, $decimals = 3)
 {
 	// Numeric locale vars.
 	// Remember to change the number_format modifier if you change the locales management here.
@@ -48,7 +49,3 @@ function smarty_modifier_time_format( $time, $decimals=3 )
 
 	return $formatted_time;
 }
-
-/* vim: set expandtab: */
-
-?>

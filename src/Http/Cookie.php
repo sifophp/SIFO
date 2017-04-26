@@ -2,8 +2,8 @@
 
 namespace Sifo\Http;
 
-use Sifo\FilterCookie;
 use Sifo\Http;
+use Sifo\Http\Filter\FilterCookie;
 
 class Cookie
 {

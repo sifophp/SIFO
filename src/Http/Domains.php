@@ -5,7 +5,7 @@ namespace Sifo\Http;
 use Sifo\Config;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\UnknownDomainException;
-use Sifo\FilterServer;
+use Sifo\Http\Filter\FilterServer;
 
 class Domains
 {
@@ -233,7 +233,7 @@ class Domains
     /**
      * Change debug mode during the execution.
      *
-     * @return bool
+     * @param $mode
      */
     public function setDebugMode($mode)
     {

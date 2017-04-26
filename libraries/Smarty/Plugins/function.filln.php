@@ -69,7 +69,3 @@ function smarty_function_filln($params, &$smarty)
     return $_html_result;
 
 }
-
-/* vim: set expandtab: */
-
-?>

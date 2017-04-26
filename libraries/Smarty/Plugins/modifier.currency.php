@@ -12,7 +12,9 @@
  * Name:     currency<br>
  * Purpose:  Formats a number as a currency string, with the given currency symbol
  * @param float
- * @param string currency (default EUR)
+ * @param string $currency
+ * @param string $tag
+ *
  * @return string
  */
 function smarty_modifier_currency($amount, $currency='EUR', $tag='')
@@ -22,7 +24,7 @@ function smarty_modifier_currency($amount, $currency='EUR', $tag='')
 		'GBP' => '£',
 		'USD' => '$'
 	);
-	
+
 	if ( array_key_exists( $currency, $currency_symbols ) )
 	{
 		$currency_symbol = $currency_symbols[$currency];
@@ -31,12 +33,12 @@ function smarty_modifier_currency($amount, $currency='EUR', $tag='')
 	{
 		$currency_symbol = $currency;
 	}
-	
+
 	if ( !empty( $tag ) )
 	{
 		$currency_symbol = '<'.$tag.'>'.$currency_symbol.'</'.$tag.'>';
 	}
-	
+
 	switch( $currency )
 	{
 		case 'USD':
@@ -44,12 +46,10 @@ function smarty_modifier_currency($amount, $currency='EUR', $tag='')
 		{
 			return $currency_symbol.number_format($amount,2,'.',',');
 		}
-		
+
 		default:
 		{
 			return number_format($amount,2,',','.').$currency_symbol;
 		}
 	}
 }
-
-?>

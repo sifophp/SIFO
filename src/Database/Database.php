@@ -6,8 +6,8 @@ use Sifo\Benchmark;
 use Sifo\Config;
 use Sifo\Debug\Debug;
 use Sifo\Exception\Http\InternalServerError;
-use Sifo\FilterServer;
 use Sifo\Http\Domains;
+use Sifo\Http\Filter\FilterServer;
 
 // Some stuff needed by ADODb:
 $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
@@ -277,7 +277,7 @@ class Database
     protected function queryDebug($resultset, $tag, $method, $read_operation, $error)
     {
         if (!Domains::getInstance()->getDebugMode()) {
-            return false;
+            return;
         }
 
         $query = self::$adodb[self::$destination_type]->_querySQL;

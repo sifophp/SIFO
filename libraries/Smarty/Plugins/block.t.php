@@ -9,28 +9,28 @@
  * Replaces arguments in a string with their values.
  * Arguments are represented by % followed by their number.
  *
- * @param	string	Source string
- * @param	mixed	Arguments, can be passed in an array or through single variables.
- * @returns	string	Modified string
+ * @param $str
+ *
+ * @return string
  */
 function smarty_gettext_strarg($str)
 {
-	$tr = array();
-	$p = 0;
+    $tr = array();
+    $p = 0;
 
-	for ($i=1; $i < func_num_args(); $i++) {
-		$arg = func_get_arg($i);
+    for ($i = 1; $i < func_num_args(); $i++) {
+        $arg = func_get_arg($i);
 
-		if (is_array($arg)) {
-			foreach ($arg as $aarg) {
-				$tr['%'.++$p] = $aarg;
-			}
-		} else {
-			$tr['%'.++$p] = $arg;
-		}
-	}
+        if (is_array($arg)) {
+            foreach ($arg as $aarg) {
+                $tr['%' . ++$p] = $aarg;
+            }
+        } else {
+            $tr['%' . ++$p] = $arg;
+        }
+    }
 
-	return strtr($str, $tr);
+    return strtr($str, $tr);
 }
 
 /**
@@ -50,82 +50,77 @@ function smarty_gettext_strarg($str)
  *       Prevents escaping of the variables passed. DANGEROUS if variables might be originated using user input (XSS)
  *   - plural - The plural version of the text (2nd parameter of ngettext())
  *   - count - The item count for plural mode (3rd parameter of ngettext())
+ *
+ * @param $params
+ * @param $text
+ * @param $smarty
+ *
+ * @return mixed|string
  */
 function smarty_block_t($params, $text, &$smarty)
 {
-	$text = stripslashes($text);
+    $text = stripslashes($text);
 
-	// set escape mode (Escape use is not available when your have to set to true the escape_html flag)
-	if( ( $smarty == null ) || ( !$smarty->escape_html ) )
-	{
-		// In the don't protected configuration, the expectd behaviour is escapeing html:
-		$escape = ( isset($params['escape'] ) )? $params['escape'] : "html";
-		unset($params['escape']);
+    // set escape mode (Escape use is not available when your have to set to true the escape_html flag)
+    if (($smarty == null) || (!$smarty->escape_html)) {
+        // In the don't protected configuration, the expectd behaviour is escapeing html:
+        $escape = (isset($params['escape'])) ? $params['escape'] : "html";
+        unset($params['escape']);
 
-		if( isset( $params['escapevar'] ) )
-		{
-			// Option not available when escape_html is false. You could use $var|escape
-			unset( $params['escapevar'] );
-		}
-	}
-	else
-	{
-		$escape = false;
-		if ( isset($params['escape'] ) )
-		{
-			// (escape) Escape param is not available when escape_html is set to true.
-			unset($params['escape']);
-		}
+        if (isset($params['escapevar'])) {
+            // Option not available when escape_html is false. You could use $var|escape
+            unset($params['escapevar']);
+        }
+    } else {
+        $escape = false;
+        if (isset($params['escape'])) {
+            // (escape) Escape param is not available when escape_html is set to true.
+            unset($params['escape']);
+        }
 
-		// set escape_var mode
-		if ( ( !isset( $params['escapevar'] ) ) || ( $params['escapevar']!='no') )
-		{
-			foreach( $params as &$param )
-			{
-				$param = htmlspecialchars($param, ENT_QUOTES, SMARTY_RESOURCE_CHAR_SET );
-			}
-		}
-		elseif( isset( $params['escapevar'] ) )
-		{
-			unset( $params['escapevar'] );
-		}
-	}
+        // set escape_var mode
+        if ((!isset($params['escapevar'])) || ($params['escapevar'] != 'no')) {
+            foreach ($params as &$param) {
+                $param = htmlspecialchars($param, ENT_QUOTES, SMARTY_RESOURCE_CHAR_SET);
+            }
+        } elseif (isset($params['escapevar'])) {
+            unset($params['escapevar']);
+        }
+    }
 
-	// set plural version
-	if (isset($params['plural'])) {
-		$plural = $params['plural'];
-		unset($params['plural']);
+    // set plural version
+    if (isset($params['plural'])) {
+        $plural = $params['plural'];
+        unset($params['plural']);
 
-		// set count
-		if (isset($params['count']) && ( 1 != $params['count'] ) ) {
-			$text = $plural;
-			unset($params['count']);
-		}
-	}
+        // set count
+        if (isset($params['count']) && (1 != $params['count'])) {
+            $text = $plural;
+            unset($params['count']);
+        }
+    }
 
-	$text = \Sifo\I18N::getTranslation( $text );
+    $text = \Sifo\I18N::getTranslation($text);
 
-	// run strarg if there are parameters
-	if (count($params)) {
-		$text = smarty_gettext_strarg($text, $params);
-	}
+    // run strarg if there are parameters
+    if (count($params)) {
+        $text = smarty_gettext_strarg($text, $params);
+    }
 
-	switch ($escape) {
-		case 'html':
-			$text = nl2br(htmlspecialchars($text));
-			break;
-		case 'javascript':
-		case 'js':
-			// javascript escape
-			$text = str_replace('\'', '\\\'', stripslashes($text));
-			break;
-		case 'url':
-			// url escape
-			$text = urlencode($text);
-			break;
-	}
+    switch ($escape) {
+        case 'html':
+            $text = nl2br(htmlspecialchars($text));
+            break;
+        case 'javascript':
+        case 'js':
+            // javascript escape
+            $text = str_replace('\'', '\\\'', stripslashes($text));
+            break;
+        case 'url':
+            // url escape
+            $text = urlencode($text);
+            break;
+    }
 
-	return $text;
+    return $text;
 }
-
-?>

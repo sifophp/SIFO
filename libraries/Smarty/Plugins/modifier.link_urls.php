@@ -14,6 +14,8 @@
  * This could be improved by using a better regex.
  * And maybe it would be better for usability if the http:// was cut off the front?
  * @author Andrew
+ * @param $string
+ *
  * @return string
  */
 
@@ -27,5 +29,3 @@ function smarty_modifier_link_urls($string)
 
     return $linkedString;
 }
-
-?>
