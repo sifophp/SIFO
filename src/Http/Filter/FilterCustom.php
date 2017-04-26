@@ -11,7 +11,6 @@ class FilterCustom extends Filter
 
     public static function getInstance()
     {
-        trigger_error('You shouldn\'t use Singleton for FilterCustom to prevent sideefects of this pattern with custom variables.',
-            E_USER_ERROR);
+        trigger_error('You shouldn\'t use Singleton for FilterCustom.', E_USER_ERROR);
     }
 }

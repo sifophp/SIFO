@@ -26,11 +26,11 @@ abstract class Filter
 
     public static function getInstance()
     {
-        if (!static::$instance) {
-            static::$instance = new static();
+        if (!isset(self::$instance[static::class])) {
+            static::$instance[static::class] = new static();
         }
 
-        return static::$instance;
+        return static::$instance[static::class];
     }
 
     public function setVar(string $key, $value)
