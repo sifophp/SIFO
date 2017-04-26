@@ -6,7 +6,7 @@ use Sifo\Config;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\Http\PermanentRedirect;
-use Sifo\FilterServer;
+use Sifo\Http\Filter\FilterServer;
 
 /**
  * Maps an URL with a controller

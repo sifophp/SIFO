@@ -8,6 +8,7 @@ namespace Sifo;
 
 use Sifo\Container\DependencyInjector;
 use Sifo\Http\Domains;
+use Sifo\Http\Filter\FilterServer;
 
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Bootstrap.php';
 

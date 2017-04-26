@@ -1,4 +1,5 @@
 <?php
+use Sifo\Config;
 
 /**
  * Allow using {extends} and {include} Smarty functions taking into account the instance
@@ -12,10 +13,10 @@ function smarty_modifier_custom_tpl( $template )
 {
 	if ( !isset( $template ) )
 	{
-		trigger_error( "custom_tpl: The attribute 'template' are not set", E_USER_NOTICE );
+		trigger_error( "custom_tpl: The attribute 'template' are not set", E_USER_ERROR );
 	}
 
-	$instance_templates = \Sifo\Config::getInstance()->getConfig( 'templates' );
+	$instance_templates = Config::getInstance()->getConfig( 'templates' );
 	if ( isset( $instance_templates[$template] ) )
 	{
 		$selected_template = $instance_templates[$template];

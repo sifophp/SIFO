@@ -13,6 +13,8 @@ use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\Http\NotFound;
 use Sifo\Form\Form;
 use Sifo\Http\Domains;
+use Sifo\Http\Filter\FilterGet;
+use Sifo\Http\Filter\FilterPost;
 use Sifo\Http\Headers;
 use Sifo\Http\Router;
 use Sifo\Http\Session;

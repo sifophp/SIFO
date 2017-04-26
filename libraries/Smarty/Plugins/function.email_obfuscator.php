@@ -13,7 +13,7 @@ include_once('block.t.php');
  * Type:     function.
  * Name:     email_obfuscator.
  * Purpose:  email obfuscation for protecting emails.
- * 
+ *
  * @author   Nino Dafonte <nino.dafonte@gmail.com>.
  * @param	string 	Email to obfuscate (received automatically).
  * @param 	string 	Text to show instead of the email.
@@ -74,4 +74,3 @@ function smarty_function_email_obfuscator($params, &$smarty)
 	$script = '<script type="text/javascript">/*<![CDATA[*/' . $script . '/*]]>*/</script>';
 	return '<span id="' . $id . '">[javascript protected email address]</span>' . $script;
 }
-?>

@@ -3,9 +3,9 @@
 namespace Sifo\Cache;
 
 use Sifo\Config;
-use Sifo\FilterCookie;
-use Sifo\FilterGet;
 use Sifo\Http\Domains;
+use Sifo\Http\Filter\FilterCookie;
+use Sifo\Http\Filter\FilterGet;
 
 /**
  * Common methods available to every Cache instance.

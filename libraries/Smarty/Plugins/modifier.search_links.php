@@ -17,23 +17,23 @@
  * @link http://www.harecoded.com
  * @version  1.0
  * @author   Albert Lombarte <alombarte@harecoded.com>
- * @param string
+ *
+ * @param string $text
+ * @param string $title
+ * @param string $rel
+ *
  * @return string
  */
-function smarty_modifier_search_links( $text, $title = '', $rel='nofollow' )
+function smarty_modifier_search_links($text, $title = '', $rel = 'nofollow')
 {
-	preg_match_all( '/(http|ftp)+(s)?:(\/\/)((\w|\.)+)(\/)?(\S+)?(\.*)?/i', $text, $matches );
-	if ( !empty( $matches[0] ) )
-	{
-		array_unique( $matches[0] );
-		foreach ( $matches[0] as $url )
-		{
-			$text = str_replace( $url, "<a title=\"$title\" href=\"$url\" rel=\"$rel\" class=\"url\">$url</a>", $text );
-		}
-	}
+    preg_match_all('/(http|ftp)+(s)?:(\/\/)((\w|\.)+)(\/)?(\S+)?(\.*)?/i', $text, $matches);
+    if (!empty($matches[0])) {
+        array_unique($matches[0]);
+        foreach ($matches[0] as $url) {
+            $text = str_replace($url, "<a title=\"$title\" href=\"$url\" rel=\"$rel\" class=\"url\">$url</a>", $text);
+        }
+    }
 
-	return $text;
+    return $text;
 
 }
-
-?>

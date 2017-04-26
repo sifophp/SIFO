@@ -2,8 +2,8 @@
 
 namespace Sifo\Http;
 
-use Sifo\FilterCustom;
-use Sifo\FilterServer;
+use Sifo\Http\Filter\FilterCustom;
+use Sifo\Http\Filter\FilterServer;
 use Sifo\Registry;
 
 /**
@@ -17,7 +17,7 @@ class Client
     /**
      * Filter server.
      *
-     * @var FilterServer
+     * @var \Sifo\Http\Filter\FilterServer
      */
     static private $server;
 
