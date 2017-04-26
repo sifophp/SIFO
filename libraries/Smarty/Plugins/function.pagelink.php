@@ -1,10 +1,5 @@
 <?php
-/**
- * Smarty plugin
- *
- * @package Smarty
- * @subpackage plugins
- */
+use Sifo\Http\Filter\FilterServer;
 
 function smarty_function_pagelink( $params, &$smarty )
 {
@@ -18,8 +13,8 @@ function smarty_function_pagelink( $params, &$smarty )
 	{
 		$_delimiter = ':';
 	}
-	$_current_querystring = \Sifo\FilterServer::getInstance()->getString( 'QUERY_STRING' );
-	$_current_path = \Sifo\FilterServer::getInstance()->getString( 'REQUEST_URI' );
+	$_current_querystring = FilterServer::getInstance()->getString( 'QUERY_STRING' );
+	$_current_path = FilterServer::getInstance()->getString( 'REQUEST_URI' );
 
 	if ( !empty( $_current_querystring ) )
 	{
@@ -27,36 +22,19 @@ function smarty_function_pagelink( $params, &$smarty )
 		$_current_path = str_replace( $_current_querystring, '', $_current_path );
 	}
 
-	$_current_url = array_reverse( explode( $_delimiter, $_current_path ) );
-
-	if ( is_numeric( $_current_url[0] ) )
-	{
-		$_current_page = ( int )array_shift( $_current_url );
-	}
-	else
-	{
-		$_current_page = 1;
-	}
-
-	$_current_url = implode( $_delimiter, array_reverse( $_current_url ) );
-
 	if ( !isset( $params['page'] ) )
 	{
-		trigger_error( "pagelink: You should provide the destination pagelink." );
+		trigger_error( 'pagelink: You should provide the destination pagelink.' );
 	}
 	else
 	{
 		if ( $params['page'] > 1 )
 		{
-			return $_current_url . $_delimiter . $params['page'];
+			return $_current_path . $_delimiter . $params['page'];
 		}
 		else
 		{
-			return $_current_url;
+			return $_current_path;
 		}
 	}
 }
-
-/* vim: set expandtab: */
-
-?>

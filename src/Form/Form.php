@@ -4,7 +4,7 @@ namespace Sifo\Form;
 
 use Sifo\Config;
 use Sifo\Crypt;
-use Sifo\Filter;
+use Sifo\Http\Filter\Filter;
 
 /**
  * Form utilites to manage data validation.

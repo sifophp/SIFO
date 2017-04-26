@@ -2,7 +2,7 @@
 
 namespace Sifo\Http;
 
-use Sifo\FilterCookie;
+use Sifo\Http\Filter\FilterCookie;
 
 /**
  * This class is used to update the runtime filter with the cookies changes.

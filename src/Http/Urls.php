@@ -4,7 +4,7 @@ namespace Sifo\Http;
 
 use Sifo\Bootstrap;
 use Sifo\Config;
-use Sifo\FilterServer;
+use Sifo\Http\Filter\FilterServer;
 
 /**
  * Parses all the URLs.
