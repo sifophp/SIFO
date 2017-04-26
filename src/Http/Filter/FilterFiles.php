@@ -4,14 +4,9 @@ namespace Sifo\Http\Filter;
 
 class FilterFiles extends Filter
 {
-    public static function getInstance()
+    public function __construct()
     {
-        if (!self::$instance) {
-            self::$instance = new self ($_FILES);
-            $_FILES = array();
-        }
-
-        return self::$instance;
+        $this->request = $_FILES;
     }
 
     public function getUnfiltered(string $var_name)
