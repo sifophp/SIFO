@@ -11,6 +11,7 @@ use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\Http\NotFound;
+use Sifo\Exception\Http\Redirect;
 use Sifo\Form\Form;
 use Sifo\Http\Domains;
 use Sifo\Http\Filter\FilterGet;
@@ -26,11 +27,7 @@ abstract class Controller
     /** Cache expiration time default for exceptions.*/
     const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
 
-    /**
-     * Cache expiration for this controller, by default set to 4 hours (expressed in seconds).
-     *
-     * @var integer
-     */
+    /** @var integer */
     const CACHE_DEFAULT_EXPIRATION = 14400;
 
     /** @var array */
@@ -72,7 +69,7 @@ abstract class Controller
     /** @var array */
     private $url_definition;
 
-    abstract function build();
+    abstract public function build();
 
     public function __construct()
     {
@@ -134,7 +131,7 @@ abstract class Controller
      *
      * @return null if no submit sent. True if validated correctly, false otherwise.
      */
-    protected function getValidatedForm($submit_button, $form_config, $default_fields = array())
+    protected function getValidatedForm($submit_button, $form_config, $default_fields = [])
     {
         $post = FilterPost::getInstance();
 
@@ -246,8 +243,7 @@ abstract class Controller
             $modules = array();
             // Execute additional modules and put their result in the 'modules' variable.
             foreach ($this->modules as $module_name => $controller) {
-                $modules[$module_name] = $this->dispatchSingleController($controller,
-                    array('module_name' => $module_name));
+                $modules[$module_name] = $this->dispatchSingleController($controller, ['module_name' => $module_name]);
             }
             unset($this->modules);
 
@@ -259,15 +255,17 @@ abstract class Controller
      * Cache a resulting exception when a cache_key is defined and hasn't any Post vars.
      * Use the CACHE_DEFAULT_EXPIRATION_EXCEPTIONS for all the exception less 301,302 and 404.
      *
-     * @param \Exception $eCatched exception.
-     * @param string $cache_key
+     * @param BaseException $e
+     * @param array|bool $cache_key_info
      */
-    protected function cacheException($e, $cache_key)
+    protected function cacheException(BaseException $e, $cache_key_info = false)
     {
-        if ((false !== $cache_key) && (!FilterPost::getInstance()->countVars())) {
-            $expiration = in_array($e->http_code,
-                array(301, 302, 404)) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
-            $this->cache->set($cache_key['name'], $e, $expiration);
+        if (false !== $cache_key_info && !FilterPost::getInstance()->countVars()) {
+            $expiration = ($e instanceof Redirect || $e instanceof NotFound)
+                ? $cache_key_info['expiration']
+                : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
+
+            $this->cache->set($cache_key_info['name'], $e, $expiration);
         }
     }
 
@@ -312,17 +310,17 @@ abstract class Controller
             return;
         }
 
-        $cache_key = $this->parseCache();
+        $cache_key_info = $this->parseCache();
 
-        if (false !== $cache_key) {
-            $this->addToDebug('name', $cache_key['name'], 'Cache properties');
-            $this->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
+        if (false !== $cache_key_info) {
+            $this->addToDebug('name', $cache_key_info['name'], 'Cache properties');
+            $this->addToDebug('expiration', $cache_key_info['expiration'], 'Cache properties');
         }
 
         try {
             $return = $this->build();
         } catch (BaseException $e) {
-            $this->cacheException($e, $cache_key);
+            $this->cacheException($e, $cache_key_info);
             throw new ControllerException("Controller Build has generated an exception.", $e);
         }
 
@@ -350,8 +348,8 @@ abstract class Controller
             $content = $this->grabHtml();
         }
 
-        if (false !== $cache_key) {
-            $this->cache->set($cache_key['name'], $content, $cache_key['expiration']);
+        if (false !== $cache_key_info) {
+            $this->cache->set($cache_key_info['name'], $content, $cache_key_info['expiration']);
         }
 
         $this->postDispatch();
@@ -381,10 +379,8 @@ abstract class Controller
         }
 
         $this->startBench("view_$class_name");
-        // Assign common vars:
         $this->assignCommonVars();
 
-        // Add another key inside the debug key:
         Debug::subSet('controllers', $class_name, $this->debug_info);
 
         $content = $this->view->fetch($this->layout);
@@ -400,13 +396,12 @@ abstract class Controller
      */
     protected function grabCache()
     {
-        // When DATA is sent, invalidate cache:
         if (0 < FilterPost::getInstance()->countVars()) {
             return false;
         }
 
         $cache_key = $this->parseCache();
-        // Controller does not uses cache:
+
         if (!$cache_key) {
             return false;
         }
@@ -415,20 +410,20 @@ abstract class Controller
         $content = $this->cache->get($cache_key['name']);
         Benchmark::getInstance()->timingCurrentToRegistry('cache');
 
-        if ($content) {
-            if (false !== strpos(Cache::$cache_type, 'MEMCACHE')) {
-                $this->addToDebug('Stored in Memcache as', sha1($cache_key['name']), 'Cache properties');
-            }
-            // Add another key inside the debug key:
-            $this->addToDebug('Cache definition', $cache_key, 'Cache properties');
-
-            Debug::subSet('controllers', get_class($this) . ' <small>- ' . Cache::$cache_type . ' HIT</small>',
-                $this->debug_info);
-
-            return $content;
+        if (empty($content)) {
+            return false;
         }
 
-        return false; // Life was beautiful, but although everything seemed to be cached, it wasn't.
+        if (false !== strpos(Cache::$cache_type, 'MEMCACHE')) {
+            $this->addToDebug('Stored in Memcache as', sha1($cache_key['name']), 'Cache properties');
+        }
+
+        $this->addToDebug('Cache definition', $cache_key, 'Cache properties');
+
+        Debug::subSet('controllers', get_class($this) . ' <small>- ' . Cache::$cache_type . ' HIT</small>',
+            $this->debug_info);
+
+        return $content;
     }
 
     /**
@@ -436,7 +431,7 @@ abstract class Controller
      *
      * All caches managed by controller pass this point.
      *
-     * @return array
+     * @return mixed
      */
     protected function parseCache()
     {
@@ -451,7 +446,7 @@ abstract class Controller
         }
 
         if (!is_array($this->cache_definition)) {
-            $this->cache_definition = array('name' => $this->cache_definition);
+            $this->cache_definition = ['name' => $this->cache_definition];
         }
 
         if (empty($this->cache_definition['expiration'])) {
@@ -465,7 +460,7 @@ abstract class Controller
     }
 
     /**
-     * Returns the final cache name, prepending the necessary attributes.
+     * Returns the final cache name, preceding the necessary attributes.
      *
      * @param array $definition Cache definition.
      *
@@ -499,6 +494,7 @@ abstract class Controller
      *
      * @param mixed $key_definition Array of keys=>values that define the cache,
      *                              or just a string that will be used as "name".
+     * @return mixed
      */
     public function deleteCache($key_definition)
     {
@@ -528,14 +524,7 @@ abstract class Controller
         $this->assign('_tpls', Config::getInstance()->getConfig('templates'));
     }
 
-    /**
-     * Returns the HTML of a smarty template or false if was impossible to fetch.
-     *
-     * @param string $template
-     *
-     * @return boolean
-     */
-    public function fetch($template)
+    public function fetch(string $template)
     {
         try {
             $template = $this->getTemplate($template);
@@ -547,15 +536,10 @@ abstract class Controller
         }
     }
 
-    /**
-     * Executes the current controller.
-     *
-     * @return string HTML output.
-     */
     public function execute()
     {
         $result = $this->build();
-        $controller_params = array_merge(array('layout' => $this->layout), $this->getParams());
+        $controller_params = array_merge(['layout' => $this->layout], $this->getParams());
         $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
 
         if ($this->is_json) {
@@ -659,8 +643,6 @@ abstract class Controller
 
     /**
      * Actions executed BEFORE the controller is dispatched or cache is called.
-     *
-     * @return void
      */
     public function preDispatch()
     {
@@ -668,7 +650,6 @@ abstract class Controller
 
     /**
      * Actions executed AFTER the controller has been dispatched and cache fetched and right before the output is sent to browser.
-     *
      */
     public function postDispatch()
     {
@@ -679,11 +660,6 @@ abstract class Controller
         echo $output;
     }
 
-    /**
-     * Returns the parameters relative to this controller.
-     *
-     * @return array
-     */
     public function getParams()
     {
         return $this->params;
@@ -741,44 +717,28 @@ abstract class Controller
      * Returns the translation of a string
      *
      * @param string $subject
-     * @param string $var_1
-     * @param string $var2
-     * @param string $var_n
+     * @param array $args
      *
      * @return string
      */
-    public function translate($subject, $var_1 = '', $var2 = '', $var_n = '')
+    public function translate($subject, ... $args)
     {
-        $args = func_get_args();
-
-        $variables = array();
+        $variables = [];
         if (1 < count($args)) {
             foreach ($args as $key => $value) {
                 $variables['%' . $key] = $value;
             }
         }
 
-        unset($variables['%0']);
-
         return $this->i18n->getTranslation($subject, $variables);
     }
 
-    /**
-     * Reset the parameters of the controller with the new ones passed.
-     *
-     * @param array $params
-     */
-    public function setParams($params)
+    public function setParams(array $params)
     {
         $this->params = $params;
     }
 
-    /**
-     * Add new parameters to the params array on the controller.
-     *
-     * @param array $params
-     */
-    public function addParams(Array $params)
+    public function addParams(array $params)
     {
         $this->params = array_merge($this->params, $params);
     }
@@ -789,43 +749,25 @@ abstract class Controller
      * @param        $name
      * @param string $controller
      */
-    public function addModule($name, $controller)
+    public function addModule(string $name, $controller)
     {
         $this->modules[$name] = $controller;
     }
 
-    /**
-     * Add modules in the battery from an array.
-     *
-     * @param array $modules List of modules to load.
-     */
-    public function addModules(array $modules = array())
+    public function addModules(array $modules = [])
     {
         foreach ($modules as $key => $val) {
-            $this->modules[$key] = $val;
+            $this->addModule($key, $val);
         }
     }
 
-    /**
-     * Get a list of common modules merged with custom ones retreived from child controller.
-     *
-     * @return array
-     */
     public function getModules()
     {
         return $this->modules;
     }
 
-    /**
-     * Adds an element in the debug as a new entry. You can set the context to create groups.
-     *
-     * @param string $key
-     * @param mixed $value
-     * @param string $context
-     */
-    protected function addToDebug($key, $value, $context = null)
+    protected function addToDebug(string $key, $value, string $context = null)
     {
-        // Store everything in the debug in the registry.
         if (Domains::getInstance()->getDebugMode()) {
             if (null === $context) {
                 $context = '__other__';
@@ -835,23 +777,12 @@ abstract class Controller
         }
     }
 
-    /**
-     * Starts the timer for the "benchmark" in the debug.
-     *
-     * @param string $key A key to identify this timer. Used to stop it also.
-     */
-    protected function startBench($key)
+    protected function startBench(string $key)
     {
         Benchmark::getInstance()->timingStart($key);
     }
 
-    /**
-     * Stops the timer for the bench.
-     *
-     * @param string $key Identifier that you used to start the bench.
-     * @param string $label Text that will be shown in the benchmarks table.
-     */
-    protected function stopBench($key, $label)
+    protected function stopBench(string $key, $label)
     {
         Debug::subSet('benchmarks', $label, Benchmark::getInstance()->timingCurrent($key));
     }
@@ -864,7 +795,7 @@ abstract class Controller
      *
      * @return Config
      */
-    protected function getConfig($config_name, $instance = null)
+    protected function getConfig(string $config_name, string $instance = null)
     {
         $current_instance = $this->instance;
         if (null !== $instance) {
@@ -888,7 +819,7 @@ abstract class Controller
      */
     protected function getParamsDefinition()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -900,12 +831,12 @@ abstract class Controller
      */
     protected function parseParams()
     {
-        $expected_params = array();
+        $expected_params = [];
         $expected_url_params = $this->getParamsDefinition();
 
         if (empty($expected_url_params)) {
             // The controller didn't declare any parameters, nothing to do.
-            return array();
+            return [];
         }
 
         // Build "reverse" keys array.
@@ -919,7 +850,7 @@ abstract class Controller
         }
 
         if (empty($expected_params) && (empty($this->params['params']) || empty($expected_url_params))) {
-            return array();
+            return [];
         }
 
         // Expected params:
@@ -997,7 +928,9 @@ abstract class Controller
     protected function getCurrentPage()
     {
         // Functions as is_numeric do not work properly with large integers in 64bit machines.
-        if (!empty($this->params['params']) && preg_match('/^[0-9]+$/', end($this->params['params']))) {
+        if (!empty($this->params['params'])
+            && preg_match('/^[0-9]+$/', end($this->params['params']))
+        ) {
             return array_pop($this->params['params']);
         }
 
@@ -1016,14 +949,14 @@ abstract class Controller
     }
 
     /**
-     * Change instance environment. It changes the hole instance configuration in runtime process.
+     * Change instance environment. It changes the whole instance configuration in runtime process.
      *
-     * @param        $instance
-     * @param        $domain
-     * @param        $language
+     * @param string $instance
+     * @param string $domain
+     * @param string $language
      * @param string $i18n_messages
      */
-    public function changeInstanceEnvironment($instance, $domain, $language, $i18n_messages = 'messages')
+    public function changeInstanceEnvironment(string $instance, string $domain, string $language, string $i18n_messages = 'messages')
     {
         Bootstrap::$instance = $instance;
         Domains::getInstance()->changeDomain($domain);
