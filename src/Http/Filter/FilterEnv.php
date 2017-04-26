@@ -4,13 +4,8 @@ namespace Sifo\Http\Filter;
 
 class FilterEnv extends Filter
 {
-    public static function getInstance()
+    public function __construct()
     {
-        if (!self::$instance) {
-            self::$instance = new self ($_ENV);
-            $_ENV = array();
-        }
-
-        return self::$instance;
+        $this->request = $_ENV;
     }
 }

@@ -120,9 +120,9 @@ class Debug
      * Example: array( $key => array( $subkey => $value ) )
      *
      * @param string $key Name you want to store the value with.
+     * @param $sub_key
      * @param mixed $value The object to store in the array.
      * @param boolean $append When true append the value to the end if sub_key exists.
-     *
      * @return void
      */
     public static function subSet($key, $sub_key, $value, $append = false)

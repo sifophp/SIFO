@@ -9,7 +9,7 @@ namespace Sifo\Http\Filter;
  *
  * @see http://php.net/manual/en/filter.filters.validate.php
  */
-class Filter
+abstract class Filter
 {
     /**
      * Regular expression for email validation.
@@ -19,23 +19,18 @@ class Filter
     const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
 
     /** @var self */
-    static protected $instance;
+    protected static $instance;
 
     /** @var array */
     protected $request;
 
-    protected function __construct(array $request)
-    {
-        $this->request = &$request;
-    }
-
     public static function getInstance()
     {
-        if (!self::$instance) {
-            self::$instance = new self ($_POST);
+        if (!static::$instance) {
+            static::$instance = new static();
         }
 
-        return self::$instance;
+        return static::$instance;
     }
 
     public function setVar(string $key, $value)
@@ -257,48 +252,6 @@ class Filter
     }
 
     /**
-     * Return an array like getArray but, in this case, the array is a serialized one.
-     * Used to send arrays from javascript.
-     *
-     * @param string $var_name
-     * @param string $filter_function Is the function to use with each array field.
-     *
-     * @return array|bool
-     */
-    public function getArrayFromSerialized(string $var_name, string $filter_function = null)
-    {
-        if (!isset($this->request[$var_name])) {
-            return false;
-        }
-        parse_str($this->request[$var_name], $this->request[$var_name]);
-
-        return $this->getArray($var_name, $filter_function);
-    }
-
-    /**
-     * Returns an array on the post UNFILTERED.
-     *
-     * @param string $var_name
-     * @param string $filter_function
-     *
-     * @return array|bool
-     */
-    public function getArray(string $var_name, string $filter_function = null)
-    {
-
-        if (!isset($this->request[$var_name]) || !is_array($this->request[$var_name])) {
-            return false;
-        }
-
-        // Returns an unfiltered Array
-        if (null === $filter_function) {
-            return $this->request[$var_name];
-        }
-
-        trigger_error('The function Filter::getArray is not implemented yet so you are not filtering anything.');
-    }
-
-    /**
      * Checks if a string is a valid.
      *
      * Matches:
@@ -311,7 +264,7 @@ class Filter
      *
      * @return string|bool String of the date or false.
      */
-    public function getDate(string $var_name, string $format = 'd-m-Y')
+    public function getDate(string $var_name, string $format = 'Y-m-d')
     {
         if (!isset($this->request[$var_name])) {
             return false;
@@ -323,51 +276,6 @@ class Filter
         }
 
         return $date->format($format);
-    }
-
-    public function getDateWithDefaultValue(
-        string $var_name,
-        \DateTimeInterface $default_date,
-        string $format = 'd-m-Y'
-    ) {
-        $date = $this->getDate($var_name, $format);
-        if (empty($date)) {
-            return $default_date;
-        }
-
-        return $date;
-    }
-
-    public function getDateMultiValue(
-        string $var_name,
-        int $minimum_years = null,
-        string $second_var_name = null,
-        string $third_var_name = null,
-        string $format = 'd-m-Y'
-    ) {
-        if (!isset($this->request[$var_name])) {
-            return false;
-        }
-
-        $field_values = $this->request[$var_name];
-        if (null !== $second_var_name && null !== $third_var_name) {
-            if (isset($this->request[$second_var_name]) && isset($this->request[$third_var_name])) {
-                $field_values = $this->request[$var_name] . '/' . $this->request[$second_var_name] . '/' . $this->request[$third_var_name];
-            }
-        }
-
-        $date = \DateTime::createFromFormat($format, $field_values);
-        if ($date !== false) {
-            if (null !== $minimum_years) {
-                if (new \DateTime('now') < $date->add(new \DateInterval("P{$minimum_years}Y"))) {
-                    return false;
-                }
-            }
-
-            return $date->format($format);
-        }
-
-        return false;
     }
 
     public function getRawRequest(): array

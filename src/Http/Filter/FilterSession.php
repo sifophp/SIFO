@@ -4,12 +4,8 @@ namespace Sifo\Http\Filter;
 
 class FilterSession extends Filter
 {
-    public static function getInstance()
+    public function __construct()
     {
-        if (!self::$instance) {
-            self::$instance = new self ($_SESSION);
-        }
-
-        return self::$instance;
+        $this->request = $_SESSION;
     }
 }
