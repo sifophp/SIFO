@@ -131,11 +131,11 @@ abstract class Base
     /**
      * Stores "$content" under "$key" for "$expiration" seconds.
      *
-     * @param $key        string
-     * @param $content    mixed
-     * @param $expiration integer
+     * @param string $key
+     * @param string $content
+     * @param integer $expiration
      *
-     * @return boolean
+     * @return bool
      */
     public function set($key, $content, $expiration)
     {
