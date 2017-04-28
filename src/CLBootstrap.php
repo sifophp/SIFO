@@ -7,6 +7,7 @@
 namespace Sifo;
 
 use Sifo\Container\DependencyInjector;
+use Sifo\Controller\Debug\CommandLineDebugController;
 use Sifo\Http\Domains;
 use Sifo\Http\Filter\FilterServer;
 
@@ -30,8 +31,6 @@ class CLBootstrap extends Bootstrap
             $controller_name = self::$script_controller;
         }
 
-        // Register autoloader:
-        spl_autoload_register(['\\Sifo\\Bootstrap', 'includeFile']);
         self::$container = DependencyInjector::getInstance();
 
         // Set paths:
@@ -46,9 +45,9 @@ class CLBootstrap extends Bootstrap
     /**
      * Sets the controller and view properties and executes the controller, sending the output buffer.
      *
-     * @param string $controller Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
+     * @param string $controller_path Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
      */
-    public static function dispatch($controller = null)
+    public static function dispatch(string $controller_path = null)
     {
         // Set Timezone as required by php 5.1+
         date_default_timezone_set('Europe/Madrid');
@@ -58,13 +57,13 @@ class CLBootstrap extends Bootstrap
             self::$language = 'en_US';
 
             // This is the controller to use:
-            $ctrl = self::invokeController($controller);
-            self::$controller = $controller;
+            $ctrl = self::invokeController($controller_path);
+            self::$controller = $controller_path;
             $ctrl->build();
 
             // Debug:
             if (Domains::getInstance()->getDebugMode()) {
-                $ctrl_debug = self::invokeController('DebugCommandLineDebug');
+                $ctrl_debug = self::invokeController(CommandLineDebugController::class);
                 $ctrl_debug->build();
             }
         } catch (\Exception $e) {

@@ -1,10 +1,13 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Controller;
 
 use Psr\Container\ContainerInterface;
+use Sifo\Benchmark;
+use Sifo\Bootstrap;
 use Sifo\Cache\Base as CacheBase;
 use Sifo\Cache\Cache;
+use Sifo\Config;
 use Sifo\Debug\Debug;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
@@ -20,6 +23,7 @@ use Sifo\Http\Headers;
 use Sifo\Http\Router;
 use Sifo\Http\Session;
 use Sifo\Http\Urls;
+use Sifo\I18N;
 use Sifo\View\View;
 
 abstract class Controller
@@ -384,6 +388,7 @@ abstract class Controller
         Debug::subSet('controllers', $class_name, $this->debug_info);
 
         $content = $this->view->fetch($this->layout);
+
         $this->stopBench("view_$class_name", "$class_name: Smarty fetch");
 
         return $content;
@@ -793,7 +798,7 @@ abstract class Controller
      * @param string $config_name Config name.
      * @param string $instance If null, the config is taken from the current instance.
      *
-     * @return Config
+     * @return mixed
      */
     protected function getConfig(string $config_name, string $instance = null)
     {

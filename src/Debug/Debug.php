@@ -3,7 +3,6 @@
 namespace Sifo\Debug;
 
 use Sifo\Config;
-use Sifo\Error;
 
 /**
  * Handles the interaction with the application debug.
@@ -167,7 +166,7 @@ class Debug
     /**
      * Return a error type friendly string.
      *
-     * @param $type Error code number.
+     * @param $type
      *
      * @return string
      */
