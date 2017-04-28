@@ -17,7 +17,6 @@ class Smarty implements ViewInterface
 
         $this->smarty->inheritance_merge_compiled_includes = false;
 
-        // Get the instances inheritance.
         $instance_inheritance = Domains::getInstance()->getInstanceInheritance();
 
         // First the child instance, last the parent instance.
@@ -29,23 +28,24 @@ class Smarty implements ViewInterface
         // Last path is the default smarty plugins directory.
         $this->smarty->addPluginsDir(ROOT_PATH . '/vendor/sifophp/sifo/libraries/Smarty/Plugins');
 
-        $this->smarty->setTemplateDir(ROOT_PATH . '/');  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
+        // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
+        $this->smarty->setTemplateDir(ROOT_PATH . '/');
 
-        // Paths definition:
         $this->smarty->setCompileDir(ROOT_PATH . '/var/cache/smarty/compile/' . Bootstrap::$instance . '/');
         $this->smarty->setCacheDir(ROOT_PATH . '/var/cache/smarty/cache/' . Bootstrap::$instance . '/');
 
-        if (($view_setting = Config::getInstance()->getConfig('views')) && (isset($view_setting['smarty']))) {
-            $smarty_settings = $view_setting['smarty'];
-
-            if (isset($smarty_settings['custom_plugins_dir'])) {
-                // If is set, this path will be the default smarty plugins directory.
-                $this->smarty->addPluginsDir($smarty_settings['custom_plugins_dir']);
+        if ($view_setting = Config::getInstance()->getConfig('views', 'smarty')) {
+            foreach ($view_setting as $property => $value)
+            {
+                if (isset($this->smarty->$property))
+                {
+                    $this->smarty->$property = $value;
+                }
             }
 
-            // Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
-            $this->smarty->auto_literal = $smarty_settings['auto_literal'];
-            $this->smarty->escape_html = $smarty_settings['escape_html'];
+            if (isset($smarty_settings['custom_plugins_dir'])) {
+                $this->smarty->addPluginsDir($smarty_settings['custom_plugins_dir']);
+            }
         }
     }
 
