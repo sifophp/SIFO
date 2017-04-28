@@ -78,9 +78,8 @@ class Database
 
         // When adodb is instantiated for the first time the object becomes in an array with a type of operation.
         if (!is_array(self::$adodb)) {
-            $version = Config::getInstance()->getLibrary('adodb');
-            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/$version/adodb-exceptions.inc.php"); //include exceptions for php5
-            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/$version/adodb.inc.php");
+            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/adodb5/adodb-exceptions.inc.php"); //include exceptions for php5
+            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/adodb5/adodb.inc.php");
 
             if (!isset($db_params['profile'])) {
                 // No Master/Slave schema expected:
@@ -371,7 +370,7 @@ Error: $error
 MESSAGE;
 
         $database_data = Domains::getInstance()->getDatabaseParams();
-        $path = !empty($database_data['error_log_path']) ? $database_data['error_log_path'] : ROOT_PATH . '/logs/errors_database.log';
+        $path = !empty($database_data['error_log_path']) ? $database_data['error_log_path'] : ROOT_PATH . '/var/log/errors_database.log';
 
         file_put_contents($path, $message, FILE_APPEND);
     }

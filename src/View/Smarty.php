@@ -4,6 +4,7 @@ namespace Sifo\View;
 
 use Sifo\Bootstrap;
 use Sifo\Config;
+use Sifo\Http\Domains;
 
 class Smarty implements ViewInterface
 {
@@ -17,28 +18,22 @@ class Smarty implements ViewInterface
         $this->smarty->inheritance_merge_compiled_includes = false;
 
         // Get the instances inheritance.
-        $instance_inheritance = \Sifo\Http\Domains::getInstance()->getInstanceInheritance();
+        $instance_inheritance = Domains::getInstance()->getInstanceInheritance();
 
-        // If there is inheritance.
-        if (is_array($instance_inheritance)) {
-            // First the child instance, last the parent instance.
-            $instance_inheritance = array_reverse($instance_inheritance);
-            foreach ($instance_inheritance as $current_instance) {
-                $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins');
-            }
-        } else {
-            $this->smarty->addPluginsDir($templates_path . '_smarty/plugins');
+        // First the child instance, last the parent instance.
+        $instance_inheritance = array_reverse($instance_inheritance);
+        foreach ($instance_inheritance as $current_instance) {
+            $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins');
         }
+
         // Last path is the default smarty plugins directory.
         $this->smarty->addPluginsDir(ROOT_PATH . '/vendor/sifophp/sifo/libraries/Smarty/Plugins');
 
         $this->smarty->setTemplateDir(ROOT_PATH . '/');  // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
 
         // Paths definition:
-        $templates_path = ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/';
-        $this->smarty->setCompileDir($templates_path . '_smarty/compile/');
-        $this->smarty->setConfigDir($templates_path . '_smarty/configs/');
-        $this->smarty->setCacheDir($templates_path . '_smarty/cache/');
+        $this->smarty->setCompileDir(ROOT_PATH . '/var/cache/smarty/compile/' . Bootstrap::$instance . '/');
+        $this->smarty->setCacheDir(ROOT_PATH . '/var/cache/smarty/cache/' . Bootstrap::$instance . '/');
 
         if (($view_setting = Config::getInstance()->getConfig('views')) && (isset($view_setting['smarty']))) {
             $smarty_settings = $view_setting['smarty'];
@@ -47,6 +42,7 @@ class Smarty implements ViewInterface
                 // If is set, this path will be the default smarty plugins directory.
                 $this->smarty->addPluginsDir($smarty_settings['custom_plugins_dir']);
             }
+
             // Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
             $this->smarty->auto_literal = $smarty_settings['auto_literal'];
             $this->smarty->escape_html = $smarty_settings['escape_html'];
