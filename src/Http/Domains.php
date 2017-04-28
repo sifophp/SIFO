@@ -61,19 +61,12 @@ class Domains
             unset($this->domain_configuration['instance_type']);
         }
 
-        if (isset($this->domain_configuration['core_inheritance'])) {
-            $this->core_inheritance = $this->domain_configuration['core_inheritance'];
-            unset($this->domain_configuration['core_inheritance']);
-        } else {
-            $this->core_inheritance = array('Sifo');
-        }
-
         // Get the domain inheritance.
         if (isset($this->domain_configuration['instance_inheritance'])) {
             $this->instance_inheritance = $this->domain_configuration['instance_inheritance'];
             unset($this->domain_configuration['instance_inheritance']);
         } else {
-            $this->instance_inheritance = array('common');
+            $this->instance_inheritance = ['common'];
         }
 
         if (isset($this->domain_configuration['redirections']) && is_array($this->domain_configuration['redirections'])) {
@@ -337,16 +330,6 @@ class Domains
         }
 
         return $this->media_host;
-    }
-
-    /**
-     * Return the core inheritance. Used for active new versions.
-     *
-     * @return array
-     */
-    public function getCoreInheritance()
-    {
-        return $this->core_inheritance;
     }
 
     /**

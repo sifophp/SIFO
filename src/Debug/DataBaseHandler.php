@@ -34,7 +34,7 @@ class DataBaseHandler
      */
     function __construct()
     {
-        $this->db_path = ROOT_PATH . '/logs/';
+        $this->db_path = ROOT_PATH . '/var/log/';
 
         try {
             $this->persistence = new PDO('sqlite:' . $this->db_path . $this->db_name);
