@@ -11,7 +11,7 @@ use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
 use Sifo\Exception\Http\InternalServerError;
-use Sifo\Exception\Http\NotAuthorized;
+use Sifo\Exception\Http\Unauthorized;
 use Sifo\Exception\Http\NotFound;
 use Sifo\Exception\Http\PermanentRedirect;
 use Sifo\Exception\Http\Redirect;
@@ -99,7 +99,7 @@ class Bootstrap
                     Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
                     Headers::send();
 
-                    throw new NotAuthorized('You should enter a valid credentials.');
+                    throw new Unauthorized('You should enter a valid credentials.');
                 }
 
                 // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
