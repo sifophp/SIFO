@@ -24,6 +24,7 @@ abstract class Filter
     /** @var array */
     protected $request;
 
+    /** @return static */
     public static function getInstance()
     {
         if (!isset(self::$instance[static::class])) {
