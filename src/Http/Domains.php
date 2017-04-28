@@ -66,7 +66,7 @@ class Domains
             $this->instance_inheritance = $this->domain_configuration['instance_inheritance'];
             unset($this->domain_configuration['instance_inheritance']);
         } else {
-            $this->instance_inheritance = ['common'];
+            $this->instance_inheritance = [];
         }
 
         if (isset($this->domain_configuration['redirections']) && is_array($this->domain_configuration['redirections'])) {

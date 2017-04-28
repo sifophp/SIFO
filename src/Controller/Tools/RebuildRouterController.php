@@ -30,7 +30,7 @@ class RebuildRouterController extends Controller
         }
 
         $findI18N = new FindI18NController();
-        $files_available = $findI18N->getFilesystemFiles("instances/" . Bootstrap::$instance . "/config/lang");
+        $files_available = $findI18N->getFilesystemFiles("instances/" . Bootstrap::$instance . "/etc/lang");
 
         foreach ($files_available as $key => $filename) {
             // Is a 'router' config file (but not master)
@@ -64,7 +64,7 @@ class RebuildRouterController extends Controller
 
     protected function saveConfig($filename, $values)
     {
-        $config_file = Bootstrap::$application . "/" . Bootstrap::$instance . "/config/lang/" . $filename;
+        $config_file = Bootstrap::$application . "/" . Bootstrap::$instance . "/etc/lang/" . $filename;
         file_put_contents($config_file, "<?php
 
 namespace Common;\n"
@@ -73,7 +73,7 @@ namespace Common;\n"
 
     protected function getTranslatedRoutes($filename)
     {
-        $path = Bootstrap::$application . "/" . Bootstrap::$instance . "/config/lang/" . $filename;
+        $path = Bootstrap::$application . "/" . Bootstrap::$instance . "/etc/lang/" . $filename;
 
         include $path;
         ksort($config);

@@ -38,7 +38,6 @@ class FindI18NController extends Controller
         if ($this->filter_post->isSent('instance')) {
             $this->getI18nStats();
         } else {
-            $this->assign('selected_instance', 'common');
             $this->assign('selected_charset', 'utf-8');
         }
     }
@@ -120,14 +119,11 @@ class FindI18NController extends Controller
         // Parse all templates
         $literals_groups['tpl'] = $this->extractStringsForTranslation("$path/templates", $instance, true);
 
-        // Parse all models:
-        $literals_groups['models'] = $this->extractStringsForTranslation("$path/models", $instance, false);
-
         // Parse all controllers:
-        $literals_groups['controllers'] = $this->extractStringsForTranslation("$path/controllers", $instance, false);
+        $literals_groups['controllers'] = $this->extractStringsForTranslation("$path/src", $instance, false);
 
         // Parse all form configs:
-        $literals_groups['forms'] = $this->extractStringsForTranslation("$path/config", $instance, false);
+        $literals_groups['forms'] = $this->extractStringsForTranslation("$path/etc", $instance, false);
 
         // Smarty plugins:
         $sifo_plugins_path = ROOT_PATH . '/vendor/sifophp/sifo/src/Smarty-sifo-plugins';

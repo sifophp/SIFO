@@ -24,7 +24,6 @@
     "neutron/sphinxsearch-api": "^2.0",
     "phpmailer/phpmailer": "^5.2",
     "psr/container": "^1.0",
-    "sifophp/sifo-common-instance": "^2.12",
     "smarty/smarty": "3.1.24",
     "symfony/yaml": "^3.2",
     "tpyo/amazon-s3-php-class": "^0.5",
