@@ -4,6 +4,9 @@ namespace Sifo;
 
 use Psr\Container\ContainerInterface;
 use Sifo\Container\DependencyInjector;
+use Sifo\Controller\Controller;
+use Sifo\Controller\Debug\DebugController;
+use Sifo\Controller\Error\ErrorController;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
@@ -58,8 +61,7 @@ class Bootstrap
         self::$root = ROOT_PATH;
         self::$application = dirname(__FILE__);
         self::$instance = $instance_name;
-
-        self::autoload();
+        self::$container = DependencyInjector::getInstance();
 
         Benchmark::getInstance()->timingStart();
 
@@ -68,62 +70,13 @@ class Bootstrap
         Benchmark::getInstance()->timingStop();
     }
 
-    private static function autoload()
+    public static function invokeController(string $controller_path): Controller
     {
-        spl_autoload_register(array('\\Sifo\\Bootstrap', 'includeFile'));
-        self::$container = DependencyInjector::getInstance();
-    }
-
-    public static function invokeController(string $controller): Controller
-    {
-        $controller_path = explode('/', $controller);
-
-        $class = '';
-        foreach ($controller_path as $part) {
-            $class .= ucfirst($part);
-        }
-
-        $class .= 'Controller';
-
         /** @var Controller $controller */
-        $controller = new $class;
+        $controller = new $controller_path;
         $controller->setContainer(self::$container);
 
         return $controller;
-    }
-
-    /**
-     * Includes (include_once) the file corresponding to the passed passed classname.
-     * It does not instantiate any object.
-     *
-     * This method must be public as it is used in external places, as unit-tests.
-     *
-     * @param string $classname
-     *
-     * @throws InternalServerError
-     * @return string The class name you asked for.
-     */
-    public static function includeFile($classname)
-    {
-        try {
-            $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
-        } catch (ConfigurationException $e) {
-            return null;
-        }
-
-        if (class_exists($class_info['name'], false)) {
-            return $class_info['name'];
-        }
-
-        $class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
-
-        if (!file_exists($class_path)) {
-            throw new InternalServerError("Doesn't exist in expected path {$class_info['path']}");
-        }
-
-        include_once($class_path);
-
-        return $class_info['name'];
     }
 
     public static function dispatch(string $controller = null)
@@ -183,7 +136,7 @@ class Bootstrap
             $ctrl->dispatch();
 
             if (false === $ctrl->is_json && Domains::getInstance()->getDebugMode()) {
-                self::invokeController('debug/index')->dispatch();
+                self::invokeController(DebugController::class)->dispatch();
             }
         } catch (UnknownDomainException $d) {
             Headers::setResponseStatus(404);
@@ -206,7 +159,7 @@ class Bootstrap
         $new_location = $exception->getRedirectLocation();
 
         if (Domains::getInstance()->getDebugMode()) {
-            $ctrl = self::invokeController('error/common');
+            $ctrl = self::invokeController(ErrorController::class);
             $ctrl->addParams(
                 [
                     'code' => $exception->getHttpCode(),
@@ -220,7 +173,7 @@ class Bootstrap
 
             Headers::set('Location (paused)', $new_location);
             Headers::send();
-            self::invokeController('debug/index')->dispatch();
+            self::invokeController(DebugController::class)->dispatch();
 
             return;
         }
@@ -235,7 +188,7 @@ class Bootstrap
         Headers::setResponseStatus($exception->getHttpCode());
         Headers::send();
 
-        $ctrl = self::invokeController('error/common');
+        $ctrl = self::invokeController(ErrorController::class);
         $ctrl->addParams(
             [
                 'code' => $exception->getHttpCode(),
@@ -248,7 +201,7 @@ class Bootstrap
         $ctrl->dispatch();
 
         if (Domains::getInstance()->getDebugMode()) {
-            self::invokeController('debug/index')->dispatch();
+            self::invokeController(DebugController::class)->dispatch();
         }
     }
 
