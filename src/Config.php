@@ -44,11 +44,7 @@ class Config
 
     protected function __construct($instance_name)
     {
-        if ($instance_name === 'tests') {
-            $config_path = ROOT_PATH . '/' . $instance_name . "/config/";
-        } else {
-            $config_path = ROOT_PATH . "/instances/" . $instance_name . "/config/";
-        }
+        $config_path = ROOT_PATH . "/instances/" . $instance_name . "/etc/";
 
         include($config_path . $this->configuration_files_path);
         $this->paths_to_configs = $config;

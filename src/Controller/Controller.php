@@ -68,7 +68,7 @@ abstract class Controller
     protected $layout;
 
     /** @var string */
-    private $instance;
+    protected $instance;
 
     /** @var array */
     private $url_definition;

@@ -20,9 +20,7 @@ class Mail
     /**
      * Singleton of Client class.
      *
-     * @param string $instance_name Instance Name, needed to determine correct paths.
-     *
-     * @return object Client
+     * @return self
      */
     public static function getInstance()
     {
@@ -92,7 +90,8 @@ class Mail
      * @param string $subject
      * @param string $body
      *
-     * @return boolean
+     * @return bool
+     * @throws NotSendMailException
      */
     public function send($to, $subject, $body)
     {
