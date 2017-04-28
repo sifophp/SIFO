@@ -26,10 +26,41 @@ class DumpConfigFilesController extends Controller
      *
      * @var array
      */
-    protected $failed_files = array();
+    protected $failed_files = [];
+
+    /** @var array */
+    private $instance_inheritance = [];
+
+    public function build()
+    {
+        if (true !== Domains::getInstance()->getDevMode()) {
+            throw new NotFound('User tried to access the rebuild page, but he\'s not in development');
+        }
+
+        $this->getInstancesInheritance();
+
+        // Calculate where the config files are taken from.
+        $files_output = $this->rebuildFiles([
+            'config' => ['etc'],
+            'templates' => ['templates'],
+            'locale' => ['locale']
+        ]);
+
+        // Reset the layout and paste the content in the empty template:
+        $this->setLayout('manager/rebuild.tpl');
+
+        // Disable debug on this page.
+        Domains::getInstance()->setDebugMode(false);
+
+        $this->assign('inheritance', array_reverse($this->instance_inheritance));
+
+        $this->assign('errors', $this->failed_files);
+        $this->assign('filenames', $this->filenames);
+        $this->assign('files_output', $files_output);
+    }
 
     /**
-     * Writes all the configurattion files to disk.
+     * Writes all the configuration files to disk.
      *
      * Input expected is:
      *
@@ -45,52 +76,35 @@ class DumpConfigFilesController extends Controller
 
         $this->setLayout('manager/templates.tpl');
 
-        $output = array();
+        $output = [];
 
-        $instance_inheritance = array_unique(Domains::getInstance()->getInstanceInheritance());
-
-        $instance_inheritance_reverse = array_reverse($instance_inheritance);
-
-        $instances_configuration = [];
-        // Build the instance configuration: instance name and his parent instance name is exists.
-        foreach ($instance_inheritance_reverse as $key => $instance) {
-            $instance_config['current'] = $instance;
-            if (isset($instance_inheritance[$key + 1])) {
-                $instance_config['parent'] = $instance_inheritance_reverse[$key + 1];
-            }
-            $instances_configuration[] = $instance_config;
-            unset($instance_config);
-        }
+        $instance_inheritance_reverse = array_reverse($this->instance_inheritance);
 
         // For each instance in the inheritance it regenerates his configuration files.
-        foreach ($instances_configuration as $instance) {
-            $current_instance = $instance['current'];
-
-            $this->assign('instance_parent', null);
-            if (isset($instance['parent'])) {
-                $this->assign('instance_parent', $instance['parent']);
-            }
+        foreach ($instance_inheritance_reverse as $current_instance) {
+            $this->assign('instance_parent', $this->getParentInstance($current_instance));
 
             foreach ($files as $file => $folders) {
+                $config_file_name = $this->filenames[$file];
+                $this->assign('file_name', $config_file_name);
+
                 $configs = [];
                 foreach ($folders as $folder) {
                     $configs = array_merge($configs, $this->getAvailableFiles($folder, $current_instance));
                 }
-
                 $this->assign('config', $configs);
-                $this->assign('file_name', $this->filenames[$file]);
+
+                $current_config_file = $this->getCurrentConfigFilename($current_instance, $config_file_name);
+                $parent_config_file = $this->getParentConfigFilename($current_instance, $config_file_name);
+
+                $this->assign('parent_config_file', str_replace(ROOT_PATH, '', $parent_config_file));
 
                 $configs_content = $this->grabHtml();
 
-                $file_destination = ROOT_PATH . "/instances/" . $current_instance . "/config/" . $this->filenames[$file];
 
-                if ($current_instance == 'common') {
-                    $file_destination = ROOT_PATH . "/vendor/sifophp/sifo-common-instance/config/" . $this->filenames[$file];
-                }
-
-				$success = file_put_contents( $file_destination, $configs_content );
+                $success = file_put_contents($current_config_file, $configs_content);
                 if (!$success) {
-                    $this->failed_files[] = $file_destination;
+                    $this->failed_files[] = $current_config_file;
                 }
                 $output[$current_instance][$file] = $configs_content;
             }
@@ -98,32 +112,6 @@ class DumpConfigFilesController extends Controller
 
         return $output;
 
-    }
-
-    public function build()
-    {
-        if (true !== Domains::getInstance()->getDevMode()) {
-            throw new NotFound('User tried to access the rebuild page, but he\'s not in development');
-        }
-
-        // Calculate where the config files are taken from.
-        $files_output = $this->rebuildFiles([
-            'config' => ['config'],
-            'templates' => ['templates'],
-            'locale' => ['locale'],
-        ]);
-
-        // Reset the layout and paste the content in the empty template:
-        $this->setLayout('manager/rebuild.tpl');
-
-        // Disable debug on this page.
-        Domains::getInstance()->setDebugMode(false);
-
-        $this->assign('inheritance', array_reverse(array_unique(Domains::getInstance()->getInstanceInheritance())));
-
-        $this->assign('errors', $this->failed_files);
-        $this->assign('filenames', $this->filenames);
-        $this->assign('files_output', $files_output);
     }
 
     protected function getRunningInstances()
@@ -148,50 +136,74 @@ class DumpConfigFilesController extends Controller
     protected function getAvailableFiles($type, $current_instance)
     {
         $d = new Dir();
-        $type_files = array();
+        $type_files = [];
 
-        if ($type == 'core') {
-            return [];
-        }
+        $available_files = $d->getFileListRecursive(ROOT_PATH . "/instances/{$current_instance}/{$type}");
 
-        if ($current_instance == 'common') {
-            $available_files = $d->getFileListRecursive(ROOT_PATH . "/vendor/sifophp/sifo-common-instance/" . "/$type");
-            $path_files = "vendor/sifophp/sifo-common-instance";
-        } else {
-            $available_files = $d->getFileListRecursive(ROOT_PATH . "/instances/" . $current_instance . "/$type");
-            $path_files = "instances/$current_instance";
-        }
-
-        if (is_array($available_files) === true && count($available_files) > 0) {
-            foreach ($available_files as $k => $v) {
-                // Allow only PHP extensions
-                $desired_file_pattern = preg_match('/\.(php)$/i', $v["relative"]);
-                if (($type != 'templates' && $desired_file_pattern) || $type == 'templates') {
-                    $rel_path = $this->cleanStartingSlash($v["relative"]);
-
-                    $path = str_replace('//', '/', $path_files . "/$type/$rel_path");
-
-                    // Calculate the class name for the given file:
-                    $rel_path = str_replace('.model.php', '', $rel_path);
-                    $rel_path = str_replace('.ctrl.php', '', $rel_path);
-                    $rel_path = str_replace('.config.php', '', $rel_path);
-                    $rel_path = str_replace('.php', '', $rel_path); // Default
-
-                    switch ($type) {
-                        case 'config':
-                            if ($rel_path == 'configuration_files') {
-                                continue;
-                            }
-                        case 'templates':
-                        default:
-                            $type_files[$rel_path] = $path;
-                    }
-                }
+        foreach ($available_files as $file_info) {
+            $relative_path = $this->getRelativePath($file_info);
+            $absolute_path = $this->getAbsolutePath($file_info);
+            if ('config' == $type && 'configuration_files' == $relative_path) {
+                continue;
             }
+
+            $type_files[$relative_path] = $absolute_path;
         }
 
         ksort($type_files);
         return $type_files;
     }
 
+    private function getRelativePath($file_info)
+    {
+        return preg_replace('/(\.config)?\.php$/', '', trim($file_info['relative'], '/'));
+    }
+
+    private function getAbsolutePath($file_info)
+    {
+        return str_replace(ROOT_PATH . '/', '', $file_info['absolute']);
+    }
+
+    private function getInstancesInheritance()
+    {
+        $this->instance_inheritance = array_unique(Domains::getInstance()->getInstanceInheritance());
+    }
+
+    private function isRootInstance(string $instance)
+    {
+        return $instance == $this->instance_inheritance[0];
+    }
+
+    private function getParentInstance(string $instance)
+    {
+        $index = array_search($instance, $this->instance_inheritance);
+
+        if (!isset($this->instance_inheritance[$index + 1])) {
+            return null;
+        }
+
+        return $this->instance_inheritance[$index + 1];
+    }
+
+    private function getCurrentConfigFilename($current_instance, $config_file_name): string
+    {
+        $file_destination = ROOT_PATH . "/instances/" . $current_instance . "/etc/" . $config_file_name;
+        return $file_destination;
+    }
+
+    private function getParentConfigFilename($current_instance, $config_file_name)
+    {
+        if ($parent_instance = $this->getParentInstance($current_instance)) {
+            $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/etc/" . $config_file_name;
+            return $config_file_path;
+        }
+
+        $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/etc/" . $config_file_name;
+        if (file_exists($sifo_config_file_path))
+        {
+            return $sifo_config_file_path;
+        }
+
+        return null;
+    }
 }

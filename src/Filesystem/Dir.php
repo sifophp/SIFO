@@ -31,6 +31,8 @@ class Dir
      * @param string $base_path Path to starting directory.
      * @param string $relative_path Relative path added to base_path. If you have /path/to/dir and specify "dir" as relative_path then will list files in /path/to as
      *                              dir/file1, dir/file2 ...
+     *
+     * @return array
      */
     public function getFileListRecursive($base_path, $relative_path = "")
     {
@@ -49,7 +51,7 @@ class Dir
             return false;
         }
 
-        $list = array();
+        $list = [];
 
         $directory = opendir("$path");
 
