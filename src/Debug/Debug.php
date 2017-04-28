@@ -17,20 +17,6 @@ class Debug
     private static $storage = array();
 
     /**
-     * Debug config configuration.
-     *
-     * @var array
-     */
-    private static $debug_config = array();
-
-    /**
-     * Defines if all debug modules ara availables. That's defined in debug_config.config.php
-     *
-     * @var bool
-     */
-    private static $all_modules_available = true;
-
-    /**
      * @var string Identifier of the current request execution. It will be set from the debug/index.ctrl in order to get it from the Controller in case of a JSON
      *      execution.
      */
@@ -42,10 +28,6 @@ class Debug
      */
     private function __construct()
     {
-        self::$debug_config = Config::getInstance()->getConfig('debug_config', 'debug');
-        if (!empty(self::$debug_config)) {
-            self::$all_modules_available = false;
-        }
     }
 
     /**
@@ -86,10 +68,6 @@ class Debug
      */
     public static function push($key, $value)
     {
-        if (false === self::moduleAvailable($key)) {
-            return null;
-        }
-
         if (!isset(self::$storage[$key])) {
             self::$storage[$key] = array();
         }
@@ -99,18 +77,6 @@ class Debug
         }
 
         return array_push(self::$storage[$key], $value);
-    }
-
-    protected static function moduleAvailable($key)
-    {
-        self::$debug_config = Config::getInstance()->getConfig('debug_config', 'debug');
-        if (empty(self::$debug_config)) {
-            return true;
-        } elseif (isset(self::$debug_config[$key]) && true === self::$debug_config[$key]) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
