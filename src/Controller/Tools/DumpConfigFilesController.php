@@ -17,6 +17,7 @@ class DumpConfigFilesController extends Controller
      */
     protected $filenames = [
         'config' => 'configuration_files.config.php',
+        'commands' => 'commands.config.php',
         'templates' => 'templates.config.php',
         'locale' => 'locale.config.php'
     ];
@@ -43,6 +44,7 @@ class DumpConfigFilesController extends Controller
         $files_output = $this->rebuildFiles([
             'config' => ['etc'],
             'templates' => ['templates'],
+            'commands' => ['src/Commands'],
             'locale' => ['locale']
         ]);
 
@@ -88,14 +90,24 @@ class DumpConfigFilesController extends Controller
                 $config_file_name = $this->filenames[$file];
                 $this->assign('file_name', $config_file_name);
 
+                $current_config_file = $this->getCurrentConfigFilename($current_instance, $config_file_name);
+                $parent_config_file = $this->getParentConfigFilename($current_instance, $config_file_name);
+
                 $configs = [];
                 foreach ($folders as $folder) {
                     $configs = array_merge($configs, $this->getAvailableFiles($folder, $current_instance));
                 }
-                $this->assign('config', $configs);
 
-                $current_config_file = $this->getCurrentConfigFilename($current_instance, $config_file_name);
-                $parent_config_file = $this->getParentConfigFilename($current_instance, $config_file_name);
+                if (empty($configs) && null === $parent_config_file)
+                {
+                    if (file_exists($current_config_file))
+                    {
+                        unlink($current_config_file);
+                    }
+                    continue;
+                }
+
+                $this->assign('config', $configs);
 
                 $this->assign('parent_config_file', str_replace(ROOT_PATH, '', $parent_config_file));
 
@@ -143,7 +155,8 @@ class DumpConfigFilesController extends Controller
         foreach ($available_files as $file_info) {
             $relative_path = $this->getRelativePath($file_info);
             $absolute_path = $this->getAbsolutePath($file_info);
-            if ('config' == $type && 'configuration_files' == $relative_path) {
+
+            if ($this->shouldIgnoreFile($type, $relative_path)) {
                 continue;
             }
 
@@ -167,11 +180,6 @@ class DumpConfigFilesController extends Controller
     private function getInstancesInheritance()
     {
         $this->instance_inheritance = array_unique(Domains::getInstance()->getInstanceInheritance());
-    }
-
-    private function isRootInstance(string $instance)
-    {
-        return $instance == $this->instance_inheritance[0];
     }
 
     private function getParentInstance(string $instance)
@@ -205,5 +213,10 @@ class DumpConfigFilesController extends Controller
         }
 
         return null;
+    }
+
+    private function shouldIgnoreFile($type, $relative_path): bool
+    {
+        return 'config' == $type && 'configuration_files' == $relative_path || preg_match('/^\./', $relative_path);
     }
 }
