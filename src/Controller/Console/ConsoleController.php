@@ -1,9 +1,10 @@
 <?php
 
-namespace Sifo\Controller;
+namespace Sifo\Controller\Console;
 
 use Sifo\Bootstrap;
 use Sifo\CLBootstrap;
+use Sifo\Controller\Controller;
 use Sifo\Http\Domains;
 use Sifo\Http\Filter\FilterServer;
 use Sifo\Mail\Mail;
@@ -230,7 +231,7 @@ abstract class ConsoleController extends Controller
     /**
      * Set a new exec param.
      *
-     * @param char $short_param_name The short option id.
+     * @param string $short_param_name The short option id.
      * @param string $long_param_name The long name option.
      * @param string $help_string The help string.
      * @param boolean $need_second_param True if needs a param.
