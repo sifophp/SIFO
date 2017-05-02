@@ -49,8 +49,6 @@ $config['translate'] = I18NStatusController::class;
 $config['translation-save'] = I18NSaveController::class;
 $config['translation-rebuild'] = I18NRebuildController::class;
 $config['translation-actions'] = I18NActionsController::class;
-$config["locales"]			= 'locales/index';
-$config["locales-save"]		= 'locales/save';
 
 // Sifo debug
 $config['sifo-debug-analyzer'] = DebugAnalyzerController::class;
