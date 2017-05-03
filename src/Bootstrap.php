@@ -7,6 +7,7 @@ use Sifo\Container\DependencyInjector;
 use Sifo\Controller\Controller;
 use Sifo\Controller\Debug\DebugController;
 use Sifo\Controller\Error\ErrorController;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
 use Sifo\Exception\Http\InternalServerError;
@@ -60,7 +61,8 @@ class Bootstrap
         self::$root = ROOT_PATH;
         self::$application = dirname(__FILE__);
         self::$instance = $instance_name;
-        self::$container = DependencyInjector::getInstance();
+
+        self::autoload();
 
         Benchmark::getInstance()->timingStart();
 
@@ -69,13 +71,71 @@ class Bootstrap
         Benchmark::getInstance()->timingStop();
     }
 
-    public static function invokeController(string $controller_path): Controller
+    public static function autoload()
     {
+        $autoload = spl_autoload_register(['\\Sifo\\Bootstrap', 'includeFile']);
+        self::$container = DependencyInjector::getInstance();
+
+        return $autoload;
+    }
+
+    public static function includeFile($classname)
+    {
+        try {
+            $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
+        } catch (ConfigurationException $e) {
+            return null;
+        }
+
+        trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR4.',
+            E_USER_DEPRECATED);
+
+        if (class_exists($class_info['name'], false)) {
+            return $class_info['name'];
+        }
+
+        $class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
+
+        if (!file_exists($class_path)) {
+            throw new InternalServerError("Doesn't exist in expected path {$class_info['path']}");
+        }
+
+        include_once($class_path);
+
+        return $class_info['name'];
+    }
+
+
+    public static function invokeController(string $controller_class): Controller
+    {
+        if (!class_exists($controller_class)) {
+            $controller_path_parts = explode('/', $controller_class);
+            $controller_class = '';
+            foreach ($controller_path_parts as $part) {
+                $controller_class .= ucfirst($part);
+            }
+            $controller_class .= 'Controller';
+            $controller_class = self::includeFile($controller_class);
+        }
+
         /** @var Controller $controller */
-        $controller = new $controller_path;
+        $controller = new $controller_class;
         $controller->setContainer(self::$container);
 
         return $controller;
+    }
+
+    public static function getClass($class, $call_constructor = true)
+    {
+        $classname = self::includeFile($class);
+
+        if (empty($classname) || !class_exists($classname)) {
+            throw new InternalServerError("Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?).");
+        }
+
+        if ($call_constructor) {
+            return new $classname;
+        }
     }
 
     public static function dispatch(string $controller = null)
