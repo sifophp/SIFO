@@ -121,5 +121,46 @@ class Config
 
         throw new ConfigurationException("The group '$group' for profile '$profile' was never set.", E_USER_ERROR);
     }
+
+	public function getClassInfo( $class_type )
+	{
+		$classes = $this->getConfig( 'classes' );
+		$class_type = explode( '\\', $class_type );
+        $path = null;
+
+		if ( isset( $class_type[1] ) && $class_type[0] == '\\' . $class_type[1] )
+		{
+			unset( $class_type[1] );
+		}
+
+		// Append the Namespace on an existing classes.config class.
+		if ( isset( $classes[$class_type[0]] ) && !isset( $class_type[1] ) )
+		{
+			$instances = array_keys( $classes[$class_type[0]] );
+			$last_instance = array_pop( $instances );
+			array_push( $class_type, $last_instance );
+			$path = array_pop( $classes[$class_type[0]] );
+		}
+		elseif( isset( $class_type[1] ) )
+		{
+			$class_type = array_reverse( $class_type );
+			$path = isset($classes[$class_type[0]][$class_type[1]]) ? $classes[$class_type[0]][$class_type[1]] : null;
+		}
+
+		if ( isset( $classes[$class_type[0]] ) && !isset( $path ) )
+		{
+			$path = array_pop( $classes[$class_type[0]] );
+		}
+
+		if ( !isset( $classes[$class_type[0]] ) )
+		{
+			// Error handling.
+			throw new ConfigurationException( "The variable '{$class_type[0]}' was not found in the classes file. ", E_USER_ERROR );
+		}
+
+		// The var is OK,  we return the requested array element.
+		$class_name = "\\{$class_type[1]}\\$class_type[0]";
+		return ['name' => $class_name, 'path' => $path];
+	}
 }
 

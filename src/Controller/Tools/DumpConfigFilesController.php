@@ -18,6 +18,7 @@ class DumpConfigFilesController extends Controller
     protected $filenames = [
         'config' => 'configuration_files.config.php',
         'commands' => 'commands.config.php',
+        'classes' => 'classes.config.php',
         'templates' => 'templates.config.php',
         'locale' => 'locale.config.php'
     ];
@@ -43,8 +44,9 @@ class DumpConfigFilesController extends Controller
         // Calculate where the config files are taken from.
         $files_output = $this->rebuildFiles([
             'config' => ['config'],
-            'templates' => ['templates'],
             'commands' => ['src/Commands'],
+            'classes' => ['classes', 'controllers', 'models'],
+            'templates' => ['templates'],
             'locale' => ['locale']
         ]);
 
@@ -98,10 +100,8 @@ class DumpConfigFilesController extends Controller
                     $configs = array_merge($configs, $this->getAvailableFiles($folder, $current_instance));
                 }
 
-                if (empty($configs) && null === $parent_config_file)
-                {
-                    if (file_exists($current_config_file))
-                    {
+                if (empty($configs) && null === $parent_config_file) {
+                    if (file_exists($current_config_file)) {
                         unlink($current_config_file);
                     }
                     continue;
@@ -148,11 +148,11 @@ class DumpConfigFilesController extends Controller
     protected function getAvailableFiles($type, $current_instance)
     {
         $d = new Dir();
-        $type_files = [];
+        $available_files = [];
 
-        $available_files = $d->getFileListRecursive(ROOT_PATH . "/instances/{$current_instance}/{$type}");
+        $all_files_list = $d->getFileListRecursive(ROOT_PATH . "/instances/{$current_instance}/{$type}") ?: [];
 
-        foreach ($available_files as $file_info) {
+        foreach ($all_files_list as $file_info) {
             $relative_path = $this->getRelativePath($file_info);
             $absolute_path = $this->getAbsolutePath($file_info);
 
@@ -160,16 +160,16 @@ class DumpConfigFilesController extends Controller
                 continue;
             }
 
-            $type_files[$relative_path] = $absolute_path;
+            $this->addCurrentFileToAvailableFiles($available_files, $current_instance, $type, $relative_path, $absolute_path);
         }
 
-        ksort($type_files);
-        return $type_files;
+        ksort($available_files);
+        return $available_files;
     }
 
     private function getRelativePath($file_info)
     {
-        return preg_replace('/(\.config)?\.php$/', '', trim($file_info['relative'], '/'));
+        return preg_replace('/(?:\.(config|ctrl|model))?\.php$/', '', trim($file_info['relative'], '/'));
     }
 
     private function getAbsolutePath($file_info)
@@ -207,8 +207,7 @@ class DumpConfigFilesController extends Controller
         }
 
         $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/config/" . $config_file_name;
-        if (file_exists($sifo_config_file_path))
-        {
+        if (file_exists($sifo_config_file_path)) {
             return $sifo_config_file_path;
         }
 
@@ -218,5 +217,43 @@ class DumpConfigFilesController extends Controller
     private function shouldIgnoreFile($type, $relative_path): bool
     {
         return 'config' == $type && 'configuration_files' == $relative_path || preg_match('/^\./', $relative_path);
+    }
+
+    private function addCurrentFileToAvailableFiles(&$available_files, $current_instance, $type, $relative_path, $absolute_path)
+    {
+        if (!in_array($type, ['controllers','models','classes']))
+        {
+            $available_files[$relative_path] = $absolute_path;
+            return;
+        }
+
+        $class = $this->getClassTypeStandarized( $relative_path, $type );
+
+        $available_files[$class][ucfirst( $current_instance )] = $absolute_path;
+    }
+
+    private function getClassTypeStandarized($relative_path, $type)
+    {
+		$class = '';
+
+		$ctrl_parts = explode( '/', $relative_path );
+
+		while ( $class_name = array_shift( $ctrl_parts ) )
+		{
+			$class .= ucfirst( $class_name );
+		}
+
+        switch ( $type )
+        {
+            case 'controllers':
+                $class .= 'Controller';
+                break;
+            case 'models':
+                $class .= 'Model';
+                break;
+        }
+
+		return $class;
+
     }
 }
