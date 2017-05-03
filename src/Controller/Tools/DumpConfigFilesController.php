@@ -42,7 +42,7 @@ class DumpConfigFilesController extends Controller
 
         // Calculate where the config files are taken from.
         $files_output = $this->rebuildFiles([
-            'config' => ['etc'],
+            'config' => ['config'],
             'templates' => ['templates'],
             'commands' => ['src/Commands'],
             'locale' => ['locale']
@@ -195,18 +195,18 @@ class DumpConfigFilesController extends Controller
 
     private function getCurrentConfigFilename($current_instance, $config_file_name): string
     {
-        $file_destination = ROOT_PATH . "/instances/" . $current_instance . "/etc/" . $config_file_name;
+        $file_destination = ROOT_PATH . "/instances/" . $current_instance . "/config/" . $config_file_name;
         return $file_destination;
     }
 
     private function getParentConfigFilename($current_instance, $config_file_name)
     {
         if ($parent_instance = $this->getParentInstance($current_instance)) {
-            $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/etc/" . $config_file_name;
+            $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/config/" . $config_file_name;
             return $config_file_path;
         }
 
-        $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/etc/" . $config_file_name;
+        $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/config/" . $config_file_name;
         if (file_exists($sifo_config_file_path))
         {
             return $sifo_config_file_path;
