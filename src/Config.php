@@ -44,7 +44,7 @@ class Config
 
     protected function __construct($instance_name)
     {
-        $config_path = ROOT_PATH . "/instances/" . $instance_name . "/etc/";
+        $config_path = ROOT_PATH . "/instances/" . $instance_name . "/config/";
 
         include($config_path . $this->configuration_files_path);
         $this->paths_to_configs = $config;

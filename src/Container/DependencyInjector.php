@@ -171,8 +171,8 @@ class DependencyInjector implements ContainerInterface
 
     private function generateDependenciesDeclarationForInstance($instance, $parent_instance, $files_suffix)
     {
-        $instance_yml_definitions_file = ROOT_PATH . '/instances/' . $instance . '/etc/services/definition' . $files_suffix . '.yml';
-        $instance_php_definitions_file = ROOT_PATH . '/instances/' . $instance . '/etc/services/definition' . $files_suffix . '.config.php';
+        $instance_yml_definitions_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition' . $files_suffix . '.yml';
+        $instance_php_definitions_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition' . $files_suffix . '.config.php';
 
         if (!file_exists($instance_yml_definitions_file)) {
             return;
@@ -283,7 +283,7 @@ class DependencyInjector implements ContainerInterface
 
         $retrieved_services = array();
         foreach ($imports as $instance => $files_to_import) {
-            $config_files_path = ROOT_PATH . '/instances/' . $instance . '/etc/services/';
+            $config_files_path = ROOT_PATH . '/instances/' . $instance . '/config/services/';
 
             foreach ($files_to_import as $file_to_import) {
                 $imported_parsed_yaml_content = Yaml::parse(file_get_contents($config_files_path . $file_to_import));
@@ -400,15 +400,15 @@ class DependencyInjector implements ContainerInterface
         $files_suffix
     ) {
         $dumped_configuration = "<?php\n\n";
-        $production_dependencies_php_file = ROOT_PATH . '/instances/' . $instance . '/etc/services/definition.config.php';
-        $parent_dependencies_php_file = ROOT_PATH . '/instances/' . $parent_instance . '/etc/services/definition' . $files_suffix . '.config.php';
+        $production_dependencies_php_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition.config.php';
+        $parent_dependencies_php_file = ROOT_PATH . '/instances/' . $parent_instance . '/config/services/definition' . $files_suffix . '.config.php';
 
         if ($files_suffix && file_exists($production_dependencies_php_file)) {
-            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $instance . "/etc/services/definition.config.php';\n\n";
+            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $instance . "/config/services/definition.config.php';\n\n";
         }
 
         if (file_exists($parent_dependencies_php_file)) {
-            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $parent_instance . "/etc/services/definition" . $files_suffix . ".config.php';\n\n";
+            $dumped_configuration .= "include ROOT_PATH . '/instances/" . $parent_instance . "/config/services/definition" . $files_suffix . ".config.php';\n\n";
         }
 
         foreach ($compiled_services as $service => $compilation) {
