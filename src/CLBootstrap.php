@@ -32,6 +32,7 @@ class CLBootstrap extends Bootstrap
         }
 
         self::$container = DependencyInjector::getInstance();
+		spl_autoload_register( ['\\Sifo\\Bootstrap', 'includeFile']);
 
         // Set paths:
         self::$root = ROOT_PATH;
