@@ -157,7 +157,7 @@ class DependencyInjector implements ContainerInterface
     public function generateDependenciesDeclaration()
     {
         $domains = Domains::getInstance();
-        $instances = array_slice($domains->getInstanceInheritance(), 1);
+        $instances = $domains->getInstanceInheritance();
 
         foreach ($instances as $index => $instance) {
             $parent_instance = $index > 0 ? $instances[$index - 1] : null;

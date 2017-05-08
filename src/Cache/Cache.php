@@ -3,6 +3,7 @@
 namespace Sifo\Cache;
 
 use Sifo\Config;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\InternalServerError;
 
 /**
@@ -88,7 +89,14 @@ class Cache
      */
     static protected function discoverCacheType()
     {
-        $cache_config = Config::getInstance()->getConfig('cache');
+        try
+        {
+            $cache_config = Config::getInstance()->getConfig('cache');
+        }
+        catch (ConfigurationException $e)
+        {
+            return self::CACHE_TYPE_DISK;
+        }
 
         if (true !== $cache_config['active'] || !isset($cache_config['client'])) {
             return self::CACHE_TYPE_DISK;
