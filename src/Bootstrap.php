@@ -81,14 +81,22 @@ class Bootstrap
 
     public static function includeFile($classname)
     {
+        if (strstr($classname, 'Sifo\\'))
+        {
+            @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.', E_USER_DEPRECATED);
+
+            $backward_class = Config::getInstance(self::$instance)->getConfig('backward_compatibility_aliases', $classname);
+            class_alias($backward_class, $classname);
+            return $classname;
+        }
+
         try {
             $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
         } catch (ConfigurationException $e) {
             return null;
         }
 
-        trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR4.',
-            E_USER_DEPRECATED);
+        @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.', E_USER_DEPRECATED);
 
         if (class_exists($class_info['name'], false)) {
             return $class_info['name'];
@@ -97,7 +105,7 @@ class Bootstrap
         $class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
 
         if (!file_exists($class_path)) {
-            throw new InternalServerError("Doesn't exist in expected path {$class_info['path']}");
+            throw new InternalServerError("Can't find {$class_info['name']} in {$class_info['path']}");
         }
 
         include_once($class_path);
@@ -123,19 +131,6 @@ class Bootstrap
         $controller->setContainer(self::$container);
 
         return $controller;
-    }
-
-    public static function getClass($class, $call_constructor = true)
-    {
-        $classname = self::includeFile($class);
-
-        if (empty($classname) || !class_exists($classname)) {
-            throw new InternalServerError("Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?).");
-        }
-
-        if ($call_constructor) {
-            return new $classname;
-        }
     }
 
     public static function dispatch(string $controller = null)
@@ -244,10 +239,16 @@ class Bootstrap
 
     private static function dispatchErrorController(BaseException $exception)
     {
+        if ($exception instanceof Redirect)
+        {
+            self::dispatchRedirect($exception);
+            return;
+        }
+
         Headers::setResponseStatus($exception->getHttpCode());
         Headers::send();
 
-        $ctrl = self::invokeController(ErrorController::class);
+        $ctrl = self::invokeController('error/common');
         $ctrl->addParams(
             [
                 'code' => $exception->getHttpCode(),
