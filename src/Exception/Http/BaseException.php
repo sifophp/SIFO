@@ -75,7 +75,7 @@ abstract class BaseException extends \Exception
             throw new \Exception('You can\'t recover location from a non-redirect http exception.');
         }
 
-        $path = trim($this->http_code_msg, '/');
+        $path = trim($this->message, '/');
 
         if (false !== strpos($path, '://')) {
             return $path;

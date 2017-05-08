@@ -56,7 +56,7 @@ class DumpConfigFilesController extends Controller
         // Disable debug on this page.
         Domains::getInstance()->setDebugMode(false);
 
-        $this->assign('inheritance', array_reverse($this->instance_inheritance));
+        $this->assign('inheritance', $this->instance_inheritance);
 
         $this->assign('errors', $this->failed_files);
         $this->assign('filenames', $this->filenames);
@@ -82,10 +82,8 @@ class DumpConfigFilesController extends Controller
 
         $output = [];
 
-        $instance_inheritance_reverse = array_reverse($this->instance_inheritance);
-
         // For each instance in the inheritance it regenerates his configuration files.
-        foreach ($instance_inheritance_reverse as $current_instance) {
+        foreach ($this->instance_inheritance as $current_instance) {
             $this->assign('instance_parent', $this->getParentInstance($current_instance));
 
             foreach ($files as $file => $folders) {
@@ -179,7 +177,7 @@ class DumpConfigFilesController extends Controller
 
     private function getInstancesInheritance()
     {
-        $this->instance_inheritance = array_unique(Domains::getInstance()->getInstanceInheritance());
+        $this->instance_inheritance = array_reverse(array_unique(Domains::getInstance()->getInstanceInheritance()));
     }
 
     private function getParentInstance(string $instance)
@@ -216,7 +214,7 @@ class DumpConfigFilesController extends Controller
 
     private function shouldIgnoreFile($type, $relative_path): bool
     {
-        return 'config' == $type && 'configuration_files' == $relative_path || preg_match('/^\./', $relative_path);
+        return 'config' == $type && 'configuration_files' == $relative_path || preg_match('/^\./', $relative_path) || preg_match('/\.yml$/', $relative_path);
     }
 
     private function addCurrentFileToAvailableFiles(&$available_files, $current_instance, $type, $relative_path, $absolute_path)

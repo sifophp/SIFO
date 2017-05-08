@@ -4,6 +4,7 @@ namespace Sifo\View;
 
 use Sifo\Bootstrap;
 use Sifo\Config;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Http\Domains;
 
 class Smarty implements ViewInterface
@@ -22,7 +23,7 @@ class Smarty implements ViewInterface
         // First the child instance, last the parent instance.
         $instance_inheritance = array_reverse($instance_inheritance);
         foreach ($instance_inheritance as $current_instance) {
-            $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins');
+            $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/_smarty/plugins');
         }
 
         // Last path is the default smarty plugins directory.
@@ -31,21 +32,24 @@ class Smarty implements ViewInterface
         // The templates are taken using the templates.config.php mappings, under the variable $_tpls.
         $this->smarty->setTemplateDir(ROOT_PATH . '/');
 
-        $this->smarty->setCompileDir(ROOT_PATH . '/var/cache/smarty/compile/' . Bootstrap::$instance . '/');
-        $this->smarty->setCacheDir(ROOT_PATH . '/var/cache/smarty/cache/' . Bootstrap::$instance . '/');
+        $this->smarty->setCompileDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/compile');
+        $this->smarty->setCacheDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache');
 
-        if ($view_setting = Config::getInstance()->getConfig('views', 'smarty')) {
-            foreach ($view_setting as $property => $value)
-            {
-                if (isset($this->smarty->$property))
-                {
-                    $this->smarty->$property = $value;
-                }
-            }
+        try{
+            $view_setting = Config::getInstance()->getConfig('views', 'smarty');
+        }
+        catch(ConfigurationException $e){
+            $view_setting = [];
+        }
 
-            if (isset($smarty_settings['custom_plugins_dir'])) {
-                $this->smarty->addPluginsDir($smarty_settings['custom_plugins_dir']);
+        foreach ($view_setting as $property => $value){
+            if (isset($this->smarty->$property)){
+                $this->smarty->$property = $value;
             }
+        }
+
+        if (isset($view_setting['custom_plugins_dir'])) {
+            $this->smarty->addPluginsDir($view_setting['custom_plugins_dir']);
         }
     }
 
