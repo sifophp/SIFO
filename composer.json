@@ -38,14 +38,17 @@
     "optimize-autoloader": true,
     "sort-packages": true
   },
+  "bin": [
+    "bin/sifo"
+  ],
   "autoload": {
-      "psr-4": {
-          "Sifo\\": "src/"
-      }
+    "psr-4": {
+      "Sifo\\": "src/"
+    }
   },
   "autoload-dev": {
-      "psr-4": {
-          "Sifo\\": "test/"
-      }
+    "psr-4": {
+      "Sifo\\": "test/"
+    }
   }
 }
