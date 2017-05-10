@@ -1,24 +1,4 @@
 #!/usr/bin/env php
 <?php
 
-if (is_file($bootstrap = getcwd() . '/vendor/sifophp/sifo/src/Bootstrap.php')) {
-    define('ROOT_PATH', realpath(dirname(getcwd())));
-} elseif (is_file($bootstrap = __DIR__ . '/../vendor/sifophp/sifo/src/Bootstrap.php')) {
-    define('ROOT_PATH', realpath(__DIR__));
-} elseif (is_file($bootstrap = __DIR__ . '/../src/Bootstrap.php')) {
-    define('ROOT_PATH', realpath(__DIR__));
-} else {
-    throw new \Exception('Cannot find Sifo bootstrap.');
-}
-
-require $bootstrap;
-
-use Sifo\Controller\Console\AddConsoleCommands;
-use Symfony\Component\Console\Application;
-
-$application = new Application();
-
-$console_commands = new AddConsoleCommands($application);
-$console_commands->addCurrentConsoleCommands();
-
-$application->run();
+include(__DIR__ . '/console.php');
