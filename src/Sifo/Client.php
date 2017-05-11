@@ -80,10 +80,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			if (!function_exists('geoip_open'))
-			{
-				require_once ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/geoip.php';
-			}
 			$gi           = geoip_open( ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_code = geoip_country_code_by_addr( $gi, $ip );
 			geoip_close( $gi );
@@ -117,10 +113,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			if (!function_exists('geoip_open'))
-			{
-				require_once ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/geoip.php';
-			}
 			$gi           = geoip_open( ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_name = geoip_country_name_by_addr( $gi, $ip );
 			geoip_close( $gi );
