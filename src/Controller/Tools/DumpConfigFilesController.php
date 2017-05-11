@@ -201,7 +201,11 @@ class DumpConfigFilesController extends Controller
     {
         if ($parent_instance = $this->getParentInstance($current_instance)) {
             $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/config/" . $config_file_name;
-            return $config_file_path;
+            if (file_exists($config_file_path)){
+                return $config_file_path;
+            }
+
+            return null;
         }
 
         $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/config/" . $config_file_name;
