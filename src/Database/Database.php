@@ -9,9 +9,6 @@ use Sifo\Exception\Http\InternalServerError;
 use Sifo\Http\Domains;
 use Sifo\Http\Filter\FilterServer;
 
-// Some stuff needed by ADODb:
-$ADODB_CACHE_DIR = ROOT_PATH . '/cache';
-
 /**
  * Handles the interaction with a database using ADODB, and adds load balancing. Many drivers are supported, see ADODB.
  */

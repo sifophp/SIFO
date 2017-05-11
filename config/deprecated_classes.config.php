@@ -107,6 +107,13 @@ if (!class_exists(Exception_500::class))
 	class Exception_500 {}
 }
 
+class_alias(Http\Filter\FilterPost::class, Filter::class);
+if (!class_exists(Filter::class))
+{
+	/** @deprecated this is an alias for Http\Filter\FilterPost */
+	class Filter {}
+}
+
 class_alias(Http\Filter\FilterCookie::class, FilterCookie::class);
 if (!class_exists(FilterCookie::class))
 {
@@ -147,6 +154,13 @@ if (!class_exists(Model::class))
 {
 	/** @deprecated this is an alias for Database\Model */
 	class Model {}
+}
+
+class_alias(Database\Mysql\Mysql::class, Mysql::class);
+if (!class_exists(Mysql::class))
+{
+	/** @deprecated this is an alias for Database\Mysql\Mysql */
+	class Mysql {}
 }
 
 class_alias(Http\Router::class, Router::class);
