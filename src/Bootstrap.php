@@ -81,21 +81,13 @@ class Bootstrap
 
     public static function includeFile($classname)
     {
-        if (strstr($classname, 'Sifo\\'))
-        {
-            @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.', E_USER_DEPRECATED);
-
-            $backward_class = Config::getInstance(self::$instance)->getConfig('backward_compatibility_aliases', $classname);
-            class_alias($backward_class, $classname);
-            return $classname;
-        }
-
         try {
             $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
         } catch (ConfigurationException $e) {
             return null;
         }
 
+        /** @deprecated You're using the old autoloader to load $class_info['path'] */
         @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.', E_USER_DEPRECATED);
 
         if (class_exists($class_info['name'], false)) {
