@@ -2,6 +2,7 @@
 
 namespace Sifo\Controller\Console;
 
+use Sifo\Command\SayHelloCommand;
 use Sifo\Config;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\InternalServerError;
@@ -30,13 +31,23 @@ final class AddConsoleCommands
                 continue;
             }
         }
-
         $this->available_commands = array_map([$this, 'getClassName'], $available_commands);
     }
 
     public function addCurrentConsoleCommands()
     {
-        foreach ($this->available_commands as $command => $full_qualified_command_path) {
+        $this->addSifoCommands();
+        $this->addInstancesCommands();
+    }
+
+    private function addSifoCommands()
+    {
+        $this->console_application->add(new SayHelloCommand());
+    }
+
+    private function addInstancesCommands()
+    {
+        foreach ($this->available_commands as $command => $full_qualified_command_path){
             $this->console_application->add(new $full_qualified_command_path());
         }
     }
