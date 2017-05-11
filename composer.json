@@ -2,10 +2,7 @@
   "name": "sifophp/sifo",
   "description": "SIFO framework.",
   "type": "project",
-  "keywords": [
-    "php",
-    "framework"
-  ],
+  "keywords": ["php", "framework"],
   "homepage": "https://github.com/sifophp/SIFO",
   "license": "Apache-2.0",
   "authors": [
@@ -38,13 +35,12 @@
     "optimize-autoloader": true,
     "sort-packages": true
   },
-  "bin": [
-    "bin/sifo"
-  ],
+  "bin": ["bin/sifo"],
   "autoload": {
     "psr-4": {
       "Sifo\\": "src/"
-    }
+    },
+    "files": ["config/deprecated_classes.config.php"]
   },
   "autoload-dev": {
     "psr-4": {
