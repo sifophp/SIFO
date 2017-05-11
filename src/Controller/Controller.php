@@ -8,6 +8,7 @@ use Sifo\Bootstrap;
 use Sifo\Cache\Base as CacheBase;
 use Sifo\Cache\Cache;
 use Sifo\Config;
+use Sifo\Controller\Debug\DebugController;
 use Sifo\Debug\Debug;
 use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
@@ -340,8 +341,8 @@ abstract class Controller
 
                 $return['debug_total_time'] = \Sifo\Benchmark::getInstance()->timingCurrent();
 
-                $this->dispatchSingleController('DebugIndex',
-                    array('show_debug_timers' => false, 'executed_controller_is_json' => true));
+                $this->dispatchSingleController(DebugController::class,
+                    ['show_debug_timers' => false, 'executed_controller_is_json' => true]);
 
                 $return['debug_execution_key'] = \Sifo\Debug\Debug::getExecutionKey();
             }
