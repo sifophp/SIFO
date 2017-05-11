@@ -43,7 +43,7 @@ final class AddConsoleCommands
 
     private function getClassName($command_path)
     {
-        $clean_classname = preg_replace('/.*\/([^\/]+)\/src\/Commands\/(.+)\.php/', '$1/Commands/$2', $command_path);
+        $clean_classname = preg_replace('/.*\/([^\/]+)\/src\/Command\/(.+)\.php/', '$1/Command/$2', $command_path);
 
         $full_qualified_name = implode('\\', array_map(function ($path) {
             return ucfirst($path);

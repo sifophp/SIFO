@@ -44,7 +44,7 @@ class DumpConfigFilesController extends Controller
         // Calculate where the config files are taken from.
         $files_output = $this->rebuildFiles([
             'config' => ['config'],
-            'commands' => ['src/Commands'],
+            'commands' => ['src/Command'],
             'classes' => ['classes', 'controllers', 'models'],
             'templates' => ['templates'],
             'locale' => ['locale']
