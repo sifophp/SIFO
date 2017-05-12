@@ -1,6 +1,6 @@
 {"<?php"}
 {if !empty( $parent_config_file )}
-include ROOT_PATH . '{$parent_config_file}';
+$config = include ROOT_PATH . '{$parent_config_file}';
 {/if}
 
 {foreach from=$config item=c key=k}
@@ -12,3 +12,5 @@ $config['{$k}']['{$instance}'] = '{$path}';
 $config['{$k}'] = '{$c}';
 {/if}
 {/foreach}
+
+return $config;
