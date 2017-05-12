@@ -86,16 +86,33 @@ class Config
             throw new ConfigurationException("The profile '$profile' was not found");
         }
 
-        if (!include(ROOT_PATH . '/' . $this->paths_to_configs[$profile])) {
-            throw new ConfigurationException("Failed to include file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile]);
+        $configuration_file_path = ROOT_PATH . '/' . $this->paths_to_configs[$profile];
+
+        if (!file_exists($configuration_file_path)) {
+            throw new ConfigurationException("Configuration file " . ROOT_PATH . '/' . $this->paths_to_configs[$profile] . "doesn't exists.");
         }
 
-        // The file was correctly included. We include the variable $config found.
-        if (!isset($config)) {
-            throw new ConfigurationException('The configuration files must have a variable named $config');
+        return $this->getConfigValues($configuration_file_path);
+    }
+
+
+    private function getConfigValues($configuration_file_path)
+    {
+        $config_values = include($configuration_file_path);
+
+        if (empty($config_values) && empty($config))
+        {
+            throw new ConfigurationException("Any config values were returned in " . $configuration_file_path);
         }
 
-        return $config;
+        if (1 === $config_values)
+        {
+            /** @deprecated You should be returning $config values from your config files. */
+            @trigger_error('You should be returning $config values from your config file: ' . $configuration_file_path, E_USER_DEPRECATED);
+            return $config;
+        }
+
+        return $config_values;
     }
 
     /**
