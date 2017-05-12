@@ -962,8 +962,12 @@ abstract class Controller
      * @param string $language
      * @param string $i18n_messages
      */
-    public function changeInstanceEnvironment(string $instance, string $domain, string $language, string $i18n_messages = 'messages')
-    {
+    public function changeInstanceEnvironment(
+        string $instance,
+        string $domain,
+        string $language,
+        string $i18n_messages = 'messages'
+    ) {
         Bootstrap::$instance = $instance;
         Domains::getInstance()->changeDomain($domain);
         I18N::setDomain($i18n_messages, $language, $instance);

@@ -35,15 +35,14 @@ class Smarty implements ViewInterface
         $this->smarty->setCompileDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/compile');
         $this->smarty->setCacheDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/cache');
 
-        try{
+        try {
             $view_setting = Config::getInstance()->getConfig('views', 'smarty');
-        }
-        catch(ConfigurationException $e){
+        } catch (ConfigurationException $e) {
             $view_setting = [];
         }
 
-        foreach ($view_setting as $property => $value){
-            if (isset($this->smarty->$property)){
+        foreach ($view_setting as $property => $value) {
+            if (isset($this->smarty->$property)) {
                 $this->smarty->$property = $value;
             }
         }

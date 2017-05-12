@@ -158,7 +158,8 @@ class DumpConfigFilesController extends Controller
                 continue;
             }
 
-            $this->addCurrentFileToAvailableFiles($available_files, $current_instance, $type, $relative_path, $absolute_path);
+            $this->addCurrentFileToAvailableFiles($available_files, $current_instance, $type, $relative_path,
+                $absolute_path);
         }
 
         ksort($available_files);
@@ -201,7 +202,7 @@ class DumpConfigFilesController extends Controller
     {
         if ($parent_instance = $this->getParentInstance($current_instance)) {
             $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/config/" . $config_file_name;
-            if (file_exists($config_file_path)){
+            if (file_exists($config_file_path)) {
                 return $config_file_path;
             }
 
@@ -218,53 +219,54 @@ class DumpConfigFilesController extends Controller
 
     private function shouldIgnoreFile($type, $relative_path): bool
     {
-        if ('templates' == $type){
+        if ('templates' == $type) {
             return false;
         }
 
-        if ('config' == $type && 'configuration_files' == $relative_path){
+        if ('config' == $type && 'configuration_files' == $relative_path) {
             return true;
         }
 
-        if (preg_match('/^\./', $relative_path))
-        {
+        if (preg_match('/^\./',
+            $relative_path)) {
             return true;
         }
 
-        if (!empty(pathinfo($relative_path, PATHINFO_EXTENSION)))
-        {
+        if (!empty(pathinfo($relative_path, PATHINFO_EXTENSION))) {
             return true;
         }
 
         return false;
     }
 
-    private function addCurrentFileToAvailableFiles(&$available_files, $current_instance, $type, $relative_path, $absolute_path)
-    {
-        if (!in_array($type, ['controllers','models','classes']))
-        {
+    private function addCurrentFileToAvailableFiles(
+        &$available_files,
+        $current_instance,
+        $type,
+        $relative_path,
+        $absolute_path
+    ) {
+        if (!in_array($type, ['controllers', 'models', 'classes'])) {
             $available_files[$relative_path] = $absolute_path;
             return;
         }
 
-        $class = $this->getClassTypeStandarized( $relative_path, $type );
+        $class = $this->getClassTypeStandarized($relative_path, $type);
 
-        $available_files[$class][ucfirst( $current_instance )] = $absolute_path;
+        $available_files[$class][ucfirst($current_instance)] = $absolute_path;
     }
 
     private function getClassTypeStandarized($relative_path, $type)
     {
-		$class = '';
+        $class = '';
 
-		$ctrl_parts = explode( '/', $relative_path );
+        $ctrl_parts = explode('/', $relative_path);
 
-		while ( $class_name = array_shift( $ctrl_parts ) )
-		{
-			$class .= ucfirst( $class_name );
-		}
+        while ($class_name = array_shift($ctrl_parts)) {
+            $class .= ucfirst($class_name);
+        }
 
-        switch ( $type )
-        {
+        switch ($type) {
             case 'controllers':
                 $class .= 'Controller';
                 break;
@@ -273,7 +275,7 @@ class DumpConfigFilesController extends Controller
                 break;
         }
 
-		return $class;
+        return $class;
 
     }
 }
