@@ -9,18 +9,17 @@ use Sifo\Exception\RegistryException;
  */
 class Registry
 {
-
     /**
      * Registry object provides storage for shared objects.
      */
-    private static $instance = null;
+    private static $instance;
 
     /**
      * Array where all the storage is done.
      *
      * @var array
      */
-    private static $storage = array();
+    private static $storage = [];
 
     /**
      * Retrieves the default registry instance.
@@ -49,17 +48,16 @@ class Registry
      *
      * @param string $key Name you used to store the value.
      *
+     * @throws RegistryException
      * @return mixed
      */
-    public static function get($key)
+    public static function get(string $key)
     {
-        $instance = self::getInstance();
-
         if (self::keyExists($key)) {
             return self::$storage[$key];
         }
 
-        return false;
+        throw new RegistryException('Registry doesn\'t contain any element named "' . $key . '"');
     }
 
     /**
@@ -70,7 +68,7 @@ class Registry
      *
      * @return void
      */
-    public static function set($key, $value)
+    public static function set(string $key, $value)
     {
         self::$storage[$key] = $value;
     }
@@ -82,26 +80,11 @@ class Registry
      *
      * @return void
      */
-    public static function invalidate($key)
+    public static function invalidate(string $key)
     {
         if (isset(self::$storage[$key])) {
             unset(self::$storage[$key]);
         }
-    }
-
-    /**
-     * Stores the object with the name given in $key and $sub_key.
-     *
-     * Example: array( $key => array( $subkey => $value ) )
-     *
-     * @param string $key Name you want to store the value with.
-     * @param mixed $value The object to store in the array.
-     *
-     * @return void
-     */
-    public static function subSet($key, $sub_key, $value)
-    {
-        self::$storage[$key][$sub_key] = $value;
     }
 
     /**
@@ -110,30 +93,28 @@ class Registry
      * @param string $key
      * @param mixed $value
      *
-     * @return int New number of elements in the array.
+     * @throws RegistryException
+     * @return void
      */
-    public static function push($key, $value)
+    public static function push(string $key, $value)
     {
         if (!self::keyExists($key)) {
-            self::$storage[$key] = array();
+            self::$storage[$key] = [];
         }
 
         if (!is_array(self::$storage[$key])) {
-            throw new RegistryException('Failed to PUSH an element in the registry because the given key is not an array.');
+            throw new RegistryException('Failed to PUSH an element in the registry because the given key "' . $key . '" is not an array.');
         }
 
-        return array_push(self::$storage[$key], $value);
+        array_push(self::$storage[$key], $value);
     }
 
     /**
-     * @param string $index
-     *
-     * @returns boolean
-     *
+     * @param $key
+     * @return bool
      */
-    public static function keyExists($key)
+    public static function keyExists($key): bool
     {
         return array_key_exists($key, self::$storage);
     }
-
 }
