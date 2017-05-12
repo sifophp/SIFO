@@ -25,7 +25,8 @@ class LoadBalancerSearch extends LoadBalancer
             Search::connect($node_properties);
             $this->addServer($index, $node_properties['weight']);
         } catch (InternalServerError $e) {
-            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!', E_ERROR);
+            trigger_error('Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!',
+                E_ERROR);
         }
     }
 }

@@ -100,15 +100,14 @@ class Config
     {
         $config_values = include($configuration_file_path);
 
-        if (empty($config_values) && empty($config))
-        {
+        if (empty($config_values) && empty($config)) {
             throw new ConfigurationException("Any config values were returned in " . $configuration_file_path);
         }
 
-        if (1 === $config_values)
-        {
+        if (1 === $config_values) {
             /** @deprecated You should be returning $config values from your config files. */
-            @trigger_error('You should be returning $config values from your config file: ' . $configuration_file_path, E_USER_DEPRECATED);
+            @trigger_error('You should be returning $config values from your config file: ' . $configuration_file_path,
+                E_USER_DEPRECATED);
             return $config;
         }
 

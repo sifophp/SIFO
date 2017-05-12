@@ -2,8 +2,6 @@
 
 namespace Sifo\Debug;
 
-use Sifo\Config;
-
 /**
  * Handles the interaction with the application debug.
  */

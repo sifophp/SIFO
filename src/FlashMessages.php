@@ -2,7 +2,6 @@
 
 namespace Sifo;
 
-use Sifo\Exception\Http\InternalServerError;
 use Sifo\Http\Session;
 
 class FlashMessages
