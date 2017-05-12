@@ -19,15 +19,12 @@ final class AddConsoleCommands
 
         $instances_folders_pattern = ROOT_PATH . '/instances/*';
         $available_commands = [];
-        foreach (glob($instances_folders_pattern) as $instance_folder)
-        {
+        foreach (glob($instances_folders_pattern) as $instance_folder) {
             $instance = basename($instance_folder);
-            try
-            {
-                $available_commands = array_merge($available_commands, Config::getInstance($instance)->getConfig('commands'));
-            }
-            catch (ConfigurationException $e)
-            {
+            try {
+                $available_commands = array_merge($available_commands,
+                    Config::getInstance($instance)->getConfig('commands'));
+            } catch (ConfigurationException $e) {
                 continue;
             }
         }
@@ -47,7 +44,7 @@ final class AddConsoleCommands
 
     private function addInstancesCommands()
     {
-        foreach ($this->available_commands as $command => $full_qualified_command_path){
+        foreach ($this->available_commands as $command => $full_qualified_command_path) {
             $this->console_application->add(new $full_qualified_command_path());
         }
     }

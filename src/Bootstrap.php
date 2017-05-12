@@ -88,7 +88,8 @@ class Bootstrap
         }
 
         /** @deprecated You're using the old autoloader to load $class_info['path'] */
-        @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.', E_USER_DEPRECATED);
+        @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.',
+            E_USER_DEPRECATED);
 
         if (class_exists($class_info['name'], false)) {
             return $class_info['name'];
@@ -231,8 +232,7 @@ class Bootstrap
 
     private static function dispatchErrorController(BaseException $exception)
     {
-        if ($exception instanceof Redirect)
-        {
+        if ($exception instanceof Redirect) {
             self::dispatchRedirect($exception);
             return;
         }

@@ -98,7 +98,7 @@ class Disk extends Base
             'content' => $contents
         );
 
-        return (bool) file_put_contents($source_file, var_export($cache_content, true));
+        return (bool)file_put_contents($source_file, var_export($cache_content, true));
     }
 
     /**

@@ -89,12 +89,9 @@ class Cache
      */
     static protected function discoverCacheType()
     {
-        try
-        {
+        try {
             $cache_config = Config::getInstance()->getConfig('cache');
-        }
-        catch (ConfigurationException $e)
-        {
+        } catch (ConfigurationException $e) {
             return self::CACHE_TYPE_DISK;
         }
 

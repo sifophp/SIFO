@@ -2,6 +2,7 @@
 
 namespace Sifo;
 
+use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
 use Sifo\Exception\RegistryException;
 
@@ -29,9 +30,9 @@ class RegistryTest extends TestCase
     }
 
     /** @test */
-    public function shouldRaiseAnExceptionIfTryToGetUnexistentKey()
+    public function shouldRaiseAWarningIfTryToGetUnexistentKey()
     {
-        $this->expectException(RegistryException::class);
+        $this->expectException(Warning::class);
         $this->expectExceptionMessage('Registry doesn\'t contain any element named');
 
         $this->whenIRecoverANonExistentKeyFromRegistry();
@@ -120,8 +121,7 @@ class RegistryTest extends TestCase
 
     private function whenIPushEveryValue()
     {
-        foreach($this->value as $value)
-        {
+        foreach ($this->value as $value) {
             Registry::push($this->key, $value);
         }
     }
