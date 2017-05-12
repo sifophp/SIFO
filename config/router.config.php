@@ -63,3 +63,4 @@ $config['template-launcher'] = TemplateLauncherController::class;
 // When there's something strange with your request URL, who yo gonna call??
 $config['__NO_ROUTE_FOUND__'] = StaticsController::class;
 
+return $config;

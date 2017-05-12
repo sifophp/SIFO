@@ -218,7 +218,25 @@ class DumpConfigFilesController extends Controller
 
     private function shouldIgnoreFile($type, $relative_path): bool
     {
-        return 'config' == $type && 'configuration_files' == $relative_path || preg_match('/^\./', $relative_path) || preg_match('/\.yml$/', $relative_path);
+        if ('templates' == $type){
+            return false;
+        }
+
+        if ('config' == $type && 'configuration_files' == $relative_path){
+            return true;
+        }
+
+        if (preg_match('/^\./', $relative_path))
+        {
+            return true;
+        }
+
+        if (!empty(pathinfo($relative_path, PATHINFO_EXTENSION)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private function addCurrentFileToAvailableFiles(&$available_files, $current_instance, $type, $relative_path, $absolute_path)
