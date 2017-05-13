@@ -57,7 +57,8 @@ class Registry
             return self::$storage[$key];
         }
 
-        trigger_error('Registry doesn\'t contain any element named "' . $key . '". Soon this will raise an Exception. Please, use keyExists instead if you want to verify its existence.',
+        /** @deprecated Registry shouldn't allow getting a non-existent key. Soon this will raise an Exception */
+        @trigger_error('Registry doesn\'t contain any element named "' . $key . '". Soon this will raise an Exception. Please, use keyExists instead if you want to verify its existence.',
             E_USER_WARNING);
     }
 
