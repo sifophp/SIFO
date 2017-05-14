@@ -82,6 +82,21 @@ abstract class Filter
         }
     }
 
+    public function getArray(string $var_name)
+    {
+        if (!isset($this->request[$var_name]))
+        {
+            return false;
+        }
+
+        if (!is_array($this->request[$var_name]))
+        {
+            return false;
+        }
+
+        return $this->request[$var_name];
+    }
+
     /**
      * Get a variable without any type of filtering.
      *
