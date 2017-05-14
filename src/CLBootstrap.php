@@ -22,21 +22,11 @@ class CLBootstrap extends Bootstrap
     /**
      * Starts the execution. Root path is passed to avoid recalculation.
      *
-     * @param string $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
-     * @param string $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
+     * @param string $controller_name Script that will be executed. Required for Bootstrap::execute compatibility.
      */
-    public static function execute(string $instance_name = null, string $controller_name = null)
+    public static function execute(string $controller_name)
     {
-        if (!isset($controller_name)) {
-            $controller_name = self::$script_controller;
-        }
-
         self::$container = DependencyInjector::getInstance();
-        spl_autoload_register(['\\Sifo\\Bootstrap', 'includeFile']);
-
-        // Set paths:
-        self::$root = ROOT_PATH;
-        self::$application = dirname(__FILE__);
 
         Benchmark::getInstance()->timingStart();
         self::dispatch($controller_name);
@@ -98,6 +88,8 @@ preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
 
 // Set the real and active instance name.
 CLBootstrap::$instance = $matchs[1];
+
+dump(__FILE__);
 
 if (extension_loaded('newrelic') && isset(CLBootstrap::$instance)) {
     newrelic_set_appname(ucfirst(CLBootstrap::$instance));
