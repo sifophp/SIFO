@@ -7,12 +7,10 @@ use Sifo\Container\DependencyInjector;
 use Sifo\Controller\Controller;
 use Sifo\Controller\Debug\DebugController;
 use Sifo\Controller\Error\ErrorController;
-use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
 use Sifo\Exception\Http\InternalServerError;
 use Sifo\Exception\Http\NotFound;
-use Sifo\Exception\Http\PermanentRedirect;
 use Sifo\Exception\Http\Redirect;
 use Sifo\Exception\Http\Unauthorized;
 use Sifo\Exception\UnknownDomainException;
@@ -24,25 +22,14 @@ use Sifo\Http\Filter\FilterServer;
 use Sifo\Http\Headers;
 use Sifo\Http\Router;
 use Sifo\Http\Urls;
-
-$is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
-if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance)) {
-    newrelic_set_appname(ucfirst($instance));
-}
-
-if (!defined('ROOT_PATH')) {
-    define('ROOT_PATH', dirname(realpath(__FILE__)) . '/..');
-}
+use Symfony\Component\HttpFoundation\Request;
 
 require_once ROOT_PATH . '/vendor/autoload.php';
 
 class Bootstrap
 {
-    /** @var string */
-    public static $root;
-
-    /** @var string */
-    public static $application;
+    /** @var Request */
+    public static $request;
 
     /** @var string */
     public static $instance;
@@ -56,71 +43,45 @@ class Bootstrap
     /** @var ContainerInterface */
     public static $container;
 
-    public static function execute(string $instance_name, string $controller_name = null)
+    /** @var Domains */
+    private static $domain;
+
+    public function __construct()
     {
-        self::$root = ROOT_PATH;
-        self::$application = dirname(__FILE__);
-        self::$instance = $instance_name;
+    }
 
-        self::autoload();
-
+    public static function execute(Request $request)
+    {
         Benchmark::getInstance()->timingStart();
+        self::$request = $request;
+        self::$domain = Domains::getInstance();
+        self::$instance = self::$domain->getInstanceName();
+        self::$container = DependencyInjector::getInstance(self::$instance);
 
-        self::dispatch($controller_name);
+        self::dispatch();
 
         Benchmark::getInstance()->timingStop();
     }
 
-    public static function autoload()
-    {
-        $autoload = spl_autoload_register(['\\Sifo\\Bootstrap', 'includeFile']);
-        self::$container = DependencyInjector::getInstance();
-
-        return $autoload;
-    }
-
-    public static function includeFile($classname)
-    {
-        try {
-            $class_info = Config::getInstance(self::$instance)->getClassInfo($classname);
-        } catch (ConfigurationException $e) {
-            return null;
-        }
-
-        /** @deprecated You're using the old autoloader to load $class_info['path'] */
-        @trigger_error('You are using SIFO autoload to invoke ' . $classname . '. You should update your project to use PSR 4.',
-            E_USER_DEPRECATED);
-
-        if (class_exists($class_info['name'], false)) {
-            return $class_info['name'];
-        }
-
-        $class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
-
-        if (!file_exists($class_path)) {
-            throw new InternalServerError("Can't find {$class_info['name']} in {$class_info['path']}");
-        }
-
-        include_once($class_path);
-
-        return $class_info['name'];
-    }
-
-
     public static function invokeController(string $controller_class): Controller
     {
         if (!class_exists($controller_class)) {
-            $controller_path_parts = explode('/', $controller_class);
-            $controller_class = '';
-            foreach ($controller_path_parts as $part) {
-                $controller_class .= ucfirst($part);
+            /** @deprecated You should use the full qualified name when calling controllers. */
+            $simple_controller_class = array_reduce(explode('/', $controller_class), function ($previous, $current) {
+                    $previous .= ucfirst($current);
+                    return $previous;
+                }, '') . 'Controller';
+            $instance_inheritance = array_reverse(Domains::getInstance()->getInstanceInheritance());
+            foreach ($instance_inheritance as $instance) {
+                $controller_class = ucfirst($instance) . '\\' . $simple_controller_class;
+                if (class_exists($controller_class)) {
+                    break;
+                }
             }
-            $controller_class .= 'Controller';
-            $controller_class = self::includeFile($controller_class);
         }
 
         /** @var Controller $controller */
-        $controller = new $controller_class;
+        $controller = new $controller_class();
         $controller->setContainer(self::$container);
 
         return $controller;
@@ -130,12 +91,6 @@ class Bootstrap
     {
         try {
             $domain = Domains::getInstance();
-            $destination = $domain->getRedirect();
-
-            if (!empty($destination)) {
-                throw new PermanentRedirect($destination);
-            }
-
             $auth_data = $domain->getAuthData();
 
             if (!empty($auth_data) && FilterCookie::getInstance()->getString('domain_auth') != $auth_data['hash']) {
@@ -163,13 +118,14 @@ class Bootstrap
             $url = Urls::getInstance(self::$instance);
             $path_parts = $url->getPathParts();
 
-            if (!$domain->valid_domain) {
-                throw new NotFound('Unknown language in domain');
-            }
-
             if (null === $controller) {
-                $router = new Router($path_parts[0], self::$instance, $domain->getSubdomain(), self::$language,
-                    $domain->www_mode);
+                $router = new Router(
+                    $path_parts[0],
+                    self::$instance,
+                    $domain->getSubdomain(),
+                    self::$language,
+                    $domain->www_mode
+                );
                 $controller = $router->getController();
             }
 

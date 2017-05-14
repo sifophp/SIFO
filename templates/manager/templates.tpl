@@ -6,7 +6,7 @@ $config = include ROOT_PATH . '{$parent_config_file}';
 {foreach from=$config item=c key=k}
 {if is_array( $c ) }
 {foreach from=$c item=path key=instance}
-$config['{$k}']['{$instance}'] = '{$path}';
+$config['{$instance}\\{$k}'] = '{$path}';
 {/foreach}
 {else}
 $config['{$k}'] = '{$c}';

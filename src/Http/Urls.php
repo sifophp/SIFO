@@ -108,7 +108,7 @@ class Urls
 
     private function __construct($instance_name)
     {
-        $domains = Domains::getInstance($instance_name);
+        $domains = Domains::getInstance();
         $filter_server = FilterServer::getInstance();
 
         $clean_host = preg_replace('/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain());

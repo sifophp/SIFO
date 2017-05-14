@@ -18,7 +18,6 @@ class DumpConfigFilesController extends Controller
     protected $filenames = [
         'config' => 'configuration_files.config.php',
         'commands' => 'commands.config.php',
-        'classes' => 'classes.config.php',
         'templates' => 'templates.config.php',
         'locale' => 'locale.config.php'
     ];
@@ -45,7 +44,6 @@ class DumpConfigFilesController extends Controller
         $files_output = $this->rebuildFiles([
             'config' => ['config'],
             'commands' => ['src/Command'],
-            'classes' => ['classes', 'controllers', 'models'],
             'templates' => ['templates'],
             'locale' => ['locale']
         ]);
@@ -158,8 +156,7 @@ class DumpConfigFilesController extends Controller
                 continue;
             }
 
-            $this->addCurrentFileToAvailableFiles($available_files, $current_instance, $type, $relative_path,
-                $absolute_path);
+            $available_files[$relative_path] = $absolute_path;
         }
 
         ksort($available_files);
@@ -237,45 +234,5 @@ class DumpConfigFilesController extends Controller
         }
 
         return false;
-    }
-
-    private function addCurrentFileToAvailableFiles(
-        &$available_files,
-        $current_instance,
-        $type,
-        $relative_path,
-        $absolute_path
-    ) {
-        if (!in_array($type, ['controllers', 'models', 'classes'])) {
-            $available_files[$relative_path] = $absolute_path;
-            return;
-        }
-
-        $class = $this->getClassTypeStandarized($relative_path, $type);
-
-        $available_files[$class][ucfirst($current_instance)] = $absolute_path;
-    }
-
-    private function getClassTypeStandarized($relative_path, $type)
-    {
-        $class = '';
-
-        $ctrl_parts = explode('/', $relative_path);
-
-        while ($class_name = array_shift($ctrl_parts)) {
-            $class .= ucfirst($class_name);
-        }
-
-        switch ($type) {
-            case 'controllers':
-                $class .= 'Controller';
-                break;
-            case 'models':
-                $class .= 'Model';
-                break;
-        }
-
-        return $class;
-
     }
 }
