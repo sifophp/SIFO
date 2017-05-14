@@ -20,29 +20,20 @@ use Sifo\Controller\Tools\TemplateLauncherController;
  *
  * Example:
  *
- * Given the address http://list.seoframework.local/blah
- * $config['list'] = 'list/index';
- * This tells that the subdomain list uses the ListIndexController
+ * Given the address http://seoframework.local/blah
  *
  * $config['blah'] = 'blah/something'
- * This tells that the BlahSomethingController is used instead.
+ * This tells that the BlahSomethingController will be used
  *
- * If a subdomain matches a routing is used instead of any other part of the URL. With the given
- * example if the two routes were given, only the list/index would apply.
- *
- * The following values cannot be erased and are necessary for the proper working of the  framework,
+ * The following values cannot be erased and are necessary for the proper working of the framework,
  * although you can change their values:
  *
  * __NO_ROUTE_FOUND__
  * __HOME__
- * rebuild
  */
 
 // Rebuild/regenerate the configuration files:
 $config['rebuild'] = DumpConfigFilesController::class;
-$config['findi18n'] = FindI18NController::class;
-$config['rebuild-i18n-local'] = RebuildI18NLocalController::class;
-$config['rebuild-router'] = RebuildRouterController::class;
 
 // i18n
 $config['translate'] = I18NStatusController::class;
@@ -54,13 +45,10 @@ $config['translation-actions'] = I18NActionsController::class;
 $config['sifo-debug-analyzer'] = DebugAnalyzerController::class;
 $config['sifo-debug-actions'] = DebugActionsController::class;
 
-// Template simulator
-$config['template-launcher'] = TemplateLauncherController::class;
-
 // ____________________________________________________________________________
 // Your new routes below:
 
-// When there's something strange with your request URL, who yo gonna call??
+// When there's something strange with your request URL, who you gonna call??
 $config['__NO_ROUTE_FOUND__'] = StaticsController::class;
 
 return $config;

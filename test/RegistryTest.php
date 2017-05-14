@@ -34,7 +34,7 @@ class RegistryTest extends TestCase
     {
 //        $this->expectException(Warning::class);
 //        $this->expectExceptionMessage('Registry doesn\'t contain any element named');
-        
+
         $this->key = 'some_random_key';
         $this->whenIRecoverANonExistentKeyFromRegistry();
         $this->andANullValueShouldBeRecoveredFromRegistry();

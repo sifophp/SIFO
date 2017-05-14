@@ -15,40 +15,9 @@ use Sifo\Http\Filter\FilterServer;
  */
 class Router
 {
-
-    static protected $reversal_map = array();
-    static protected $routes_for_this_language = array();
+    static protected $reversal_map = [];
+    static protected $routes_for_this_language = [];
     protected $main_controller;
-
-    /**
-     * Get the used url to access. This info is important to resolve defined 301 redirections.
-     *
-     * @return string The used url.
-     */
-    static public function getUsedUrl()
-    {
-        $server = FilterServer::getInstance();
-
-        $used_url = 'http';
-        if ($server->getString('HTTPS') == 'on' || $server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
-            $used_url .= "s";
-        }
-        $used_url .= "://";
-
-        if ($server->getString('HTTP_HOST')) {
-            $hostname = $server->getString('HTTP_HOST');
-        } else {
-            $hostname = $server->getString("SERVER_NAME");
-        }
-
-        if ($server->getString('SERVER_PORT') != "80") {
-            $used_url .= $hostname . ":" . $server->getString('SERVER_PORT') . $server->getString("REQUEST_URI");
-        } else {
-            $used_url .= $hostname . $server->getString("REQUEST_URI");
-        }
-
-        return $used_url;
-    }
 
     public function __construct(
         string $path,
@@ -121,6 +90,36 @@ class Router
                 $this->main_controller = $routes['__NO_ROUTE_FOUND__'];
             }
         }
+    }
+
+    /**
+     * Get the used url to access. This info is important to resolve defined 301 redirections.
+     *
+     * @return string The used url.
+     */
+    static private function getUsedUrl()
+    {
+        $server = FilterServer::getInstance();
+
+        $used_url = 'http';
+        if ($server->getString('HTTPS') == 'on' || $server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
+            $used_url .= "s";
+        }
+        $used_url .= "://";
+
+        if ($server->getString('HTTP_HOST')) {
+            $hostname = $server->getString('HTTP_HOST');
+        } else {
+            $hostname = $server->getString("SERVER_NAME");
+        }
+
+        if ($server->getString('SERVER_PORT') != "80") {
+            $used_url .= $hostname . ":" . $server->getString('SERVER_PORT') . $server->getString("REQUEST_URI");
+        } else {
+            $used_url .= $hostname . $server->getString("REQUEST_URI");
+        }
+
+        return $used_url;
     }
 
     public function getController()
