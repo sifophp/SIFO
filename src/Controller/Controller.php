@@ -303,7 +303,7 @@ abstract class Controller
                 throw new ControllerException("Controller Build has generated an exception (cached).", $cached_content);
             }
             $this->postDispatch();
-            $cached_content = $this->_realTimeReplacement($cached_content);
+            $cached_content = $this->addRealTimeReplacementContent($cached_content);
             Headers::send();
 
             if (extension_loaded('newrelic')) {
@@ -360,7 +360,7 @@ abstract class Controller
         $this->postDispatch();
         $this->stopBench($benchmark_key, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
 
-        $content = $this->_realTimeReplacement($content);
+        $content = $this->addRealTimeReplacementContent($content);
         Headers::send();
 
         if (extension_loaded('newrelic')) {
@@ -565,14 +565,14 @@ abstract class Controller
      *
      * @return string HTML output.
      */
-    private function _realTimeReplacement($buffer)
+    private function addRealTimeReplacementContent($buffer)
     {
         $benchmark_key = 'controller_execution_replace';
         $this->startBench($benchmark_key);
 
         // Only letters, numbers _ and . ALLOWED. Take care with parameters.
         $buffer = preg_replace_callback('/<\!--\s*REPLACE\:([a-zA-Z0-9:_\.\-,\/\+]*)\s*-->/',
-            array($this, '_executeReplacementModule'), $buffer);
+            array($this, 'invokeRealTimeReplacementModule'), $buffer);
 
         $this->stopBench($benchmark_key, "---- TOTAL REALTIME REPLACEMENTS ----");
 
@@ -586,14 +586,14 @@ abstract class Controller
      *
      * @return string HTML for the replaced module.
      */
-    private function _executeReplacementModule($matches)
+    private function invokeRealTimeReplacementModule($matches)
     {
         // Take params set by tag <!-- REPLACE -->:
         $replace_params = explode('::', $matches[1]);
         $controller = $replace_params[0];
         unset ($replace_params[0]);
 
-        return $this->dispatchSingleController($controller, array('params' => array_values($replace_params)));
+        return $this->dispatchSingleController($controller, ['params' => array_values($replace_params)]);
     }
 
     /**
@@ -605,7 +605,7 @@ abstract class Controller
      * @throws ControllerException
      * @return string
      */
-    public function dispatchSingleController($controller, $params = [])
+    public function dispatchSingleController(string $controller, $params = [])
     {
         $benchmark_key = 'controller_execution_time';
         $this->startBench($benchmark_key);
@@ -661,7 +661,7 @@ abstract class Controller
     {
     }
 
-    public function echoOutput($output)
+    private function echoOutput($output)
     {
         echo $output;
     }
@@ -730,9 +730,9 @@ abstract class Controller
     public function translate($subject, ... $args)
     {
         $variables = [];
-        if (1 < count($args)) {
+        if (count($args)) {
             foreach ($args as $key => $value) {
-                $variables['%' . $key] = $value;
+                $variables['%' . ($key+1)] = $value;
             }
         }
 
@@ -752,10 +752,10 @@ abstract class Controller
     /**
      * Adds a module in the battery to be executed later.
      *
-     * @param        $name
+     * @param string $name
      * @param string $controller
      */
-    public function addModule(string $name, $controller)
+    public function addModule(string $name, string $controller)
     {
         $this->modules[$name] = $controller;
     }
