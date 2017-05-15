@@ -100,6 +100,8 @@ class I18N
      * Set message domain.
      *
      * @param string $domain The message domain.
+     * @param $locale
+     * @param null $instance
      */
     static public function setDomain($domain, $locale, $instance = null)
     {
@@ -112,6 +114,8 @@ class I18N
 
     /**
      * Support DOMAIN message catalog.
+     * @param null $instance
+     * @throws InternalServerError
      */
     static protected function bindTextDomain($instance = null)
     {
