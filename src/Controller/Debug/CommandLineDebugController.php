@@ -14,7 +14,7 @@ class CommandLineDebugController extends DebugController
      */
     protected function getDebugUrl()
     {
-        return implode(' ', CLBootstrap::$command_line_params);
+        return implode(' ', CLBootstrap::getCommandLineParams());
     }
 
     /**
