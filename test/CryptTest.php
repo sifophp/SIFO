@@ -2,7 +2,9 @@
 
 namespace Sifo;
 
-class CryptTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class CryptTest extends TestCase
 {
     /** @var string */
     private $text;
