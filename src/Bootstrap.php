@@ -63,6 +63,11 @@ class Bootstrap
         Benchmark::getInstance()->timingStop();
     }
 
+    public static function getCurrentRequest(): Request
+    {
+        return self::$request ?: Request::createFromGlobals();
+    }
+
     public static function invokeController(string $controller_class): Controller
     {
         if (!class_exists($controller_class)) {
