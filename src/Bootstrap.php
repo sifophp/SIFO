@@ -10,7 +10,6 @@ use Sifo\Controller\Error\ErrorController;
 use Sifo\Exception\ControllerException;
 use Sifo\Exception\Http\BaseException;
 use Sifo\Exception\Http\InternalServerError;
-use Sifo\Exception\Http\NotFound;
 use Sifo\Exception\Http\Redirect;
 use Sifo\Exception\Http\Unauthorized;
 use Sifo\Exception\UnknownDomainException;
@@ -44,21 +43,21 @@ class Bootstrap
     public static $container;
 
     /** @var Domains */
-    private static $domain;
+    protected static $domain;
 
     public function __construct()
     {
     }
 
-    public static function execute(Request $request)
+    public static function execute(Request $request = null)
     {
         Benchmark::getInstance()->timingStart();
-        self::$request = $request;
+
+        self::$request = $request ?: self::getCurrentRequest();
         self::$domain = Domains::getInstance();
         self::$instance = self::$domain->getInstanceName();
         self::$container = DependencyInjector::getInstance(self::$instance);
-
-        self::dispatch();
+        static::dispatch();
 
         Benchmark::getInstance()->timingStop();
     }
