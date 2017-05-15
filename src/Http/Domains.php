@@ -12,6 +12,7 @@ use Sifo\Http\Filter\FilterServer;
 
 class Domains
 {
+    private static $available_domains;
     private static $available_configurations;
     private static $singleton;
     private $domain;
@@ -33,10 +34,10 @@ class Domains
     public $www_mode = false;
     public $valid_domain = true;
 
-    private function populateAvailableDomains()
+    private static function populateAvailableDomains()
     {
-        if (null !== self::$available_configurations) {
-            return self::$available_configurations;
+        if (null !== self::$available_domains) {
+            return;
         }
 
         $instances_folders = array_map(function ($folder) {
@@ -45,12 +46,18 @@ class Domains
             return file_exists($dir . '/config/domains.config.php');
         }));
 
+        $available_domains = [];
         $available_configurations = [];
         foreach ($instances_folders as $instance) {
             $available_configurations[$instance] = Config::getInstance($instance)->getConfig('domains');
+            $available_domains[$instance] = array_filter(array_keys($available_configurations[$instance]),
+                function ($config_key) {
+                    return (false !== strpos($config_key, "."));
+                });
         }
 
         self::$available_configurations = $available_configurations;
+        self::$available_domains = $available_domains;
     }
 
     public static function getInstance(string $hostname = null): Domains
@@ -83,23 +90,25 @@ class Domains
     private function identifyInstanceAndSetConfiguration()
     {
         foreach (self::$available_configurations as $instance => $configuration) {
-            $available_domains = array_keys($configuration);
+            $available_domains = self::$available_domains[$instance];
             foreach ($available_domains as $app_domain) {
-                if (strstr($this->http_host, $app_domain)) {
-                    $this->instance = $instance;
-                    $this->domain = $app_domain;
-                    $this->setInstanceInheritanceBasedOnConfiguration($configuration);
-                    $this->setLanguageBasedOnConfiguration($configuration[$app_domain]);
-                    $this->setSubdomainRelatedKeys($app_domain, $configuration[$app_domain]);
-                    $this->setWwwMode($configuration[$app_domain]);
-                    $this->dev_mode = ($configuration[$app_domain]['devel'] === true);
-                    $this->has_debug = !empty($settings['has_debug']) ? (bool)$settings['has_debug'] : $this->dev_mode;
-                    $this->setAuthentication($configuration[$app_domain]);
-                    $this->setStaticAndMediaHosts($configuration[$app_domain]);
-                    $this->setPhpIni($configuration[$app_domain]);
-                    $this->domain_configuration = $configuration[$app_domain];
-                    return;
+                if (!strstr($this->http_host, $app_domain)) {
+                    continue;
                 }
+
+                $this->instance = $instance;
+                $this->domain = $app_domain;
+                $this->setInstanceInheritanceBasedOnConfiguration($configuration);
+                $this->setLanguageBasedOnConfiguration($configuration[$app_domain]);
+                $this->setSubdomainRelatedKeys($app_domain, $configuration[$app_domain]);
+                $this->setWwwMode($configuration[$app_domain]);
+                $this->dev_mode = ($configuration[$app_domain]['devel'] === true);
+                $this->has_debug = !empty($settings['has_debug']) ? (bool)$settings['has_debug'] : $this->dev_mode;
+                $this->setAuthentication($configuration[$app_domain]);
+                $this->setStaticAndMediaHosts($configuration[$app_domain]);
+                $this->setPhpIni($configuration[$app_domain]);
+                $this->domain_configuration = $configuration[$app_domain];
+                return;
             }
         }
 
@@ -175,14 +184,14 @@ class Domains
     private function setPhpIni(array $configuration)
     {
         if (!empty($configuration['php_ini_sets'])) {
-        $this->php_inis = $configuration['php_ini_sets'];
-    }
+            $this->php_inis = $configuration['php_ini_sets'];
+        }
     }
 
     private function __construct(string $hostname)
     {
         $this->http_host = $hostname;
-        $this->populateAvailableDomains();
+        self::populateAvailableDomains();
         $this->checkDomainRedirections();
         $this->identifyInstanceAndSetConfiguration();
 
@@ -349,5 +358,12 @@ class Domains
     public function getInstanceName()
     {
         return $this->instance;
+    }
+
+    public static function getAvailableDomainsForInstance(string $instance)
+    {
+        self::populateAvailableDomains();
+
+        return self::$available_domains[$instance];
     }
 }

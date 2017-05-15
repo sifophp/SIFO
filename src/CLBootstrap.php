@@ -1,36 +1,28 @@
 <?php
-/**
- *
- * Class CLBootstrap
- */
 
 namespace Sifo;
 
-use Sifo\Container\DependencyInjector;
 use Sifo\Controller\Debug\CommandLineDebugController;
 use Sifo\Http\Domains;
-use Sifo\Http\Filter\FilterServer;
+use Symfony\Component\HttpFoundation\Request;
 
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Bootstrap.php';
 
 class CLBootstrap extends Bootstrap
 {
-    public static $script_controller;
-    public static $command_line_params;
-    public static $controller = null;
+    private static $command_line_params;
+    private static $script_controller;
+    private static $command_list_hostname;
 
-    /**
-     * Starts the execution. Root path is passed to avoid recalculation.
-     *
-     * @param string $controller_name Script that will be executed. Required for Bootstrap::execute compatibility.
-     */
-    public static function execute(string $controller_name)
+    public static function executeConsoleScript(string $console_controller)
     {
-        self::$container = DependencyInjector::getInstance();
+        self::$script_controller = $console_controller;
+        self::$command_list_hostname = (!empty($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : null;
+        self::$command_line_params = (!empty($_SERVER['argv'])) ? $_SERVER['argv'] : null;
+        $_SERVER['HTTP_HOST'] = self::$command_list_hostname;
+        $request = Request::createFromGlobals();
 
-        Benchmark::getInstance()->timingStart();
-        self::dispatch($controller_name);
-        Benchmark::getInstance()->timingStop();
+        self::execute($request);
     }
 
     /**
@@ -38,45 +30,38 @@ class CLBootstrap extends Bootstrap
      *
      * @param string $controller_path Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
      */
-    public static function dispatch(string $controller_path = null)
+    public static function dispatch(string $controller = null)
     {
         // Set Timezone as required by php 5.1+
         date_default_timezone_set('Europe/Madrid');
 
-        try {
+        if (null === $controller) {
+            $controller = self::$script_controller;
+        }
 
+        try {
             self::$language = 'en_US';
 
             // This is the controller to use:
-            $ctrl = self::invokeController($controller_path);
-            self::$controller = $controller_path;
+            $ctrl = self::invokeController($controller);
+            self::$controller = $controller;
             $ctrl->build();
 
             // Debug:
-            if (Domains::getInstance()->getDebugMode()) {
+            if (self::$domain->getDebugMode()) {
                 $ctrl_debug = self::invokeController(CommandLineDebugController::class);
                 $ctrl_debug->build();
             }
         } catch (\Exception $e) {
-            echo($e->getMessage() . "\n" . $e->getTraceAsString());
+            echo('[' . get_class($e) . '] ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             die;
         }
     }
 
-    public static function is_domain($var)
+    public static function getCommandLineParams()
     {
-        return (false !== strpos($var, "."));
+        return self::$command_line_params;
     }
-
-    public static function get_available_domains()
-    {
-        $domain_configuration = Config::getInstance()->getConfig('domains');
-        $configuration_keys = array_keys($domain_configuration);
-        $available_domains = array_filter($configuration_keys, "self::is_domain");
-
-        return $available_domains;
-    }
-
 }
 
 // Disable whatever buffering default config.
@@ -87,22 +72,17 @@ $cwd = $_SERVER['PWD'] . '/' . $_SERVER['PHP_SELF'];
 preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
 
 // Set the real and active instance name.
-CLBootstrap::$instance = $matchs[1];
+$auto_detected_instance = $matchs[1];
 
-dump(__FILE__);
-
-if (extension_loaded('newrelic') && isset(CLBootstrap::$instance)) {
-    newrelic_set_appname(ucfirst(CLBootstrap::$instance));
+if (extension_loaded('newrelic') && !empty($auto_detected_instance)) {
+    newrelic_set_appname(ucfirst($auto_detected_instance));
 }
 
 if (!isset($argv[1]) || ('-h' == $argv[1]) || ('--help' == $argv[1])) {
     echo PHP_EOL . "Execute 'php $argv[0] <domain> --help' to read the help information." . PHP_EOL . PHP_EOL;
     echo "Your available domains:" . PHP_EOL;
-    $available_domains = CLBootstrap::get_available_domains();
+    $available_domains = Domains::getAvailableDomainsForInstance($auto_detected_instance);
     echo implode($available_domains, PHP_EOL);
     die;
 }
-CLBootstrap::$command_line_params = $argv;
 
-// Setting the domain.
-FilterServer::getInstance()->setHost($argv[1]);
