@@ -56,7 +56,7 @@ class Domains
     public static function getInstance(string $hostname = null): Domains
     {
         if (null === $hostname) {
-            $hostname = Bootstrap::$request->getHost();
+            $hostname = Bootstrap::getCurrentRequest()->getHost();
         }
 
         if (!isset(self::$singleton[$hostname])) {
