@@ -89,18 +89,6 @@ class MysqlModel
 	}
 
 	/**
-	 * Returns an object of the given class.
-	 *
-	 * @param string $class_name
-	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Instance_of_a_Class
-	 */
-	public function getClass( $class_name, $call_constructor = true )
-	{
-		return Bootstrap::getClass( $class_name, $call_constructor );
-	}
-
-	/**
 	 * Returns the Database connection object.
 	 *
 	 * @param string $profile The profile to be used in the database connection.
