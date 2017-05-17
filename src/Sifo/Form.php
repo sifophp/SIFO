@@ -281,7 +281,6 @@ class Form
 	 */
 	public function getTimeHash( $time = 5 )
 	{
-		Bootstrap::getClass( 'Crypt', false );
 		return Crypt::encrypt( strtotime( "+$time seconds" ) ); // Put hash N seconds in the future.
 	}
 
@@ -301,7 +300,6 @@ class Form
 		}
 		else
 		{
-			Bootstrap::getClass( 'Crypt', false );
 			$time_printed = intval( Crypt::decrypt( $this->filter->getString( $input_name ) ) );
 
 			if ( time() < $time_printed  )

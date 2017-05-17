@@ -22,16 +22,8 @@ namespace Sifo;
 
 class Model extends Database
 {
-	/**
-	 * List of classes that will be autoloaded automatically.
-	 *
-	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
-	 */
-	protected $include_classes = array();
-
 	public function __construct()
 	{
-		$this->includeClasses();
 		$this->init();
 		return Database::getInstance();
 	}
@@ -101,33 +93,6 @@ class Model extends Database
 	}
 
 	/**
-	 * Returns an object of the given class.
-	 *
-	 * @param string $class_name
-	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Instance_of_a_Class
-	 */
-	public function getClass( $class_name, $call_constructor = true )
-	{
-		return Bootstrap::getClass( $class_name, $call_constructor );
-	}
-
-	/**
-	 * Includes all the classes passed in the 'include_classes' attribute.
-	 */
-	protected function includeClasses()
-	{
-		if ( is_array( $this->include_classes ) && !empty ( $this->include_classes ) )
-		{
-			foreach ( $this->include_classes as $class )
-			{
-				$this->getClass( $class, false );
-			}
-		}
-	}
-
-	/**
 	 * When Database response is bad you can use $this->CacheExecute($seconds, "SELECT..'");. Writes to /cache are done.
 	 */
 }
-?>

@@ -35,13 +35,6 @@ abstract class Controller
 	const CACHE_DEFAULT_EXPIRATION = 14400;
 
 	/**
-	 * List of classes that will be auto-loaded automatically.
-	 *
-	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
-	 */
-	protected $include_classes = array();
-
-	/**
 	 * Information useful for debugging.
 	 *
 	 * @var array
@@ -122,7 +115,6 @@ abstract class Controller
 
 	public function __construct()
 	{
-		$this->includeClasses();
 		$this->instance = Bootstrap::$instance;
 		$this->language = Domains::getInstance()->getLanguage();
 
@@ -211,20 +203,6 @@ abstract class Controller
 		$this->assign( 'error', $form->getErrors() );
 
 		return $return;
-	}
-
-	/**
-	 * Includes all the classes passed in the 'include_classes' attribute.
-	 */
-	protected function includeClasses()
-	{
-		if ( is_array( $this->include_classes ) && !empty ( $this->include_classes ) )
-		{
-			foreach ( $this->include_classes as $class )
-			{
-				$this->getClass( $class, false );
-			}
-		}
 	}
 
 	public function getUrl( $relative_path, $params = null )
@@ -963,18 +941,6 @@ abstract class Controller
 	protected function stopBench( $key, $label )
 	{
 		Debug::subSet( 'benchmarks', $label, Benchmark::getInstance()->timingCurrent( $key ) );
-	}
-
-	/**
-	 * Returns an object of the given class.
-	 *
-	 * @param string $class_name
-	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Object
-	 */
-	public function getClass( $class_name, $call_constructor = true )
-	{
-		return Bootstrap::getClass( $class_name, $call_constructor );
 	}
 
 	/**
