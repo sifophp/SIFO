@@ -158,54 +158,6 @@ class Config
 	}
 
 	/**
-	 * Given a class name, returns the final class name and path to file.
-	 *
-	 * @throws Exception_Configuration When the requested class doesn't exist in the .classes file.
-	 * @param string $class_type The desired KEY in the configuration file.
-	 * @return mixed Array with final name class and path.
-	 */
-	public function getClassInfo( $class_type )
-	{
-		$classes = $this->getConfig( 'classes' );
-		$class_type = explode( '\\', $class_type );
-        $path = null;
-
-		if ( isset( $class_type[1] ) && $class_type[0] == '\\' . $class_type[1] )
-		{
-			unset( $class_type[1] );
-		}
-
-		// Append the Namespace on an existing classes.config class.
-		if ( isset( $classes[$class_type[0]] ) && !isset( $class_type[1] ) )
-		{
-			$instances = array_keys( $classes[$class_type[0]] );
-			$last_instance = array_pop( $instances );
-			array_push( $class_type, $last_instance );
-			$path = array_pop( $classes[$class_type[0]] );
-		}
-		elseif( isset( $class_type[1] ) )
-		{
-			$class_type = array_reverse( $class_type );
-			$path = isset($classes[$class_type[0]][$class_type[1]]) ? $classes[$class_type[0]][$class_type[1]] : null;
-		}
-
-		if ( isset( $classes[$class_type[0]] ) && !isset( $path ) )
-		{
-			$path = array_pop( $classes[$class_type[0]] );
-		}
-
-		if ( !isset( $classes[$class_type[0]] ) )
-		{
-			// Error handling.
-			throw new Exception_Configuration( "The variable '{$class_type[0]}' was not found in the classes file. ", E_USER_ERROR );
-		}
-
-		// The var is OK,  we return the requested array element.
-		$class_name = "\\{$class_type[1]}\\$class_type[0]";
-		return array( 'name' => $class_name, 'path' => $path );
-	}
-
-	/**
 	 * Instance name.
 	 *
 	 * @return string

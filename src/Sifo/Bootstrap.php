@@ -79,33 +79,6 @@ class Bootstrap
     public static $container;
 
 	/**
-	 * This classes will be loaded in this order and ALWAYS before starting
-	 * to parse code. This array can be replaced in your libraries.config under
-	 * the key $config['classes_always_preloaded']
-	 *
-	 * @var array
-	 */
-	public static $required_classes = array(
-		'Exceptions',
-		'Filter',
-		'Domains',
-		'Urls',
-		'Router',
-		'Controller'
-	);
-
-	/**
-	 * Include the minimum necessary files to run SIFO.
-	 */
-	public static function includeRequiredFiles()
-	{
-		foreach ( self::$required_classes as $class )
-		{
-			self::includeFile( $class );
-		}
-	}
-
-	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
 	 * @param $instance_name
@@ -120,11 +93,8 @@ class Bootstrap
 		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
+        self::$container = DependencyInjector::getInstance();
 
-		// Include files:
-		self::includeRequiredFiles();
-
-		self::autoload();
 		Benchmark::getInstance()->timingStart();
 
 		self::dispatch( $controller_name );
@@ -133,107 +103,51 @@ class Bootstrap
 	}
 
     /**
-     * Registers the autoload used by Sifo.
-     *
-     * @static
-     */
-    public static function autoload()
-    {
-        $autoload        = spl_autoload_register(array('\\Sifo\Bootstrap', 'includeFile'));
-        self::$container = DependencyInjector::getInstance();
-
-        return $autoload;
-    }
-
-    /**
      * Invokes a controller with the folder/action form.
      *
      * @param string $controller The controller in folder/action form.
      *
-     * @return Controller|void
+     * @return Controller
      */
     public static function invokeController( $controller )
     {
-        $controller_path = explode( '/', $controller );
+        $class = self::convertToControllerClassName( $controller );
 
-        $class = '';
-        foreach ( $controller_path as $part )
-        {
-            $class .= ucfirst( $part );
-        }
-
-        $class .= 'Controller';
-
-        $controller = self::getClass( $class );
+        /** @var Controller $controller */
+        $controller = new $class();
         $controller->setContainer(self::$container);
 
         return $controller;
     }
 
-	/**
-	 * Includes (include_once) the file corresponding to the passed passed classname.
-	 * It does not instantiate any object.
-	 *
-	 * This method must be public as it is used in external places, as unit-tests.
-	 *
-	 * @param string $classname
-	 *
-	 * @throws Exception_500
-	 * @return string The classname you asked for.
-	 */
-	public static function includeFile( $classname )
-	{
-		try
-		{
-			$class_info = Config::getInstance( self::$instance )->getClassInfo( $classname );
-		}
-		catch ( Exception_Configuration $e )
-		{
-            return null;
-		}
 
-		if (class_exists($class_info['name'], false))
+    private static function convertToControllerClassName( $controller ): string
+    {
+        if(class_exists($controller))
         {
-            return $class_info['name'];
+            return $controller;
         }
 
-		$class_path = ROOT_PATH . DIRECTORY_SEPARATOR . $class_info['path'];
+        $controller_path = explode('/', $controller);
 
-		if (!file_exists($class_path))
-		{
-			throw new Exception_500("Doesn't exist in expected path {$class_info['path']}");
-		}
+        $class = '';
+        foreach ($controller_path as $part) {
+            $class .= ucfirst($part);
+        }
 
-        include_once($class_path);
+        $class .= 'Controller';
 
-		return $class_info['name'];
-	}
+        $instance_inheritance = array_reverse(Domains::getInstance()->getInstanceInheritance());
+        foreach ($instance_inheritance as $instance) {
+            $controller_classname = '\\' . ucfirst($instance) . '\\' . $class;
+            if (class_exists($controller_classname)) {
+                $class = $controller_classname;
+                break;
+            }
+        }
 
-	/**
-	 * Returns an instance of the requested class at the lowest level in the hierarchy. The second parameter controls
-	 * if an instance of the object is returned. If you are getting a class with
-	 * a private constructor (e.g: singleton) set it to false.
-	 *
-	 * @param string $class Class name you want to get
-	 * @param boolean $call_constructor Return a new object of the class (true), or include the class only (false).
-	 *
-	 * @throws Exception_500
-	 * @return Object|void
-	 */
-	public static function getClass( $class, $call_constructor = true )
-	{
-		$classname = self::includeFile( $class );
-
-		if (empty($classname) || !class_exists($classname))
-		{
-			throw new Exception_500( "Method getClass($class) failed because the class $classname is not declared inside this file (a copy/paste friend?)." );
-		}
-
-		if ($call_constructor)
-		{
-			return new $classname;
-		}
-	}
+        return $class;
+    }
 
 	/**
 	 * Sets the controller and view properties and executes the controller, sending the output buffer.
@@ -313,7 +227,6 @@ class Bootstrap
 					system( 'rm -rf ' . $smarty_compiles_dir );
 				}
 
-				$ctrl->getClass( 'Cookie' );
 				if ( FilterGet::getInstance()->getInteger( 'rebuild_all' ) )
 				{
 					Cookie::set( 'rebuild_all', 1 );
