@@ -111,21 +111,42 @@ class Bootstrap
      */
     public static function invokeController( $controller )
     {
-        $controller_path = explode( '/', $controller );
-
-        $class = '';
-        foreach ( $controller_path as $part )
-        {
-            $class .= ucfirst( $part );
-        }
-
-        $class .= 'Controller';
+        $class = self::convertToControllerClassName( $controller );
 
         /** @var Controller $controller */
         $controller = new $class();
         $controller->setContainer(self::$container);
 
         return $controller;
+    }
+
+
+    private static function convertToControllerClassName( $controller ): string
+    {
+        if(class_exists($controller))
+        {
+            return $controller;
+        }
+
+        $controller_path = explode('/', $controller);
+
+        $class = '';
+        foreach ($controller_path as $part) {
+            $class .= ucfirst($part);
+        }
+
+        $class .= 'Controller';
+
+        $instance_inheritance = array_reverse(Domains::getInstance()->getInstanceInheritance());
+        foreach ($instance_inheritance as $instance) {
+            $controller_classname = '\\' . ucfirst($instance) . '\\' . $class;
+            if (class_exists($controller_classname)) {
+                $class = $controller_classname;
+                break;
+            }
+        }
+
+        return $class;
     }
 
 	/**
