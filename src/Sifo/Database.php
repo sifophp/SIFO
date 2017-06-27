@@ -186,16 +186,15 @@ class Database
 		// Clean '?' character from SQL Query TAG (to avoid problems with AdoDB bindings).
 		$tag = str_replace( '?', '', $tag );
 
-		$query = ''; // Methods like Affected_Rows that don't have a query associated nor $args.
 		$read_operation = false;
 
 		// What kind of query are we passing? Goes to master o to slave:
 		if ( isset( $args[0] ) )
 		{
-			// Prepend comment to the beggining of the query. Helps when looking debug and error.log:
-			$args[0] = $query = "/* {$tag} */\n{$args[0]}";
-			$query = trim( trim( trim( preg_replace( '/\/\*.*\*\//', '', $args[0] ) ), '(' ) );
+			$query = trim( trim( trim( $args[0] ), '(' ) );
 			$read_operation = preg_match( '/^SELECT|^SHOW |^DESC /i', $query );
+			// Append comment to the end of the query. Helps when looking debug and error.log:
+			$args[0] .= "\n/* {$tag} */";
 		}
 
 		// Query goes to a single server configuration? to a master? a slave?
