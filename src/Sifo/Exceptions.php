@@ -21,7 +21,7 @@
 namespace Sifo;
 
 // See available exceptions below this class.
-class SEO_Exception extends \Exception
+class SEO_Exception extends \Exception implements \Serializable
 {
 	/**
 	 * HTTP code used for this exception.
@@ -104,6 +104,17 @@ class SEO_Exception extends \Exception
 			throw new Exception_500( $message, $code );
 		}
 	}
+
+	/** http://fabien.potencier.org/php-serialization-stack-traces-and-exceptions.html */
+    public function serialize()
+    {
+        return serialize( array( $this->code, $this->message, $this->http_code, $this->http_code_msg, $this->redirect ) );
+    }
+
+    public function unserialize($serialized)
+    {
+        list( $this->code, $this->message, $this->http_code, $this->http_code_msg, $this->redirect ) = unserialize( $serialized );
+    }
 }
 
 /**
