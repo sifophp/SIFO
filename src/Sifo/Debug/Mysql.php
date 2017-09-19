@@ -206,7 +206,7 @@ class DebugMysql extends Mysql
 	 * Singleton static method.
 	 *
 	 * @param string $profile The database server to connect to.
-	 * @return Db
+	 * @return DebugMysql
 	 */
 	static public function getInstance( $profile = 'default' )
 	{
@@ -277,6 +277,11 @@ class DebugMysql extends Mysql
 	 */
 	public static function setDebug( $statement, $query_time, $context, $resultset, $db_params, $pdo = null )
 	{
+	    if (false == Domains::getInstance()->getDebugMode())
+        {
+            return;
+        }
+
 		if ( $resultset !== false )
 		{
 			$error = $resultset->errorInfo();
