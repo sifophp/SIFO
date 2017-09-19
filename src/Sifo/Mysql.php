@@ -166,7 +166,7 @@ class Mysql
 	 * Singleton static method.
 	 *
 	 * @param string $profile The database server to connect to.
-	 * @return Db
+	 * @return Mysql
 	 */
 	static public function getInstance( $profile = 'default' )
 	{
