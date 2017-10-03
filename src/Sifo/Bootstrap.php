@@ -342,8 +342,6 @@ class Bootstrap
 			{
 				$ctrl2->addParams( array( 'url_redirect' => $new_location ) );
 				$ctrl2->dispatch();
-				Headers::set( 'Location (paused)', $new_location );
-				Headers::send();
 				self::invokeController( 'debug/index' )->dispatch();
 				return;
 			}
