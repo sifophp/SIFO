@@ -27,6 +27,16 @@ $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
 
 /**
  * Handles the interaction with a database using ADODB, and adds load balancing. Many drivers are supported, see ADODB.
+ *
+ * Here we include details of some ADODb methods that can be actually accessed directly from Database.
+ *
+ * @method array|bool GetAll(string $query, array $params)
+ * @method array|bool GetRow(string $query, array $params)
+ * @method string|bool GetOne(string $query, array $params)
+ * @method bool Execute(string $query, array $params)
+ * @method bool StartTrans()
+ * @method bool CompleteTrans($autoComplete = true)
+ * @method bool HasFailedTrans()
  */
 class Database
 {
