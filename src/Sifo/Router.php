@@ -71,8 +71,6 @@ class Router
 
 	/**
 	 * Looks if the path has a known pattern handled by a controller.
-	 *
-	 * @param unknown_type $path
 	 */
 	public function __construct( $path, $instance, $subdomain = false, $language = false, $www_mode = false )
 	{

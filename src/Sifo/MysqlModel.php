@@ -26,8 +26,6 @@ class MysqlModel
 
 	/**
 	 * Use this method as constructor in children.
-	 *
-	 * @return unknown
 	 */
 	protected function init()
 	{

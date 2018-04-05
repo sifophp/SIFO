@@ -30,8 +30,6 @@ class Model extends Database
 
 	/**
 	 * Use this method as constructor in chidren.
-	 *
-	 * @return unknown
 	 */
 	protected function init()
 	{
