@@ -53,8 +53,8 @@ abstract class LoadBalancer
 
 	/**
 	 * Checks if the service is currently available.
-	 * @param unknown_type $index
-	 * @param unknown_type $node_properties
+	 * @param int $index
+	 * @param array $node_properties
 	 */
 	abstract protected function addNodeIfAvailable( $index, $node_properties );
 

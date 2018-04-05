@@ -333,9 +333,9 @@ class Filter
 	/**
 	 * Returns an array on the post UNFILTERED.
 	 *
-	 * @param unknown_type $var_name
+	 * @param string $var_name
 	 * @param null $filter_function
-	 * @return unknown
+	 * @return mixed
 	 */
 	public function getArray( $var_name, $filter_function = null )
 	{
@@ -456,10 +456,28 @@ class Filter
 	}
 }
 
-/**
- * Filter is FilterPost by default.
- */
-class FilterPost extends Filter { }
+class FilterPost extends Filter
+{
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
+
+    /**
+     * Filters variables passed by Post
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if ( !self::$instance )
+        {
+            self::$instance = new self ( $_POST );
+        }
+        return self::$instance;
+    }
+}
 
 class FilterGet extends Filter
 {
@@ -525,8 +543,6 @@ class FilterServer extends Filter
 		if ( !self::$instance )
 		{
 			self::$instance = new self ( $_SERVER );
-			//$_SERVER = array();		//Too soon to remove the $_SERVER variable. It's being used in lots of places yet.
-			// ¡Lombarte! ¡Lombarte!, ¡Lombarte es cojonudo!, ¡como Lombarte no hay ninguno!
 		}
 		return self::$instance;
 	}
