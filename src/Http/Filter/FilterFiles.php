@@ -13,7 +13,7 @@ class FilterFiles extends Filter
     {
         $file = parent::getUnfiltered($var_name);
 
-        if (UPLOAD_ERR_NO_FILE == $file['error']) {
+        if (UPLOAD_ERR_NO_FILE === $file['error']) {
             return false;
         }
 

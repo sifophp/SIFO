@@ -24,9 +24,9 @@ class Mysql extends OriginalMysql
      *
      * @param string $profile The database server to connect to.
      *
-     * @return Db
+     * @return Mysql
      */
-    static public function getInstance($profile = 'default')
+    public static function getInstance($profile = 'default')
     {
         if (!isset(self::$instance[$profile])) {
             Benchmark::getInstance()->timingStart('db_connections');
@@ -63,7 +63,7 @@ class Mysql extends OriginalMysql
 
         $query_time = Benchmark::getInstance()->timingCurrentToRegistry('db_queries');
 
-        $this->setDebug($statement, $query_time, $context, $result, $this->db_params, $this->pdo);
+        static::setDebug($statement, $query_time, $context, $result, $this->db_params, $this->pdo);
 
         return $result;
     }
@@ -85,7 +85,7 @@ class Mysql extends OriginalMysql
         $query_time = Benchmark::getInstance()->timingCurrentToRegistry('db_' . $method);
 
         if ($arguments !== array()) {
-            self::setDebug($arguments[0], $query_time, $arguments[1], $result, $this->db_params);
+            static::setDebug($arguments[0], $query_time, $arguments[1], $result, $this->db_params);
         }
 
         return $result;
@@ -97,10 +97,16 @@ class Mysql extends OriginalMysql
      * @param string $statement The sql statement being queried.
      * @param float $query_time The time that the query needed to be completed.
      * @param string $context The context of the sql query.
-     * @param integer|array $resultset The result of the query.
+     * @param integer|array|\PDOStatement $resultset The result of the query.
+     * @param $db_params
+     * @param $pdo
      */
     public static function setDebug($statement, $query_time, $context, $resultset, $db_params, $pdo = null)
     {
+        if (false === Domains::getInstance()->getDebugMode()) {
+            return;
+        }
+
         if ($resultset !== false) {
             $error = $resultset->errorInfo();
             $resultset_array = $resultset->fetchAll();

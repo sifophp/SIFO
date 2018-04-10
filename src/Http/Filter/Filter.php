@@ -51,13 +51,16 @@ abstract class Filter
 
     public function isEmpty(string $var_name): bool
     {
-        // I changed empty by strlen because we was sending that 0 is an empty field and this is a correct integer. Minutes for example:
-        return (!isset($this->request[$var_name]) || (is_array($this->request[$var_name]) && (count($this->request[$var_name]) == 0)) || (!is_array($this->request[$var_name]) && (strlen($this->request[$var_name]) == 0)));
+        return (
+            !isset($this->request[$var_name])
+            || (\is_array($this->request[$var_name]) && (0 === \count($this->request[$var_name])))
+            || (!\is_array($this->request[$var_name]) && ('' === $this->request[$var_name]))
+        );
     }
 
     public function countVars(): int
     {
-        return count($this->request);
+        return \count($this->request);
     }
 
     /**
@@ -75,10 +78,10 @@ abstract class Filter
         }
 
         if (false === $sanitized) {
-            return filter_var($this->request[$var_name], FILTER_DEFAULT);
+            return \filter_var($this->request[$var_name], FILTER_DEFAULT);
         } else {
             // Used the flag encode LOW because allows Chinese Characters (encode HIGH don't): 地 图
-            return filter_var($this->request[$var_name], FILTER_SANITIZE_STRING, FILTER_FLAG_ENCODE_LOW);
+            return \filter_var($this->request[$var_name], FILTER_SANITIZE_STRING, FILTER_FLAG_ENCODE_LOW);
         }
     }
 
@@ -89,7 +92,7 @@ abstract class Filter
             return false;
         }
 
-        if (!is_array($this->request[$var_name]))
+        if (!\is_array($this->request[$var_name]))
         {
             return false;
         }
@@ -127,11 +130,11 @@ abstract class Filter
             return false;
         }
 
-        if (preg_match(self::VALID_EMAIL_REGEXP, $this->request[$var_name])) {
+        if (\preg_match(self::VALID_EMAIL_REGEXP, $this->request[$var_name])) {
             if ($check_dns) {
-                $exploded_email = explode('@', $this->request[$var_name]);
+                $exploded_email = \explode('@', $this->request[$var_name]);
 
-                return (checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
+                return (\checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
             } else {
                 return $this->request[$var_name];
             }
@@ -153,7 +156,7 @@ abstract class Filter
             return false;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_BOOLEAN);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -174,7 +177,7 @@ abstract class Filter
             $decimal = array('options' => array('decimal' => $decimal));
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_FLOAT, $decimal);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_FLOAT, $decimal);
     }
 
     /**
@@ -202,7 +205,7 @@ abstract class Filter
             $options['options']['max_range'] = $max_range;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_INT, $options);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_INT, $options);
     }
 
     /**
@@ -231,7 +234,7 @@ abstract class Filter
             $options['options']['max_range'] = $max_range;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_IP, $options);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_IP, $options);
     }
 
     public function getRegexp(string $var_name, string $regexp)
@@ -240,7 +243,7 @@ abstract class Filter
             return false;
         }
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $regexp]]);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $regexp]]);
     }
 
     public function getUrl(string $var_name)
@@ -251,7 +254,7 @@ abstract class Filter
 
         $options['options']['flags'] = FILTER_FLAG_PATH_REQUIRED;
 
-        return filter_var($this->request[$var_name], FILTER_VALIDATE_URL, $options);
+        return \filter_var($this->request[$var_name], FILTER_VALIDATE_URL, $options);
     }
 
     public function getInArray(string $var_name, array $list_of_elements)
@@ -260,7 +263,7 @@ abstract class Filter
             return false;
         }
 
-        if (!in_array($this->request[$var_name], $list_of_elements, true)) {
+        if (!\in_array($this->request[$var_name], $list_of_elements, true)) {
             return false;
         }
 

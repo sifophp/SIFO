@@ -29,13 +29,9 @@ class Debug
     }
 
     /**
-     * @static
-     *
      * @param mixed $message String, variable or object you want to show in the debug.
      * @param string $type Type of debug you want. Accepted values are [log|error|warn].
      * @param string $display [html|browser_console|alert] Shown in the html debug, the console or as javascript alert.
-     *
-     * @author Javier Ferrer
      */
     public static function log($message, $type = 'log', $display = 'html')
     {

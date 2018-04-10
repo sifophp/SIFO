@@ -129,7 +129,7 @@ class Config
             $this->config_values[$profile] = $this->loadConfig($profile);
         }
 
-        if (is_null($group)) {
+        if (null === $group) {
             return $this->config_values[$profile];
         }
 
@@ -140,28 +140,28 @@ class Config
         throw new ConfigurationException("The group '$group' for profile '$profile' was never set.", E_USER_ERROR);
     }
 
-    public function getClassInfo($class_type)
+    public function getClassInfo($class_type): array
     {
         $classes = $this->getConfig('classes');
         $class_type = explode('\\', $class_type);
         $path = null;
 
-        if (isset($class_type[1]) && $class_type[0] == '\\' . $class_type[1]) {
+        if (isset($class_type[1]) && $class_type[0] === '\\' . $class_type[1]) {
             unset($class_type[1]);
         }
 
         // Append the Namespace on an existing classes.config class.
-        if (isset($classes[$class_type[0]]) && !isset($class_type[1])) {
+        if (!isset($class_type[1]) && isset($classes[$class_type[0]])) {
             $instances = array_keys($classes[$class_type[0]]);
             $last_instance = array_pop($instances);
-            array_push($class_type, $last_instance);
+            $class_type[] = $last_instance;
             $path = array_pop($classes[$class_type[0]]);
         } elseif (isset($class_type[1])) {
             $class_type = array_reverse($class_type);
-            $path = isset($classes[$class_type[0]][$class_type[1]]) ? $classes[$class_type[0]][$class_type[1]] : null;
+            $path = $classes[$class_type[0]][$class_type[1]] ?? null;
         }
 
-        if (isset($classes[$class_type[0]]) && !isset($path)) {
+        if (!isset($path) && isset($classes[$class_type[0]])) {
             $path = array_pop($classes[$class_type[0]]);
         }
 

@@ -84,7 +84,7 @@ class I18N
      *
      * @return I18N I18N Object instance.
      */
-    static public function getInstance($domain, $locale)
+    public static function getInstance($domain, $locale)
     {
         if (!isset(self::$instance)) {
             self::$instance = new self();
@@ -102,8 +102,9 @@ class I18N
      * @param string $domain The message domain.
      * @param $locale
      * @param null $instance
+     * @throws InternalServerError
      */
-    static public function setDomain($domain, $locale, $instance = null)
+    public static function setDomain($domain, $locale, $instance = null)
     {
         // Active domain is an indentifier in the format 'messages_es_ES' for internal use only.
         self::$active_domain_and_locale = $domain . '_' . $locale;
@@ -116,8 +117,9 @@ class I18N
      * Support DOMAIN message catalog.
      * @param null $instance
      * @throws InternalServerError
+     * @throws Exception\ConfigurationException
      */
-    static protected function bindTextDomain($instance = null)
+    protected static function bindTextDomain($instance = null)
     {
         if (empty($instance)) {
             $instance = Bootstrap::$instance;
@@ -153,7 +155,7 @@ class I18N
      *
      * @return string
      */
-    static public function getTranslation($message, $params = null)
+    public static function getTranslation($message, $params = null)
     {
         if (isset(self::$translations[self::$active_domain_and_locale][$message]) && '' != self::$translations[self::$active_domain_and_locale][$message]) {
             $message = stripslashes(self::$translations[self::$active_domain_and_locale][$message]);
@@ -175,7 +177,7 @@ class I18N
      *
      * @return string
      */
-    static public function getReverseTranslation($message)
+    public static function getReverseTranslation($message)
     {
         if ($key = array_search($message, self::$translations[self::$active_domain_and_locale])) {
             $message = $key;
@@ -189,7 +191,7 @@ class I18N
      *
      * @return string
      */
-    static public function getDomain()
+    public static function getDomain()
     {
         return self::$domain;
     }
@@ -199,7 +201,7 @@ class I18N
      *
      * @return string
      */
-    static public function getLocale()
+    public static function getLocale()
     {
         return self::$locale;
     }

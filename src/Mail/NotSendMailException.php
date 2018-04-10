@@ -2,10 +2,6 @@
 
 namespace Sifo\Mail;
 
-class NotSendMailException extends \Exception
+class NotSendMailException extends MailException
 {
-    public function __construct($message = "")
-    {
-        parent::__construct($message);
-    }
 }

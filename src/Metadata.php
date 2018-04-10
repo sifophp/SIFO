@@ -40,7 +40,7 @@ class Metadata
      *
      * @param string $key This key should be defined in the metadata_lang.config.php
      */
-    static public function setKey($key)
+    public static function setKey($key)
     {
         self::set(null, $key, true);
     }
@@ -52,7 +52,7 @@ class Metadata
      * @param string $var_name Var name defined in the metadata config.
      * @param string|array $value Value or values to replace in the metadata config (as string or key=>value).
      */
-    static public function setValues($var_name, $value)
+    public static function setValues($var_name, $value)
     {
         if (is_array($value)) {
             foreach ($value as $key => $val) {
@@ -67,8 +67,9 @@ class Metadata
      * Get metadata. It uses the metadata key or path to return the metadata.
      *
      * @return array
+     * @throws Exception\ConfigurationException
      */
-    static public function get()
+    public static function get()
     {
         $metadata_info = self::_getMetadataInformation();
         $metadata_raw = Config::getInstance()->getConfig('lang/metadata_' . Domains::getInstance()->getLanguage());
@@ -94,7 +95,7 @@ class Metadata
      *
      * @return array
      */
-    static private function _replaceVars($metadata, $metadata_info)
+    private static function _replaceVars($metadata, $metadata_info)
     {
         if (isset($metadata_info['vars']) && is_array($metadata)) {
             foreach ($metadata as $name => $value) {
@@ -111,8 +112,9 @@ class Metadata
      * @param string $key Variable name.
      * @param string $value Variable value.
      * @param boolean $is_metadata_key If it's the metadata key this value is true, others false.
+     * @throws Exception\RegistryException
      */
-    static public function set($key, $value, $is_metadata_key = false)
+    public static function set($key, $value, $is_metadata_key = false)
     {
         $registry = Registry::getInstance();
         if ($registry->keyExists('metadata_information')) {
@@ -132,8 +134,9 @@ class Metadata
      * Get the metadata information.
      *
      * @return array
+     * @throws Exception\RegistryException
      */
-    static private function _getMetadataInformation()
+    private static function _getMetadataInformation()
     {
         $msgs = Registry::getInstance()->get('metadata_information');
 

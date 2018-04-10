@@ -79,8 +79,6 @@ class Form
 
     /**
      * @param Filter $filter Filter object (FilterPost, FilterGet...)
-     *
-     * @return Form
      */
     public function __construct(Filter $filter)
     {
@@ -94,7 +92,7 @@ class Form
      *
      * @return Form
      */
-    static public function getInstance(Filter $filter)
+    public static function getInstance(Filter $filter)
     {
         if (!self::$instance) {
             self::$instance = new self ($filter);

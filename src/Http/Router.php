@@ -10,8 +10,6 @@ use Sifo\Http\Filter\FilterServer;
 
 /**
  * Maps an URL with a controller
- *
- * @author Albert Lombarte
  */
 class Router
 {

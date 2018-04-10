@@ -8,8 +8,6 @@ use Sifo\Http\Filter\FilterServer;
 
 /**
  * Parses all the URLs.
- *
- * @author Albert Lombarte
  */
 class Urls
 {

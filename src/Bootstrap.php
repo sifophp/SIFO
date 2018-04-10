@@ -97,10 +97,12 @@ class Bootstrap
             $domain = Domains::getInstance();
             $auth_data = $domain->getAuthData();
 
-            if (!empty($auth_data) && FilterCookie::getInstance()->getString('domain_auth') != $auth_data['hash']) {
+            if (!empty($auth_data) && FilterCookie::getInstance()->getString('domain_auth') !== $auth_data['hash']) {
                 $filter_server = FilterServer::getInstance();
-                if ($filter_server->isEmpty('PHP_AUTH_USER') || $filter_server->isEmpty('PHP_AUTH_PW') || $filter_server->getString('PHP_AUTH_USER') != $auth_data['user']
-                    || $filter_server->getString('PHP_AUTH_PW') != $auth_data['password']
+                if ($filter_server->isEmpty('PHP_AUTH_USER')
+                    || $filter_server->isEmpty('PHP_AUTH_PW')
+                    || $filter_server->getString('PHP_AUTH_USER') !== $auth_data['user']
+                    || $filter_server->getString('PHP_AUTH_PW') !== $auth_data['password']
                 ) {
                     Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
                     Headers::send();
@@ -176,10 +178,9 @@ class Bootstrap
                     'url_redirect' => $new_location
                 ]
             );
+
             $ctrl->dispatch();
 
-            Headers::set('Location (paused)', $new_location);
-            Headers::send();
             self::invokeController(DebugController::class)->dispatch();
 
             return;

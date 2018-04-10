@@ -5,7 +5,7 @@ namespace Sifo\Exception\Http;
 use Sifo\Http\Headers;
 use Sifo\Http\Urls;
 
-abstract class BaseException extends \Exception
+abstract class BaseException extends \Exception implements \Serializable
 {
     /** @var integer */
     private $http_code;
@@ -57,8 +57,8 @@ abstract class BaseException extends \Exception
         }
 
         if ($this->isRedirect() && !$this->hasBeenProvidedAValidRedirectLocation()) {
-            trigger_error("Exception " . $this->http_code . " raised with an empty or invalid location" .
-                " (" . $this->message . ") " . $this->getTraceAsString(),
+            trigger_error('Exception ' . $this->http_code . ' raised with an empty or invalid location' .
+                ' (' . $this->message . ') ' . $this->getTraceAsString(),
                 E_ERROR);
             Headers::setResponseStatus(500);
             Headers::send();
@@ -92,5 +92,21 @@ abstract class BaseException extends \Exception
     private function hasBeenProvidedAValidRedirectLocation(): bool
     {
         return filter_var($this->message, FILTER_VALIDATE_URL);
+    }
+
+    /** http://fabien.potencier.org/php-serialization-stack-traces-and-exceptions.html */
+    public function serialize()
+    {
+        return serialize([$this->code, $this->message, $this->http_code, $this->http_code_msg]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list(
+            $this->code,
+            $this->message,
+            $this->http_code,
+            $this->http_code_msg
+            ) = unserialize($serialized, ['allowed_classes' => false]);
     }
 }

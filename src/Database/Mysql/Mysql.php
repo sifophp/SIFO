@@ -47,9 +47,8 @@ class Mysql
             $this->db_params['db_user'], $this->db_params['db_password'], $init_commands
 
         );
-        $class = get_called_class();
-        $this->pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS,
-            array(static::getStatementClass(), array($this->pdo, $profile)));
+
+        $this->pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [static::getStatementClass(), [$this->pdo, $profile]]);
     }
 
     protected static function getStatementClass()
@@ -62,9 +61,9 @@ class Mysql
      *
      * @param string $profile The database server to connect to.
      *
-     * @return Db
+     * @return Mysql
      */
-    static public function getInstance($profile = 'default')
+    public static function getInstance($profile = 'default')
     {
         if (!isset(self::$instance[$profile])) {
             Benchmark::getInstance()->timingStart('db_connections');
@@ -81,9 +80,8 @@ class Mysql
      * Calls the pdo query method.
      *
      * @param string $statement The query statement to be executed in the database server.
-     * @param string $context Used in debug to identify the query context.
      *
-     * @return PDOStatament
+     * @return \PDOStatement
      */
     public function query($statement)
     {

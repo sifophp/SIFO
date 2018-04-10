@@ -4,14 +4,10 @@ use Sifo\Controller\Debug\DebugActionsController;
 use Sifo\Controller\Debug\DebugAnalyzerController;
 use Sifo\Controller\Statics\StaticsController;
 use Sifo\Controller\Tools\DumpConfigFilesController;
-use Sifo\Controller\Tools\I18N\FindI18NController;
 use Sifo\Controller\Tools\I18N\I18NActionsController;
 use Sifo\Controller\Tools\I18N\I18NRebuildController;
 use Sifo\Controller\Tools\I18N\I18NSaveController;
 use Sifo\Controller\Tools\I18N\I18NStatusController;
-use Sifo\Controller\Tools\I18N\RebuildI18NLocalController;
-use Sifo\Controller\Tools\RebuildRouterController;
-use Sifo\Controller\Tools\TemplateLauncherController;
 
 /**
  * Routes known by the application.

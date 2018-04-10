@@ -1,6 +1,6 @@
 Flexible PHP framework for real-world web applications
 =======================================================
-[SIFO] is a well-proven open source PHP5 framework currently running on several
+[SIFO] is a well-proven open source PHP7 framework currently running on several
 sites, from small installations to large websites with multiple servers.
 
 SIFO is free and very easy to use. Contains a lot of libraries and classes that resolve your basic problems and allow you to focus in your business logic, at a very low learning curve. If there is a curve :)

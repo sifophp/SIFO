@@ -134,7 +134,7 @@ abstract class Controller
      * @param string $form_config
      * @param array $default_fields
      *
-     * @return null if no submit sent. True if validated correctly, false otherwise.
+     * @return null|bool
      */
     protected function getValidatedForm($submit_button, $form_config, $default_fields = [])
     {
@@ -206,6 +206,7 @@ abstract class Controller
      * Sets a template (relative path) as the template that triggers the page.
      *
      * @param string $template
+     * @throws ConfigurationException
      */
     public function setLayout($template)
     {
@@ -218,6 +219,7 @@ abstract class Controller
      * @param string $template
      *
      * @return string
+     * @throws ConfigurationException
      */
     public function getTemplate($template)
     {
@@ -232,7 +234,7 @@ abstract class Controller
      */
     public function assign($tpl_var, $value)
     {
-        if ($tpl_var != 'modules') {
+        if ($tpl_var !== 'modules') {
             $this->addToDebug($tpl_var, $value, 'assigns');
         }
 
@@ -244,7 +246,7 @@ abstract class Controller
      */
     protected function executeNestedModules()
     {
-        if (count($this->modules) > 0) {
+        if (\count($this->modules) > 0) {
             $modules = array();
             // Execute additional modules and put their result in the 'modules' variable.
             foreach ($this->modules as $module_name => $controller) {
@@ -514,8 +516,8 @@ abstract class Controller
     /**
      * Deletes all the cache keys that share a common tag at the specified value.
      *
-     * @param $tag
-     * @param $value
+     * @param string $tag
+     * @param mixed $value
      *
      * @return boolean
      */

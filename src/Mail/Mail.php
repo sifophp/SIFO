@@ -2,11 +2,13 @@
 
 namespace Sifo\Mail;
 
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 use Sifo\Config;
 
 class Mail
 {
-    /** @var \PHPMailer */
+    /** @var PHPMailer */
     protected $mail;
 
     /** @var Config */
@@ -22,9 +24,9 @@ class Mail
      *
      * @return self
      */
-    public static function getInstance()
+    public static function getInstance(): self
     {
-        if (!isset (self::$instance)) {
+        if (null === self::$instance) {
             self::$instance = new self();
         }
 
@@ -33,7 +35,7 @@ class Mail
 
     protected function setDependencies()
     {
-        $this->mail = new \PHPMailer();
+        $this->mail = new PHPMailer();
         $this->config = Config::getInstance();
     }
 
@@ -45,12 +47,10 @@ class Mail
         foreach ($email_properties as $property => $value) {
             $this->mail->{$property} = $value;
         }
-
-        return $this->mail;
     }
 
     /**
-     * Calls the PHPmailer methods.
+     * Calls the PHPMailer methods.
      *
      * @param string $method
      * @param mixed $args
@@ -59,13 +59,14 @@ class Mail
      */
     public function __call($method, $args)
     {
-        return call_user_func_array(array($this->mail, $method), $args);
+        return \call_user_func_array(array($this->mail, $method), $args);
     }
 
     /**
      * Get any phpmailer attribute.
      *
      * @param string $property
+     * @return mixed
      */
     public function __get($property)
     {
@@ -90,20 +91,25 @@ class Mail
      * @param string $subject
      * @param string $body
      *
-     * @return bool
+     * @return void
+     * @throws MailException
      * @throws NotSendMailException
      */
-    public function send($to, $subject, $body)
+    public function send($to, $subject, $body): void
     {
-        $this->mail->Subject = $subject;
-        $this->mail->AltBody = strip_tags($body);
-        $this->mail->AddAddress($to);
-        $this->mail->MsgHTML($body);
+        try {
+            $this->mail->Subject = $subject;
+            $this->mail->AltBody = strip_tags($body);
+            $this->mail->addAddress($to);
+            $this->mail->msgHTML($body);
 
-        if (!$this->mail->Send()) {
-            throw new NotSendMailException($this->mail->ErrorInfo);
+            if (true !== $this->mail->send()) {
+                throw new NotSendMailException($this->mail->ErrorInfo);
+            }
+
+            $this->mail->clearAddresses();
+        } catch (Exception $e) {
+            throw new MailException($e->getMessage());
         }
-
-        $this->mail->ClearAddresses();
     }
 }
