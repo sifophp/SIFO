@@ -229,28 +229,31 @@ class Bootstrap
     {
         $domain = Domains::getInstance();
 
-        if ($domain->getDevMode()) {
-            if (FilterGet::getInstance()->getInteger('clean_compile')) {
-                $smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
-                system('rm -rf ' . $smarty_compiles_dir);
-            }
+        if (false === $domain->getDevMode())
+        {
+            return;
+        }
 
-            if (FilterGet::getInstance()->getInteger('rebuild_all')) {
-                Cookie::set('rebuild_all', 1);
-            }
-            if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all')) {
-                Cookie::delete('rebuild_all');
-            }
-            if (1 === FilterGet::getInstance()->getInteger('debug')) {
-                Cookie::set('debug', 1);
-            }
-            if (0 === FilterGet::getInstance()->getInteger('debug')) {
-                Cookie::set('debug', 0);
-            }
+        if (FilterGet::getInstance()->getInteger('clean_compile')) {
+            $smarty_compiles_dir = ROOT_PATH . '/instances/' . self::$instance . '/templates/_smarty/compile/*';
+            system('rm -rf ' . $smarty_compiles_dir);
+        }
 
-            if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug'))) {
-                Domains::getInstance()->setDebugMode((bool)$debug);
-            }
+        if (FilterGet::getInstance()->getInteger('rebuild_all')) {
+            Cookie::set('rebuild_all', 1);
+        }
+        if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all')) {
+            Cookie::delete('rebuild_all');
+        }
+        if (1 === FilterGet::getInstance()->getInteger('debug')) {
+            Cookie::set('debug', 1);
+        }
+        if (0 === FilterGet::getInstance()->getInteger('debug')) {
+            Cookie::set('debug', 0);
+        }
+
+        if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug'))) {
+            Domains::getInstance()->setDebugMode((bool)$debug);
         }
     }
 }

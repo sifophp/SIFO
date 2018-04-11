@@ -11,11 +11,11 @@ class FilterCookieRuntime extends FilterCookie
 {
     public static function setCookie($key, $value)
     {
-        self::getInstance()->request[$key] = $value;
+        FilterCookie::getInstance()->request[$key] = $value;
     }
 
     public static function deleteCookie($key)
     {
-        unset(self::getInstance()->request[$key]);
+        unset(FilterCookie::getInstance()->request[$key]);
     }
 }

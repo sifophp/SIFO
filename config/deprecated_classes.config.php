@@ -10,6 +10,14 @@ namespace Sifo {
         }
     }
 
+    class_alias(Cache\Base::class, CacheBase::class);
+    if (!class_exists(CacheBase::class)) {
+        /** @deprecated this is an alias for Cache\Base */
+        class CacheBase
+        {
+        }
+    }
+
     class_alias(Http\Client::class, Client::class);
     if (!class_exists(Client::class)) {
         /** @deprecated this is an alias for Http\Client */

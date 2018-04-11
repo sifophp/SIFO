@@ -12,7 +12,7 @@ class Cookie
     static private $domain;
     static private $path;
 
-    static private function _initDomain()
+    private static function _initDomain()
     {
         self::$cookies = array();
         // Take domain from configuration to allow multiple subdomain compatibility with cookies.
@@ -20,9 +20,8 @@ class Cookie
         self::$path = '/';
     }
 
-    static public function set($name, $value, $days = 14, $domain = false)
+    public static function set($name, $value, $days = 14, $domain = false)
     {
-
         $domain ?: self::_initDomain();
 
         if (0 == $days) {
@@ -30,19 +29,19 @@ class Cookie
         } else {
             $result = setcookie($name, $value, time() + (86400 * $days), self::$path, self::$domain);
         }
+
         if (!$result) {
             trigger_error("COOKIE WRITE FAIL: Tried to write '$name' with value '$value' but failed.");
 
             return false;
         }
 
-        // Filter runtime update:
         Http\FilterCookieRuntime::setCookie($name, $value);
 
         return true;
     }
 
-    static public function delete($name)
+    public static function delete($name)
     {
         self::_initDomain();
         $result = setcookie($name, '', time() - 3600, self::$path, self::$domain);

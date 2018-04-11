@@ -82,13 +82,20 @@ class I18NRebuildController extends Controller
                 }
             }
 
-            // Get instance inheritance.
             $include_parent_instance = $this->getIncludeInheritance($instance, $language);
 
-            $buffer = "<?php
+            $buffer = <<<PHP
+<?php
 $include_parent_instance
 
-\n// Translations file, lang='$language'\n// Empty strings: $empty[$language]\n$empty_strings_buffer\n// Completed strings:\n$buffer\n?>";
+// Translations file, lang='$language'
+// Empty strings: $empty[$language]
+$empty_strings_buffer
+// Completed strings:
+$buffer
+
+return $translations;
+PHP;
             $path = ROOT_PATH . '/instances/' . $instance . '/locale/messages_' . $language . '.php';
             $write = @file_put_contents($path, $buffer);
 
@@ -100,17 +107,17 @@ $include_parent_instance
         }
 
         if ($result) {
-            return array(
+            return [
                 'status' => 'OK',
                 'msg' => 'Successfully saved'
-            );
+            ];
         }
 
 
-        return array(
+        return [
             'status' => 'KO',
             'msg' => 'Failed to save the translation:' . implode("\n", $failed)
-        );
+        ];
     }
 
     protected function buildItem($msgid, $translation)

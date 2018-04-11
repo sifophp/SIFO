@@ -26,7 +26,7 @@ class Registry
      *
      * @return Registry
      */
-    public static function getInstance()
+    public static function getInstance(): Registry
     {
         if (self::$instance === null) {
             self::$instance = new self;
@@ -48,7 +48,6 @@ class Registry
      *
      * @param string $key Name you used to store the value.
      *
-     * @throws RegistryException
      * @return mixed
      */
     public static function get(string $key)
@@ -59,7 +58,7 @@ class Registry
 
         /** @deprecated Registry shouldn't allow getting a non-existent key. Soon this will raise an Exception */
         @trigger_error('Registry doesn\'t contain any element named "' . $key . '". Soon this will raise an Exception. Please, use keyExists instead if you want to verify its existence.',
-            E_USER_WARNING);
+            E_USER_DEPRECATED);
     }
 
     /**
@@ -70,7 +69,7 @@ class Registry
      *
      * @return void
      */
-    public static function set(string $key, $value)
+    public static function set(string $key, $value): void
     {
         self::$storage[$key] = $value;
     }
@@ -82,7 +81,7 @@ class Registry
      *
      * @return void
      */
-    public static function invalidate(string $key)
+    public static function invalidate(string $key): void
     {
         if (isset(self::$storage[$key])) {
             unset(self::$storage[$key]);
@@ -98,17 +97,17 @@ class Registry
      * @throws RegistryException
      * @return void
      */
-    public static function push(string $key, $value)
+    public static function push(string $key, $value): void
     {
         if (!self::keyExists($key)) {
             self::$storage[$key] = [];
         }
 
-        if (!is_array(self::$storage[$key])) {
+        if (!\is_array(self::$storage[$key])) {
             throw new RegistryException('Failed to PUSH an element in the registry because the given key "' . $key . '" is not an array.');
         }
 
-        array_push(self::$storage[$key], $value);
+        self::$storage[$key][] = $value;
     }
 
     /**

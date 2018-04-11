@@ -2,6 +2,7 @@
 
 namespace Sifo;
 
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\InternalServerError;
 
 /**
@@ -83,10 +84,12 @@ class I18N
      * @param string $locale Locale used (eg.: es_ES).
      *
      * @return I18N I18N Object instance.
+     * @throws InternalServerError
+     * @throws ConfigurationException
      */
-    public static function getInstance($domain, $locale)
+    public static function getInstance($domain, $locale): I18N
     {
-        if (!isset(self::$instance)) {
+        if (null === self::$instance) {
             self::$instance = new self();
         }
 
@@ -103,10 +106,11 @@ class I18N
      * @param $locale
      * @param null $instance
      * @throws InternalServerError
+     * @throws ConfigurationException
      */
-    public static function setDomain($domain, $locale, $instance = null)
+    public static function setDomain($domain, $locale, $instance = null): void
     {
-        // Active domain is an indentifier in the format 'messages_es_ES' for internal use only.
+        // Active domain is an identifier in the format 'messages_es_ES' for internal use only.
         self::$active_domain_and_locale = $domain . '_' . $locale;
         self::$locale = $locale;
         self::$domain = $domain;
@@ -117,9 +121,9 @@ class I18N
      * Support DOMAIN message catalog.
      * @param null $instance
      * @throws InternalServerError
-     * @throws Exception\ConfigurationException
+     * @throws ConfigurationException
      */
-    protected static function bindTextDomain($instance = null)
+    protected static function bindTextDomain($instance = null): void
     {
         if (empty($instance)) {
             $instance = Bootstrap::$instance;
@@ -133,9 +137,9 @@ class I18N
             if (!isset(self::$instance_translations[self::$current_instance][self::$active_domain_and_locale])) {
                 $translations_file = Config::getInstance($instance)->getConfig('locale',
                     self::$active_domain_and_locale);
-                include(ROOT_PATH . "/$translations_file");
+                $translations = include ROOT_PATH . '/' . $translations_file;
 
-                if (!isset($translations)) {
+                if (null === $translations) {
                     throw new InternalServerError('Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale);
                 }
 
@@ -155,13 +159,13 @@ class I18N
      *
      * @return string
      */
-    public static function getTranslation($message, $params = null)
+    public static function getTranslation($message, $params = null): string
     {
-        if (isset(self::$translations[self::$active_domain_and_locale][$message]) && '' != self::$translations[self::$active_domain_and_locale][$message]) {
+        if (isset(self::$translations[self::$active_domain_and_locale][$message]) && '' !== self::$translations[self::$active_domain_and_locale][$message]) {
             $message = stripslashes(self::$translations[self::$active_domain_and_locale][$message]);
         }
 
-        if (null !== $params && is_array($params)) {
+        if (null !== $params && \is_array($params)) {
             foreach ($params as $key => $variable) {
                 $message = str_replace($key, $variable, $message);
             }
@@ -177,9 +181,9 @@ class I18N
      *
      * @return string
      */
-    public static function getReverseTranslation($message)
+    public static function getReverseTranslation($message): string
     {
-        if ($key = array_search($message, self::$translations[self::$active_domain_and_locale])) {
+        if ($key = array_search($message, self::$translations[self::$active_domain_and_locale], true)) {
             $message = $key;
         }
 
@@ -191,7 +195,7 @@ class I18N
      *
      * @return string
      */
-    public static function getDomain()
+    public static function getDomain(): string
     {
         return self::$domain;
     }
@@ -201,7 +205,7 @@ class I18N
      *
      * @return string
      */
-    public static function getLocale()
+    public static function getLocale(): string
     {
         return self::$locale;
     }

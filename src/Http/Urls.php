@@ -177,7 +177,7 @@ class Urls
     /**
      * Returns the path. That is a URL without the given params.
      *
-     * @return array
+     * @return string
      */
     public function getPath()
     {

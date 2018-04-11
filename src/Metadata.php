@@ -40,7 +40,7 @@ class Metadata
      *
      * @param string $key This key should be defined in the metadata_lang.config.php
      */
-    public static function setKey($key)
+    public static function setKey($key): void
     {
         self::set(null, $key, true);
     }
@@ -52,9 +52,9 @@ class Metadata
      * @param string $var_name Var name defined in the metadata config.
      * @param string|array $value Value or values to replace in the metadata config (as string or key=>value).
      */
-    public static function setValues($var_name, $value)
+    public static function setValues($var_name, $value): void
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             foreach ($value as $key => $val) {
                 self::set("%$key%", $val);
             }
@@ -69,7 +69,7 @@ class Metadata
      * @return array
      * @throws Exception\ConfigurationException
      */
-    public static function get()
+    public static function get(): array
     {
         $metadata_info = self::_getMetadataInformation();
         $metadata_raw = Config::getInstance()->getConfig('lang/metadata_' . Domains::getInstance()->getLanguage());
@@ -95,7 +95,7 @@ class Metadata
      *
      * @return array
      */
-    private static function _replaceVars($metadata, $metadata_info)
+    private static function _replaceVars($metadata, $metadata_info): array
     {
         if (isset($metadata_info['vars']) && is_array($metadata)) {
             foreach ($metadata as $name => $value) {
@@ -112,13 +112,11 @@ class Metadata
      * @param string $key Variable name.
      * @param string $value Variable value.
      * @param boolean $is_metadata_key If it's the metadata key this value is true, others false.
-     * @throws Exception\RegistryException
      */
-    public static function set($key, $value, $is_metadata_key = false)
+    public static function set($key, $value, $is_metadata_key = false): void
     {
-        $registry = Registry::getInstance();
-        if ($registry->keyExists('metadata_information')) {
-            $metadata_information = $registry->get('metadata_information');
+        if (Registry::keyExists('metadata_information')) {
+            $metadata_information = Registry::get('metadata_information');
         }
 
         if ($is_metadata_key) {
@@ -127,23 +125,22 @@ class Metadata
             $metadata_information['vars'][$key] = $value;
         }
 
-        $registry->set('metadata_information', $metadata_information);
+        Registry::set('metadata_information', $metadata_information);
     }
 
     /**
      * Get the metadata information.
      *
      * @return array
-     * @throws Exception\RegistryException
      */
-    private static function _getMetadataInformation()
+    private static function _getMetadataInformation(): array
     {
-        $msgs = Registry::getInstance()->get('metadata_information');
+        $metadata_information = Registry::getInstance()->get('metadata_information');
 
-        if ($msgs) {
-            return $msgs;
+        if ($metadata_information) {
+            return $metadata_information;
         }
 
-        return array();
+        return [];
     }
 }
