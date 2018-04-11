@@ -963,6 +963,8 @@ abstract class Controller
      * @param string $domain
      * @param string $language
      * @param string $i18n_messages
+     * @throws ConfigurationException
+     * @throws InternalServerError
      */
     public function changeInstanceEnvironment(
         string $instance,

@@ -2,7 +2,6 @@
 
 namespace Sifo\Controller\Tools\I18N;
 
-use Common\I18nTranslatorModel;
 use Sifo\Bootstrap;
 use Sifo\Controller\Controller;
 use Sifo\Exception\Http\NotFound;
@@ -12,6 +11,10 @@ class I18NRebuildController extends Controller
 {
     public $is_json = true;
 
+    /**
+     * @return array
+     * @throws NotFound
+     */
     public function build()
     {
         if (!Domains::getInstance()->getDevMode()) {
@@ -36,7 +39,7 @@ class I18NRebuildController extends Controller
         }
 
         $is_parent_instance = false;
-        if (empty($instance_inheritance) || (count($instance_inheritance) == 1 && $instance_inheritance[0] == 'common')) {
+        if (empty($instance_inheritance) || (\count($instance_inheritance) === 1 && $instance_inheritance[0] === 'common')) {
             $is_parent_instance = true;
         }
 
@@ -87,14 +90,12 @@ class I18NRebuildController extends Controller
             $buffer = <<<PHP
 <?php
 $include_parent_instance
-
 // Translations file, lang='$language'
 // Empty strings: $empty[$language]
 $empty_strings_buffer
 // Completed strings:
 $buffer
-
-return $translations;
+return \$translations;
 PHP;
             $path = ROOT_PATH . '/instances/' . $instance . '/locale/messages_' . $language . '.php';
             $write = @file_put_contents($path, $buffer);
@@ -120,7 +121,7 @@ PHP;
         ];
     }
 
-    protected function buildItem($msgid, $translation)
+    protected function buildItem($msgid, $translation): string
     {
         $item = '$translations["' . str_replace('"', '\"', $msgid) . '"] = ' . '"';
         $item .= str_replace('"', '\"', $translation);
@@ -129,7 +130,7 @@ PHP;
         return $item;
     }
 
-    protected function getIncludeInheritance($instance, $language)
+    protected function getIncludeInheritance($instance, $language): string
     {
         $instance_domains = $this->getConfig('domains', $instance);
         $instance_inheritance = [];
@@ -139,9 +140,14 @@ PHP;
 
         $instance_parent = array_pop($instance_inheritance);
 
-        if (!empty($instance_parent)) {
-            return "include ROOT_PATH . '/instances/{$instance_parent}/locale/messages_$language.php';";
+        if (empty($instance_parent)) {
+            return '';
         }
-        return '';
+
+        return <<<PHP
+
+\$translations = include ROOT_PATH . '/instances/$instance_parent/locale/messages_$language.php';
+
+PHP;
     }
 }

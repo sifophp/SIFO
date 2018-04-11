@@ -12,5 +12,4 @@ $config['{$instance}\\{$k}'] = '{$path}';
 $config['{$k}'] = '{$c}';
 {/if}
 {/foreach}
-
 return $config;

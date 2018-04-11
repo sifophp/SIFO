@@ -32,6 +32,11 @@ class DumpConfigFilesController extends Controller
     /** @var array */
     private $instance_inheritance = [];
 
+    /**
+     * @throws NotFound
+     * @throws \Sifo\Exception\ConfigurationException
+     * @throws \Sifo\Exception\Http\InternalServerError
+     */
     public function build()
     {
         if (true !== Domains::getInstance()->getDevMode()) {
@@ -70,10 +75,11 @@ class DumpConfigFilesController extends Controller
      *
      * @param array $files
      * @return array Array of contents write to each file.
+     * @throws \Sifo\Exception\Http\InternalServerError
+     * @throws \Sifo\Exception\ConfigurationException
      */
-    protected function rebuildFiles(array $files)
+    protected function rebuildFiles(array $files): array
     {
-        // Generate the dependencies declaration file.
         DependencyInjector::getInstance()->generateDependenciesDeclaration();
 
         $this->setLayout('manager/templates.tpl');
@@ -93,7 +99,7 @@ class DumpConfigFilesController extends Controller
 
                 $configs = [];
                 foreach ($folders as $folder) {
-                    $configs = array_merge($configs, $this->getAvailableFiles($folder, $current_instance));
+                    $configs = \array_merge($configs, $this->getAvailableFiles($folder, $current_instance));
                 }
 
                 if (empty($configs) && null === $parent_config_file) {
@@ -125,15 +131,13 @@ class DumpConfigFilesController extends Controller
     protected function getRunningInstances()
     {
         $d = new Dir();
-        $instances = $d->getDirs(ROOT_PATH . '/instances');
 
-        return $instances;
-
+        return $d->getDirs(ROOT_PATH . '/instances');
     }
 
     protected function cleanStartingSlash($path)
     {
-        if (0 === strpos($path, "/")) {
+        if (0 === strpos($path, '/')) {
             // Remove starting slashes.
             return substr($path, 1);
         }
@@ -173,14 +177,14 @@ class DumpConfigFilesController extends Controller
         return str_replace(ROOT_PATH . '/', '', $file_info['absolute']);
     }
 
-    private function getInstancesInheritance()
+    private function getInstancesInheritance(): void
     {
-        $this->instance_inheritance = array_reverse(array_unique(Domains::getInstance()->getInstanceInheritance()));
+        $this->instance_inheritance = \array_reverse(\array_unique(Domains::getInstance()->getInstanceInheritance()));
     }
 
     private function getParentInstance(string $instance)
     {
-        $index = array_search($instance, $this->instance_inheritance);
+        $index = \array_search($instance, $this->instance_inheritance);
 
         if (!isset($this->instance_inheritance[$index + 1])) {
             return null;
@@ -191,14 +195,14 @@ class DumpConfigFilesController extends Controller
 
     private function getCurrentConfigFilename($current_instance, $config_file_name): string
     {
-        $file_destination = ROOT_PATH . "/instances/" . $current_instance . "/config/" . $config_file_name;
+        $file_destination = ROOT_PATH . '/instances/' . $current_instance . '/config/' . $config_file_name;
         return $file_destination;
     }
 
     private function getParentConfigFilename($current_instance, $config_file_name)
     {
         if ($parent_instance = $this->getParentInstance($current_instance)) {
-            $config_file_path = ROOT_PATH . "/instances/" . $parent_instance . "/config/" . $config_file_name;
+            $config_file_path = ROOT_PATH . '/instances/' . $parent_instance . '/config/' . $config_file_name;
             if (file_exists($config_file_path)) {
                 return $config_file_path;
             }
@@ -206,7 +210,7 @@ class DumpConfigFilesController extends Controller
             return null;
         }
 
-        $sifo_config_file_path = ROOT_PATH . "/vendor/sifophp/sifo/config/" . $config_file_name;
+        $sifo_config_file_path = ROOT_PATH . '/vendor/sifophp/sifo/config/' . $config_file_name;
         if (file_exists($sifo_config_file_path)) {
             return $sifo_config_file_path;
         }
@@ -216,16 +220,15 @@ class DumpConfigFilesController extends Controller
 
     private function shouldIgnoreFile($type, $relative_path): bool
     {
-        if ('templates' == $type) {
+        if ('templates' === $type) {
             return false;
         }
 
-        if ('config' == $type && 'configuration_files' == $relative_path) {
+        if ('config' === $type && 'configuration_files' === $relative_path) {
             return true;
         }
 
-        if (preg_match('/^\./',
-            $relative_path)) {
+        if (0 === strpos($relative_path, '.')) {
             return true;
         }
 

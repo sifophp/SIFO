@@ -2,14 +2,18 @@
 
 namespace Sifo\Controller\Tools\I18N;
 
-use Common\I18nTranslatorModel;
 use Sifo\Bootstrap;
 use Sifo\Controller\Controller;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\NotFound;
 use Sifo\Http\Domains;
 
 class I18NStatusController extends Controller
 {
+    /**
+     * @throws NotFound
+     * @throws ConfigurationException
+     */
     public function build()
     {
         if (!Domains::getInstance()->getDevMode()) {
@@ -42,7 +46,7 @@ class I18NStatusController extends Controller
         }
 
         $is_parent_instance = false;
-        if (empty($instance_inheritance) || (count($instance_inheritance) == 1 && $instance_inheritance[0] == 'common')) {
+        if (empty($instance_inheritance) || (\count($instance_inheritance) === 1 && $instance_inheritance[0] === 'common')) {
             $is_parent_instance = true;
         }
 
@@ -54,7 +58,7 @@ class I18NStatusController extends Controller
         $this->assign('langs', $different_languages);
 
         // The languages are defined with 5 chars. E.g: es_ES
-        if ($current_lang && 5 == strlen($current_lang)) {
+        if ($current_lang && 5 === \strlen($current_lang)) {
             $translations = $translator->getTranslations($current_lang, $instance, $is_parent_instance);
         }
 
