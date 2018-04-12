@@ -3,9 +3,12 @@
 namespace Sifo\Database;
 
 use Sifo\Benchmark;
+use Sifo\CLBootstrap;
 use Sifo\Config;
 use Sifo\Debug\Debug;
+use Sifo\Exception\ConfigurationException;
 use Sifo\Exception\Http\InternalServerError;
+use Sifo\Exception\LoadBalancerException;
 use Sifo\Http\Domains;
 use Sifo\Http\Filter\FilterServer;
 
@@ -24,49 +27,50 @@ use Sifo\Http\Filter\FilterServer;
  */
 class Database
 {
-    static private $adodb;
-    static private $instance;
-    static public $launch_in_master = false;
+    /** @var \ADOConnection[] */
+    private static $adodb;
+
+    private static $instance;
+
+    public static $launch_in_master = false;
 
     /**
      * Stores the current query type needed.
      *
      * @var string
      */
-    static private $destination_type;
+    private static $destination_type;
 
     /**
      * Identifies a query as write operation and is sent to the master.
      *
      * @var string
      */
-    const TYPE_MASTER = 'master';
+    private const TYPE_MASTER = 'master';
 
     /**
      * Identifies a query as read operation and is sent to a slave.
      *
      * @var string
      */
-    const TYPE_SLAVE = 'slave';
+    private const TYPE_SLAVE = 'slave';
 
     /**
      * No need to identify a query because is a single server.
      *
      * @var string
      */
-    const TYPE_SINGLE_SERVER = 'single_server';
+    private const TYPE_SINGLE_SERVER = 'single_server';
 
-    // Methods capable to be marked as duplicates:
-    // Input in lower case:
-    private $methods_without_duplicated_validation = array(
+    private const METHODS_WITHOUT_DUPLICATION_VALIDATION = [
         'prepare',
         'affected_rows',
         'insert_id',
         'errorno',
-        'errormsg',
-    );
+        'errormsg'
+    ];
 
-    static public function getInstance()
+    public static function getInstance(): Database
     {
         if (self::$instance === null) {
             self::$instance = new Database();
@@ -78,15 +82,18 @@ class Database
     /**
      * Creates a DB object if necessary depending on the current operation requested.
      * an action is triggered.
+     * @throws ConfigurationException
+     * @throws InternalServerError
+     * @throws LoadBalancerException
      */
-    private function _lazyLoadAdodbConnection()
+    private function _lazyLoadAdodbConnection(): void
     {
         $db_params = Domains::getInstance()->getDatabaseParams();
 
         // When adodb is instantiated for the first time the object becomes in an array with a type of operation.
-        if (!is_array(self::$adodb)) {
-            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/adodb5/adodb-exceptions.inc.php"); //include exceptions for php5
-            include_once(ROOT_PATH . "/vendor/sifophp/sifo/libraries/adodb5/adodb.inc.php");
+        if (!\is_array(self::$adodb)) {
+            include_once ROOT_PATH . '/vendor/sifophp/sifo/libraries/adodb5/adodb-exceptions.inc.php'; //include exceptions for php5
+            include_once ROOT_PATH . '/vendor/sifophp/sifo/libraries/adodb5/adodb.inc.php';
 
             if (!isset($db_params['profile'])) {
                 // No Master/Slave schema expected:
@@ -98,13 +105,13 @@ class Database
             Benchmark::getInstance()->timingStart('db_connections');
 
             try {
-                if (self::TYPE_SINGLE_SERVER == self::$destination_type) {
+                if (self::TYPE_SINGLE_SERVER === self::$destination_type) {
                     $db_params = Domains::getInstance()->getDatabaseParams();
                 } else // Instance uses MASTER/SLAVE schema:
                 {
                     $db_profiles = Config::getInstance()->getConfig('db_profiles', $db_params['profile']);
 
-                    if (self::$launch_in_master || self::TYPE_MASTER == self::$destination_type) {
+                    if (self::$launch_in_master || self::TYPE_MASTER === self::$destination_type) {
                         $db_params = $db_profiles['master'];
                     } else {
                         $lb = new LoadBalancer_ADODB();
@@ -113,14 +120,14 @@ class Database
                         $db_params = $db_profiles['slaves'][$selected_slave];
                     }
                 }
-                self::$adodb[self::$destination_type] = \NewADOConnection($db_params['db_driver']);
+                self::$adodb[self::$destination_type] = \ADONewConnection($db_params['db_driver']);
                 self::$adodb[self::$destination_type]->Connect(
                     $db_params['db_host'],
                     $db_params['db_user'],
                     $db_params['db_password'],
                     $db_params['db_name']
                 ); //connect to database constants are taken from config
-                if (isset($db_params['db_init_commands']) && is_array($db_params['db_init_commands'])) {
+                if (isset($db_params['db_init_commands']) && \is_array($db_params['db_init_commands'])) {
                     foreach ($db_params['db_init_commands'] as $command) {
                         self::$adodb[self::$destination_type]->Execute($command);
                     }
@@ -142,6 +149,8 @@ class Database
      *
      * @return string
      * @throws InternalServerError
+     * @throws ConfigurationException
+     * @throws LoadBalancerException
      */
     public function escapeSqlString($string)
     {
@@ -150,18 +159,26 @@ class Database
         return self::$adodb[self::$destination_type]->qstr($string);
     }
 
+    /**
+     * @param $method
+     * @param $args
+     * @return bool|mixed
+     * @throws InternalServerError
+     * @throws \ADODB_Exception
+     * @throws ConfigurationException
+     * @throws LoadBalancerException
+     */
     public function __call($method, $args) //call adodb methods
     {
         // Method provides a valid comment to associate to this query:
-        if (isset($args[1]) && is_array($args[1]) && key_exists('tag',
-                $args[1])
+        if (isset($args[1]) && \is_array($args[1]) && \array_key_exists('tag', $args[1])
         ) // Arg could be a single string, not an array. Do not do isset($args[1]['tag'])
         {
             $tag = $args[1]['tag'];
             unset($args[1]['tag']);
         } else {
             // No comment provided by programmer, set a default comment:
-            $tag = 'Query from ' . get_class($this) . ' (' . $this->__getMethodName($this) . ')';
+            $tag = 'Query from ' . \get_class($this) . ' (' . $this->getMethodName($this) . ')';
         }
 
         // Clean '?' character from SQL Query TAG (to avoid problems with AdoDB bindings).
@@ -171,17 +188,17 @@ class Database
 
         // What kind of query are we passing? Goes to master o to slave:
         if (isset($args[0])) {
-            $query = trim( trim( trim( $args[0] ), '(' ) );
+            $query = trim(trim(trim($args[0]), '('));
             $read_operation = preg_match('/^SELECT|^SHOW |^DESC /i', $query);
-			// Append comment to the end of the query. Helps when looking debug and error.log:
-			$args[0] .= "\n/* {$tag} */";
+            // Append comment to the end of the query. Helps when looking debug and error.log:
+            $args[0] .= "\n/* {$tag} */";
         }
 
         // Query goes to a single server configuration? to a master? a slave?
-        if (self::TYPE_SINGLE_SERVER != self::$destination_type) {
+        if (self::TYPE_SINGLE_SERVER !== self::$destination_type) {
             self::$destination_type = (($read_operation && false == self::$launch_in_master) ? self::TYPE_SLAVE : self::TYPE_MASTER);
             // Some methods must be triggered in the master always.
-            if (in_array($method, array('Affected_Rows', 'Insert_ID'))) {
+            if (\in_array($method, array('Affected_Rows', 'Insert_ID'))) {
                 self::$destination_type = self::TYPE_MASTER;
             }
         }
@@ -200,18 +217,18 @@ class Database
             $this->writeDiskLog($error);
 
             // Command Line scripts show the exception since there is no debug to getvacvar it.
-            if (class_exists('Sifo\CLBootstrap', false)) {
+            if (class_exists(CLBootstrap::class, false)) {
                 throw $e;
             }
         }
 
-        if ($answer && ('GetRow' == $method || 'GetOne' == $method)) {
-            $resultset = array($answer);
+        if ($answer && ('GetRow' === $method || 'GetOne' === $method)) {
+            $resultset = [$answer];
         } else {
             $resultset = $answer;
         }
 
-        $this->queryDebug($resultset, $tag, $method, $read_operation, isset($error) ? $error : null);
+        $this->queryDebug($resultset, $tag, $method, $read_operation, $error ?? null);
 
         // Reset queries in master flag:
         self::$launch_in_master = false;
@@ -219,6 +236,13 @@ class Database
         return $answer;
     }
 
+    /**
+     * @param $property
+     * @return mixed
+     * @throws InternalServerError
+     * @throws ConfigurationException
+     * @throws LoadBalancerException
+     */
     function __get($property)
     {
         $this->_lazyLoadAdodbConnection();
@@ -226,22 +250,30 @@ class Database
         return self::$adodb[self::$destination_type]->$property;
     }
 
+    /**
+     * @param $property
+     * @param $value
+     * @throws InternalServerError
+     * @throws ConfigurationException
+     * @throws LoadBalancerException
+     */
     function __set($property, $value)
     {
         $this->_lazyLoadAdodbConnection();
-        self::$adodb[self::$destination_type][$property] = $value;
+
+        self::$adodb[self::$destination_type]->$property = $value;
     }
 
     private function __clone()
     {
     }
 
-    private function __getMethodName($object)
+    private function getMethodName($object)
     {
-        $trace_steps = debug_backtrace();
-        $class_name = get_class($object);
-        foreach (array_reverse($trace_steps) as $step) {
-            if ((isset($step['class'])) && ($step['class'] == $class_name)) {
+        $trace_steps = \debug_backtrace();
+        $class_name = \get_class($object);
+        foreach (\array_reverse($trace_steps) as $step) {
+            if (isset($step['class']) && ($step['class'] === $class_name)) {
                 return $step['function'];
             }
         }
@@ -290,33 +322,33 @@ class Database
 
         $query_time = Benchmark::getInstance()->timingCurrentToRegistry('db_queries');
 
-        $debug_query = array(
-            "tag" => $tag,
-            "sql" => in_array(strtolower($method), $this->methods_without_duplicated_validation) ? $method : $query,
-            "type" => ($read_operation ? 'read' : 'write'),
-            "destination" => self::$destination_type,
-            "host" => self::$adodb[self::$destination_type]->host,
-            "database" => self::$adodb[self::$destination_type]->database,
-            "user" => self::$adodb[self::$destination_type]->user,
-            "controller" => $this->getCallerClass(),
+        $debug_query = [
+            'tag' => $tag,
+            'sql' => \in_array(\strtolower($method), self::METHODS_WITHOUT_DUPLICATION_VALIDATION) ? $method : $query,
+            'type' => $read_operation ? 'read' : 'write',
+            'destination' => self::$destination_type,
+            'host' => self::$adodb[self::$destination_type]->host,
+            'database' => self::$adodb[self::$destination_type]->database,
+            'user' => self::$adodb[self::$destination_type]->user,
+            'controller' => $this->getCallerClass(),
             // Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
-            "resultset" => is_integer($resultset) ? array(array($method => $resultset)) : $resultset,
-            "time" => $query_time,
-            "error" => (isset($error) ? $error : false),
-            "duplicated" => false
-        );
+            'resultset' => \is_int($resultset) ? [[$method => $resultset]] : $resultset,
+            'time' => $query_time,
+            'error' => $error ?? false,
+            'duplicated' => false
+        ];
 
-        if ($debug_query['type'] == 'read') {
-            $debug_query['rows_num'] = count($resultset);
+        if ($debug_query['type'] === 'read') {
+            $debug_query['rows_num'] = \count($resultset);
         } else {
             $debug_query['rows_num'] = 0;
-            if ($method != 'close') {
+            if ($method !== 'close') {
                 $debug_query['rows_num'] = self::$adodb[self::$destination_type]->Affected_Rows();
             }
         }
 
         // Check duplicated queries.
-        if (!in_array(strtolower($method), $this->methods_without_duplicated_validation)) {
+        if (!\in_array(\strtolower($method), self::METHODS_WITHOUT_DUPLICATION_VALIDATION)) {
             $queries_executed = Debug::get('executed_queries');
             if (!empty($queries_executed) && isset($queries_executed[$debug_query['sql']])) {
                 $debug_query['duplicated'] = true;
@@ -327,7 +359,7 @@ class Database
 
         // Save query info in debug and add query errors if it's necessary.
         Debug::push('queries', $debug_query);
-        if (isset($error)) {
+        if (null !== $error) {
             Debug::push('queries_errors', $error);
         }
     }

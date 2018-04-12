@@ -2,7 +2,7 @@
 
 namespace Sifo\Exception\Http;
 
-final class Unauthorized extends BaseException
+class Unauthorized extends BaseException
 {
     public function __construct(... $some_regular_exception_arguments)
     {

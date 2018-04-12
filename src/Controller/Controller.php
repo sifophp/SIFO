@@ -799,11 +799,12 @@ abstract class Controller
      * Get config from the current instance or a given one.
      *
      * @param string $config_name Config name.
-     * @param string $instance If null, the config is taken from the current instance.
+     * @param string|null $instance If null, the config is taken from the current instance.
      *
      * @return mixed
+     * @throws ConfigurationException
      */
-    protected function getConfig(string $config_name, string $instance = null)
+    protected function getConfig(string $config_name, ?string $instance = null)
     {
         $current_instance = $this->instance;
         if (null !== $instance) {

@@ -11,8 +11,7 @@ use Sifo\Http\Domains;
  */
 class Mysql
 {
-    /** @var static */
-    static private $instance = null;
+    static private $instance;
 
     /**
      * The PDO instance.

@@ -2,7 +2,7 @@
 
 namespace Sifo\Exception\Http;
 
-final class TemporalRedirect extends Redirect
+class TemporalRedirect extends Redirect
 {
     public function __construct(string $url)
     {

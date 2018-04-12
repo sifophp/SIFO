@@ -2,7 +2,7 @@
 
 namespace Sifo\Exception\Http;
 
-final class Forbidden extends BaseException
+class Forbidden extends BaseException
 {
     public function __construct(... $some_regular_exception_arguments)
     {
