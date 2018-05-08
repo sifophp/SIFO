@@ -289,7 +289,7 @@ class Client
 	 * Returns true if an IP belongs to a private range.
 	 *
 	 * @static
-	 * @param $ip string IP you want to check or null for current user's IP.
+	 * @param string $ip IP you want to check or null for current user's IP.
 	 * @return bool
 	 */
 	public static function isPrivateIP( $ip = null )

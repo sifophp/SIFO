@@ -131,8 +131,8 @@ class Headers
 	/**
 	 * Creates a new header with the key and values passed.
 	 *
-	 * @param $key string The header name (e.g: Content-Type)
-	 * @param $value string The value for the header (e.g: application/json)
+	 * @param string $key The header name (e.g: Content-Type)
+	 * @param string $value The value for the header (e.g: application/json)
 	 * @param bool $replace Adds an additional value to any existing key.
 	 */
 	public static function set( $key, $value, $replace = true, $http_code = false )
@@ -143,7 +143,7 @@ class Headers
 	/**
 	 * Creates the status header with the HTTP code that will be sent to the client.
 	 *
-	 * @param $http_code integer Http status code (e.g: 404)
+	 * @param integer $http_code Http status code (e.g: 404)
 	 */
 	public static function setResponseStatus( $http_code )
 	{
@@ -162,11 +162,11 @@ class Headers
 	/**
 	 * It formats the header and adds it to the stack.
 	 *
-	 * @param $key string Header name
-	 * @param $value string Header value
-	 * @param $replace boolean If the header overwrites any similar existing header.
-	 * @param $format string The sprintf format used to format the content.
-	 * @param $http_code integer Additional set of HTTP status code with the header. Suitable for "Location" header.
+	 * @param string $key Header name
+	 * @param string $value Header value
+	 * @param boolean $replace If the header overwrites any similar existing header.
+	 * @param string $format The sprintf format used to format the content.
+	 * @param integer $http_code Additional set of HTTP status code with the header. Suitable for "Location" header.
 	 */
 	protected static function pushHeader( $key, $value, $replace, $format, $http_code )
 	{

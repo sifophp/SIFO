@@ -276,8 +276,8 @@ class Form
 	/**
 	 * Returns a security string that encodes a timestamp in the future.
 	 *
-	 * @param <type> $time
-	 * @return <type>
+	 * @param int $time
+	 * @return string
 	 */
 	public function getTimeHash( $time = 5 )
 	{

@@ -25,8 +25,8 @@ class Images
 	/**
 	 * Resize an image.
 	 *
-	 * @param file $from
-	 * @param file $to
+	 * @param string $from
+	 * @param string $to
 	 * @param integer $width
 	 * @param integer $height
 	 * @param false|array $crop
@@ -66,8 +66,8 @@ class Images
 	/**
 	 * Crop an image using specific points where the crop have to begin.
 	 *
-	 * @param $from Origin file name
-	 * @param $to Final file name
+	 * @param string $from Origin file name
+	 * @param string $to Final file name
 	 * @param $startX X point where the crop have to begin.
 	 * @param $startY Y point where the crop have to begin.
 	 * @param $width Final width.

@@ -111,7 +111,7 @@ class Mysql
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @var Db Object.
+	 * @var Mysql Object.
 	 */
 	static private $instance = NULL;
 

@@ -23,7 +23,7 @@ namespace Sifo;
 class Search
 {
 	/**
-	 * @var Current instance.
+	 * @var string Current instance.
 	 */
 	static protected $instance;
 
@@ -56,8 +56,6 @@ class Search
 			self::$search_engine 	= 'Sphinx';
 			$this->sphinx = self::connect( $this->sphinx_config );
 		}
-
-		return $this->sphinx_config;
 	}
 
 	/**
@@ -116,7 +114,7 @@ class Search
 				{
 					if ( Domains::getInstance()->getDebugMode() === true )
 					{
-						trigger_error( "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)" );
+						trigger_error( "DEPRECATED: You aren't using profiles for your sphinx.config file. Please, define at least the 'default' one. (This message is only readable with the debug flag enabled)", E_USER_DEPRECATED );
 					}
 				}
 				$sphinx_config['config_file'] = 'sphinx';
@@ -200,11 +198,11 @@ class Search
 
 class LoadBalancerSearch extends LoadBalancer
 {
-	/**
-	 * Name of the cache where the results of server status are stored.
-	 * @var string
-	 */
-	public $loadbalancer_cache_key = '__sphinx_loadbalancer_available_nodes';
+    /**
+     * Name of the cache where the results of server status are stored.
+     * @var string
+     */
+    protected $load_balancer_cache_key = 'BalancedNodesSearch';
 
 	protected function addNodeIfAvailable( $index, $node_properties )
 	{
@@ -215,7 +213,7 @@ class LoadBalancerSearch extends LoadBalancer
 		}
 		catch( \Sifo\Exception_500 $e )
 		{
-			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+            trigger_error('[SEARCH LOAD BALANCER] ' . $e->getMessage(), E_USER_WARNING);
 		}
 	}
 }

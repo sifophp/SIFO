@@ -184,7 +184,7 @@ class DebugMysql extends Mysql
 	/**
 	 * The singleton instance of this class.
 	 *
-	 * @var Db Object.
+	 * @var DebugMysql Object.
 	 */
 	static private $instance = NULL;
 

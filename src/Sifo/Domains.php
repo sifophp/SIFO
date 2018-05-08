@@ -238,7 +238,7 @@ class Domains
 
 	/**
 	 * Changes Domain data in execution time.
-	 * @param $domain string Domain which you want to load.
+	 * @param string $domain Domain which you want to load.
 	 */
 	public function changeDomain( $domain )
 	{
