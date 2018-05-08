@@ -88,8 +88,8 @@ class SEO_Exception extends \Exception implements \Serializable
 
 	/**
 	 * Raises a Sifo exceptions based on the given HTTP status code
-	 * @param <type> $message Reason
-	 * @param <type> $code HTTP status code
+	 * @param string $message Reason
+	 * @param int $code HTTP status code
 	 */
 	public static function raise( $message, $code )
 	{

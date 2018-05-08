@@ -29,7 +29,7 @@ class I18N
 	/**
 	 * Singleton Instance is stored here.
 	 *
-	 * @var object
+	 * @var I18N
 	 * @static
 	 */
 	static protected $instance;
@@ -79,7 +79,7 @@ class I18N
 	/**
 	 * LanguageDetect class instance.
 	 *
-	 * @var object
+	 * @var \GoogleTranslateWrapper
 	 */
 	static protected $google_translate_api_instance;
 
@@ -173,9 +173,9 @@ class I18N
 	/**
 	 * Returns the translated message.
 	 *
-	 * @param $message string Message in source language (usually English)
+	 * @param string $message Message in source language (usually English)
 	 * @param array $params If the message needs replacement of variables pass them here, in the format "%1" => $param1, "%2" => $param2
-	 * @return <type>
+	 * @return string
 	 */
 	static public function getTranslation( $message, $params = null )
 	{
@@ -255,8 +255,8 @@ class I18N
 
 	/**
 	 *
-	 * @param Texto to translate $text
-	 * @param Language destination $dest_iso
+	 * @param string $text Texto to translate
+	 * @param string $dest_iso Language destination
 	 * @return string Translated text.
 	 */
 	static public function translateTo( $text, $dest_iso )
