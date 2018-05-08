@@ -432,6 +432,12 @@ MESSAGE;
 
 class LoadBalancer_ADODB extends LoadBalancer
 {
+    /**
+     * Name of the cache where the results of server status are stored.
+     * @var string
+     */
+    protected $load_balancer_cache_key = 'BalancedNodesAdoDb';
+
 	protected function addNodeIfAvailable( $index, $node_properties )
 	{
 		try
@@ -445,10 +451,8 @@ class LoadBalancer_ADODB extends LoadBalancer
 		catch ( \ADODB_Exception $e )
 		{
 			// The server is down, won't be added in the balancing. Log it:
-			trigger_error( "SERVER IS DOWN! " . $node_properties['db_host'] );
+			trigger_error( '[ADODB LOAD BALANCER] SERVER IS DOWN! ' . $node_properties['db_host'] . ': ' . $e->getMessage(), E_USER_WARNING );
 		}
 
 	}
 }
-
-?>

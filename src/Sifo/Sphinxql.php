@@ -93,8 +93,6 @@ class Sphinxql
 		{
 			$this->sphinxql = $this->connect( $this->sphinx_config );
 		}
-
-		return $this->sphinx_config;
 	}
 
 	/**
@@ -176,11 +174,11 @@ class Sphinxql
 	 */
 	public function connect( $node_properties )
 	{
-		$mysqli = mysqli_connect( $node_properties['server'], '', '', '', $node_properties['port'] );
+		$mysqli = @mysqli_connect( $node_properties['server'], '', '', '', $node_properties['port'] );
 
 		if ( !$mysqli || $mysqli->connect_error )
 		{
-			throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+			throw new \Sifo\Exception_500( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') connection error: ' . mysqli_connect_error() );
 		}
 
 		return $mysqli;
@@ -381,7 +379,7 @@ class Sphinxql
 	protected function logError( $error )
 	{
         $filterServer = \Sifo\FilterServer::getInstance();
-        trigger_error('[SphinxQL ERROR] ' . $error . ' in ' . $filterServer->getString('HTTP_REFERER') . ' calling ' . $filterServer->getString('SCRIPT_URI'));
+        trigger_error('[SphinxQL ERROR] ' . $error . ' in ' . $filterServer->getString('HTTP_REFERER') . ' calling ' . $filterServer->getString('SCRIPT_URI'), E_USER_WARNING);
 	}
 }
 
@@ -391,12 +389,13 @@ class Sphinxql
  */
 class LoadBalancerSphinxql extends LoadBalancer
 {
-	/**
-	 * Name of the cache where the results of server status are stored.
-	 * @var string
-	 */
-	public $loadbalancer_cache_key = '__sphinxql_loadbalancer_available_nodes';
+    /**
+     * Name of the cache where the results of server status are stored.
+     * @var string
+     */
+    protected $load_balancer_cache_key = 'BalancedNodesSphinxql';
 
+    /** @var Sphinxql */
 	private $sphinxql_object;
 
 	protected function addNodeIfAvailable( $index, $node_properties )
@@ -408,7 +407,7 @@ class LoadBalancerSphinxql extends LoadBalancer
 		}
 		catch( \Sifo\Exception_500 $e )
 		{
-			trigger_error( 'Sphinx (' . $node_properties['server'] . ':' . $node_properties['port'] . ') is down!' );
+			trigger_error('[SPHINXQL LOAD BALANCER] ' . $e->getMessage(), E_USER_WARNING);
 		}
 	}
 
