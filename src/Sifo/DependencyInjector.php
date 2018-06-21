@@ -91,7 +91,7 @@ class DependencyInjector implements ContainerInterface
      *
      * @param string $service_key Identifier of the entry to look for.
      * @param bool $get_private_service
-     * @return callable|mixed
+     * @return mixed
      * @throws Exception_DependencyInjector No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
