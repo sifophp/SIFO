@@ -84,6 +84,7 @@ class ViewTwig implements ViewInterface
     {
         $this->loadFunctions();
         $this->loadFilters();
+        $this->loadTags();
     }
 
     private function loadFunctions()
@@ -123,6 +124,27 @@ class ViewTwig implements ViewInterface
                 if (!empty($matches[1]))
                 {
                     $this->twig->addFilter(\call_user_func('twig_filter_' . $matches[1]));
+                }
+            }
+        }
+    }
+
+    private function loadTags()
+    {
+        foreach ($this->twig_plugins_directory_path as $current_plugins_directory)
+        {
+            $functions = \glob($current_plugins_directory . '/tag.*.php');
+            if (empty($functions))
+            {
+                continue;
+            }
+            foreach ($functions as $filename)
+            {
+                include $filename;
+                \preg_match('/tag.(.+).php/', \basename($filename), $matches);
+                if (!empty($matches[1]))
+                {
+                    $this->twig->addTokenParser(\call_user_func('twig_tag_' . $matches[1]));
                 }
             }
         }
