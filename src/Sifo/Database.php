@@ -348,7 +348,18 @@ class Database
 
 		if ( $debug_query['type'] == 'read' )
 		{
-			$debug_query['rows_num'] = count( $resultset );
+		    if (null === $resultset)
+            {
+                $debug_query['rows_num'] = 0;
+            }
+            elseif (!is_array($resultset))
+            {
+                $debug_query['rows_num'] = 1;
+            }
+            else
+            {
+                $debug_query['rows_num'] = count( $resultset );
+            }
 		}
 		else
 		{

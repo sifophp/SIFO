@@ -118,7 +118,7 @@ abstract class LoadBalancer
 	 */
 	protected function addServer( $index, $weight )
 	{
-		$x = count( $this->nodes );
+        $x = (!is_array($this->nodes)) ? 0 : count( $this->nodes );
 		$this->nodes[$x] = new \stdClass;
 		$this->nodes[$x]->index = $index;
 		$this->total_weights += ( $this->nodes[$x]->weight = abs( $weight ) );
