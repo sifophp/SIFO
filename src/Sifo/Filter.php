@@ -33,7 +33,7 @@ class Filter
 	 * Regular expression for email validation.
 	 * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
 	 */
-	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
+	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
 
 	/**
 	 * Singleton object.
@@ -160,20 +160,21 @@ class Filter
 		if ( !isset( $this->request[$var_name] ) )
 		{
 			return false;
-		}
+        }
 
-		if ( preg_match( self::VALID_EMAIL_REGEXP, $this->request[$var_name] ) )
-		{
-			if ( $check_dns )
-			{
-				$exploded_email = explode( '@', $this->request[$var_name] );
-				return ( checkdnsrr( $exploded_email[1], 'MX' ) ? $this->request[$var_name] : false );
-			}
-			else
-			{
-				return $this->request[$var_name];
-			}
-		}
+        if (filter_var($this->request[$var_name], FILTER_VALIDATE_EMAIL))
+        {
+            if ($check_dns)
+            {
+                $exploded_email = explode('@', $this->request[$var_name]);
+
+                return (checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
+            }
+            else
+            {
+                return $this->request[$var_name];
+            }
+        }
 
 		return false;
 	}
