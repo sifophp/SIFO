@@ -27,9 +27,12 @@ class Session
 
 	private function __construct()
 	{
-		// Init session cookie domain to allow sharing session
-		// across multiple subdomains.
-		ini_set( 'session.cookie_domain', '.' . Domains::getInstance()->getDomain() );
+        if ( !headers_sent( ) )
+        {
+            // Init session cookie domain to allow sharing session
+            // across multiple subdomains.
+            ini_set( 'session.cookie_domain', '.' . Domains::getInstance()->getDomain() );
+        }
 
 		if ( !isset( $_SESSION ) )
 		{
