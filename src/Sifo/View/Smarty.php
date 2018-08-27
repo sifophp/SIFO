@@ -23,12 +23,12 @@ class ViewSmarty implements ViewInterface
             $instance_inheritance = array_reverse($instance_inheritance);
             foreach ($instance_inheritance as $current_instance)
             {
-                $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/' . '_smarty/plugins');
+                $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/_smarty/plugins');
             }
         }
         else
         {
-            $this->smarty->addPluginsDir($templates_path . '_smarty/plugins');
+            $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/plugins');
         }
         // Last path is the default smarty plugins directory.
         $this->smarty->addPluginsDir(ROOT_PATH . '/vendor/sifophp/sifo/src/Smarty-sifo-plugins');
