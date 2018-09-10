@@ -98,6 +98,12 @@ class View
 
     public static function customErrorHandler($errno, $errstr, $errfile, $errline)
     {
+        $error_has_been_silented = (0 === error_reporting());
+        if ($error_has_been_silented)
+        {
+            return false;
+        }
+
         $error_friendly = Debug::friendlyErrorType($errno);
         $error_string   = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
