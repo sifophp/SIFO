@@ -142,10 +142,13 @@ class DebugMysqlStatement extends MysqlStatement
 			trigger_error( 'Debug still doesn\'t support a fetch stype different from PDO::FETCH_ASSOC!', E_USER_WARNING );
 		}
 
-		if ( $this->result !== null )
-		{
-			return array_shift( $this->result );
-		}
+        if ($this->result !== null)
+        {
+            $result       = array_shift($this->result);
+            $this->result = null;
+
+            return $result;
+        }
 
 		return parent::fetch( $fetch_style, $cursor_orientation, $cursor_offset );
 	}
@@ -160,10 +163,13 @@ class DebugMysqlStatement extends MysqlStatement
 	 */
 	public function fetchAll( $fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, $ctor_args = array() )
 	{
-		if ( $this->result !== null )
-		{
-			return $this->result;
-		}
+        if ($this->result !== null)
+        {
+            $results      = $this->result;
+            $this->result = null;
+
+            return $results;
+        }
 
 		if ( $fetch_argument === null )
 		{
