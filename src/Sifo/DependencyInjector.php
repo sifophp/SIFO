@@ -238,8 +238,11 @@ class DependencyInjector
 
             if ($this->isASingleton($declaration)) {
                 $class_instance_creation_statement = $class_name . "::" . $declaration['singleton'];
-            }
-            else {
+            } else if ($this->isAFactory($declaration)) {
+                $factory_service                   = ltrim($declaration['factory'][0], '@');
+                $factory_method                    = $declaration['factory'][1];
+                $class_instance_creation_statement = "\$container->get('" . $factory_service . "', true)->" . $factory_method;
+            } else {
                 $class_instance_creation_statement = "new " . $class_name;
             }
 
@@ -352,6 +355,11 @@ class DependencyInjector
         return array_key_exists('singleton', $declaration);
     }
 
+    private function isAFactory($declaration)
+    {
+        return array_key_exists('factory', $declaration);
+    }
+    
     private function hasSetterInjections($declaration)
     {
         return array_key_exists('calls', $declaration);
