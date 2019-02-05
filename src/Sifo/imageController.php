@@ -123,8 +123,6 @@ abstract class ImageController extends Controller
 	 */
 	public function dispatch()
 	{
-		$this->getClass( "CacheDisk" );
-
 		$this->customizeHeader();
 
 		$this->preDispatch();

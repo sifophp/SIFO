@@ -80,10 +80,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			if (!function_exists('geoip_open'))
-			{
-				require_once ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/geoip.php';
-			}
 			$gi           = geoip_open( ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_code = geoip_country_code_by_addr( $gi, $ip );
 			geoip_close( $gi );
@@ -117,10 +113,6 @@ class Client
 				$ip = self::getIP();
 			}
 
-			if (!function_exists('geoip_open'))
-			{
-				require_once ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/geoip.php';
-			}
 			$gi           = geoip_open( ROOT_PATH . '/vendor/sifophp/sifo/src/GeoIP-Lite/GeoIP.dat', GEOIP_MEMORY_CACHE );
 			$country_name = geoip_country_name_by_addr( $gi, $ip );
 			geoip_close( $gi );
@@ -297,7 +289,7 @@ class Client
 	 * Returns true if an IP belongs to a private range.
 	 *
 	 * @static
-	 * @param $ip string IP you want to check or null for current user's IP.
+	 * @param string $ip IP you want to check or null for current user's IP.
 	 * @return bool
 	 */
 	public static function isPrivateIP( $ip = null )

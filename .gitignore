@@ -1,10 +1,2 @@
-.DS_Store
-.idea/*
-nbproject/*
-*%*
-*.tpl.php
-logs/*
-!logs/.gitignore
-instances/*/
-!instances/common
 vendor/
+composer.lock

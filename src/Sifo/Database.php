@@ -27,6 +27,16 @@ $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
 
 /**
  * Handles the interaction with a database using ADODB, and adds load balancing. Many drivers are supported, see ADODB.
+ *
+ * Here we include details of some ADODb methods that can be actually accessed directly from Database.
+ *
+ * @method array|bool GetAll(string $query, array $params)
+ * @method array|bool GetRow(string $query, array $params)
+ * @method string|bool GetOne(string $query, array $params)
+ * @method bool Execute(string $query, array $params)
+ * @method bool StartTrans()
+ * @method bool CompleteTrans($autoComplete = true)
+ * @method bool HasFailedTrans()
  */
 class Database
 {
@@ -186,16 +196,15 @@ class Database
 		// Clean '?' character from SQL Query TAG (to avoid problems with AdoDB bindings).
 		$tag = str_replace( '?', '', $tag );
 
-		$query = ''; // Methods like Affected_Rows that don't have a query associated nor $args.
 		$read_operation = false;
 
 		// What kind of query are we passing? Goes to master o to slave:
 		if ( isset( $args[0] ) )
 		{
-			// Prepend comment to the beggining of the query. Helps when looking debug and error.log:
-			$args[0] = $query = "/* {$tag} */\n{$args[0]}";
-			$query = trim( trim( trim( preg_replace( '/\/\*.*\*\//', '', $args[0] ) ), '(' ) );
+			$query = trim( trim( trim( $args[0] ), '(' ) );
 			$read_operation = preg_match( '/^SELECT|^SHOW |^DESC /i', $query );
+			// Append comment to the end of the query. Helps when looking debug and error.log:
+			$args[0] .= "\n/* {$tag} */";
 		}
 
 		// Query goes to a single server configuration? to a master? a slave?
@@ -339,7 +348,18 @@ class Database
 
 		if ( $debug_query['type'] == 'read' )
 		{
-			$debug_query['rows_num'] = count( $resultset );
+		    if (null === $resultset)
+            {
+                $debug_query['rows_num'] = 0;
+            }
+            elseif (!is_array($resultset))
+            {
+                $debug_query['rows_num'] = 1;
+            }
+            else
+            {
+                $debug_query['rows_num'] = count( $resultset );
+            }
 		}
 		else
 		{
@@ -423,6 +443,12 @@ MESSAGE;
 
 class LoadBalancer_ADODB extends LoadBalancer
 {
+    /**
+     * Name of the cache where the results of server status are stored.
+     * @var string
+     */
+    protected $load_balancer_cache_key = 'BalancedNodesAdoDb';
+
 	protected function addNodeIfAvailable( $index, $node_properties )
 	{
 		try
@@ -436,10 +462,8 @@ class LoadBalancer_ADODB extends LoadBalancer
 		catch ( \ADODB_Exception $e )
 		{
 			// The server is down, won't be added in the balancing. Log it:
-			trigger_error( "SERVER IS DOWN! " . $node_properties['db_host'] );
+			trigger_error( '[ADODB LOAD BALANCER] SERVER IS DOWN! ' . $node_properties['db_host'] . ': ' . $e->getMessage(), E_USER_WARNING );
 		}
 
 	}
 }
-
-?>

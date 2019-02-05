@@ -1,17 +1,48 @@
 {
   "name": "sifophp/sifo",
   "description": "SIFO framework.",
-  "license": "Apache-2.0",
-  "keywords": [],
-  "homepage": "https://github.com/sifophp/SIFO",
   "type": "project",
+  "keywords": [
+    "php",
+    "framework"
+  ],
+  "homepage": "https://github.com/sifophp/SIFO",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Albert Lombarte",
+      "email": "alombarte@gmail.com",
+      "role": "creator"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/sifophp/SIFO/issues"
+  },
   "require": {
     "php": ">=5.6.7",
-    "smarty/smarty": "dev-master#c8ecad0",
-    "twig/twig": "~2.0",
-    "twig/extensions": "~1.4",
-    "tpyo/amazon-s3-php-class": "~0.5",
-    "phpmailer/phpmailer": "~5.2",
-    "symfony/yaml": "~3.0"
+    "geoip/geoip": "^1.17",
+    "neutron/sphinxsearch-api": "^2.0",
+    "phpmailer/phpmailer": "^5.2",
+    "psr/container": "^1.0",
+    "sifophp/sifo-common-instance": "^2.14",
+    "smarty/smarty": "^3.1",
+    "symfony/yaml": "^3.2",
+    "tpyo/amazon-s3-php-class": "^0.5",
+    "twig/extensions": "^1.4",
+    "twig/twig": "^2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.0",
+    "symfony/var-dumper": "^3.2"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "autoload": {
+    "classmap" : ["src/Sifo"]
+  },
+  "autoload-dev": {
+    "classmap" : ["test"]
   }
 }

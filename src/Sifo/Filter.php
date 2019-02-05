@@ -33,7 +33,7 @@ class Filter
 	 * Regular expression for email validation.
 	 * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
 	 */
-	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx)$/i';
+	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
 
 	/**
 	 * Singleton object.
@@ -160,20 +160,21 @@ class Filter
 		if ( !isset( $this->request[$var_name] ) )
 		{
 			return false;
-		}
+        }
 
-		if ( preg_match( self::VALID_EMAIL_REGEXP, $this->request[$var_name] ) )
-		{
-			if ( $check_dns )
-			{
-				$exploded_email = explode( '@', $this->request[$var_name] );
-				return ( checkdnsrr( $exploded_email[1], 'MX' ) ? $this->request[$var_name] : false );
-			}
-			else
-			{
-				return $this->request[$var_name];
-			}
-		}
+        if (filter_var($this->request[$var_name], FILTER_VALIDATE_EMAIL))
+        {
+            if ($check_dns)
+            {
+                $exploded_email = explode('@', $this->request[$var_name]);
+
+                return (checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
+            }
+            else
+            {
+                return $this->request[$var_name];
+            }
+        }
 
 		return false;
 	}
@@ -333,9 +334,9 @@ class Filter
 	/**
 	 * Returns an array on the post UNFILTERED.
 	 *
-	 * @param unknown_type $var_name
+	 * @param string $var_name
 	 * @param null $filter_function
-	 * @return unknown
+	 * @return mixed
 	 */
 	public function getArray( $var_name, $filter_function = null )
 	{
@@ -456,10 +457,28 @@ class Filter
 	}
 }
 
-/**
- * Filter is FilterPost by default.
- */
-class FilterPost extends Filter { }
+class FilterPost extends Filter
+{
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
+
+    /**
+     * Filters variables passed by Post
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if ( !self::$instance )
+        {
+            self::$instance = new self ( $_POST );
+        }
+        return self::$instance;
+    }
+}
 
 class FilterGet extends Filter
 {
@@ -525,8 +544,6 @@ class FilterServer extends Filter
 		if ( !self::$instance )
 		{
 			self::$instance = new self ( $_SERVER );
-			//$_SERVER = array();		//Too soon to remove the $_SERVER variable. It's being used in lots of places yet.
-			// ¡Lombarte! ¡Lombarte!, ¡Lombarte es cojonudo!, ¡como Lombarte no hay ninguno!
 		}
 		return self::$instance;
 	}

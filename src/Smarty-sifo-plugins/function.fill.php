@@ -19,9 +19,9 @@
  *			 - normalize	  (optional, set to normalize=no to override \Sifo\Urls::$normalize_values setting and disable it) - string
  * 			 - escapevar (Set to no for avoid html escaping when the smarty escape_html attribute is true).
  * Purpose:  Fills the variables found in 'subject' with the paramaters passed. The variables are any word surrounded by two delimiters.
- *           
+ *
  *           Examples of usage:
- *           
+ *
  *           {fill subject="http://domain.com/profile/%username%" username='fred'}
  *           Output: http://domain.com/profile/fred
  *
@@ -109,9 +109,9 @@ function smarty_function_fill($params, &$smarty)
 		}
     }
 
-    if ( false !== strpos($_html_result, $_delimiter) )
+    if ( false !== strpos(urldecode($_html_result), $_delimiter) )
     {
-        trigger_error("fill: There are still parameters to replace, because the '$_delimiter' delimiter was found in $_html_result");  
+        trigger_error("fill: There are still parameters to replace, because the '$_delimiter' delimiter was found in $_html_result");
     }
 
     return $_html_result;

@@ -35,13 +35,6 @@ abstract class Controller
 	const CACHE_DEFAULT_EXPIRATION = 14400;
 
 	/**
-	 * List of classes that will be auto-loaded automatically.
-	 *
-	 * Format: $include_classes = array( 'Metadata', 'FlashMessages', 'Session', 'Cookie' );
-	 */
-	protected $include_classes = array();
-
-	/**
 	 * Information useful for debugging.
 	 *
 	 * @var array
@@ -122,7 +115,6 @@ abstract class Controller
 
 	public function __construct()
 	{
-		$this->includeClasses();
 		$this->instance = Bootstrap::$instance;
 		$this->language = Domains::getInstance()->getLanguage();
 
@@ -184,7 +176,7 @@ abstract class Controller
      * @param string $submit_button
      * @param string $form_config
      * @param array $default_fields
-     * @return null if no submit sent. True if validated correctly, false otherwise.
+     * @return null|bool
      */
 	protected function getValidatedForm( $submit_button, $form_config, $default_fields = array() )
 	{
@@ -211,20 +203,6 @@ abstract class Controller
 		$this->assign( 'error', $form->getErrors() );
 
 		return $return;
-	}
-
-	/**
-	 * Includes all the classes passed in the 'include_classes' attribute.
-	 */
-	protected function includeClasses()
-	{
-		if ( is_array( $this->include_classes ) && !empty ( $this->include_classes ) )
-		{
-			foreach ( $this->include_classes as $class )
-			{
-				$this->getClass( $class, false );
-			}
-		}
 	}
 
 	public function getUrl( $relative_path, $params = null )
@@ -304,7 +282,6 @@ abstract class Controller
 	 *
 	 * @param string|array $tpl_var
 	 * @param mixed $value
-	 * @return \Smarty_Internal_Data
 	 */
 	public function assign( $tpl_var, $value )
 	{
@@ -338,8 +315,8 @@ abstract class Controller
 	 * Cache a resulting exception when a cache_key is defined and hasn't any Post vars.
 	 * Use the CACHE_DEFAULT_EXPIRATION_EXCEPTIONS for all the exception less 301,302 and 404.
 	 *
-	 * @param $e Catched exception.
-	 * @param $cache_key
+	 * @param SEO_Exception $e Catched exception.
+	 * @param bool|array $cache_key
 	 */
 	protected function cacheException( $e, $cache_key )
 	{
@@ -466,7 +443,7 @@ abstract class Controller
 	 * Grabs the HTML for a smarty template.
 	 *
 	 * @throws Exception_500
-	 * @return string html
+	 * @return string
 	 */
 	protected function grabHtml()
 	{
@@ -491,7 +468,7 @@ abstract class Controller
 	/**
 	 * Returns tha contents in cache or false.
 	 *
-	 * @return mixed
+	 * @return string|bool
 	 */
 	protected function grabCache()
 	{
@@ -547,7 +524,6 @@ abstract class Controller
 		if ( false === $this->cache_definition || '' === $this->cache_definition  )
 		{
 			return $this->cache_definition = false;
-
 		}
 
 		if ( !is_array( $this->cache_definition ) )
@@ -589,7 +565,7 @@ abstract class Controller
 	 *
 	 * A string with the cache key can be returned or an array with 'name' and 'expiration' (both mandatory).
 	 *
-	 * @return mixed Array with tags, string or 'false'.
+	 * @return mixed
 	 */
 	public function getCacheDefinition()
 	{
@@ -614,8 +590,8 @@ abstract class Controller
 	/**
 	 * Deletes all the cache keys that share a common tag at the specified value.
 	 *
-	 * @param $tag
-	 * @param $value
+	 * @param string $tag
+	 * @param mixed  $value
 	 * @return boolean
 	 */
 	public function deleteCacheByTag( $tag, $value )
@@ -633,7 +609,7 @@ abstract class Controller
 	 * Returns the HTML of a smarty template or false if was impossible to fetch.
 	 *
 	 * @param string $template
-	 * @return boolean
+	 * @return boolean|string|null
 	 */
 	public function fetch( $template )
 	{
@@ -653,7 +629,7 @@ abstract class Controller
 	/**
 	 * Executes the current controller.
 	 *
-	 * @return string HTML output.
+	 * @return string
 	 */
 	public function execute()
 	{
@@ -676,7 +652,7 @@ abstract class Controller
 	 * This function allows to decrease the number of memcache sets.
 	 *
 	 * @param string $buffer HTML output.
-	 * @return string HTML output.
+	 * @return string
 	 */
 	private function _realTimeReplacement( $buffer )
 	{
@@ -694,7 +670,7 @@ abstract class Controller
 	 * Executes a module requested in the <!-- REPLACE --> tag and returns its output.
 	 *
 	 * @param array $matches Preg_replace matches.
-	 * @return string HTML for the replaced module.
+	 * @return string
 	 */
 	private function _executeReplacementModule( $matches )
 	{
@@ -766,8 +742,6 @@ abstract class Controller
 
 	/**
 	 * Actions executed BEFORE the controller is dispatched or cache is called.
-	 *
-	 * @return void
 	 */
 	public function preDispatch() {}
 
@@ -782,7 +756,7 @@ abstract class Controller
      *
      * This is the last chance to modify the output.
      *
-     * @param $output
+     * @param string $output
      */
     public function echoOutput( $output )
     {
@@ -818,7 +792,7 @@ abstract class Controller
 	 * Return a param results from expected definition parse.
 	 *
 	 * @param string $param_name
-	 * @return mixed False if not found.
+	 * @return mixed
 	 */
 	public function getParsedParam( $param_name )
 	{
@@ -894,7 +868,7 @@ abstract class Controller
 	/**
 	 * Adds a module in the battery to be executed later.
 	 *
-	 * @param $name
+	 * @param string $name
 	 * @param string $controller
 	 */
 	public function addModule( $name, $controller )
@@ -966,23 +940,11 @@ abstract class Controller
 	}
 
 	/**
-	 * Returns an object of the given class.
-	 *
-	 * @param string $class_name
-	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Object
-	 */
-	public function getClass( $class_name, $call_constructor = true )
-	{
-		return Bootstrap::getClass( $class_name, $call_constructor );
-	}
-
-	/**
 	 * Get config from the current instance or a given one.
 	 *
 	 * @param string $config_name Config name.
 	 * @param string $instance If null, the config is taken from the current instance.
-	 * @return Config
+	 * @return mixed
 	 */
 	protected function getConfig( $config_name, $instance = null )
 	{
@@ -1145,9 +1107,9 @@ abstract class Controller
 
 	/**
 	 * Change instance environment. It changes the hole instance configuration in runtime process.
-	 * @param $instance
-	 * @param $domain
-	 * @param $language
+	 * @param string $instance
+	 * @param string $domain
+	 * @param string $language
 	 * @param string $i18n_messages
 	 */
 	public function changeInstanceEnvironment( $instance, $domain, $language, $i18n_messages = 'messages' )

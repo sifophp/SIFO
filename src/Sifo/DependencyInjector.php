@@ -20,18 +20,18 @@
 
 namespace Sifo;
 
-use Symfony\Component\DependencyInjection\Container;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * Handles the dependency injection.
  */
-class DependencyInjector
+class DependencyInjector implements ContainerInterface
 {
     /**
      * Singleton instance being used.
      *
-     * @var object
+     * @var ContainerInterface|DependencyInjector
      * @static
      */
     static protected $instance;
@@ -69,7 +69,8 @@ class DependencyInjector
      * Gets an instance of the dependency injector class.
      *
      * @static
-     * @return DependencyInjector|Container Dependency injector instance.
+     * @param null $instance_name
+     * @return ContainerInterface|DependencyInjector Dependency injector instance.
      */
     public static function getInstance($instance_name = null)
     {
@@ -89,8 +90,8 @@ class DependencyInjector
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $service_key Identifier of the entry to look for.
-     *
-     * @return mixed|callable
+     * @param bool $get_private_service
+     * @return mixed
      * @throws Exception_DependencyInjector No entry was found for this identifier.
      */
     public function get($service_key, $get_private_service = false)
@@ -148,7 +149,7 @@ class DependencyInjector
     /**
      * Returns true if the container can return an entry for the given identifier, false otherwise.
      *
-     * @param string $id Identifier of the entry to look for.
+     * @param string $service Identifier of the entry to look for.
      *
      * @return boolean
      */

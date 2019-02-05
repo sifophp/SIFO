@@ -33,11 +33,12 @@ abstract class LoadBalancer
 	 * @var integer
 	 */
 	const CACHE_EXPIRATION = 60;
+
 	/**
 	 * Name of the cache where the results of server status are stored.
 	 * @var string
 	 */
-	public $loadbalancer_cache_key = '__loadbalancer_available_nodes';
+	protected $load_balancer_cache_key = 'BalancedNodes';
 
 	/**
 	 * Contains all the nodes available to do the load balancing.
@@ -53,15 +54,17 @@ abstract class LoadBalancer
 
 	/**
 	 * Checks if the service is currently available.
-	 * @param unknown_type $index
-	 * @param unknown_type $node_properties
+	 * @param int $index
+	 * @param array $node_properties
 	 */
 	abstract protected function addNodeIfAvailable( $index, $node_properties );
 
 
 	public function __construct()
 	{
-		$this->loadbalancer_cache_key = Bootstrap::$instance . $this->loadbalancer_cache_key;
+        $this->load_balancer_cache_key = $this->load_balancer_cache_key
+            . '_' . Bootstrap::$instance
+            . '_' . (Domains::getInstance()->getDevMode() ? 'dev' : 'prod');
 	}
 
 	/**
@@ -70,10 +73,10 @@ abstract class LoadBalancer
 	 * @throws Exception_500
 	 * @return integer Number of nodes added.
 	 */
-	public function setNodes( Array $nodes )
+	public function setNodes( array $nodes )
 	{
 		$cache = Cache::getInstance();
-		$available_servers = trim( $cache->get( $this->loadbalancer_cache_key ) ); // CacheDisk returns " " when no cache.
+		$available_servers = trim( $cache->get( $this->load_balancer_cache_key ) ); // CacheDisk returns " " when no cache.
 
 		if ( empty( $available_servers ) )
 		{
@@ -84,7 +87,7 @@ abstract class LoadBalancer
 
 			// Save in cache available servers (even if none):
 			$serialized_nodes = serialize( array( 'nodes' => $this->nodes, 'total_weights' => $this->total_weights ) );
-			$cache->set( $this->loadbalancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION );
+			$cache->set( $this->load_balancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION );
 		}
 		else
 		{
@@ -98,9 +101,7 @@ abstract class LoadBalancer
 		if ( 1 > $num_nodes )
 		{
 			// This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
-			$message = "No available servers in profile";
-			trigger_error( $message );
-			throw new Exception_500( $message );
+			throw new Exception_500( '[LOAD BALANCER] No available servers in profile' );
 		}
 
 		return $num_nodes;
@@ -117,7 +118,7 @@ abstract class LoadBalancer
 	 */
 	protected function addServer( $index, $weight )
 	{
-		$x = count( $this->nodes );
+        $x = (!is_array($this->nodes)) ? 0 : count( $this->nodes );
 		$this->nodes[$x] = new \stdClass;
 		$this->nodes[$x]->index = $index;
 		$this->total_weights += ( $this->nodes[$x]->weight = abs( $weight ) );

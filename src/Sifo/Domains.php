@@ -138,95 +138,97 @@ class Domains
 				throw new Exception_500( 'The language MUST be declared in domains.config file' );
 			}
 
-			if ( false !== strstr( strtolower( $this->http_host ), $host ) )
-			{
-				$subdomain = str_replace( '.' . $host, '',  $this->http_host );
-				if ( $subdomain != $host )
-				{
-					// The language is stated in the domain.
-					if ( isset( $settings['lang_in_subdomain'] ) && false != $settings['lang_in_subdomain'] )
-					{
-						$subdomain_pieces = explode( '.', $subdomain );
-						$language = array_pop( $subdomain_pieces );
-						// Check if the language is known by the configuration:
-						if ( isset( $settings['lang_in_subdomain'][$language] ) )
-						{
-							$this->setLanguage( $settings['lang_in_subdomain'][$language] );
-						}
-						else
-						{
-							// Language by default:
-							$this->setLanguage( $settings['language'] );
-							$this->valid_domain = false;
+            if (!preg_match('/' . strtolower($host) . '$/', strtolower($this->http_host)))
+            {
+                continue;
+            }
 
-							// The subdomain given is unknown. Apache shouldn't let the application arrive at this point.
-							// throw new Exception_404( "Unknown language subdomain $language in domain $host" );
-						}
+            $subdomain = str_replace( '.' . $host, '',  $this->http_host );
+            if ( $subdomain != $host )
+            {
+                // The language is stated in the domain.
+                if ( isset( $settings['lang_in_subdomain'] ) && false != $settings['lang_in_subdomain'] )
+                {
+                    $subdomain_pieces = explode( '.', $subdomain );
+                    $language = array_pop( $subdomain_pieces );
+                    // Check if the language is known by the configuration:
+                    if ( isset( $settings['lang_in_subdomain'][$language] ) )
+                    {
+                        $this->setLanguage( $settings['lang_in_subdomain'][$language] );
+                    }
+                    else
+                    {
+                        // Language by default:
+                        $this->setLanguage( $settings['language'] );
+                        $this->valid_domain = false;
 
-						$subdomain = implode( '.', $subdomain_pieces );
-					}
-					$this->subdomain = $subdomain;
-				}
+                        // The subdomain given is unknown. Apache shouldn't let the application arrive at this point.
+                        // throw new Exception_404( "Unknown language subdomain $language in domain $host" );
+                    }
 
-				if ( isset( $settings['www_as_subdomain'] ) && true === $settings['www_as_subdomain'] )
-				{
-					$this->www_mode = true;
-				}
-				else
-				{
-					$this->www_mode = false;
-				}
+                    $subdomain = implode( '.', $subdomain_pieces );
+                }
+                $this->subdomain = $subdomain;
+            }
 
-				$this->domain 	= $host;
-				$this->dev_mode = ( $settings['devel'] === true );
-				$this->has_debug = isset( $settings['has_debug'] ) ? $settings['has_debug'] === true : $this->dev_mode;
+            if ( isset( $settings['www_as_subdomain'] ) && true === $settings['www_as_subdomain'] )
+            {
+                $this->www_mode = true;
+            }
+            else
+            {
+                $this->www_mode = false;
+            }
 
-				// See if the domain changes the instance used, otherwise 'default' is assumed.
-				if ( isset( $settings['instance'] ) && !empty( $settings['instance'] ) )
-				{
-					$this->instance = $settings['instance'];
-					// Add the current instance to the inheritance:
-					$this->instance_inheritance[] = $settings['instance'];
-				}
+            $this->domain 	= $host;
+            $this->dev_mode = ( $settings['devel'] === true );
+            $this->has_debug = isset( $settings['has_debug'] ) ? $settings['has_debug'] === true : $this->dev_mode;
 
-				// Domain requires auth:
-				if ( isset( $settings['auth'] ) && $settings['auth'] != false )
-				{
-					$auth_parts = explode( ',', $settings['auth'] );
-					$this->auth_data['user'] = $auth_parts[0];
-					$this->auth_data['password'] = $auth_parts[1];
-					$this->auth_data['hash'] = sha1( date( 'hdmY' ) . $settings['auth'] );
-				}
+            // See if the domain changes the instance used, otherwise 'default' is assumed.
+            if ( isset( $settings['instance'] ) && !empty( $settings['instance'] ) )
+            {
+                $this->instance = $settings['instance'];
+                // Add the current instance to the inheritance:
+                $this->instance_inheritance[] = $settings['instance'];
+            }
 
-				if ( isset( $settings['static_host'] ) )
-				{
-					$this->static_host = $settings['static_host'];
-				}
+            // Domain requires auth:
+            if ( isset( $settings['auth'] ) && $settings['auth'] != false )
+            {
+                $auth_parts = explode( ',', $settings['auth'] );
+                $this->auth_data['user'] = $auth_parts[0];
+                $this->auth_data['password'] = $auth_parts[1];
+                $this->auth_data['hash'] = sha1( date( 'hdmY' ) . $settings['auth'] );
+            }
 
-				if ( isset( $settings['media_host'] ) )
-				{
-					$this->media_host = $settings['media_host'];
-				}
+            if ( isset( $settings['static_host'] ) )
+            {
+                $this->static_host = $settings['static_host'];
+            }
 
-				if ( isset( $settings['lang_in_subdomain'] ) && is_array ( $settings['lang_in_subdomain'] ) )
-				{
-					foreach ( $settings['lang_in_subdomain'] as $subdomain => $lang )
-					{
-						if ( $this->language == $lang )
-						{
-							$this->language_subdomain = $subdomain;
-							break;
-						}
-					}
-				}
+            if ( isset( $settings['media_host'] ) )
+            {
+                $this->media_host = $settings['media_host'];
+            }
 
-				if ( ( isset( $settings['php_ini_sets'] ) && !empty( $settings['php_ini_sets'] ) ) )
-				{
-					$this->php_inis = $settings['php_ini_sets'];
-				}
+            if ( isset( $settings['lang_in_subdomain'] ) && is_array ( $settings['lang_in_subdomain'] ) )
+            {
+                foreach ( $settings['lang_in_subdomain'] as $subdomain => $lang )
+                {
+                    if ( $this->language == $lang )
+                    {
+                        $this->language_subdomain = $subdomain;
+                        break;
+                    }
+                }
+            }
 
-				break;
-			}
+            if ( ( isset( $settings['php_ini_sets'] ) && !empty( $settings['php_ini_sets'] ) ) )
+            {
+                $this->php_inis = $settings['php_ini_sets'];
+            }
+
+            break;
 		}
 
 		// If a domain is not configured, we launch a 404 error.
@@ -238,7 +240,7 @@ class Domains
 
 	/**
 	 * Changes Domain data in execution time.
-	 * @param $domain string Domain which you want to load.
+	 * @param string $domain Domain which you want to load.
 	 */
 	public function changeDomain( $domain )
 	{

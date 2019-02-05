@@ -26,8 +26,6 @@ class MysqlModel
 
 	/**
 	 * Use this method as constructor in children.
-	 *
-	 * @return unknown
 	 */
 	protected function init()
 	{
@@ -86,18 +84,6 @@ class MysqlModel
 
 		unset( $variables['%0'] );
 		return I18N::getInstance( 'messages', Domains::getInstance()->getLanguage() )->getTranslation( $subject, $variables );
-	}
-
-	/**
-	 * Returns an object of the given class.
-	 *
-	 * @param string $class_name
-	 * @param boolean $call_constructor If you want to return a 'new' instance or not. Set to false for singletons.
-	 * @return Instance_of_a_Class
-	 */
-	public function getClass( $class_name, $call_constructor = true )
-	{
-		return Bootstrap::getClass( $class_name, $call_constructor );
 	}
 
 	/**

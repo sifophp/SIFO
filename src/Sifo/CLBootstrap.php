@@ -26,8 +26,6 @@ class CLBootstrap extends Bootstrap
 			$controller_name = self::$script_controller;
 		}
 
-		// Register autoloader:
-		spl_autoload_register( array( '\\Sifo\Bootstrap', 'includeFile' ) );
 		self::$container = DependencyInjector::getInstance();
 
 		// Set paths:
@@ -103,9 +101,6 @@ if ( extension_loaded( 'newrelic' ) && isset( CLBootstrap::$instance ) )
 {
 	newrelic_set_appname( ucfirst( CLBootstrap::$instance ) );
 }
-
-// Include required SIFO classes.
-CLBootstrap::includeRequiredFiles();
 
 if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 {
