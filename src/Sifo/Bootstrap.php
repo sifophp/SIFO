@@ -108,13 +108,19 @@ class Bootstrap
      * @param string $controller The controller in folder/action form.
      *
      * @return Controller
+     * @throws Exception_DependencyInjector
      */
     public static function invokeController( $controller )
     {
         $class = self::convertToControllerClassName( $controller );
 
-        /** @var Controller $controller */
-        $controller = new $class();
+        if (self::$container->has($class)) {
+            $controller = self::$container->get($class);
+        } else {
+            /** @var Controller $controller */
+            $controller = new $class();
+        }
+
         $controller->setContainer(self::$container);
 
         return $controller;
