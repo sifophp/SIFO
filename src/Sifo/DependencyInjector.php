@@ -229,7 +229,7 @@ class DependencyInjector implements ContainerInterface
             if ($this->isAnAlias($declaration)) {
                 $aliased_service                 = ltrim($declaration['alias'], '@');
                 $container_return_string         = "return \$container->get('" . $aliased_service . "', true);";
-                $compiled_services[$service_key] = "function (\$container) {\n\t" . $container_return_string . "\n};";
+                $compiled_services[$service_key] = "function (\$container) {\n\x20\x20\x20\x20" . $container_return_string . "\n};";
                 continue;
             }
 
@@ -247,7 +247,7 @@ class DependencyInjector implements ContainerInterface
                 $class_instance_creation_statement = "new " . $class_name;
             }
 
-            $class_instance_creation_statement .= "(\n" . implode(",\n", $compiled_arguments) . "\n\t)";
+            $class_instance_creation_statement .= "(\n" . implode(",\n", $compiled_arguments) . "\n\x20\x20\x20\x20)";
             $service_return                    = '$service_instance = ' . $class_instance_creation_statement . ';';
 
             if ($this->hasSetterInjections($declaration)) {
@@ -267,8 +267,8 @@ class DependencyInjector implements ContainerInterface
 
             $tags_definition = $this->addAllDefinitionTags($tags_definition, $service_key, $declaration);
 
-            $service_return              .= "\n\n\t" . 'return $service_instance;';
-            $compiled_services[$service_key] = "function (\$container) {\n\t" . $service_return . "\n};";
+            $service_return              .= "\n\n\x20\x20\x20\x20" . 'return $service_instance;';
+            $compiled_services[$service_key] = "function (\$container) {\n\x20\x20\x20\x20" . $service_return . "\n};";
         }
 
         $this->dumpConfigurationFile(
@@ -297,14 +297,14 @@ class DependencyInjector implements ContainerInterface
 
                 foreach ($argument as $argument_key => $argument_value) {
                     $stringified_value = $this->stringifyArguments([$argument_value], $compiled_services, $depth + 1)[0];
-                    $compiled_argument .= str_repeat("\t", $depth + 1) . '\'' . $argument_key . '\' => ' . ltrim($stringified_value) . ",\n";
+                    $compiled_argument .= str_repeat("\x20\x20\x20\x20", $depth + 1) . '\'' . $argument_key . '\' => ' . ltrim($stringified_value) . ",\n";
                 }
 
-                $compiled_arguments[] = str_repeat("\t", $depth) . "[\n" . $compiled_argument . str_repeat("\t", $depth) . ']';
+                $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "[\n" . $compiled_argument . str_repeat("\x20\x20\x20\x20", $depth) . ']';
             }
             else {
                 $dependant_service    = ltrim($argument, '@');
-                $compiled_arguments[] = str_repeat("\t", $depth) . "\$container->get('" . $dependant_service . "', true)";
+                $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "\$container->get('" . $dependant_service . "', true)";
             }
         }
 
@@ -360,7 +360,7 @@ class DependencyInjector implements ContainerInterface
     {
         return array_key_exists('factory', $declaration);
     }
-    
+
     private function hasSetterInjections($declaration)
     {
         return array_key_exists('calls', $declaration);
@@ -420,7 +420,7 @@ class DependencyInjector implements ContainerInterface
             $setter_injection_compiled_arguments = $this->stringifyArguments($setter_injection[1], $compiled_services);
 
             $class_instance_creation_statement = implode(",\n", $setter_injection_compiled_arguments);
-            $setter_injections_calls .= "\n\t" . '$service_instance->' . $setter_injection[0] . "(\n" . $class_instance_creation_statement . "\n\t);";
+            $setter_injections_calls .= "\n\x20\x20\x20\x20" . '$service_instance->' . $setter_injection[0] . "(\n" . $class_instance_creation_statement . "\n\x20\x20\x20\x20);";
         }
 
         return $setter_injections_calls;
@@ -438,7 +438,7 @@ class DependencyInjector implements ContainerInterface
 
     private function getLiteralArgumentCompilation($argument)
     {
-        return "\t\t'" . $argument . "'";
+        return "\x20\x20\x20\x20\x20\x20\x20\x20'" . $argument . "'";
     }
 
     private function dumpConfigurationFile(
