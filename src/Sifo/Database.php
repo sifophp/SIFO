@@ -34,6 +34,8 @@ $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
  * @method array|bool GetRow(string $query, array $params)
  * @method string|bool GetOne(string $query, array $params)
  * @method string|bool Insert_ID($table='',$column='')
+ * @method int|bool Affected_Rows()
+ * @method int Replace(string $table, array $fieldArray, string $keyCol, $autoQuote = false, $has_autoinc = false)
  * @method bool AutoExecute(string $table, array $fields_values, string $mode = 'INSERT', string $where = false)
  * @method bool Execute(string $query, array $params)
  * @method bool StartTrans()
