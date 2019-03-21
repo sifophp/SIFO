@@ -30,17 +30,17 @@ $ADODB_CACHE_DIR = ROOT_PATH . '/cache';
  *
  * Here we include details of some ADODb methods that can be actually accessed directly from Database.
  *
- * @method array|bool GetAll(string $query, array $params)
- * @method array|bool GetRow(string $query, array $params)
- * @method string|bool GetOne(string $query, array $params)
- * @method string|bool Insert_ID($table='',$column='')
+ * @method bool|array GetAll(string $query, array $params = [])
+ * @method bool|array GetRow(string $query, array $params = [])
+ * @method bool|string GetOne(string $query, array $params = [])
+ * @method bool Execute(string $query, array $params = [])
+ * @method bool|string Insert_ID($table = '',$column = '')
  * @method int|bool Affected_Rows()
  * @method int Replace(string $table, array $fieldArray, string $keyCol, $autoQuote = false, $has_autoinc = false)
  * @method bool AutoExecute(string $table, array $fields_values, string $mode = 'INSERT', string $where = false)
- * @method bool Execute(string $query, array $params)
  * @method bool StartTrans()
- * @method bool CompleteTrans($autoComplete = true)
  * @method bool HasFailedTrans()
+ * @method bool CompleteTrans($autoComplete = true)
  */
 class Database
 {
