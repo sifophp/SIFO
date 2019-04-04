@@ -26,118 +26,110 @@ namespace Sifo;
  */
 class FilterCookieRuntime extends FilterCookie
 {
+    static public function setCookie(
+        $key,
+        $value
+    ) {
+        self::getInstance()->request[$key] = $value;
+    }
 
-	static public function setCookie( $key, $value )
-	{
-		self::getInstance()->request[$key] = $value;
-	}
-
-	static public function deleteCookie( $key )
-	{
-		unset( self::getInstance()->request[$key] );
-	}
+    static public function deleteCookie($key)
+    {
+        unset(self::getInstance()->request[$key]);
+    }
 }
 
 class Cookie
 {
+    static protected $cookies;
+    static private $domain;
+    static private $path;
 
-	static protected $cookies;
-	static private $domain;
-	static private $path;
+    static private function _initDomain()
+    {
+        self::$cookies = [];
+        // Take domain from configuration to allow multiple subdomain compatibility with cookies.
+        self::$domain = Domains::getInstance()->getDomain();
+        self::$path = '/';
+    }
 
-	static private function _initDomain()
-	{
-		self::$cookies = array( );
-		// Take domain from configuration to allow multiple subdomain compatibility with cookies.
-		self::$domain = Domains::getInstance()->getDomain();
-		self::$path = '/';
-	}
+    static public function set(
+        $name,
+        $value,
+        $days = 14,
+        $domain = false
+    ) {
+        $domain ?: self::_initDomain();
 
-	static public function set( $name, $value, $days = 14, $domain = false )
-	{
+        if (0 == $days) {
+            $result = setcookie($name, $value, 0, self::$path, self::$domain);
+        } else {
+            $result = setcookie($name, $value, time() + (86400 * $days), self::$path, self::$domain);
+        }
+        if (!$result) {
+            trigger_error("COOKIE WRITE FAIL: Tried to write '$name' with value '$value' but failed.");
+            return false;
+        }
 
-		$domain ?: self::_initDomain();
+        // Filter runtime update:
+        FilterCookieRuntime::setCookie($name, $value);
 
-		if ( 0 == $days )
-		{
-			$result = setcookie( $name, $value, 0, self::$path, self::$domain );
-		}
-		else
-		{
-			$result = setcookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain );
-		}
-		if ( !$result )
-		{
-			trigger_error( "COOKIE WRITE FAIL: Tried to write '$name' with value '$value' but failed." );
-			return false;
-		}
+        return true;
+    }
 
-		// Filter runtime update:
-		FilterCookieRuntime::setCookie( $name, $value );
+    static public function delete($name)
+    {
+        self::_initDomain();
+        $result = setcookie($name, '', time() - 3600, self::$path, self::$domain);
+        if (!$result) {
+            trigger_error("COOKIE DELETE FAIL: Tried to delete '$name' but failed.");
+            return false;
+        }
 
-		return true;
-	}
+        // Filter runtime update:
+        FilterCookieRuntime::deleteCookie($name);
 
-	static public function delete( $name )
-	{
-		self::_initDomain();
-		$result = setcookie( $name, '', time() - 3600, self::$path, self::$domain );
-		if ( !$result )
-		{
-			trigger_error( "COOKIE DELETE FAIL: Tried to delete '$name' but failed." );
-			return false;
-		}
+        return true;
+    }
 
-		// Filter runtime update:
-		FilterCookieRuntime::deleteCookie( $name );
+    /**
+     * Read one (string) or several (array) cookies and returns it with a simple sanitization of the content.
+     *
+     * @param string|array $cookie
+     * @return string|false
+     * @deprecated The Cookie::get from FilterCookie::getString.
+     */
+    static public function get($cookies)
+    {
+        trigger_error("'Cookie::get' is deprecated, please use 'FilterCookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );");
 
-		return true;
-	}
+        if (is_array($cookies)) {
+            foreach ($cookies as $cookie) {
+                $values[$cookie] = self::_sanitizeCookie($cookie);
+            }
 
-	/**
-	 * Read one (string) or several (array) cookies and returns it with a simple sanitization of the content.
-	 *
-	 * @deprecated The Cookie::get from FilterCookie::getString.
-	 * @param string|array $cookie
-	 * @return string|false
-	 */
-	static public function get( $cookies )
-	{
-		trigger_error( "'Cookie::get' is deprecated, please use 'FilterCookie'. Ex: FilterCookie::getInstance()->getString( 'cookie_key' );" );
+            if (!isset($values)) {
+                return false;
+            }
 
-		if ( is_array( $cookies ) )
-		{
-			foreach ( $cookies as $cookie )
-			{
-				$values[$cookie] = self::_sanitizeCookie( $cookie );
-			}
+            return $values;
+        } else {
+            return self::_sanitizeCookie($cookies);
+        }
+    }
 
-			if ( !isset( $values ) )
-			{
-				return false;
-			}
+    /**
+     * Returns a sanitized Cookie.
+     *
+     * @param array $cookies
+     * @return string|false
+     */
+    static private function _sanitizeCookie($cookie)
+    {
+        if (FilterCookie::getInstance()->isSent($cookie)) {
+            return FilterCookie::getInstance()->getString($cookie);
+        }
 
-			return $values;
-		}
-		else
-		{
-			return self::_sanitizeCookie( $cookies );
-		}
-	}
-
-	/**
-	 * Returns a sanitized Cookie.
-	 *
-	 * @param array $cookies
-	 * @return string|false
-	 */
-	static private function _sanitizeCookie( $cookie )
-	{
-		if ( FilterCookie::getInstance()->isSent( $cookie ) )
-		{
-			return FilterCookie::getInstance()->getString( $cookie );
-		}
-
-		return false;
-	}
+        return false;
+    }
 }

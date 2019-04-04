@@ -27,141 +27,132 @@ namespace Sifo;
  */
 abstract class LoadBalancer
 {
+    /**
+     * Time in seconds the servers will be cached after checking if they are online.
+     * @var integer
+     */
+    const CACHE_EXPIRATION = 60;
+    /**
+     * Name of the cache where the results of server status are stored.
+     * @var string
+     */
+    protected $load_balancer_cache_key = 'BalancedNodes';
+    /**
+     * Contains all the nodes available to do the load balancing.
+     * @var array
+     */
+    protected $nodes;
+    /**
+     * Sum of all nodes weights.
+     * @var integer
+     */
+    protected $total_weights = 0;
 
-	/**
-	 * Time in seconds the servers will be cached after checking if they are online.
-	 * @var integer
-	 */
-	const CACHE_EXPIRATION = 60;
+    /**
+     * Checks if the service is currently available.
+     * @param int $index
+     * @param array $node_properties
+     */
+    abstract protected function addNodeIfAvailable(
+        $index,
+        $node_properties
+    );
 
-	/**
-	 * Name of the cache where the results of server status are stored.
-	 * @var string
-	 */
-	protected $load_balancer_cache_key = 'BalancedNodes';
-
-	/**
-	 * Contains all the nodes available to do the load balancing.
-	 * @var array
-	 */
-	protected $nodes;
-
-	/**
-	 * Sum of all nodes weights.
-	 * @var integer
-	 */
-	protected $total_weights = 0;
-
-	/**
-	 * Checks if the service is currently available.
-	 * @param int $index
-	 * @param array $node_properties
-	 */
-	abstract protected function addNodeIfAvailable( $index, $node_properties );
-
-
-	public function __construct()
-	{
+    public function __construct()
+    {
         $this->load_balancer_cache_key = $this->load_balancer_cache_key
             . '_' . Bootstrap::$instance
             . '_' . (Domains::getInstance()->getDevMode() ? 'dev' : 'prod');
-	}
+    }
 
-	/**
-	 * Sets the nodes to work with.
-	 * @param array $nodes
-	 * @throws Exception_500
-	 * @return integer Number of nodes added.
-	 */
-	public function setNodes( array $nodes )
-	{
-		$cache = Cache::getInstance();
-		$available_servers = trim( $cache->get( $this->load_balancer_cache_key ) ); // CacheDisk returns " " when no cache.
+    /**
+     * Sets the nodes to work with.
+     * @param array $nodes
+     * @return integer Number of nodes added.
+     * @throws Exception_500
+     */
+    public function setNodes(array $nodes)
+    {
+        $cache = Cache::getInstance();
+        $available_servers = trim($cache->get($this->load_balancer_cache_key)); // CacheDisk returns " " when no cache.
 
-		if ( empty( $available_servers ) )
-		{
-			foreach( $nodes as $key => $node_properties )
-			{
-				$this->addNodeIfAvailable( $key, $node_properties );
-			}
+        if (empty($available_servers)) {
+            foreach ($nodes as $key => $node_properties) {
+                $this->addNodeIfAvailable($key, $node_properties);
+            }
 
-			// Save in cache available servers (even if none):
-			$serialized_nodes = serialize( array( 'nodes' => $this->nodes, 'total_weights' => $this->total_weights ) );
-			$cache->set( $this->load_balancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION );
-		}
-		else
-		{
-			$available_servers = unserialize( $available_servers );
-			$this->nodes = $available_servers['nodes'];
-			$this->total_weights = $available_servers['total_weights'];
-		}
+            // Save in cache available servers (even if none):
+            $serialized_nodes = serialize(['nodes' => $this->nodes, 'total_weights' => $this->total_weights]);
+            $cache->set($this->load_balancer_cache_key, $serialized_nodes, self::CACHE_EXPIRATION);
+        } else {
+            $available_servers = unserialize($available_servers);
+            $this->nodes = $available_servers['nodes'];
+            $this->total_weights = $available_servers['total_weights'];
+        }
 
-		$num_nodes = count( $this->nodes );
+        $num_nodes = count($this->nodes);
 
-		if ( 1 > $num_nodes )
-		{
-			// This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
-			throw new Exception_500( '[LOAD BALANCER] No available servers in profile' );
-		}
+        if (1 > $num_nodes) {
+            // This exception will be shown for CACHE_EXPIRATION seconds until servers are up again.
+            throw new Exception_500('[LOAD BALANCER] No available servers in profile');
+        }
 
-		return $num_nodes;
+        return $num_nodes;
+    }
 
+    /**
+     * Adds a server to the battery of available.
+     * @param integer $index Number of server.
+     * @param integer $weight Weight of this server.
+     *
+     * @return integer Position in battery
+     */
+    protected function addServer(
+        $index,
+        $weight
+    ) {
+        $x = (!is_array($this->nodes)) ? 0 : count($this->nodes);
+        $this->nodes[$x] = new \stdClass;
+        $this->nodes[$x]->index = $index;
+        $this->total_weights += ($this->nodes[$x]->weight = abs($weight));
 
-	}
+        return $x;
+    }
 
-	/**
-	 * Adds a server to the battery of available.
-	 * @param integer $index Number of server.
-	 * @param integer $weight Weight of this server.
-	 *
-	 * @return integer Position in battery
-	 */
-	protected function addServer( $index, $weight )
-	{
-        $x = (!is_array($this->nodes)) ? 0 : count( $this->nodes );
-		$this->nodes[$x] = new \stdClass;
-		$this->nodes[$x]->index = $index;
-		$this->total_weights += ( $this->nodes[$x]->weight = abs( $weight ) );
+    /**
+     * Retrieves a random node, the more weight, the more chances to be the picked.
+     */
+    public function get()
+    {
+        if (!isset($this->nodes)) {
+            throw new LoadBalancer_Exception("There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?");
+        }
 
-		return $x;
-	}
+        $x = round(mt_rand(0, $this->total_weights));
 
-	/**
-	 * Retrieves a random node, the more weight, the more chances to be the picked.
-	 */
-	public function get()
-	{
-		if ( !isset( $this->nodes ) )
-		{
-			throw new LoadBalancer_Exception( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
-		}
+        $max = ($i = 0);
+        do {
+            $max += $this->nodes[$i++]->weight;
+        } while ($x > $max);
 
-		$x = round( mt_rand( 0, $this->total_weights ) );
+        return $this->nodes[($i - 1)]->index;
+    }
 
-		$max = ( $i = 0 );
-		do
-		{
-			$max += $this->nodes[ $i++ ]->weight;
-		}
-		while ( $x > $max );
-
-		return $this->nodes[ ( $i-1 ) ]->index;
-	}
-
-	/**
-	 * Removes a server from the list of availables.
-	 *
-	 * @param integer $index
-	 */
-	public function removeServer( $index )
-	{
-		if ( isset( $this->nodes[$index] ) )
-		{
-			$this->total_weights -= $this->nodes[$index]->weight;
-			unset( $this->nodes[$index]);
-			$this->nodes = array_values( $this->nodes );
-		}
-	}
+    /**
+     * Removes a server from the list of availables.
+     *
+     * @param integer $index
+     */
+    public function removeServer($index)
+    {
+        if (isset($this->nodes[$index])) {
+            $this->total_weights -= $this->nodes[$index]->weight;
+            unset($this->nodes[$index]);
+            $this->nodes = array_values($this->nodes);
+        }
+    }
 }
 
-class LoadBalancer_Exception extends \Exception {}
+class LoadBalancer_Exception extends \Exception
+{
+}

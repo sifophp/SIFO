@@ -27,313 +27,306 @@ namespace Sifo;
  */
 class Urls
 {
+    /**
+     * Singleton Instance.
+     *
+     * @var Urls
+     */
+    static private $instance;
+    /**
+     * Params passed via URL.
+     *
+     * @var string
+     */
+    static private $params = false;
+    /**
+     * Determines if values passed to URLs on Views are previously normalized.
+     *
+     * @var string
+     */
+    static public $normalize_values = false;
+    /**
+     * Evaluated scheme used (http|https).
+     *
+     * @var string
+     */
+    static public $scheme = 'http';
+    /**
+     * Evaluated path context.
+     *
+     * @var string
+     */
+    static private $path = '';
+    /**
+     * Splitted path.
+     *
+     * @var string
+     */
+    static private $path_parts = [];
+    /**
+     * This is the address the user used to access this webpage. E.g: http://myapp.com
+     *
+     * Scope is public because is accessed directly from url.config while construct hasn't finished.
+     * @var string
+     */
+    static public $base_url = '';
+    /**
+     * This is the MAIN address of this webpage, without additional subdomains. E.g: http://myapp.com
+     *
+     * The only exceptions are those instances with www_as_subdomain in domains.config.
+     * @var string
+     */
+    static public $main_url = '';
+    /**
+     * This is the ACTUAL address of requested page, including protocol, complete
+     * hostname, path and additional parameters as own parameters & filters, querystring params, etc.
+     *
+     * @var string
+     */
+    static public $actual_url = '';
+    /**
+     * Stores the definition of an URL.
+     *
+     * @var array
+     */
+    static public $url_definition = [];
+    /**
+     * Stores all the available URLs.
+     *
+     * @var array
+     */
+    static private $url_config = [];
+    private $url_instance_config = [];
 
-	/**
-	 * Singleton Instance.
-	 *
-	 * @var Urls
-	 */
-	static private $instance;
-	/**
-	 * Params passed via URL.
-	 *
-	 * @var string
-	 */
-	static private $params = false;
-	/**
-	 * Determines if values passed to URLs on Views are previously normalized.
-	 *
-	 * @var string
-	 */
-	static public $normalize_values = false;
-	/**
-	 * Evaluated scheme used (http|https).
-	 *
-	 * @var string
-	 */
-	static public $scheme = 'http';
-	/**
-	 * Evaluated path context.
-	 *
-	 * @var string
-	 */
-	static private $path = '';
-	/**
-	 * Splitted path.
-	 *
-	 * @var string
-	 */
-	static private $path_parts = array( );
-	/**
-	 * This is the address the user used to access this webpage. E.g: http://myapp.com
-	 *
-	 * Scope is public because is accessed directly from url.config while construct hasn't finished.
-	 * @var string
-	 */
-	static public $base_url = '';
-	/**
-	 * This is the MAIN address of this webpage, without additional subdomains. E.g: http://myapp.com
-	 *
-	 * The only exceptions are those instances with www_as_subdomain in domains.config.
-	 * @var string
-	 */
-	static public $main_url = '';
-	/**
-	 * This is the ACTUAL address of requested page, including protocol, complete
-	 * hostname, path and additional parameters as own parameters & filters, querystring params, etc.
-	 *
-	 * @var string
-	 */
-	static public $actual_url = '';
-	/**
-	 * Stores the definition of an URL.
-	 *
-	 * @var array
-	 */
-	static public $url_definition = array( );
-	/**
-	 * Stores all the available URLs.
-	 *
-	 * @var array
-	 */
-	static private $url_config = array( );
+    /**
+     * Singleton for managing URLs. Use this static method instead of construct.
+     *
+     * @return Urls
+     */
+    static public function getInstance($instance_name = null)
+    {
+        if (null === $instance_name) {
+            $instance_name = Bootstrap::$instance;
+        }
 
-	private $url_instance_config = array( );
+        if (!isset(self::$instance[$instance_name])) {
+            self::$instance[$instance_name] = new Urls($instance_name);
+        }
 
-	/**
-	 * Singleton for managing URLs. Use this static method instead of construct.
-	 *
-	 * @return Urls
-	 */
-	static public function getInstance( $instance_name = null )
-	{
-		if ( null === $instance_name )
-		{
-			$instance_name = Bootstrap::$instance;
-		}
+        return self::$instance[$instance_name];
+    }
 
-		if ( !isset( self::$instance[$instance_name] ) )
-		{
-			self::$instance[$instance_name] = new Urls( $instance_name );
-		}
+    private function __construct($instance_name)
+    {
+        $domains = Domains::getInstance($instance_name);
+        $filter_server = FilterServer::getInstance();
 
-		return self::$instance[$instance_name];
-	}
+        $language = $domains->getLanguage();
 
-	private function __construct( $instance_name )
-	{
-		$domains = Domains::getInstance( $instance_name );
-		$filter_server = FilterServer::getInstance();
+        $clean_host = preg_replace('/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain());
 
-		$language = $domains->getLanguage();
+        if ($filter_server->getString('HTTPS') == 'on' || $filter_server->getString('HTTP_X_FORWARDED_PROTO') == 'https') {
+            self::$scheme = 'https';
+        }
 
-		$clean_host = preg_replace( '/^' . $domains->getSubdomain() . '\./', '', $domains->getDomain() );
+        if (true === $domains->www_mode) {
+            self::$main_url = 'http://www.' . $clean_host;
+        } else {
+            self::$main_url = 'http://' . $clean_host;
+        }
 
-		if ( $filter_server->getString( 'HTTPS' ) == 'on' || $filter_server->getString( 'HTTP_X_FORWARDED_PROTO' ) == 'https' )
-		{
-			self::$scheme = 'https';
-		}
+        // E.g: http://domain.com/folder1/subfolder1/subfolder11
+        self::$base_url = self::$scheme . '://' . $filter_server->getString('HTTP_HOST');
+        self::$url_definition = Config::getInstance($instance_name)->getConfig('url_definition');
 
-		if ( true === $domains->www_mode )
-		{
-			self::$main_url = 'http://www.' . $clean_host;
-		}
-		else
-		{
-			self::$main_url = 'http://' . $clean_host;
-		}
+        $original_path = $filter_server->getString('REQUEST_URI');
+        $query_string = $filter_server->getString('QUERY_STRING');
+        $path = urldecode(str_replace('?' . $query_string, '', $original_path));
 
-		// E.g: http://domain.com/folder1/subfolder1/subfolder11
-		self::$base_url = self::$scheme . '://' . $filter_server->getString( 'HTTP_HOST' );
-		self::$url_definition = Config::getInstance( $instance_name )->getConfig( 'url_definition' );
+        // E.g: http://subdomain.domain.com/folder1_param:x:value:y:value?utm_campaign=enloquecer_al_larry
+        self::$actual_url = self::$base_url . $original_path;
 
-		$original_path = $filter_server->getString( 'REQUEST_URI' );
-		$query_string = $filter_server->getString( 'QUERY_STRING' );
-		$path = urldecode( str_replace( '?' . $query_string, '', $original_path ) );
+        // If url ends in slash, remove it and redirect:
+        if ((strlen($path) > 1) && (substr($path, -1) == '/')) {
+            $path = trim($path, '/');
+            if (!empty($query_string)) {
+                $path .= '?' . urldecode($query_string);
+            }
 
-		// E.g: http://subdomain.domain.com/folder1_param:x:value:y:value?utm_campaign=enloquecer_al_larry
-		self::$actual_url = self::$base_url . $original_path;
+            header('HTTP/1.0 Moved Permanently 301');
+            header('Location: ' . $this->getBaseUrl() . "/$path");
+            exit();
+        }
 
-		// If url ends in slash, remove it and redirect:
-		if ( ( strlen( $path ) > 1 ) && ( substr( $path, -1 ) == '/' ) )
-		{
-			$path = trim($path, '/');
-			if (!empty($query_string))
-			{
-				$path .= '?' . urldecode($query_string);
-			}
+        $path = ltrim($path, '/');
+        // Separate parameters from URL:
+        $params_parts = explode(self::$url_definition['params_separator'], $path);
 
-			header( 'HTTP/1.0 Moved Permanently 301' );
-			header( 'Location: ' . $this->getBaseUrl() . "/$path" );
-			exit();
-		}
+        // Path is the first part of the explode, rest are parameters.
+        self::$path = array_shift($params_parts);
 
-		$path = ltrim( $path, '/' );
-		// Separate parameters from URL:
-		$params_parts = explode( self::$url_definition['params_separator'], $path );
+        if (count($params_parts) > 0) {
+            self::$params = $params_parts;
+        } else {
+            self::$params = [];
+        }
 
-		// Path is the first part of the explode, rest are parameters.
-		self::$path = array_shift( $params_parts );
+        self::$path_parts = explode(self::$url_definition['context_separator'], self::$path);
 
-		if ( count( $params_parts ) > 0 )
-		{
-			self::$params = $params_parts;
-		}
-		else
-		{
-			self::$params = array();
-		}
+        // Default url.config for all languages.
+        self::$url_config = $this->url_instance_config = Config::getInstance($instance_name)->getConfig('url');
+    }
 
-		self::$path_parts = explode( self::$url_definition['context_separator'], self::$path );
+    /**
+     * Resets the path by setting the parts involved.
+     *
+     * @param array $parts
+     */
+    public function resetPath(Array $parts)
+    {
+        self::$path_parts = $parts;
+        self::$path = implode(self::$url_definition['context_separator'], self::$path_parts);
+    }
 
-		// Default url.config for all languages.
-		self::$url_config = $this->url_instance_config = Config::getInstance( $instance_name )->getConfig( 'url' );
-	}
+    /**
+     * Returns the path. That is a URL without the given params.
+     *
+     * @return array
+     */
+    public function getPath()
+    {
+        return self::$path;
+    }
 
-	/**
-	 * Resets the path by setting the parts involved.
-	 *
-	 * @param array $parts
-	 */
-	public function resetPath( Array $parts )
-	{
-		self::$path_parts = $parts;
-		self::$path = implode( self::$url_definition['context_separator'], self::$path_parts );
-	}
+    /**
+     * Returns the path. That is a an array with the parts of the URL without the given params.
+     *
+     * @return array
+     */
+    public function getPathParts()
+    {
+        return self::$path_parts;
+    }
 
-	/**
-	 * Returns the path. That is a URL without the given params.
-	 *
-	 * @return array
-	 */
-	public function getPath()
-	{
-		return self::$path;
-	}
+    /**
+     * Returns the parameters passed via URL.
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        return self::$params;
+    }
 
-	/**
-	 * Returns the path. That is a an array with the parts of the URL without the given params.
-	 *
-	 * @return array
-	 */
-	public function getPathParts()
-	{
-		return self::$path_parts;
-	}
+    /**
+     * Returns the http address used in this host.
+     *
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return self::$base_url;
+    }
 
-	/**
-	 * Returns the parameters passed via URL.
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return self::$params;
-	}
+    /**
+     * Returns the MAIN http address used in this host.
+     *
+     * @return string
+     */
+    public function getMainUrl()
+    {
+        return self::$main_url;
+    }
 
-	/**
-	 * Returns the http address used in this host.
-	 *
-	 * @return string
-	 */
-	public function getBaseUrl()
-	{
-		return self::$base_url;
-	}
+    /**
+     * Returns the absolute URL for a given path.
+     *
+     * @param string $path Path, without starting or leading slashes, relative. E.g: 'my/path'
+     * @return string
+     */
+    static public function getUrl($url_config_key)
+    {
+        if (isset(self::$url_config[$url_config_key])) {
+            return self::$url_config[$url_config_key];
+        }
+        return false;
+    }
 
-	/**
-	 * Returns the MAIN http address used in this host.
-	 *
-	 * @return string
-	 */
-	public function getMainUrl()
-	{
-		return self::$main_url;
-	}
+    /**
+     * Returns the array of URLs known for the current language.
+     *
+     * @return array
+     */
+    public function getUrlConfig()
+    {
+        return $this->url_instance_config;
+    }
 
-	/**
-	 * Returns the absolute URL for a given path.
-	 *
-	 * @param string $path Path, without starting or leading slashes, relative. E.g: 'my/path'
-	 * @return string
-	 */
-	static public function getUrl( $url_config_key )
-	{
-		if ( isset( self::$url_config[$url_config_key] ) )
-		{
-			return self::$url_config[$url_config_key];
-		}
-		return false;
-	}
+    /**
+     * Returns information that helps to determine how urls must be processed.
+     *
+     * @return array
+     */
+    static public function getUrlDefinition()
+    {
+        return self::$url_definition;
+    }
 
-	/**
-	 * Returns the array of URLs known for the current language.
-	 *
-	 * @return array
-	 */
-	public function getUrlConfig()
-	{
-		return $this->url_instance_config;
-	}
+    /**
+     * Normalizes a string to be used in a URL context.
+     *
+     * Example: "Qué buena la paella!" to "que-buena-la-paella".
+     *
+     * @return string
+     */
+    static public function normalize($string)
+    {
+        $separator = self::$url_definition['word_separator'];
 
-	/**
-	 * Returns information that helps to determine how urls must be processed.
-	 *
-	 * @return array
-	 */
-	static public function getUrlDefinition()
-	{
-		return self::$url_definition;
-	}
+        // Replace most common caracters with his sanitized version.
+        $string = strtr(
+            utf8_decode(trim(preg_replace('/\s+/', ' ', $string))),
+            utf8_decode("¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðòóôõöøùúûüýÿþŔŕñ' "),
+            utf8_decode("YuAAAAAAACEEEEIIIIDOOOOOOUUUUYbsaaaaaaaceeeeiiiiooooooouuuuyybRrn" . $separator . $separator)
+        );
 
-	/**
-	 * Normalizes a string to be used in a URL context.
-	 *
-	 * Example: "Qué buena la paella!" to "que-buena-la-paella".
-	 *
-	 * @return string
-	 */
-	static public function normalize( $string )
-	{
-		$separator = self::$url_definition['word_separator'];
+        // Remove characters other than a-z, 0-9 and the separator.
+        $string = trim(preg_replace('/[^0-9a-z' . $separator . ']/', '', strtolower($string)), $separator);
+        $string = preg_replace('/' . $separator . '+/', $separator, $string);
 
-		// Replace most common caracters with his sanitized version.
-		$string = strtr( utf8_decode( trim( preg_replace( '/\s+/', ' ', $string ) ) ),
-						utf8_decode( "¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðòóôõöøùúûüýÿþŔŕñ' " ),
-						utf8_decode( "YuAAAAAAACEEEEIIIIDOOOOOOUUUUYbsaaaaaaaceeeeiiiiooooooouuuuyybRrn" . $separator . $separator ) );
+        // And in case there is more bullshit..
+        return utf8_encode($string);
+    }
 
-		// Remove characters other than a-z, 0-9 and the separator.
-		$string = trim( preg_replace( '/[^0-9a-z' . $separator . ']/', '', strtolower( $string ) ), $separator );
-		$string = preg_replace( '/' . $separator . '+/', $separator, $string );
+    /**
+     * Builds an standard Sifo url.
+     *
+     * @param string $hostname The hostname of the url to be built. Must be a key in the url.config.
+     * @param string $controller The controller part of the url as defined in the router. Must be a key in the url.config.
+     * @param array $actions An array of parameters that will be available in the $params['path_parts'] array.
+     * @param array $params Url parameters that will be available in the $params['params'] array.
+     * @return string A sifo url.
+     */
+    static public function buildUrl(
+        $hostname,
+        $controller,
+        array $actions = [],
+        array $params = []
+    ) {
+        $url = Urls::getUrl($hostname) . '/';
+        $callback = function ($a) {
+            return urlencode($a);
+        };
 
-		// And in case there is more bullshit..
-		return utf8_encode( $string );
-	}
+        $actions = array_map($callback, $actions);
+        array_unshift($actions, Urls::getUrl($controller));
+        $url .= implode(self::$url_definition['context_separator'], $actions);
 
-	/**
-	 * Builds an standard Sifo url.
-	 *
-	 * @param string $hostname The hostname of the url to be built. Must be a key in the url.config.
-	 * @param string $controller The controller part of the url as defined in the router. Must be a key in the url.config.
-	 * @param array $actions An array of parameters that will be available in the $params['path_parts'] array.
-	 * @param array $params Url parameters that will be available in the $params['params'] array.
-	 * @return string A sifo url.
-	 */
-	static public function buildUrl( $hostname, $controller, array $actions = array(), array $params = array() )
-	{
-		$url = Urls::getUrl( $hostname ) . '/';
-		$callback = function( $a ) { return urlencode( $a ); };
+        if ([] !== $params) {
+            $url .= self::$url_definition['params_separator'];
+        }
+        $url .= implode(self::$url_definition['params_separator'], $params);
 
-		$actions = array_map($callback, $actions );
-		array_unshift( $actions, Urls::getUrl( $controller ) );
-		$url .= implode( self::$url_definition['context_separator'], $actions );
-
-		if ( array() !== $params )
-		{
-			$url .= self::$url_definition['params_separator'];
-		}
-		$url .= implode( self::$url_definition['params_separator'], $params );
-
-		return $url;
-	}
+        return $url;
+    }
 }

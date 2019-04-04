@@ -27,10 +27,8 @@ class View
 {
     /** @var string */
     private $template_path;
-
     /** @var ViewSmarty|ViewTwig */
     private $templating_engine;
-
     /** @var array */
     private $variables = [];
 
@@ -44,8 +42,10 @@ class View
         return $this->templating_engine->fetch($this->template_path);
     }
 
-    public function assign($variable_name, $value)
-    {
+    public function assign(
+        $variable_name,
+        $value
+    ) {
         $this->variables[$variable_name] = $value;
     }
 
@@ -56,8 +56,7 @@ class View
 
     private function assignVariables()
     {
-        foreach ($this->variables as $variable => $value)
-        {
+        foreach ($this->variables as $variable => $value) {
             $this->templating_engine->assign($variable, $value);
         }
     }
@@ -66,20 +65,16 @@ class View
     {
         $file_extension = pathinfo($this->template_path, PATHINFO_EXTENSION);
 
-        if ('twig' != $file_extension)
-        {
+        if ('twig' != $file_extension) {
             $this->setSmartyTemplatingEngine();
-        }
-        else
-        {
+        } else {
             $this->setTwigTemplatingEngine();
         }
     }
 
     private function setSmartyTemplatingEngine()
     {
-        if ($this->templating_engine instanceof ViewSmarty)
-        {
+        if ($this->templating_engine instanceof ViewSmarty) {
             return;
         }
 
@@ -88,33 +83,33 @@ class View
 
     private function setTwigTemplatingEngine()
     {
-        if ($this->templating_engine instanceof ViewTwig)
-        {
+        if ($this->templating_engine instanceof ViewTwig) {
             return;
         }
 
         $this->templating_engine = new ViewTwig();
     }
 
-    public static function customErrorHandler($errno, $errstr, $errfile, $errline)
-    {
+    public static function customErrorHandler(
+        $errno,
+        $errstr,
+        $errfile,
+        $errline
+    ) {
         $error_has_been_silented = (0 === error_reporting());
-        if ($error_has_been_silented)
-        {
+        if ($error_has_been_silented) {
             return false;
         }
 
         $error_friendly = Debug::friendlyErrorType($errno);
-        $error_string   = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
+        $error_string = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
-        if (Domains::getInstance()->getDebugMode())
-        {
+        if (Domains::getInstance()->getDebugMode()) {
             Debug::subSet('smarty_errors', $errfile, '<pre>' . $error_string . '</pre>', true);
         }
 
         // Smarty only write PHP USER errors to log:
-        if (($raw_url = Urls::$actual_url))
-        {
+        if (($raw_url = Urls::$actual_url)) {
             error_log("URL '{$raw_url}' launched the following Smarty error: {$error_string}");
 
             return true;

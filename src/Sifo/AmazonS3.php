@@ -25,16 +25,16 @@ namespace Sifo;
  */
 class AmazonS3 extends \S3
 {
-	public function __construct()
-	{
-		$config = Config::getInstance()->getConfig( 'amazon', 's3' );
+    public function __construct()
+    {
+        $config = Config::getInstance()->getConfig('amazon', 's3');
 
-		return parent::__construct(
-				$config['awsAccessKey'],
-				$config['awsSecretKey'],
-				$config['useSSL']
-		);
-	}
+        return parent::__construct(
+            $config['awsAccessKey'],
+            $config['awsSecretKey'],
+            $config['useSSL']
+        );
+    }
 }
 
 ?>

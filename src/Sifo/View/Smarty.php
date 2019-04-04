@@ -17,17 +17,13 @@ class ViewSmarty implements ViewInterface
         $instance_inheritance = \Sifo\Domains::getInstance()->getInstanceInheritance();
 
         // If there is inheritance.
-        if (is_array($instance_inheritance))
-        {
+        if (is_array($instance_inheritance)) {
             // First the child instance, last the parent instance.
             $instance_inheritance = array_reverse($instance_inheritance);
-            foreach ($instance_inheritance as $current_instance)
-            {
+            foreach ($instance_inheritance as $current_instance) {
                 $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . $current_instance . '/templates/_smarty/plugins');
             }
-        }
-        else
-        {
+        } else {
             $this->smarty->addPluginsDir(ROOT_PATH . '/instances/' . Bootstrap::$instance . '/templates/_smarty/plugins');
         }
         // Last path is the default smarty plugins directory.
@@ -41,31 +37,27 @@ class ViewSmarty implements ViewInterface
         $this->smarty->setConfigDir($templates_path . '_smarty/configs/');
         $this->smarty->setCacheDir($templates_path . '_smarty/cache/');
 
-        if (($view_setting = Config::getInstance()->getConfig('views')) && (isset($view_setting['smarty'])))
-        {
+        if (($view_setting = Config::getInstance()->getConfig('views')) && (isset($view_setting['smarty']))) {
             $smarty_settings = $view_setting['smarty'];
 
-            if (isset($smarty_settings['custom_plugins_dir']))
-            {
+            if (isset($smarty_settings['custom_plugins_dir'])) {
                 // If is set, this path will be the default smarty plugins directory.
                 $this->smarty->addPluginsDir($smarty_settings['custom_plugins_dir']);
             }
             // Set this to false to avoid magical parsing of literal blocks without the {literal} tags.
             $this->smarty->auto_literal = $smarty_settings['auto_literal'];
-            $this->smarty->escape_html  = $smarty_settings['escape_html'];
+            $this->smarty->escape_html = $smarty_settings['escape_html'];
         }
     }
-
 
     public function fetch($template)
     {
         $this->template_path = $template;
 
-        set_error_handler(array(View::class, "customErrorHandler"));
+        set_error_handler([View::class, "customErrorHandler"]);
         \Smarty::muteExpectedErrors();
 
-        try
-        {
+        try {
             $result = $this->smarty->fetch(
                 $template,
                 $cache_id = null,
@@ -75,9 +67,7 @@ class ViewSmarty implements ViewInterface
                 $merge_tpl_vars = true,
                 $no_output_filter = false
             );
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             trigger_error($e->getMessage(), E_USER_ERROR);
             $result = null;
         }
@@ -90,8 +80,10 @@ class ViewSmarty implements ViewInterface
         return $result;
     }
 
-    public function assign($variable_name, $value)
-    {
+    public function assign(
+        $variable_name,
+        $value
+    ) {
         $this->smarty->assign($variable_name, $value);
     }
 }

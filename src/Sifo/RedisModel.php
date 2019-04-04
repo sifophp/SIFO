@@ -27,118 +27,105 @@ include_once ROOT_PATH . '/vendor/predis/predis/src/Autoloader.php';
  */
 class RedisModel
 {
-	/**
-	 * Redis client object.
-	 * @var \Predis\Client
-	 */
-	private static $connected_client = array();
+    /**
+     * Redis client object.
+     * @var \Predis\Client
+     */
+    private static $connected_client = [];
+    private $profile;
 
-	private $profile;
+    /**
+     * Connect to redis and return a redis object to start passing commands.
+     *
+     * If no profile is passed, default connection stated in domains.config.php is taken. Otherwise, profile
+     * will be searched in redis.config.php.
+     *
+     * @param string $profile Connection profile.
+     * @return \Predis\Client
+     */
+    public function connect($profile = null)
+    {
+        if (!isset(self::$connected_client[$profile])) {
+            \Predis\Autoloader::register(true);
 
-	/**
-	 * Connect to redis and return a redis object to start passing commands.
-	 *
-	 * If no profile is passed, default connection stated in domains.config.php is taken. Otherwise, profile
-	 * will be searched in redis.config.php.
-	 *
-	 * @param string $profile Connection profile.
-	 * @return \Predis\Client
-	 */
-	public function connect( $profile = null )
-	{
-		if ( !isset( self::$connected_client[$profile] ) )
-		{
-			\Predis\Autoloader::register( true );
+            if (null == $profile) {
+                try {
+                    // Load "default" profile from redis.config.php:
+                    $db_params = Config::getInstance()->getConfig('redis', 'default');
+                } catch (Exception_Configuration $e) {
+                    // Connection taken from domains.config.php:
+                    $db_params = Domains::getInstance()->getParam('redis');
+                }
+            } else // Advanced configuration taken from redis.config.php
+            {
+                $db_params = Config::getInstance()->getConfig('redis', $profile);
+            }
 
-			if ( null == $profile )
-			{
-				try
-				{
-					// Load "default" profile from redis.config.php:
-					$db_params = Config::getInstance()->getConfig( 'redis', 'default' );
-				}
-				catch( Exception_Configuration $e )
-				{
-					// Connection taken from domains.config.php:
-					$db_params = Domains::getInstance()->getParam( 'redis' );
-				}
+            self::$connected_client[$profile] = PredisProxyClient::getInstance($db_params);
+            $this->profile = $profile;
+        }
 
-			}
-			else // Advanced configuration taken from redis.config.php
-			{
-				$db_params = Config::getInstance()->getConfig( 'redis', $profile );
-			}
+        return self::$connected_client[$profile];
+    }
 
-			self::$connected_client[$profile] = PredisProxyClient::getInstance( $db_params );
-			$this->profile = $profile;
-		}
+    /**
+     * Disconnect from server and reset the static object for reconnection.
+     */
+    public function disconnect()
+    {
+        self::$connected_client[$this->profile]->disconnect();
+        self::$connected_client[$this->profile] = null;
+    }
 
-		return self::$connected_client[$profile];
-	}
-
-	/**
-	 * Disconnect from server and reset the static object for reconnection.
-	 */
-	public function disconnect()
-	{
-		self::$connected_client[$this->profile]->disconnect();
-		self::$connected_client[$this->profile] = null;
-	}
-
-	/**
-	 * Disconnect clients on object destruction.
-	 */
-	public function __destruct()
-	{
-		foreach ( self::$connected_client as $client )
-		{
-			$client->disconnect();
-		}
-	}
+    /**
+     * Disconnect clients on object destruction.
+     */
+    public function __destruct()
+    {
+        foreach (self::$connected_client as $client) {
+            $client->disconnect();
+        }
+    }
 }
 
 class PredisProxyClient
 {
-	static protected $instance;
+    static protected $instance;
+    protected $client;
+    protected $connection_params;
 
-	protected $client;
-	protected $connection_params;
+    public static function getInstance(Array $connection_params)
+    {
+        asort($connection_params);
 
-	public static function getInstance( Array $connection_params )
-	{
-		asort( $connection_params );
+        $key = md5(serialize($connection_params));
+        if (isset(self::$instance[$key])) {
+            return self::$instance[$key];
+        }
 
-		$key = md5( serialize( $connection_params ) );
-		if ( isset( self::$instance[$key] ) )
-		{
-			return self::$instance[$key];
-		}
+        if (true !== Domains::getInstance()->getDebugMode()) {
+            self::$instance[$key] = new self($connection_params);
+        } else {
+            self::$instance[$key] = new DebugPredisProxyClient($connection_params);
+        }
 
-		if ( true !== Domains::getInstance()->getDebugMode() )
-		{
-			self::$instance[$key] = new self( $connection_params );
-		}
-		else
-		{
-			self::$instance[$key] = new DebugPredisProxyClient( $connection_params );
-		}
+        return self::$instance[$key];
+    }
 
-		return self::$instance[$key];
-	}
+    protected function __construct(Array $connection_params)
+    {
+        $this->connection_params = $connection_params;
+        $this->client = new \Predis\Client($connection_params);
+    }
 
-	protected function __construct( Array $connection_params )
-	{
-		$this->connection_params = $connection_params;
-		$this->client = new \Predis\Client( $connection_params );
-	}
+    public function __call(
+        $method,
+        $args
+    ) {
+        if (is_object($this->client)) {
+            return call_user_func_array([$this->client, $method], $args);
+        }
 
-	public function __call( $method, $args )
-	{
-		if ( is_object( $this->client ) )
-		{
-			return call_user_func_array( array( $this->client, $method ), $args );
-		}
-
-		return null;
-	}
+        return null;
+    }
 }

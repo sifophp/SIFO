@@ -29,432 +29,424 @@ namespace Sifo;
  */
 class Filter
 {
-	/**
-	 * Regular expression for email validation.
-	 * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
-	 */
-	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
+    /**
+     * Regular expression for email validation.
+     * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
+     */
+    const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
+    /**
+     * Request storage.
+     * @var array
+     */
+    protected $request;
 
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    protected function __construct($request)
+    {
+        $this->request = &$request;
+    }
 
-	/**
-	 * Request storage.
-	 * @var array
-	 */
-	protected $request;
+    /**
+     * Singleton for filtering. Uses POST by default.
+     *
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_POST);
+        }
+        return self::$instance;
+    }
 
-	protected function __construct( $request )
-	{
-		$this->request = &$request;
-	}
+    public function setVar(
+        $key,
+        $value
+    ) {
+        $this->request[$key] = $value;
+    }
 
-	/**
-	 * Singleton for filtering. Uses POST by default.
-	 *
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_POST );
-		}
-		return self::$instance;
-	}
+    /**
+     * Checks if a var has been sent in the request.
+     *
+     * @param string $var_name
+     * @return bool
+     */
+    public function isSent($var_name)
+    {
+        return isset($this->request[$var_name]);
+    }
 
-	public function setVar( $key, $value )
-	{
-		$this->request[$key] = $value;
-	}
+    /**
+     * Returns the names of the sent Vars.
+     */
+    public function sentVars()
+    {
+        return array_keys($this->request);
+    }
 
-	/**
-	 * Checks if a var has been sent in the request.
-	 *
-	 * @param string $var_name
-	 * @return bool
-	 */
-	public function isSent( $var_name )
-	{
-		return isset( $this->request[$var_name] );
-	}
+    public function isEmpty($var_name)
+    {
+        // I changed empty by strlen because we was sending that 0 is an empty field and this is a correct integer. Minutes for example:
+        return (!isset($this->request[$var_name]) || (is_array($this->request[$var_name]) && (count($this->request[$var_name]) == 0)) || (!is_array(
+                    $this->request[$var_name]
+                ) && (strlen($this->request[$var_name]) == 0)));
+    }
 
-	/**
-	 * Returns the names of the sent Vars.
-	 */
-	public function sentVars()
-	{
-		return array_keys( $this->request );
-	}
+    /**
+     * Returns the number of variables found in the post.
+     *
+     * @return integer
+     */
+    public function countVars()
+    {
+        return count($this->request);
+    }
 
-	public function isEmpty( $var_name )
-	{
-		// I changed empty by strlen because we was sending that 0 is an empty field and this is a correct integer. Minutes for example:
-		return ( !isset( $this->request[$var_name] ) || ( is_array($this->request[$var_name]) && ( count( $this->request[$var_name] ) == 0 ) ) || ( !is_array($this->request[$var_name]) && (  strlen( $this->request[$var_name] ) == 0 ) ) );
-	}
-
-	/**
-	 * Returns the number of variables found in the post.
-	 *
-	 * @return integer
-	 */
-	public function countVars()
-	{
-		return count( $this->request );
-	}
-
-
-	/**
-	 * Returns a string using the FILTER_DEFAULT.
-	 *
-	 * @param string $var_name
-	 * @return string
-	 */
-	public function getString( $var_name, $sanitized = false )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
-
-		if ( false === $sanitized)
-		{
-			return filter_var( $this->request[$var_name], FILTER_DEFAULT );
-		}
-		else
-		{
-			// Used the flag encode LOW because allows Chinese Characters (encode HIGH don't): 地 图
-			return filter_var( $this->request[$var_name], FILTER_SANITIZE_STRING, FILTER_FLAG_ENCODE_LOW );
-		}
-	}
-
-	/**
-	 * Get a variable without any type of filtering.
-	 *
-	 * @param string $var_name
-	 * @return string
-	 */
-	public function getUnfiltered( $var_name )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
-
-		return $this->request[$var_name];
-	}
-
-	/**
-	 * Returns an email if filtered or false if it is not valid.
-	 *
-	 * @param string $var_name Request containing the variable.
-	 * @param boolean $check_dns Check if domain passed has a valid MX record.
-	 * @return string
-	 */
-	public function getEmail( $var_name, $check_dns = false )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
+    /**
+     * Returns a string using the FILTER_DEFAULT.
+     *
+     * @param string $var_name
+     * @return string
+     */
+    public function getString(
+        $var_name,
+        $sanitized = false
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
         }
 
-        if (filter_var($this->request[$var_name], FILTER_VALIDATE_EMAIL))
-        {
-            if ($check_dns)
-            {
+        if (false === $sanitized) {
+            return filter_var($this->request[$var_name], FILTER_DEFAULT);
+        } else {
+            // Used the flag encode LOW because allows Chinese Characters (encode HIGH don't): 地 图
+            return filter_var($this->request[$var_name], FILTER_SANITIZE_STRING, FILTER_FLAG_ENCODE_LOW);
+        }
+    }
+
+    /**
+     * Get a variable without any type of filtering.
+     *
+     * @param string $var_name
+     * @return string
+     */
+    public function getUnfiltered($var_name)
+    {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
+
+        return $this->request[$var_name];
+    }
+
+    /**
+     * Returns an email if filtered or false if it is not valid.
+     *
+     * @param string $var_name Request containing the variable.
+     * @param boolean $check_dns Check if domain passed has a valid MX record.
+     * @return string
+     */
+    public function getEmail(
+        $var_name,
+        $check_dns = false
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
+
+        if (filter_var($this->request[$var_name], FILTER_VALIDATE_EMAIL)) {
+            if ($check_dns) {
                 $exploded_email = explode('@', $this->request[$var_name]);
 
                 return (checkdnsrr($exploded_email[1], 'MX') ? $this->request[$var_name] : false);
-            }
-            else
-            {
+            } else {
                 return $this->request[$var_name];
             }
         }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Returns if a value might be considered as boolean (1, true, on, yes)
-	 *
-	 * @param string $var_name
-	 * @return boolean
-	 */
-	public function getBoolean( $var_name )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    /**
+     * Returns if a value might be considered as boolean (1, true, on, yes)
+     *
+     * @param string $var_name
+     * @return boolean
+     */
+    public function getBoolean($var_name)
+    {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_BOOLEAN );
-	}
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_BOOLEAN);
+    }
 
-	/**
-	 * Returns a float value for the given var.
-	 *
-	 * @param string $var_name
-	 * @param boolean $decimal
-	 * @return float
-	 */
-	public function getFloat( $var_name, $decimal = null )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    /**
+     * Returns a float value for the given var.
+     *
+     * @param string $var_name
+     * @param boolean $decimal
+     * @return float
+     */
+    public function getFloat(
+        $var_name,
+        $decimal = null
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		if ( isset( $decimal ) )
-		{
-			$decimal = array( 'options' => array( 'decimal' => $decimal ) );
-		}
+        if (isset($decimal)) {
+            $decimal = ['options' => ['decimal' => $decimal]];
+        }
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_FLOAT, $decimal );
-	}
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_FLOAT, $decimal);
+    }
 
-	/**
-	 * Returns the integer value of the var or false.
-	 *
-	 * @param string $var_name
-	 * @param boolean $decimal
-	 * @return integer
-	 */
-	public function getInteger( $var_name, $min_range = null, $max_range = null )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    /**
+     * Returns the integer value of the var or false.
+     *
+     * @param string $var_name
+     * @param boolean $decimal
+     * @return integer
+     */
+    public function getInteger(
+        $var_name,
+        $min_range = null,
+        $max_range = null
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		$options = null;
+        $options = null;
 
-		if ( isset( $min_range ) )
-		{
-			$options['options']['min_range'] = $min_range;
-		}
+        if (isset($min_range)) {
+            $options['options']['min_range'] = $min_range;
+        }
 
-		if ( isset( $max_range ) )
-		{
-			$options['options']['max_range'] = $max_range;
-		}
+        if (isset($max_range)) {
+            $options['options']['max_range'] = $max_range;
+        }
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_INT, $options );
-	}
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_INT, $options);
+    }
 
-	/**
-	 * Returns the IP value of the var or false.
-	 *
-	 * @param string $var_name Name of the variable
-	 * @param string $min_range Minimum value accepted
-	 * @param sting $max_range Maximum value accepted
-	 * @return bool|mixed
-	 */
-	public function getIP( $var_name, $min_range = null, $max_range = null )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    /**
+     * Returns the IP value of the var or false.
+     *
+     * @param string $var_name Name of the variable
+     * @param string $min_range Minimum value accepted
+     * @param sting $max_range Maximum value accepted
+     * @return bool|mixed
+     */
+    public function getIP(
+        $var_name,
+        $min_range = null,
+        $max_range = null
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		// Allow IPv4 Ips.
-		$options['flags'] = FILTER_FLAG_IPV4;
+        // Allow IPv4 Ips.
+        $options['flags'] = FILTER_FLAG_IPV4;
 
-		if ( isset( $min_range ) )
-		{
-			$options['options']['min_range'] = $min_range;
-		}
+        if (isset($min_range)) {
+            $options['options']['min_range'] = $min_range;
+        }
 
-		if ( isset( $max_range ) )
-		{
-			$options['options']['max_range'] = $max_range;
-		}
+        if (isset($max_range)) {
+            $options['options']['max_range'] = $max_range;
+        }
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_IP, $options );
-	}
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_IP, $options);
+    }
 
-	public function getRegexp( $var_name, $regexp )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    public function getRegexp(
+        $var_name,
+        $regexp
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_REGEXP, array( 'options' => array( 'regexp' => $regexp ) ) );
-	}
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $regexp]]);
+    }
 
-	public function getUrl( $var_name )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    public function getUrl($var_name)
+    {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		$options['options']['flags'] = FILTER_FLAG_PATH_REQUIRED;
-		return filter_var( $this->request[$var_name], FILTER_VALIDATE_URL, $options );
-	}
+        $options['options']['flags'] = FILTER_FLAG_PATH_REQUIRED;
+        return filter_var($this->request[$var_name], FILTER_VALIDATE_URL, $options);
+    }
 
-	public function getInArray( $var_name, Array $list_of_elements )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    public function getInArray(
+        $var_name,
+        Array $list_of_elements
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		if ( in_array( $this->request[$var_name], $list_of_elements, true ) )
-		{
-			return $this->request[$var_name];
-		}
+        if (in_array($this->request[$var_name], $list_of_elements, true)) {
+            return $this->request[$var_name];
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Return an array like getArray but, in this case, the array is a serialized one.
-	 * Used to send arrays from javascript.
-	 *
-	 * @param string $var_name
-	 * @param string $filter_function Is the function to use with each array field.
-	 * @return boolean
-	 */
-	public function getArrayFromSerialized( $var_name, $filter_function = null )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
-		parse_str( $this->request[$var_name], $this->request[$var_name] );
-		return $this->getArray( $var_name, $filter_function );
-	}
+    /**
+     * Return an array like getArray but, in this case, the array is a serialized one.
+     * Used to send arrays from javascript.
+     *
+     * @param string $var_name
+     * @param string $filter_function Is the function to use with each array field.
+     * @return boolean
+     */
+    public function getArrayFromSerialized(
+        $var_name,
+        $filter_function = null
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
+        parse_str($this->request[$var_name], $this->request[$var_name]);
+        return $this->getArray($var_name, $filter_function);
+    }
 
-	/**
-	 * Returns an array on the post UNFILTERED.
-	 *
-	 * @param string $var_name
-	 * @param null $filter_function
-	 * @return mixed
-	 */
-	public function getArray( $var_name, $filter_function = null )
-	{
+    /**
+     * Returns an array on the post UNFILTERED.
+     *
+     * @param string $var_name
+     * @param null $filter_function
+     * @return mixed
+     */
+    public function getArray(
+        $var_name,
+        $filter_function = null
+    ) {
+        if (!isset($this->request[$var_name]) || !is_array($this->request[$var_name])) {
+            return false;
+        }
 
-		if ( !isset( $this->request[$var_name] ) || !is_array( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+        // Returns an unfiltered Array
+        if (null == $filter_function) {
+            return $this->request[$var_name];
+        }
 
-		// Returns an unfiltered Array
-		if ( null == $filter_function )
-		{
-			return $this->request[$var_name];
-		}
+        trigger_error('The function Filter::getArray is not implemented yet so you are not filtering anything.');
+        /*
+        TODO: Filter arrays, but filter must be independent of the request.
+        foreach ( $this->request[$var_name] as $key => $value )
+        {
+            $params = func_get_args();
+            unset( $params[0] );
 
-		trigger_error( 'The function Filter::getArray is not implemented yet so you are not filtering anything.' );
+            // Prepend the value to the beginning of the array:
+            array_unshift( $params, $value );
 
-		/*
-		TODO: Filter arrays, but filter must be independent of the request.
-		foreach ( $this->request[$var_name] as $key => $value )
-		{
-			$params = func_get_args();
-			unset( $params[0] );
+            $filtered_array[$key] = call_user_func_array( array( $this, $filter_function ), $params );
+        }
 
-			// Prepend the value to the beginning of the array:
-			array_unshift( $params, $value );
+        return $filtered_array;
+        */
+    }
 
-			$filtered_array[$key] = call_user_func_array( array( $this, $filter_function ), $params );
-		}
+    /**
+     * Checks if a string is a valid.
+     *
+     * Matches:
+     * 1/1/2005 | 29/02/12 | 29/02/2400
+     * Non-Matches:
+     * 29/2/2005 | 29/02/13 | 29/02/2200
+     *
+     * @param string $var_name
+     * @param string $format Any format accepted by date()
+     * @return mixed String of the date or false.
+     */
+    public function getDate(
+        $var_name,
+        $format = 'd-m-Y'
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-		return $filtered_array;
-		*/
+        $date = \DateTime::createFromFormat($format, $this->request[$var_name]);
+        if ($date !== false) {
+            return $date->format($format);
+        }
 
-	}
+        return false;
+    }
 
-	/**
-	 * Checks if a string is a valid.
-	 *
-	 * Matches:
-	 * 1/1/2005 | 29/02/12 | 29/02/2400
-	 * Non-Matches:
-	 * 29/2/2005 | 29/02/13 | 29/02/2200
-	 *
-	 * @param string $var_name
-	 * @param string $format Any format accepted by date()
-	 * @return mixed String of the date or false.
-	 */
-	public function getDate( $var_name, $format = 'd-m-Y' )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+    public function getDateWithDefaultValue(
+        $var_name,
+        $default_date,
+        $format = 'd-m-Y'
+    ) {
+        $date = $this->getDate($var_name, $format);
+        if (!$date) {
+            $date = $default_date;
+        }
 
-		$date = \DateTime::createFromFormat( $format, $this->request[$var_name] );
-		if ( $date !== false )
-		{
-			return $date->format( $format );
-		}
+        return $date;
+    }
 
-		return false;
-	}
+    public function getDateMultiValue(
+        $var_name,
+        $minimum_years = null,
+        $second_var_name = null,
+        $third_var_name = null,
+        $format = 'd-m-Y'
+    ) {
+        if (!isset($this->request[$var_name])) {
+            return false;
+        }
 
-	public function getDateWithDefaultValue( $var_name, $default_date, $format = 'd-m-Y' )
-	{
-		$date = $this->getDate( $var_name, $format );
-		if ( !$date )
-		{
-			$date = $default_date;
-		}
+        $field_values = $this->request[$var_name];
+        if (null !== $second_var_name && null !== $third_var_name) {
+            if (isset($this->request[$second_var_name]) && isset($this->request[$third_var_name])) {
+                $field_values = $this->request[$var_name] . '/' .
+                    $this->request[$second_var_name] . '/' .
+                    $this->request[$third_var_name];
+            }
+        }
 
-		return $date;
-	}
+        $date = \DateTime::createFromFormat($format, $field_values);
+        if ($date !== false) {
+            if (null !== $minimum_years) {
+                if (new \DateTime('now') < $date->add(new \DateInterval("P{$minimum_years}Y"))) {
+                    return false;
+                }
+            }
 
-	public function getDateMultiValue( $var_name, $minimum_years = null, $second_var_name = null, $third_var_name = null, $format = 'd-m-Y' )
-	{
-		if ( !isset( $this->request[$var_name] ) )
-		{
-			return false;
-		}
+            return $date->format($format);
+        }
 
-		$field_values = $this->request[$var_name];
-		if ( null !== $second_var_name && null !== $third_var_name )
-		{
-			if ( isset( $this->request[$second_var_name] ) && isset( $this->request[$third_var_name] ) )
-			{
-				$field_values = $this->request[$var_name] . '/' .
-						$this->request[$second_var_name] . '/' .
-						$this->request[$third_var_name];
-			}
-		}
+        return false;
+    }
 
-		$date = \DateTime::createFromFormat( $format, $field_values );
-		if ( $date !== false )
-		{
-			if ( null !== $minimum_years )
-			{
-				if ( new \DateTime('now') < $date->add( new \DateInterval( "P{$minimum_years}Y" ) ) )
-				{
-					return false;
-				}
-			}
-
-			return $date->format( $format );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get the raw request array as it was received, unfiltered.
-	 *
-	 * @return array
-	 */
-	public function getRawRequest()
-	{
-		return $this->request;
-	}
+    /**
+     * Get the raw request array as it was received, unfiltered.
+     *
+     * @return array
+     */
+    public function getRawRequest()
+    {
+        return $this->request;
+    }
 }
 
 class FilterPost extends Filter
@@ -472,9 +464,8 @@ class FilterPost extends Filter
      */
     public static function getInstance()
     {
-        if ( !self::$instance )
-        {
-            self::$instance = new self ( $_POST );
+        if (!self::$instance) {
+            self::$instance = new self ($_POST);
         }
         return self::$instance;
     }
@@ -482,241 +473,231 @@ class FilterPost extends Filter
 
 class FilterGet extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed by Get
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_GET );
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed by Get
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_GET);
+        }
+        return self::$instance;
+    }
 }
 
 class FilterRequest extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed by Post, Get and Cookie.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_REQUEST );
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed by Post, Get and Cookie.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_REQUEST);
+        }
+        return self::$instance;
+    }
 }
 
 class FilterServer extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed by Server (Apache SetEnv for instance)
-	 * @return FilterServer
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_SERVER );
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed by Server (Apache SetEnv for instance)
+     * @return FilterServer
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_SERVER);
+        }
+        return self::$instance;
+    }
 
-	/**
-	 * Mocks the host for use in scripts.
-	 * @param string $mocked_host
-	 */
-	public function setHost( $mocked_host )
-	{
-		$this->request['HTTP_HOST'] = $mocked_host;
-	}
-
+    /**
+     * Mocks the host for use in scripts.
+     * @param string $mocked_host
+     */
+    public function setHost($mocked_host)
+    {
+        $this->request['HTTP_HOST'] = $mocked_host;
+    }
 }
 
 class FilterCookie extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed inside Cookies.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_COOKIE );
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed inside Cookies.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_COOKIE);
+        }
+        return self::$instance;
+    }
 }
 
 class FilterSession extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed by Session.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_SESSION );
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed by Session.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_SESSION);
+        }
+        return self::$instance;
+    }
 }
 
 class FilterFiles extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed by File uploads.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_FILES );
-			$_FILES = array();
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed by File uploads.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_FILES);
+            $_FILES = [];
+        }
+        return self::$instance;
+    }
 
-	/**
-	 * Get a variable without any type of filtering.
-	 *
-	 * @param string $var_name
-	 * @return string
-	 */
-	public function getUnfiltered( $var_name )
-	{
-		$file = parent::getUnfiltered( $var_name );
+    /**
+     * Get a variable without any type of filtering.
+     *
+     * @param string $var_name
+     * @return string
+     */
+    public function getUnfiltered($var_name)
+    {
+        $file = parent::getUnfiltered($var_name);
 
-		if ( UPLOAD_ERR_NO_FILE == $file['error'] )
-		{
-			return false;
-		}
+        if (UPLOAD_ERR_NO_FILE == $file['error']) {
+            return false;
+        }
 
-		return $file;
-	}
-
+        return $file;
+    }
 }
 
 class FilterEnv extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Filters variables passed in the environment.
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		if ( !self::$instance )
-		{
-			self::$instance = new self ( $_ENV );
-			$_ENV = array();
-		}
-		return self::$instance;
-	}
+    /**
+     * Filters variables passed in the environment.
+     * @return Filter
+     */
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self ($_ENV);
+            $_ENV = [];
+        }
+        return self::$instance;
+    }
 }
 
 class FilterCustom extends Filter
 {
-	/**
-	 * Singleton object.
-	 *
-	 * @var Filter
-	 */
-	static protected $instance;
+    /**
+     * Singleton object.
+     *
+     * @var Filter
+     */
+    static protected $instance;
 
-	/**
-	 * Allow creation of different objects, the FilterCustom is not based on
-	 * global values like $_GET or $_POST and might be used for different purposes
-	 * in the same execution thread.
-	 *
-	 * @param array $request
-	 * @return FilterCustom
-	 */
-	public function __construct( $request )
-	{
-		return parent::__construct( $request );
-	}
+    /**
+     * Allow creation of different objects, the FilterCustom is not based on
+     * global values like $_GET or $_POST and might be used for different purposes
+     * in the same execution thread.
+     *
+     * @param array $request
+     * @return FilterCustom
+     */
+    public function __construct($request)
+    {
+        return parent::__construct($request);
+    }
 
-	/**
-	 * Filters variables passed in the array and empties original input.
-	 *
-	 * @deprecated You should use `new FilterCustom($array)` instead of calling getInstance.
-	 * @throws FilterException
-	 * @return Filter
-	 */
-	public static function getInstance()
-	{
-		$params = func_get_args();
-		if ((!isset($params[0])) || (!is_array($params[0])))
-		{
-			throw new FilterException('The variable passed inside the getInstance( $array ) method is not an array.');
-		}
-		$array = $params[0];
-		$hash  = md5(serialize($array));
-		if (!isset(self::$instance[$hash]))
-		{
-			self::$instance[$hash] = new self ($array);
-		}
+    /**
+     * Filters variables passed in the array and empties original input.
+     *
+     * @return Filter
+     * @throws FilterException
+     * @deprecated You should use `new FilterCustom($array)` instead of calling getInstance.
+     */
+    public static function getInstance()
+    {
+        $params = func_get_args();
+        if ((!isset($params[0])) || (!is_array($params[0]))) {
+            throw new FilterException('The variable passed inside the getInstance( $array ) method is not an array.');
+        }
+        $array = $params[0];
+        $hash = md5(serialize($array));
+        if (!isset(self::$instance[$hash])) {
+            self::$instance[$hash] = new self ($array);
+        }
 
-		return self::$instance[$hash];
-	}
+        return self::$instance[$hash];
+    }
 }
 
-class FilterException extends \Exception {}
+class FilterException extends \Exception
+{
+}
