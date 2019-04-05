@@ -1,24 +1,5 @@
 <?php
 
-/**
- * LICENSE
- *
- * Copyright 2010 Albert Lombarte
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 namespace Sifo;
 
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
@@ -26,50 +7,23 @@ if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance)) {
     newrelic_set_appname(ucfirst($instance));
 }
 
-/**
- * Class Bootstrap
- */
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Exceptions.php';
 require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Config.php';
 require_once ROOT_PATH . '/vendor/autoload.php';
 
 class Bootstrap
 {
-    /**
-     * Root path.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $root;
-    /**
-     * Application path.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $application;
-    /**
-     * Instance name, this is the folder under 'instances'.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $instance;
-    /**
-     * Language of this instance.
-     *
-     * @var string
-     */
+    /** @var string */
     public static $language;
-    /**
-     * The executed controller.
-     *
-     * @var string
-     */
-    public static $controller = null;
-    /**
-     * The dependency injection container.
-     *
-     * @var DependencyInjector
-     */
+    /** @var string */
+    public static $controller;
+    /** @var DependencyInjector */
     public static $container;
 
     /**
@@ -78,14 +32,18 @@ class Bootstrap
      * @param $instance_name
      * @param string $controller_name Optional, a controller to execute. If null the router will be used to determine it.
      *
+     * @throws ControllerException
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     * @throws Exception_DependencyInjector
+     * @throws Headers_Exception
      * @internal param string $root Path to root.
-     *
      */
     public static function execute(
         $instance_name,
         $controller_name = null
     ) {
-        // Set paths:
         self::$root = ROOT_PATH;
         self::$application = dirname(__FILE__);
         self::$instance = $instance_name;
@@ -153,91 +111,35 @@ class Bootstrap
      * Sets the controller and view properties and executes the controller, sending the output buffer.
      *
      * @param string $controller Dispatches a specific controller, or use URL to determine the controller
+     * @throws ControllerException
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     * @throws Exception_DependencyInjector
+     * @throws Headers_Exception
      */
     public static function dispatch($controller = null)
     {
         try {
-            $domain = Domains::getInstance();
-            $destination = $domain->getRedirect();
+            self::checkDomainRedirect();
+            self::checkDomainAuthentication();
+            self::checkIfDomainIsValid();
+            self::setLanguage();
+            self::overWritePHPini();
 
-            if (!empty($destination)) {
-                Headers::setResponseStatus(301);
-                Headers::set('Location', $destination, 301);
-                Headers::send();
-                exit;
-            }
+            $controller = $controller ?? (new Router(
+                    Urls::getInstance(self::$instance)->getPathParts()[0],
+                    self::$instance,
+                    Domains::getInstance()->getSubdomain(),
+                    self::$language,
+                    Domains::getInstance()->www_mode
+                ))->getController();
 
-            $auth_data = $domain->getAuthData();
-
-            if (!empty($auth_data) && FilterCookie::getInstance()->getString('domain_auth') != $auth_data['hash']) {
-                $filter_server = FilterServer::getInstance();
-                if ($filter_server->isEmpty('PHP_AUTH_USER') || $filter_server->isEmpty('PHP_AUTH_PW') || $filter_server->getString(
-                        'PHP_AUTH_USER'
-                    ) != $auth_data['user'] || $filter_server->getString('PHP_AUTH_PW') != $auth_data['password']
-                ) {
-                    Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
-                    Headers::send();
-                    throw new Exception_401('You should enter a valid credentials.');
-                }
-
-                // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
-                setcookie('domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain());
-            }
-
-            self::$language = $domain->getLanguage();
-            $php_inis = $domain->getPHPInis();
-
-            if ($php_inis) {
-                self::_overWritePHPini($php_inis);
-            }
-
-            $url = Urls::getInstance(self::$instance);
-            $path_parts = $url->getPathParts();
-
-            if (!$domain->valid_domain) {
-                throw new Exception_404('Unknown language in domain');
-            } else {
-                if (null === $controller) {
-                    $router = new Router($path_parts[0], self::$instance, $domain->getSubdomain(), self::$language, $domain->www_mode);
-                    $controller = $router->getController();
-                }
-            }
-
-            // This is the controller to use:
             $ctrl = self::invokeController($controller);
+            $ctrl->addParams(['controller_route' => $controller]);
             self::$controller = $controller;
 
-            // Save in params for future references:
-            $ctrl->addParams(
-                [
-                    'controller_route' => $controller,
-                ]
-            );
-
-            // Active/deactive auto-rebuild option:
-            if ($domain->getDevMode()) {
-                if (FilterGet::getInstance()->getInteger('clean_compile')) {
-                    $smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
-                    system('rm -rf ' . $smarty_compiles_dir);
-                }
-
-                if (FilterGet::getInstance()->getInteger('rebuild_all')) {
-                    Cookie::set('rebuild_all', 1);
-                }
-                if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all')) {
-                    Cookie::delete('rebuild_all');
-                }
-                if (1 === FilterGet::getInstance()->getInteger('debug')) {
-                    Cookie::set('debug', 1);
-                }
-                if (0 === FilterGet::getInstance()->getInteger('debug')) {
-                    Cookie::set('debug', 0);
-                }
-
-                if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug'))) {
-                    Domains::getInstance()->setDebugMode((bool)$debug);
-                }
-            }
+            self::enableDebugFeatures();
 
             $ctrl->dispatch();
 
@@ -260,9 +162,15 @@ class Bootstrap
     /**
      * Dispatches an error after an exception.
      *
-     * @param Exception $e
+     * @param \Exception $e
      *
-     * @return output buffer
+     * @return mixed|void output buffer
+     * @throws ControllerException
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     * @throws Exception_DependencyInjector
+     * @throws Headers_Exception
      */
     private static function _dispatchErrorController($e)
     {
@@ -292,7 +200,6 @@ class Bootstrap
         if ($e->redirect) {
             // Path is passed via message:
             $path = trim($e->getMessage(), '/');
-            $new_location = '';
             // Check if the URL for the redirection has already a protocol, like http:// , https://, ftp://, etc..
             if (false !== strpos($path, '://')) {
                 // Absolute path passed:
@@ -322,24 +229,119 @@ class Bootstrap
             }
         }
 
-        $result = $ctrl2->dispatch();
-        // Load the debug in case you have enabled the has debug flag.
+        $ctrl2->dispatch();
+
         if (Domains::getInstance()->getDebugMode()) {
             self::invokeController('debug/index')->dispatch();
         }
-
-        return $result;
     }
 
     /**
-     * Sets all the PHP ini configurations stored in the configuration.
-     *
-     * @param array $php_inis
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
      */
-    private static function _overWritePHPini(Array $php_inis)
+    private static function overWritePHPini()
     {
-        foreach ($php_inis as $varname => $newvalue) {
+        $php_ini = Domains::getInstance()->getPHPInis();
+
+        if (!$php_ini) {
+            return;
+        }
+
+        foreach ($php_ini as $varname => $newvalue) {
             ini_set($varname, $newvalue);
+        }
+    }
+
+    /**
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     * @throws Headers_Exception
+     */
+    private static function checkDomainRedirect(): void
+    {
+        $destination = Domains::getInstance()->getRedirect();
+        if (!empty($destination)) {
+            Headers::setResponseStatus(301);
+            Headers::set('Location', $destination, 301);
+            Headers::send();
+            exit;
+        }
+    }
+
+    /**
+     * @throws DomainsException
+     * @throws Exception_401
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     */
+    private static function checkDomainAuthentication(): void
+    {
+        $auth_data = Domains::getInstance()->getAuthData();
+
+        if (!empty($auth_data) && FilterCookie::getInstance()->getString('domain_auth') != $auth_data['hash']) {
+            $filter_server = FilterServer::getInstance();
+            if ($filter_server->isEmpty('PHP_AUTH_USER') || $filter_server->isEmpty('PHP_AUTH_PW') || $filter_server->getString(
+                    'PHP_AUTH_USER'
+                ) != $auth_data['user'] || $filter_server->getString('PHP_AUTH_PW') != $auth_data['password']
+            ) {
+                Headers::set('WWW-Authenticate', 'Basic realm="Protected page"');
+                Headers::send();
+                throw new Exception_401('You should enter a valid credentials.');
+            }
+
+            // If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
+            setcookie('domain_auth', $auth_data['hash'], 0, '/', Domains::getInstance()->getDomain());
+        }
+    }
+
+    private static function setLanguage(): void
+    {
+        self::$language = Domains::getInstance()->getLanguage();
+    }
+
+    /**
+     * @throws DomainsException
+     * @throws Exception_404
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     */
+    private static function checkIfDomainIsValid(): void
+    {
+        if (!Domains::getInstance()->valid_domain) {
+            throw new Exception_404('Unknown language in domain');
+        }
+    }
+
+    /**
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     */
+    private static function enableDebugFeatures(): void
+    {
+        if (Domains::getInstance()->getDevMode()) {
+            if (FilterGet::getInstance()->getInteger('clean_compile')) {
+                $smarty_compiles_dir = ROOT_PATH . "/instances/" . self::$instance . "/templates/_smarty/compile/*";
+                system('rm -rf ' . $smarty_compiles_dir);
+            }
+            if (FilterGet::getInstance()->getInteger('rebuild_all')) {
+                Cookie::set('rebuild_all', 1);
+            }
+            if (FilterGet::getInstance()->getInteger('rebuild_nothing') && FilterCookie::getInstance()->getInteger('rebuild_all')) {
+                Cookie::delete('rebuild_all');
+            }
+            if (1 === FilterGet::getInstance()->getInteger('debug')) {
+                Cookie::set('debug', 1);
+            }
+            if (0 === FilterGet::getInstance()->getInteger('debug')) {
+                Cookie::set('debug', 0);
+            }
+            if (false !== ($debug = FilterCookie::getInstance()->getInteger('debug'))) {
+                Domains::getInstance()->setDebugMode((bool)$debug);
+            }
         }
     }
 }

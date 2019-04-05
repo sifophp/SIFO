@@ -48,6 +48,9 @@ class Domains
      * Singleton for domain calculation.
      *
      * @return Domains
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
      */
     static public function getInstance()
     {
@@ -58,6 +61,13 @@ class Domains
         return self::$singleton;
     }
 
+    /**
+     * Domains constructor.
+     * @param null $host
+     * @throws DomainsException
+     * @throws Exception_500
+     * @throws Exception_Configuration
+     */
     private function __construct($host = null)
     {
         $filter_server = FilterServer::getInstance();

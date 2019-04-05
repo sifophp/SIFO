@@ -21,7 +21,6 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
-    "ext-newrelic": "*",
     "geoip/geoip": "^1.17",
     "neutron/sphinxsearch-api": "^2.0",
     "phpmailer/phpmailer": "^5.2",
