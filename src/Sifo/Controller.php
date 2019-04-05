@@ -1,78 +1,31 @@
 <?php
-/**
- * LICENSE
- *
- * Copyright 2010 Albert Lombarte
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 
 namespace Sifo;
 
+use Exception;
+
 abstract class Controller
 {
-    /**
-     * Cache expiration time default for exceptions.
-     */
+    /** @var int */
     const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
-    /**
-     * Cache expiration for this controller, by default set to 4 hours (expressed in seconds).
-     *
-     * @var integer
-     */
-    const CACHE_DEFAULT_EXPIRATION = 14400;
-    /**
-     * Information useful for debugging.
-     *
-     * @var array
-     */
+    /** @var int */
+    const CACHE_DEFAULT_EXPIRATION = 14400; // secs.
+    private const BENCHMARK_PARENT_KEY = 'controller_execution_time_parent';
+    private const BENCHMARK_REPLACEMENT_KEY = 'controller_execution_replace';
+    private const BENCHMARK_CURRENT_KEY = 'controller_execution_time';
+    /** @var array */
     protected $debug_info = [];
-    /**
-     * Associated modules being executed as dependencies.
-     *
-     * @var array
-     */
+    /** @var array */
     protected $modules = [];
-    /**
-     * Flag controlling if the controller should behave like a normal HTML or as json response.
-     *
-     * @var boolean
-     */
+    /** @var bool */
     public $is_json = false;
-    /**
-     * Parameters used in the controller.
-     *
-     * @var array
-     */
+    /** @var array */
     protected $params;
-    /**
-     * Language used in this controller. Eg.: en_US.
-     *
-     * @var string
-     */
+    /** @var string */
     protected $language;
-    /**
-     * View object
-     *
-     * @var View
-     */
+    /** @var View */
     protected $view;
-    /**
-     * Stores the cache object.
-     *
-     * @var Cache
-     */
+    /** @var Cache */
     protected $cache;
     /**
      * Stores the cache definition once is calculated for the next queries.
@@ -86,26 +39,23 @@ abstract class Controller
      * @var DependencyInjector|\Symfony\Component\DependencyInjection\ContainerInterface
      */
     protected $container;
-    /**
-     * I18n object
-     *
-     * @var I18N
-     */
+    /** @var I18N */
     public $i18n;
-    /**
-     * Template used as layout.
-     *
-     * @var string
-     */
+    /** @var string */
     protected $layout;
+    /** @var string */
+    private $instance;
+    /** @var array */
+    private $url_definition;
 
-    abstract function build();
-
+    /**
+     * @throws Exception_404
+     * @throws Exception_500
+     */
     public function __construct()
     {
         $this->instance = Bootstrap::$instance;
         $this->language = Domains::getInstance()->getLanguage();
-
         $this->url_definition = Urls::getInstance($this->instance)->getUrlDefinition();
 
         $urls = Urls::getInstance($this->instance)->getUrlConfig();
@@ -113,7 +63,6 @@ abstract class Controller
 
         $urls['current_url'] = $current_url;
         $this->params = [
-            // Sanitizes the current URL in case is dirty:
             'current_url' => $current_url,
             'instance' => Bootstrap::$instance,
             'controller' => get_class($this),
@@ -123,14 +72,10 @@ abstract class Controller
             'has_debug' => Domains::getInstance()->getDebugMode(),
             'lang' => $this->language,
             'url' => $urls,
-
-            // 'definition' => $this->url_definition, // In case you want to see the URL definition
         ];
 
-        // Init i18n configuration.
         $this->i18n = I18N::getInstance(Domains::getInstance()->getLanguageDomain(), $this->language);
 
-        // Parse Key-Value parameters
         $this->params['parsed_params'] = $this->parseParams();
         $this->params['page'] = $this->getCurrentPage();
 
@@ -138,11 +83,148 @@ abstract class Controller
         $this->view = new View();
     }
 
+    /** @throws SEO_Exception */
+    abstract function build();
+
     /**
-     * Sets the dependency injection container.
-     *
-     * @param DependencyInjector $container The container to use.
+     * @throws ControllerException
+     * @throws Exception_500
+     * @throws Exception_DependencyInjector
      */
+    public function dispatch()
+    {
+        $this->checkKillSession();
+        $this->addJsonHeadersIfRequired();
+
+        $this->startBench(self::BENCHMARK_PARENT_KEY);
+
+        $this->preDispatch();
+
+        $cached_content = $this->grabCache();
+        if (false !== $cached_content) {
+            $this->outputCachedContent($cached_content);
+            return;
+        }
+
+        $complete_cache_definition = $this->getCompleteCacheDefinition();
+
+        if (false !== $complete_cache_definition) {
+            $this->addToDebug('name', $complete_cache_definition['name'], 'Cache properties');
+            $this->addToDebug('expiration', $complete_cache_definition['expiration'], 'Cache properties');
+        }
+
+        try {
+            $return_values = $this->build();
+        } catch (SEO_Exception $e) {
+            $this->cacheException($e, $complete_cache_definition);
+            throw new ControllerException("Controller Build has generated an exception.", null, $e);
+        }
+
+        $controller_params = array_merge(['layout' => $this->layout], $this->getParams());
+        $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
+        $this->executeNestedModules();
+
+        if ($this->is_json) {
+            $content = $this->grabJson($return_values);
+        } else {
+            $content = $this->grabHtml();
+        }
+
+        if (false !== $complete_cache_definition) {
+            $this->cache->set($complete_cache_definition['name'], $content, $complete_cache_definition['expiration']);
+        }
+
+        $this->postDispatch();
+        $this->stopBench(self::BENCHMARK_PARENT_KEY, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
+
+        $content = $this->realTimeReplacement($content);
+        Headers::send();
+
+        if (extension_loaded('newrelic')) {
+            newrelic_name_transaction($this->params['controller']);
+        }
+
+        $this->outputContent($content);
+    }
+
+    /**
+     * Dispatch a single controller. Fetch from cache (if any), execute, store cache, return output.
+     *
+     * @param string $module_name Name of controller to execute.
+     * @param array $params Additional parameters needed by the controller
+     * @return string
+     * @throws Exception_DependencyInjector
+     * @throws ControllerException
+     */
+    public function getModuleOutput(
+        $module_name,
+        $params = []
+    ) {
+        $this->startBench(self::BENCHMARK_CURRENT_KEY);
+
+        $module = Bootstrap::invokeController($module_name);
+        $module->setParams(array_merge($this->getParams(), $params));
+        $module->preDispatch();
+        $cached_content = $module->grabCache();
+        $class_name = get_class($module);
+
+        if (false !== $cached_content) {
+            if ($cached_content instanceof Exception) {
+                throw new ControllerException("Module Execute has generated an exception (cached).", null, $cached_content);
+            }
+            $module_content = $cached_content;
+        } else {
+            $cache_key = $module->getCompleteCacheDefinition();
+            if (false !== $cache_key) {
+                $module->addToDebug('name', $cache_key['name'], 'Cache properties');
+                $module->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
+            }
+            try {
+                $module_content = $module->getOutput();
+            } catch (SEO_Exception $e) {
+                $this->cacheException($e, $cache_key);
+                throw new ControllerException("Module Execute has generated an exception.", null, $e);
+            }
+        }
+
+        $cache_key = $module->getCompleteCacheDefinition();
+
+        if (false !== $cache_key) {
+            $this->cache->set($cache_key['name'], $module_content, $cache_key['expiration']);
+        }
+
+        $module->postDispatch();
+        $this->stopBench(self::BENCHMARK_CURRENT_KEY, "$class_name: TOTAL module execution");
+
+        return $module_content;
+    }
+
+    /**
+     * Stops the execution of the current controller in order to dispatch the given controller.
+     *
+     * @param string $controller Controller in the format 'folder/file'
+     */
+    public function reDispatch($controller)
+    {
+        Bootstrap::dispatch($controller);
+        exit;
+    }
+
+    /**
+     * Actions executed BEFORE the controller executes build() or cache is called.
+     */
+    public function preDispatch()
+    {
+    }
+
+    /**
+     * Actions executed AFTER the controller has executed build() and cache fetched and right before the output is sent to browser.
+     *
+     */
+    public function postDispatch()
+    {
+    }
+
     public function setContainer(DependencyInjector $container)
     {
         $this->container = $container;
@@ -156,40 +238,6 @@ abstract class Controller
     public function getLayout()
     {
         return $this->layout;
-    }
-
-    /**
-     * Performs the form validation workflow.
-     *
-     * @param string $submit_button
-     * @param string $form_config
-     * @param array $default_fields
-     * @return null|bool
-     */
-    protected function getValidatedForm(
-        $submit_button,
-        $form_config,
-        $default_fields = []
-    ) {
-        $post = FilterPost::getInstance();
-
-        $form = new Form($post, $this->view);
-        if ($post->isSent($submit_button)) {
-            $return = $form->validateElements($form_config);
-
-            if ($return) {
-                $return = $form;
-            }
-        } else {
-            $form->addFields($default_fields);
-            $return = null;
-        }
-
-        $this->assign('form_values', $form->getFields());
-        $this->assign('requirements', $form->getRequirements($form_config));
-        $this->assign('error', $form->getErrors());
-
-        return $return;
     }
 
     public function getUrl(
@@ -226,20 +274,10 @@ abstract class Controller
     }
 
     /**
-     * Stops the execution of the current controller in order to dispatch the given controller.
-     *
-     * @param string $controller Controller in the format 'folder/file'
-     */
-    public function reDispatch($controller)
-    {
-        Bootstrap::dispatch($controller);
-        exit;
-    }
-
-    /**
      * Sets a template (relative path) as the template that triggers the page.
      *
      * @param string $template
+     * @throws Exception_Configuration
      */
     public function setLayout($template)
     {
@@ -251,18 +289,13 @@ abstract class Controller
      *
      * @param string $template
      * @return string
+     * @throws Exception_Configuration
      */
     public function getTemplate($template)
     {
         return ROOT_PATH . '/' . Config::getInstance($this->instance)->getConfig('templates', $template);
     }
 
-    /**
-     * Assign a variable to the template.
-     *
-     * @param string|array $tpl_var
-     * @param mixed $value
-     */
     public function assign(
         $tpl_var,
         $value
@@ -270,135 +303,44 @@ abstract class Controller
         if ($tpl_var != 'modules') {
             $this->addToDebug($tpl_var, $value, 'assigns');
         }
-        return $this->view->assign($tpl_var, $value);
+        $this->view->assign($tpl_var, $value);
     }
 
     /**
-     * Executes all the modules setted previously with the addModule method.
+     * @throws ControllerException
+     * @throws Exception_DependencyInjector
      */
     protected function executeNestedModules()
     {
-        if (count($this->modules) > 0) {
-            $modules = [];
-            // Execute additional modules and put their result in the 'modules' variable.
-            foreach ($this->modules as $module_name => $controller) {
-                $modules[$module_name] = $this->dispatchSingleController($controller, ['module_name' => $module_name]);
-            }
-            unset($this->modules);
-
-            $this->assign('modules', $modules);
+        if (empty($this->modules)) {
+            return;
         }
+
+        $modules = [];
+        foreach ($this->modules as $module_name => $controller) {
+            $modules[$module_name] = $this->getModuleOutput($controller, ['module_name' => $module_name]);
+        }
+        unset($this->modules);
+
+        $this->assign('modules', $modules);
     }
 
     /**
      * Cache a resulting exception when a cache_key is defined and hasn't any Post vars.
      * Use the CACHE_DEFAULT_EXPIRATION_EXCEPTIONS for all the exception less 301,302 and 404.
      *
-     * @param SEO_Exception $e Catched exception.
+     * @param SEO_Exception $exception Cached exception.
      * @param bool|array $cache_key
      */
     protected function cacheException(
-        $e,
+        $exception,
         $cache_key
     ) {
-        if ((false !== $cache_key) && (!FilterPost::getInstance()->countVars())) {
-            $expiration = in_array($e->http_code, [301, 302, 404]) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
-            $this->cache->set($cache_key['name'], $e, $expiration);
-        }
-    }
-
-    /**
-     * Dispatch the controller.
-     */
-    public function dispatch()
-    {
-        if (Domains::getInstance()->getDebugMode() && (FilterGet::getInstance()->getInteger('kill_session'))) {
-            @Session::getInstance()->destroy();
-        }
-
-        if ($this->is_json) {
-            // Set headers before cache:
-            if ($json_callback = FilterGet::getInstance()->getString('json_callback')) {
-                Headers::set('Content-type', 'text/javascript');
-            } else {
-                Headers::set('Content-type', 'application/json');
-            }
-        }
-
-        $benchmark_key = 'controller_execution_time_parent';
-        $this->startBench($benchmark_key);
-
-        $this->preDispatch();
-        $cached_content = $this->grabCache();
-
-        if (false !== $cached_content) {
-            if ($cached_content instanceof \Exception) {
-                throw new ControllerException("Controller Build has generated an exception (cached).", null, $cached_content);
-            }
-            $this->postDispatch();
-            $cached_content = $this->_realTimeReplacement($cached_content);
-            Headers::send();
-
-            if (extension_loaded('newrelic')) {
-                newrelic_name_transaction($this->params['controller']);
-            }
-
-            $this->echoOutput($cached_content);
+        if (empty($cache_key) || FilterPost::getInstance()->countVars() > 0) {
             return;
         }
-
-        $cache_key = $this->parseCache();
-
-        if (false !== $cache_key) {
-            $this->addToDebug('name', $cache_key['name'], 'Cache properties');
-            $this->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
-        }
-
-        try {
-            $return = $this->build();
-        } catch (SEO_Exception $e) {
-            $this->cacheException($e, $cache_key);
-            throw new ControllerException("Controller Build has generated an exception.", null, $e);
-        }
-
-        $controller_params = array_merge(['layout' => $this->layout], $this->getParams());
-        $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
-        $this->executeNestedModules();
-
-        if ($this->is_json) {
-            // Json Debug.
-            if (Domains::getInstance()->getDebugMode() && is_array($return)) {
-                $this->stopBench($benchmark_key, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
-                Debug::subSet('controllers', get_class($this), $this->debug_info);
-
-                $return['debug_total_time'] = \Sifo\Benchmark::getInstance()->timingCurrent();
-
-                $this->dispatchSingleController('DebugIndex', ['show_debug_timers' => false, 'executed_controller_is_json' => true]);
-
-                $return['debug_execution_key'] = \Sifo\Debug::getExecutionKey();
-            }
-
-            $json_callback = FilterGet::getInstance()->getString('json_callback');
-            $content = ($json_callback ? $json_callback . '(' . json_encode($return) . ')' : json_encode($return));
-        } else {
-            $content = $this->grabHtml();
-        }
-
-        if (false !== $cache_key) {
-            $this->cache->set($cache_key['name'], $content, $cache_key['expiration']);
-        }
-
-        $this->postDispatch();
-        $this->stopBench($benchmark_key, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
-
-        $content = $this->_realTimeReplacement($content);
-        Headers::send();
-
-        if (extension_loaded('newrelic')) {
-            newrelic_name_transaction($this->params['controller']);
-        }
-
-        $this->echoOutput($content);
+        $expiration = in_array($exception->http_code, [301, 302, 404]) ? $cache_key['expiration'] : self::CACHE_DEFAULT_EXPIRATION_EXCEPTIONS;
+        $this->cache->set($cache_key['name'], $exception, $expiration);
     }
 
     /**
@@ -438,7 +380,7 @@ abstract class Controller
             return false;
         }
 
-        $cache_key = $this->parseCache();
+        $cache_key = $this->getCompleteCacheDefinition();
         // Controller does not uses cache:
         if (!$cache_key) {
             return false;
@@ -462,14 +404,7 @@ abstract class Controller
         return false; // Life was beautiful, but although everything seemed to be cached, it wasn't.
     }
 
-    /**
-     * Parses the cache function to determine name and expiration.
-     *
-     * All caches managed by controller pass this point.
-     *
-     * @return array
-     */
-    protected function parseCache()
+    private function getCompleteCacheDefinition()
     {
         if (isset($this->cache_definition)) {
             return $this->cache_definition;
@@ -490,7 +425,7 @@ abstract class Controller
         }
 
         // Prepend necessary values to cache:
-        $this->cache_definition['name'] = $this->_getFinalCacheKeyName($this->cache_definition);
+        $this->cache_definition['name'] = $this->getFinalCacheKeyName($this->cache_definition);
 
         return $this->cache_definition;
     }
@@ -501,7 +436,7 @@ abstract class Controller
      * @param array $definition Cache definition.
      * @return string
      */
-    private function _getFinalCacheKeyName(array $definition)
+    private function getFinalCacheKeyName(array $definition)
     {
         // Add the controller class name when 'name' is empty.
         if (!isset($definition['name'])) {
@@ -528,6 +463,7 @@ abstract class Controller
      *
      * @param mixed $key_definition Array of keys=>values that define the cache,
      * or just a string that will be used as "name".
+     * @return mixed
      */
     public function deleteCache($key_definition)
     {
@@ -535,7 +471,7 @@ abstract class Controller
             $key_definition = ['name' => $key_definition];
         }
 
-        return $this->cache->delete($this->_getFinalCacheKeyName($key_definition));
+        return $this->cache->delete($this->getFinalCacheKeyName($key_definition));
     }
 
     /**
@@ -552,7 +488,10 @@ abstract class Controller
         return $this->cache->deleteCacheByTag($tag, $value);
     }
 
-    protected function assignCommonVars()
+    /**
+     * @throws Exception_Configuration
+     */
+    private function assignCommonVars()
     {
         $this->assign('url', $this->params['url']);
         $this->assign('_tpls', Config::getInstance()->getConfig('templates'));
@@ -579,12 +518,15 @@ abstract class Controller
      * Executes the current controller.
      *
      * @return string
+     * @throws Exception_500
+     * @throws SEO_Exception
      */
-    public function execute()
+    private function getOutput()
     {
-        $result = $this->build();
         $controller_params = array_merge(['layout' => $this->layout], $this->getParams());
         $this->addToDebug('parameters', $controller_params, 'CONTROLLER');
+
+        $result = $this->build();
 
         if ($this->is_json) {
             return $result;
@@ -601,15 +543,14 @@ abstract class Controller
      * @param string $buffer HTML output.
      * @return string
      */
-    private function _realTimeReplacement($buffer)
+    private function realTimeReplacement($buffer)
     {
-        $benchmark_key = 'controller_execution_replace';
-        $this->startBench($benchmark_key);
+        $this->startBench(self::BENCHMARK_REPLACEMENT_KEY);
 
         // Only letters, numbers _ and . ALLOWED. Take care with parameters.
-        $buffer = preg_replace_callback('/<\!--\s*REPLACE\:([a-zA-Z0-9:_\\\.\-,\/\+]*)\s*-->/', [$this, '_executeReplacementModule'], $buffer);
+        $buffer = preg_replace_callback('/<\!--\s*REPLACE\:([a-zA-Z0-9:_\\\.\-,\/\+]*)\s*-->/', [$this, 'executeReplacementModule'], $buffer);
 
-        $this->stopBench($benchmark_key, "---- TOTAL REALTIME REPLACEMENTS ----");
+        $this->stopBench(self::BENCHMARK_REPLACEMENT_KEY, "---- TOTAL REALTIME REPLACEMENTS ----");
         return $buffer;
     }
 
@@ -618,81 +559,30 @@ abstract class Controller
      *
      * @param array $matches Preg_replace matches.
      * @return string
+     * @throws ControllerException
+     * @throws Exception_DependencyInjector
      */
-    private function _executeReplacementModule($matches)
+    private function executeReplacementModule($matches)
     {
-        // Take params set by tag <!-- REPLACE -->:
         $replace_params = explode('::', $matches[1]);
         $controller = $replace_params[0];
         unset ($replace_params[0]);
-        return $this->dispatchSingleController($controller, ['params' => array_values($replace_params)]);
+        return $this->getModuleOutput($controller, ['params' => array_values($replace_params)]);
     }
 
     /**
-     * Dispatch a single controller. Fetch from cache (if any), execute, store cache, return output.
-     *
-     * @param string $controller Name of controller to execute.
-     * @param array $params Additional parameters needed by the controller
+     * @param $controller
+     * @param array $params
      * @return string
      * @throws ControllerException
+     * @throws Exception_DependencyInjector
+     * @deprecated
      */
     public function dispatchSingleController(
         $controller,
         $params = []
     ) {
-        $benchmark_key = 'controller_execution_time';
-        $this->startBench($benchmark_key);
-
-        $module = Bootstrap::invokeController($controller);
-        $module->setParams(array_merge($this->getParams(), $params));
-        $module->preDispatch();
-        $cached_content = $module->grabCache();
-        $class_name = get_class($module);
-
-        if (false !== $cached_content) {
-            if ($cached_content instanceof \Exception) {
-                throw new ControllerException("Module Execute has generated an exception (cached).", null, $cached_content);
-            }
-            $module_content = $cached_content;
-        } else {
-            $cache_key = $module->parseCache();
-            if (false !== $cache_key) {
-                $module->addToDebug('name', $cache_key['name'], 'Cache properties');
-                $module->addToDebug('expiration', $cache_key['expiration'], 'Cache properties');
-            }
-            try {
-                $module_content = $module->execute();
-            } catch (SEO_Exception $e) {
-                $this->cacheException($e, $cache_key);
-                throw new ControllerException("Module Execute has generated an exception.", null, $e);
-            }
-        }
-
-        $cache_key = $module->parseCache();
-
-        if (false !== $cache_key) {
-            $this->cache->set($cache_key['name'], $module_content, $cache_key['expiration']);
-        }
-
-        $module->postDispatch();
-        $this->stopBench($benchmark_key, "$class_name: TOTAL module execution");
-
-        return $module_content;
-    }
-
-    /**
-     * Actions executed BEFORE the controller is dispatched or cache is called.
-     */
-    public function preDispatch()
-    {
-    }
-
-    /**
-     * Actions executed AFTER the controller has been dispatched and cache fetched and right before the output is sent to browser.
-     *
-     */
-    public function postDispatch()
-    {
+        return $this->getModuleOutput($controller, $params);
     }
 
     /**
@@ -700,11 +590,11 @@ abstract class Controller
      *
      * This is the last chance to modify the output.
      *
-     * @param string $output
+     * @param string $content
      */
-    public function echoOutput($output)
+    private function outputContent($content)
     {
-        echo $output;
+        echo $content;
     }
 
     /**
@@ -847,7 +737,7 @@ abstract class Controller
      * Adds an element in the debug as a new entry. You can set the context to create groups.
      *
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      * @param string $context
      */
     protected function addToDebug(
@@ -893,6 +783,7 @@ abstract class Controller
      * @param string $config_name Config name.
      * @param string $instance If null, the config is taken from the current instance.
      * @return mixed
+     * @throws Exception_Configuration
      */
     protected function getConfig(
         $config_name,
@@ -1046,6 +937,8 @@ abstract class Controller
      * @param string $domain
      * @param string $language
      * @param string $i18n_messages
+     * @throws Exception_404
+     * @throws Exception_500
      */
     public function changeInstanceEnvironment(
         $instance,
@@ -1053,13 +946,77 @@ abstract class Controller
         $language,
         $i18n_messages = 'messages'
     ) {
-        \Sifo\Bootstrap::$instance = $instance;
-        \Sifo\Domains::getInstance()->changeDomain($domain);
-        \Sifo\I18N::setDomain($i18n_messages, $language, $instance);
+        Bootstrap::$instance = $instance;
+        Domains::getInstance()->changeDomain($domain);
+        I18N::setDomain($i18n_messages, $language, $instance);
         $this->__construct();
+    }
+
+    private function checkKillSession()
+    {
+        if (Domains::getInstance()->getDebugMode() && (FilterGet::getInstance()->getInteger('kill_session'))) {
+            @Session::getInstance()->destroy();
+        }
+    }
+
+    private function addJsonHeadersIfRequired()
+    {
+        if (!$this->is_json) {
+            return;
+        }
+
+        if (!empty(FilterGet::getInstance()->getString('json_callback'))) {
+            Headers::set('Content-type', 'text/javascript');
+            return;
+        }
+
+        Headers::set('Content-type', 'application/json');
+    }
+
+    /**
+     * @param $cached_content
+     * @throws ControllerException
+     */
+    private function outputCachedContent($cached_content)
+    {
+        if ($cached_content instanceof Exception) {
+            throw new ControllerException("Controller Build has generated an exception (cached).", null, $cached_content);
+        }
+        $this->postDispatch();
+        $cached_content = $this->realTimeReplacement($cached_content);
+        Headers::send();
+
+        if (extension_loaded('newrelic')) {
+            newrelic_name_transaction($this->params['controller']);
+        }
+
+        $this->outputContent($cached_content);
+    }
+
+    /**
+     * @param $return
+     * @return false|string
+     * @throws ControllerException
+     * @throws Exception_DependencyInjector
+     */
+    private function grabJson($return)
+    {
+        if (Domains::getInstance()->getDebugMode() && is_array($return)) {
+            $this->stopBench(self::BENCHMARK_PARENT_KEY, "----- TOTAL " . get_class($this) . " + PREVIOUS MODULES -----");
+            Debug::subSet('controllers', get_class($this), $this->debug_info);
+            $return['debug_total_time'] = Benchmark::getInstance()->timingCurrent();
+
+            $this->getModuleOutput('DebugIndex', ['show_debug_timers' => false, 'executed_controller_is_json' => true]);
+
+            $return['debug_execution_key'] = Debug::getExecutionKey();
+        }
+
+        $json_callback = FilterGet::getInstance()->getString('json_callback');
+        $content = ($json_callback ? $json_callback . '(' . json_encode($return) . ')' : json_encode($return));
+        return $content;
     }
 }
 
-class ControllerException extends \Exception
+class ControllerException extends Exception
 {
 }
