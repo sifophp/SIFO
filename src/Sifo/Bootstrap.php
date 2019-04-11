@@ -2,6 +2,21 @@
 
 namespace Sifo;
 
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Diactoros\Response\JsonResponse;
+use Zend\Diactoros\ServerRequestFactory;
+
+use function explode;
+use function header_remove;
+use function headers_list;
+use function http_response_code;
+use function implode;
+use function ob_get_clean;
+use function ob_start;
+use function trim;
+
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
 if (!$is_defined_in_vhost && extension_loaded('newrelic') && isset($instance)) {
     newrelic_set_appname(ucfirst($instance));
@@ -44,16 +59,33 @@ class Bootstrap
         $instance_name,
         $controller_name = null
     ) {
+        $responseEmitter = new ResponseEmitter();
         self::$root = ROOT_PATH;
         self::$application = dirname(__FILE__);
         self::$instance = $instance_name;
         self::$container = DependencyInjector::getInstance();
+
+        ob_start();
 
         Benchmark::getInstance()->timingStart();
 
         self::dispatch($controller_name);
 
         Benchmark::getInstance()->timingStop();
+
+        $headers = headers_list();
+        header_remove();
+        $response = new HtmlResponse(ob_get_clean());
+        $response = $response->withStatus(http_response_code());
+
+        foreach ($headers as $header) {
+            $pieces = explode(':', $header);
+            $headerName = array_shift($pieces);
+            $response = $response->withHeader($headerName, trim(implode(':', $pieces)));
+        }
+
+
+        $responseEmitter->emit($response);
     }
 
     /**
@@ -70,9 +102,16 @@ class Bootstrap
 
         if (self::$container->has($class)) {
             $controller = self::$container->get($class);
+            if ($controller instanceof RequestHandlerInterface) {
+                return $controller;
+            }
         } else {
             /** @var Controller $controller */
             $controller = new $class();
+        }
+
+        if ($controller instanceof RequestHandlerInterface) {
+            return $controller;
         }
 
         $controller->setContainer(self::$container);
@@ -136,6 +175,11 @@ class Bootstrap
                 ))->getController();
 
             $ctrl = self::invokeController($controller);
+            if ($ctrl instanceof RequestHandlerInterface) {
+                self::handleRequest($ctrl, $controller);
+                return;
+            }
+
             $ctrl->addParams(['controller_route' => $controller]);
             self::$controller = $controller;
 
@@ -156,6 +200,25 @@ class Bootstrap
             self::_dispatchErrorController($e->getPrevious());
         } catch (\Exception $e) {
             self::_dispatchErrorController($e);
+        }
+    }
+
+    private static function handleRequest(RequestHandlerInterface $requestHandler, string $route_name)
+    {
+        self::enableDebugFeatures();
+        $request = ServerRequestFactory::fromGlobals(
+            $_SERVER,
+            $_GET,
+            $_POST,
+            $_COOKIE,
+            $_FILES
+        );
+
+        $response = $requestHandler->handle($request->withAttribute('controller_route', $route_name));
+        $responseEmitter = new ResponseEmitter();
+        $responseEmitter->emit($response);
+        if (!$response instanceof JsonResponse && Domains::getInstance()->getDebugMode()) {
+            self::invokeController('debug/index')->dispatch();
         }
     }
 
