@@ -214,7 +214,8 @@ class DependencyInjector implements ContainerInterface
         }
 
         $parsed_yaml_content = Yaml::parse(file_get_contents($instance_yml_definitions_file));
-        $declared_services   = $this->getImportedServices($parsed_yaml_content);
+        $declared_services   = $this->getImportedServices($parsed_yaml_content, $instance_yml_definitions_file);
+
         $compiled_services   = array();
         $scoped_definitions  = array();
         $private_services    = array();
@@ -311,7 +312,7 @@ class DependencyInjector implements ContainerInterface
         return $compiled_arguments;
     }
 
-    private function getImportedServices($parsed_yaml_content)
+    private function getImportedServices($parsed_yaml_content, $parsed_yaml_path)
     {
         $imports = is_array($parsed_yaml_content)
             ? array_key_exists('imports', $parsed_yaml_content)
@@ -326,19 +327,45 @@ class DependencyInjector implements ContainerInterface
             : array();
 
         $retrieved_services = array();
-        foreach ($imports as $instance => $files_to_import) {
-            $config_files_path = ROOT_PATH . '/instances/' . $instance . '/config/services/';
 
-            foreach ($files_to_import as $file_to_import) {
-                $imported_parsed_yaml_content = Yaml::parse(file_get_contents($config_files_path . $file_to_import));
-                $retrieved_services           = array_merge(
+        if ($this->hasGroupedServicesByInstances($imports)) {
+            foreach ($imports as $instance => $files_to_import) {
+                $config_files_path = ROOT_PATH . '/instances/' . $instance . '/config/services/';
+                $retrieved_services = array_merge(
                     $retrieved_services,
-                    $this->getImportedServices($imported_parsed_yaml_content)
+                    $this->getServicesFromFilesCollection($config_files_path, $files_to_import)
                 );
             }
+
+            return array_merge($retrieved_services, $services);
         }
 
+        $config_files_path = dirname($parsed_yaml_path) . '/';
+        $retrieved_services = $this->getServicesFromFilesCollection($config_files_path, $imports);
+
         return array_merge($retrieved_services, $services);
+    }
+
+    private function hasGroupedServicesByInstances($imports)
+    {
+        return count(array_filter(array_keys($imports), 'is_string')) > 0;
+    }
+
+    private function getServicesFromFilesCollection($config_files_path, array $files_to_import)
+    {
+        $retrieved_services = array();
+
+        foreach ($files_to_import as $file_to_import) {
+            $imported_parsed_yaml_path = $config_files_path . $file_to_import;
+            $imported_parsed_yaml_content = Yaml::parse(file_get_contents($imported_parsed_yaml_path));
+
+            $retrieved_services = array_merge(
+                $retrieved_services,
+                $this->getImportedServices($imported_parsed_yaml_content, $imported_parsed_yaml_path)
+            );
+        }
+
+        return $retrieved_services;
     }
 
     private function isALiteralDeclaration($declaration)
