@@ -20,6 +20,9 @@
 
 namespace Sifo;
 
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Dotenv\Exception\PathException;
+
 /**
  * Configuration file parser.
  */
@@ -74,6 +77,14 @@ class Config
 
 		include( $this->config_path . $this->configuration_files );
 		$this->paths_to_configs = $config;
+
+		$dotenv = new Dotenv();
+		
+		try {
+			$dotenv->load(ROOT_PATH . '/.env');
+		} catch (PathException $exception) {
+			return;
+		}
 	}
 
 	/**
