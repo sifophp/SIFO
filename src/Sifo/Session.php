@@ -82,7 +82,7 @@ class Session
 		}
 		elseif ( !isset( $name ) || !isset( $value ) )
 		{
-			trigger_error( "Session: Missing parameter or parameters." );
+			trigger_error( 'Session: Missing parameter or parameters.', E_USER_WARNING);
 			return false;
 		}
 		else
@@ -117,7 +117,7 @@ class Session
 	{
 		if ( !isset( $_SESSION[$name] ) )
 		{
-			trigger_error( "Session: $name variable does not exist." );
+			trigger_error( "Session: $name variable does not exist.", E_USER_WARNING );
 			return false;
 		}
 		else
