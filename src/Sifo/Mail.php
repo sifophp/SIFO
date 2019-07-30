@@ -20,10 +20,12 @@
 
 namespace Sifo;
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 class Mail
 {
     /**
-     * @var \PHPMailer
+     * @var PHPMailer
      */
     protected $mail;
 
@@ -53,7 +55,7 @@ class Mail
     {
         $config = Config::getInstance()->getConfig('mail');
 
-        $this->mail           = new \PHPMailer();
+        $this->mail           = new PHPMailer();
         $this->mail->CharSet  = $config['CharSet'];
         $this->mail->From     = $config['From'];
         $this->mail->FromName = $config['FromName'];
