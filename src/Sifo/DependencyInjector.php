@@ -290,10 +290,11 @@ class DependencyInjector implements ContainerInterface
 
         foreach ($arguments as $argument) {
 
-            if ($this->isALiteralArgument($argument)) {
+            if ($this->isAVariableArgument($argument)) {
+                $compiled_arguments[] = $this->getVariableArgumentCompilation($argument);
+            } elseif ($this->isALiteralArgument($argument)) {
                 $compiled_arguments[] = $this->getLiteralArgumentCompilation($argument);
-            }
-            elseif ($this->isAnArray($argument)) {
+            } elseif ($this->isAnArray($argument)) {
                 $compiled_argument = '';
 
                 foreach ($argument as $argument_key => $argument_value) {
@@ -302,8 +303,7 @@ class DependencyInjector implements ContainerInterface
                 }
 
                 $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "[\n" . $compiled_argument . str_repeat("\x20\x20\x20\x20", $depth) . ']';
-            }
-            else {
+            } else {
                 $dependant_service    = ltrim($argument, '@');
                 $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "\$container->get('" . $dependant_service . "', true)";
             }
@@ -453,14 +453,26 @@ class DependencyInjector implements ContainerInterface
         return $setter_injections_calls;
     }
 
-    private function isALiteralArgument($argument)
+    private function isAVariableArgument($argument): bool
     {
-        return !is_array($argument) && substr($argument, 0, 1) != '@';
+        return !is_array($argument) && strpos($argument, '%') !== 0;
+    }
+
+    private function isALiteralArgument($argument): bool
+    {
+        return !is_array($argument) && strpos($argument, '@') !== 0;
     }
 
     private function isAnArray($dependency)
     {
         return is_array($dependency);
+    }
+
+    private function getVariableArgumentCompilation($argument): string
+    {
+        $variable_name = trim('%', $argument);
+
+        return $_ENV[$variable_name] ?? '';
     }
 
     private function getLiteralArgumentCompilation($argument)
