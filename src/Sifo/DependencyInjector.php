@@ -455,7 +455,7 @@ class DependencyInjector implements ContainerInterface
 
     private function isAVariableArgument($argument): bool
     {
-        return !is_array($argument) && strpos($argument, '%') !== 0;
+        return !is_array($argument) && preg_match('/%([^%\s]+)%/', $argument);
     }
 
     private function isALiteralArgument($argument): bool
@@ -470,9 +470,9 @@ class DependencyInjector implements ContainerInterface
 
     private function getVariableArgumentCompilation($argument): string
     {
-        $variable_name = trim('%', $argument);
+        $variable_name = trim($argument, '%');
 
-        return $_ENV[$variable_name] ?? '';
+        return $_ENV[$variable_name] ? "\x20\x20\x20\x20\x20\x20\x20\x20'" . $_ENV[$variable_name] . "'" : '';
     }
 
     private function getLiteralArgumentCompilation($argument)
