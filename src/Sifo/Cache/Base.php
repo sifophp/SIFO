@@ -265,4 +265,14 @@ class CacheBase
 
 		return true;
 	}
+
+    /**
+     * Delete all cache from current instance.
+     *
+     * @return void
+     */
+	public function flush()
+    {
+        $this->cache_object->flush();
+    }
 }
