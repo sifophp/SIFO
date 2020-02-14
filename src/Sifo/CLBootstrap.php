@@ -91,8 +91,7 @@ class CLBootstrap extends Bootstrap
 @ob_end_flush();
 
 // Instance name (folder under instances):
-$cwd = $_SERVER['PWD'] . '/' . $_SERVER['PHP_SELF'];
-preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $cwd, $matchs);
+preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $_SERVER['PHP_SELF'], $matchs);
 
 // Set the real and active instance name.
 CLBootstrap::$instance = $matchs[1];
