@@ -47,28 +47,19 @@ class CLBootstrap extends Bootstrap
 		// Set Timezone as required by php 5.1+
 		date_default_timezone_set('Europe/Madrid');
 
-		try
-		{
+        self::$language = 'en_US';
 
-			self::$language = 'en_US';
+        // This is the controller to use:
+        $ctrl = self::invokeController( $controller );
+        self::$controller = $controller;
+        $ctrl->build();
 
-			// This is the controller to use:
-			$ctrl = self::invokeController( $controller );
-			self::$controller = $controller;
-			$ctrl->build();
-
-			// Debug:
-			if ( Domains::getInstance()->getDebugMode() )
-			{
-				$ctrl_debug = self::invokeController( 'DebugCommandLineDebug' );
-				$ctrl_debug->build();
-			}
-		}
-		catch ( \Exception $e )
-		{
-			echo ( $e->getMessage() . "\n" . $e->getTraceAsString() );
-			die;
-		}
+        // Debug:
+        if ( Domains::getInstance()->getDebugMode() )
+        {
+            $ctrl_debug = self::invokeController( 'DebugCommandLineDebug' );
+            $ctrl_debug->build();
+        }
 	}
 
 	public static function is_domain( $var )
