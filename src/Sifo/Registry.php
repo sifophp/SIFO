@@ -99,7 +99,7 @@ class Registry
 	 */
 	public static function invalidate( $key )
 	{
-		if ( isset( self::$storage[$key] ) )
+		if ( self::keyExists($key) )
 		{
 			unset( self::$storage[$key] );
 		}
