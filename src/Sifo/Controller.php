@@ -62,6 +62,13 @@ abstract class Controller
 	 */
 	protected $params;
 
+    /**
+     * Instance name, this is the folder under 'instances'.
+     *
+     * @var string
+     */
+    protected $instance;
+
 	/**
 	 * Language used in this controller. Eg.: en_US.
 	 *
