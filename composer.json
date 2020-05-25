@@ -26,7 +26,7 @@
     "psr/container": "^1.0",
     "sifophp/sifo-common-instance": "^2.14",
     "smarty/smarty": "^3.1",
-    "symfony/dotenv": "^4.3",
+    "symfony/dotenv": "^5.0",
     "symfony/yaml": "^3.2",
     "tpyo/amazon-s3-php-class": "^0.5",
     "twig/extensions": "^1.4",
