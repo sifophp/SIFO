@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use Psr\Container\ContainerInterface;
+
 abstract class Controller
 {
      /**
@@ -100,7 +102,7 @@ abstract class Controller
     /**
      * The dependency injection container.
      *
-     * @var DependencyInjector|\Symfony\Component\DependencyInjection\ContainerInterface
+     * @var DependencyInjector|ContainerInterface
      */
     protected $container;
 
@@ -160,9 +162,9 @@ abstract class Controller
     /**
      * Sets the dependency injection container.
      *
-     * @param DependencyInjector $container The container to use.
+     * @param ContainerInterface $container The container to use.
      */
-    public function setContainer(DependencyInjector $container)
+    public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
     }
