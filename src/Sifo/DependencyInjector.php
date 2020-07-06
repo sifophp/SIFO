@@ -312,7 +312,7 @@ class DependencyInjector implements ContainerInterface
         return $compiled_arguments;
     }
 
-    private function getImportedServices($parsed_yaml_content, $parsed_yaml_path)
+    public function getImportedServices($parsed_yaml_content, $parsed_yaml_path)
     {
         $imports = is_array($parsed_yaml_content)
             ? array_key_exists('imports', $parsed_yaml_content)

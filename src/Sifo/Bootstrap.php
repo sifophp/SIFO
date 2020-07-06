@@ -87,13 +87,13 @@ class Bootstrap
 	 * @internal param string $root Path to root.
 	 *
 	 */
-	public static function execute( $instance_name, $controller_name = null )
+	public static function execute( $instance_name, $controller_name = null, $container = null )
 	{
 		// Set paths:
 		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
-        self::$container = DependencyInjector::getInstance();
+        self::$container = $container ?? DependencyInjector::getInstance();
 
 		Benchmark::getInstance()->timingStart();
 
