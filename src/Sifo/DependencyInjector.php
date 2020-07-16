@@ -50,12 +50,15 @@ class DependencyInjector implements ContainerInterface
      * @var array
      */
     protected $service_definitions;
+    /** @var null|ContainerInterface */
+    private $container;
 
     /**
      * Private constructor, use getInstance() instead to get an instance.
      */
-    private function __construct()
+    private function __construct($container = null)
     {
+        $this->container = $container;
     }
 
     /**
@@ -70,17 +73,17 @@ class DependencyInjector implements ContainerInterface
      *
      * @static
      * @param null $instance_name
+     * @param null|ContainerInterface $container
      * @return ContainerInterface|DependencyInjector Dependency injector instance.
      */
-    public static function getInstance($instance_name = null)
+    public static function getInstance($instance_name = null, $container = null)
     {
-        if (null == $instance_name)
-        {
+        if (null == $instance_name) {
             $instance_name = Bootstrap::$instance;
         }
 
         if (!isset(self::$instance[$instance_name])) {
-            self::$instance[$instance_name] = new self;
+            self::$instance[$instance_name] = new self($container);
         }
 
         return self::$instance[$instance_name];
@@ -96,6 +99,10 @@ class DependencyInjector implements ContainerInterface
      */
     public function get($service_key, $get_private_service = false)
     {
+        if (null !== $this->container) {
+            return $this->container->get($service_key);
+        }
+
         if (!$this->service_definitions) {
             $this->loadServiceDefinitions();
         }

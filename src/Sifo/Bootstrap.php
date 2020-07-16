@@ -93,7 +93,7 @@ class Bootstrap
 		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
-        self::$container = $container ?? DependencyInjector::getInstance();
+        self::$container = DependencyInjector::getInstance(null, $container);
 
 		Benchmark::getInstance()->timingStart();
 
