@@ -19,14 +19,15 @@ class CLBootstrap extends Bootstrap
 	 * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
 	 * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
 	 */
-	public static function execute( $instance_name = null, $controller_name = null, $container = null )
+	public static function execute( $instance_name = null, $controller_name = null, $psr_container = null )
 	{
 		if ( !isset( $controller_name ) )
 		{
 			$controller_name = self::$script_controller;
 		}
 
-        self::$container = $container ?? DependencyInjector::getInstance();
+
+        self::$container = DependencyInjector::getInstance(null, $psr_container);
 
 		// Set paths:
 		self::$root = ROOT_PATH;

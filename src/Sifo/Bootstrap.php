@@ -21,6 +21,8 @@
 
 namespace Sifo;
 
+use function dd;
+
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
 if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
@@ -273,10 +275,12 @@ class Bootstrap
 		}
 		catch ( ControllerException $e )
 		{
+		    throw $e;
 			self::_dispatchErrorController( $e->getPrevious() );
 		}
 		catch ( \Exception $e )
 		{
+            throw $e;
 			self::_dispatchErrorController( $e );
 		}
 	}
