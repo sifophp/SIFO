@@ -50,15 +50,21 @@ class DependencyInjector implements ContainerInterface
      */
     protected $service_definitions;
     /** @var null|ContainerInterface */
-    private $container;
+    private static $container;
 
     /**
      * Private constructor, use getInstance() instead to get an instance.
      */
     private function __construct($container = null)
     {
-        $this->loadServiceDefinitions();
-        $this->container = $container;
+        if (null !== self::$container) {
+            return;
+        }
+
+        self::$container = $container;
+        if (null === $container) {
+            $this->loadServiceDefinitions();
+        }
     }
 
     /**
@@ -83,7 +89,7 @@ class DependencyInjector implements ContainerInterface
         }
 
         if (!isset(self::$instance[$instance_name])) {
-            self::$instance[$instance_name] = new self($container);
+            self::$instance[$instance_name] = new self($container ?? self::$container);
         }
 
         return self::$instance[$instance_name];
@@ -99,9 +105,10 @@ class DependencyInjector implements ContainerInterface
      */
     public function get($service_key, $get_private_service = false)
     {
-        if (null !== $this->container) {
-            return $this->container->get($service_key);
+        if (null !== self::$container) {
+            return self::$container->get($service_key);
         }
+
         if (!array_key_exists($service_key, $this->service_definitions)) {
             throw new Exception_DependencyInjector('Undefined service "' . $service_key . '"');
         }
@@ -156,13 +163,14 @@ class DependencyInjector implements ContainerInterface
      */
     public function has($service)
     {
-        if (null !== $this->container) {
-            return $this->container->has($service);
+        if (null !== self::$container) {
+            return self::$container->has($service);
         }
 
         return array_key_exists($service, $this->service_definitions);
     }
 
+    /** @deprecated  */
     public function servicesWithTag($tag_name)
     {
         if (!isset($this->service_definitions['tags'][$tag_name])) {
