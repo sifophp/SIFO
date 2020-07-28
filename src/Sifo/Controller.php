@@ -339,12 +339,16 @@ abstract class Controller
 	/**
 	 * Dispatch the controller.
 	 */
-	public function dispatch()
+	public function dispatch($container = null)
 	{
 		if ( Domains::getInstance()->getDebugMode() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
 		{
 			@Session::getInstance()->destroy();
 		}
+
+		if (null === $this->container) {
+		    $this->container = DependencyInjector::getInstance(null, $container);
+        }
 
 		if ( $this->is_json )
 		{

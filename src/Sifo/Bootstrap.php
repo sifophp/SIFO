@@ -93,7 +93,7 @@ class Bootstrap
 		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
-        self::$container = DependencyInjector::getInstance(null, $container);
+        static::setContainer($container);
 
 		Benchmark::getInstance()->timingStart();
 
@@ -110,25 +110,29 @@ class Bootstrap
      * @return Controller
      * @throws Exception_DependencyInjector
      */
-    public static function invokeController( $controller )
+    public static function invokeController( $controller, $container = null )
     {
+        static::setContainer($container);
+
         $class = self::convertToControllerClassName( $controller );
 
-        if (self::$container->has($class)) {
-            $controller = self::$container->get($class);
+        if (static::$container->has($class)) {
+            $controller = static::$container->get($class);
         } else {
             /** @var Controller $controller */
             $controller = new $class();
         }
 
-        $controller->setContainer(self::$container);
+        $controller->setContainer(static::$container);
 
         return $controller;
     }
 
 
-    private static function convertToControllerClassName( $controller ): string
+    private static function convertToControllerClassName( $controller, $container = null ): string
     {
+        static::setContainer($container);
+
         if(class_exists($controller))
         {
             return $controller;
@@ -160,10 +164,12 @@ class Bootstrap
 	 *
 	 * @param string $controller Dispatches a specific controller, or use URL to determine the controller
 	 */
-	public static function dispatch( $controller = null )
+	public static function dispatch( $controller = null, $container = null )
 	{
 		try
 		{
+            static::setContainer($container);
+
 			$domain      = Domains::getInstance();
 			$destination = $domain->getRedirect();
 
@@ -288,9 +294,11 @@ class Bootstrap
 	 *
 	 * @return output buffer
 	 */
-	private static function _dispatchErrorController( $e )
+	private static function _dispatchErrorController( $e, $container = null )
 	{
-		if ( !isset( $e->http_code ) )
+        static::setContainer($container);
+
+        if ( !isset( $e->http_code ) )
 		{
 			$e->http_code     = 503;
 			$e->http_code_msg = 'Exception!';
@@ -368,11 +376,20 @@ class Bootstrap
 	 *
 	 * @param array $php_inis
 	 */
-	private static function _overWritePHPini( Array $php_inis )
+	private static function _overWritePHPini( Array $php_inis, $container = null )
 	{
-		foreach ( $php_inis as $varname => $newvalue )
+        static::setContainer($container);
+
+        foreach ( $php_inis as $varname => $newvalue )
 		{
 			ini_set( $varname, $newvalue );
 		}
 	}
+
+	protected static function setContainer($container = null)
+    {
+        if (null === static::$container) {
+            static::$container = $container;
+        }
+    }
 }
