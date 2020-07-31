@@ -21,6 +21,8 @@
 
 namespace Sifo;
 
+use Psr\Container\ContainerInterface;
+
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
 if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
@@ -78,7 +80,7 @@ class Bootstrap
      */
     public static $container;
 
-	/**
+    /**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
 	 * @param $instance_name
@@ -93,7 +95,7 @@ class Bootstrap
 		self::$root        = ROOT_PATH;
 		self::$application = dirname( __FILE__ );
 		self::$instance    = $instance_name;
-        self::$container = $container ?? DependencyInjector::getInstance();
+        static::setContainer($container);
 
 		Benchmark::getInstance()->timingStart();
 
@@ -110,18 +112,19 @@ class Bootstrap
      * @return Controller
      * @throws Exception_DependencyInjector
      */
-    public static function invokeController( $controller )
+    public static function invokeController( $controller, $container = null )
     {
+        static::setContainer($container);
+
         $class = self::convertToControllerClassName( $controller );
 
-        if (self::$container->has($class)) {
-            $controller = self::$container->get($class);
+        if (static::$container instanceof ContainerInterface && static::$container->has($class)) {
+            $controller = static::$container->get($class);
+            $controller->setContainer(static::$container);
         } else {
             /** @var Controller $controller */
             $controller = new $class();
         }
-
-        $controller->setContainer(self::$container);
 
         return $controller;
     }
@@ -160,10 +163,12 @@ class Bootstrap
 	 *
 	 * @param string $controller Dispatches a specific controller, or use URL to determine the controller
 	 */
-	public static function dispatch( $controller = null )
+	public static function dispatch( $controller = null, $container = null )
 	{
 		try
 		{
+            static::setContainer($container);
+
 			$domain      = Domains::getInstance();
 			$destination = $domain->getRedirect();
 
@@ -288,9 +293,11 @@ class Bootstrap
 	 *
 	 * @return output buffer
 	 */
-	private static function _dispatchErrorController( $e )
+	private static function _dispatchErrorController( $e, $container = null )
 	{
-		if ( !isset( $e->http_code ) )
+        static::setContainer($container);
+
+        if ( !isset( $e->http_code ) )
 		{
 			$e->http_code     = 503;
 			$e->http_code_msg = 'Exception!';
@@ -370,9 +377,16 @@ class Bootstrap
 	 */
 	private static function _overWritePHPini( Array $php_inis )
 	{
-		foreach ( $php_inis as $varname => $newvalue )
+        foreach ( $php_inis as $varname => $newvalue )
 		{
 			ini_set( $varname, $newvalue );
 		}
 	}
+
+	protected static function setContainer($container = null)
+    {
+        if (null === static::$container && null !== $container) {
+            static::$container = $container;
+        }
+    }
 }

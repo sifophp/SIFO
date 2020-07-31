@@ -157,6 +157,7 @@ abstract class Controller
 
 		$this->cache = Cache::getInstance( Cache::CACHE_TYPE_AUTODISCOVER );
 		$this->view = new View();
+		$this->container = DependencyInjector::getInstance();
 	}
 
     /**
@@ -164,8 +165,11 @@ abstract class Controller
      *
      * @param ContainerInterface $container The container to use.
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer($container = null)
     {
+        if (null === $container || null !== $this->container) {
+            return;
+        }
         $this->container = $container;
     }
 
@@ -339,12 +343,16 @@ abstract class Controller
 	/**
 	 * Dispatch the controller.
 	 */
-	public function dispatch()
+	public function dispatch($container = null)
 	{
 		if ( Domains::getInstance()->getDebugMode() && ( FilterGet::getInstance()->getInteger( 'kill_session' ) ) )
 		{
 			@Session::getInstance()->destroy();
 		}
+
+		if (null === $this->container) {
+		    $this->container = DependencyInjector::getInstance(null, $container);
+        }
 
 		if ( $this->is_json )
 		{

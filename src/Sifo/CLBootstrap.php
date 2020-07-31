@@ -19,14 +19,15 @@ class CLBootstrap extends Bootstrap
 	 * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
 	 * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
 	 */
-	public static function execute( $instance_name = null, $controller_name = null, $container = null )
+	public static function execute( $instance_name = null, $controller_name = null, $psr_container = null )
 	{
 		if ( !isset( $controller_name ) )
 		{
 			$controller_name = self::$script_controller;
 		}
 
-        self::$container = $container ?? DependencyInjector::getInstance();
+
+        self::$container = DependencyInjector::getInstance(null, $psr_container);
 
 		// Set paths:
 		self::$root = ROOT_PATH;
@@ -42,7 +43,7 @@ class CLBootstrap extends Bootstrap
 	 *
 	 * @param string $controller Dispatches a specific controller. Defaults to null for compatibility with Bootstrap::dispatch
 	 */
-	public static function dispatch( $controller = null )
+	public static function dispatch( $controller = null, $container = null )
 	{
 		// Set Timezone as required by php 5.1+
 		date_default_timezone_set('Europe/Madrid');
@@ -50,7 +51,8 @@ class CLBootstrap extends Bootstrap
         self::$language = 'en_US';
 
         // This is the controller to use:
-        $ctrl = self::invokeController( $controller );
+        $ctrl = self::invokeController( $controller, $container );
+        $ctrl->setContainer(static::$container);
         self::$controller = $controller;
         $ctrl->build();
 

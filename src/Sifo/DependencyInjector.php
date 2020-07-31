@@ -22,6 +22,7 @@ namespace Sifo;
 
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
+use function array_key_exists;
 
 /**
  * Handles the dependency injection.
@@ -35,27 +36,35 @@ class DependencyInjector implements ContainerInterface
      * @static
      */
     static protected $instance;
-
     /**
      * Already instantiated container services.
      *
      * @var array
      * @static
      */
-    static protected $container_instances = array();
-
+    static protected $container_instances = [];
     /**
      * Defined services.
      *
      * @var array
      */
     protected $service_definitions;
+    /** @var null|ContainerInterface */
+    private static $container;
 
     /**
      * Private constructor, use getInstance() instead to get an instance.
      */
-    private function __construct()
+    private function __construct($container = null)
     {
+        if (null !== self::$container) {
+            return;
+        }
+
+        self::$container = $container;
+        if (null === $container) {
+            $this->loadServiceDefinitions();
+        }
     }
 
     /**
@@ -70,17 +79,17 @@ class DependencyInjector implements ContainerInterface
      *
      * @static
      * @param null $instance_name
+     * @param null|ContainerInterface $container
      * @return ContainerInterface|DependencyInjector Dependency injector instance.
      */
-    public static function getInstance($instance_name = null)
+    public static function getInstance($instance_name = null, $container = null)
     {
-        if (null == $instance_name)
-        {
+        if (null == $instance_name) {
             $instance_name = Bootstrap::$instance;
         }
 
         if (!isset(self::$instance[$instance_name])) {
-            self::$instance[$instance_name] = new self;
+            self::$instance[$instance_name] = new self($container ?? self::$container);
         }
 
         return self::$instance[$instance_name];
@@ -96,8 +105,8 @@ class DependencyInjector implements ContainerInterface
      */
     public function get($service_key, $get_private_service = false)
     {
-        if (!$this->service_definitions) {
-            $this->loadServiceDefinitions();
+        if (null !== self::$container) {
+            return self::$container->get($service_key);
         }
 
         if (!array_key_exists($service_key, $this->service_definitions)) {
@@ -136,10 +145,9 @@ class DependencyInjector implements ContainerInterface
     private function loadServiceDefinitions()
     {
         try {
-            $environment_suffix  = Domains::getInstance()->getDevMode() ? '_dev' : '';
+            $environment_suffix = Domains::getInstance()->getDevMode() ? '_dev' : '';
             $service_definitions = Config::getInstance()->getConfig('services/definition' . $environment_suffix);
-        }
-        catch (Exception_Configuration $e) {
+        } catch (Exception_Configuration $e) {
             $service_definitions = Config::getInstance()->getConfig('services/definition');
         }
 
@@ -155,23 +163,18 @@ class DependencyInjector implements ContainerInterface
      */
     public function has($service)
     {
-        $service_exists = true;
-
-        try {
-            Config::getInstance()->getConfig('services/definition', $service);
-        }
-        catch (Exception_Configuration $e) {
-            $service_exists = false;
+        if (null !== self::$container) {
+            return self::$container->has($service);
         }
 
-        return $service_exists;
+        return array_key_exists($service, $this->service_definitions);
     }
 
+    /** @deprecated  */
     public function servicesWithTag($tag_name)
     {
-        if (!isset($this->service_definitions['tags'][$tag_name]))
-        {
-            return array();
+        if (!isset($this->service_definitions['tags'][$tag_name])) {
+            return [];
         }
 
         return $this->service_definitions['tags'][$tag_name];
@@ -190,11 +193,11 @@ class DependencyInjector implements ContainerInterface
      */
     public function generateDependenciesDeclaration()
     {
-        $domains   = Domains::getInstance();
+        $domains = Domains::getInstance();
         $instances = array_slice($domains->getInstanceInheritance(), 1);
 
         foreach ($instances as $index => $instance) {
-            $parent_instance    = $index > 0 ? $instances[$index - 1] : null;
+            $parent_instance = $index > 0 ? $instances[$index - 1] : null;
             $this->generateDependenciesDeclarationForInstance($instance, $parent_instance, '');
 
             if ($domains->getDevMode()) {
@@ -208,18 +211,17 @@ class DependencyInjector implements ContainerInterface
         $instance_yml_definitions_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition' . $files_suffix . '.yml';
         $instance_php_definitions_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition' . $files_suffix . '.config.php';
 
-        if (!file_exists($instance_yml_definitions_file))
-        {
+        if (!file_exists($instance_yml_definitions_file)) {
             return;
         }
 
         $parsed_yaml_content = Yaml::parse(file_get_contents($instance_yml_definitions_file));
-        $declared_services   = $this->getImportedServices($parsed_yaml_content, $instance_yml_definitions_file);
+        $declared_services = $this->getImportedServices($parsed_yaml_content, $instance_yml_definitions_file);
 
-        $compiled_services   = array();
-        $scoped_definitions  = array();
-        $private_services    = array();
-        $tags_definition     = array();
+        $compiled_services = [];
+        $scoped_definitions = [];
+        $private_services = [];
+        $tags_definition = [];
 
         foreach ($declared_services as $service_key => $declaration) {
             if ($this->isALiteralDeclaration($declaration)) {
@@ -228,28 +230,30 @@ class DependencyInjector implements ContainerInterface
             }
 
             if ($this->isAnAlias($declaration)) {
-                $aliased_service                 = ltrim($declaration['alias'], '@');
-                $container_return_string         = "return \$container->get('" . $aliased_service . "', true);";
+                $aliased_service = ltrim($declaration['alias'], '@');
+                $container_return_string = "return \$container->get('" . $aliased_service . "', true);";
                 $compiled_services[$service_key] = "function (\$container) {\n\x20\x20\x20\x20" . $container_return_string . "\n};";
                 continue;
             }
 
-            $class_name         = '\\' . $declaration['class'];
-            $arguments          = array_key_exists('arguments', $declaration) ? $declaration['arguments'] : array();
+            $class_name = '\\' . $declaration['class'];
+            $arguments = array_key_exists('arguments', $declaration) ? $declaration['arguments'] : [];
             $compiled_arguments = $this->stringifyArguments($arguments, $compiled_services);
 
             if ($this->isASingleton($declaration)) {
                 $class_instance_creation_statement = $class_name . "::" . $declaration['singleton'];
-            } else if ($this->isAFactory($declaration)) {
-                $factory_service                   = ltrim($declaration['factory'][0], '@');
-                $factory_method                    = $declaration['factory'][1];
-                $class_instance_creation_statement = "\$container->get('" . $factory_service . "', true)->" . $factory_method;
             } else {
-                $class_instance_creation_statement = "new " . $class_name;
+                if ($this->isAFactory($declaration)) {
+                    $factory_service = ltrim($declaration['factory'][0], '@');
+                    $factory_method = $declaration['factory'][1];
+                    $class_instance_creation_statement = "\$container->get('" . $factory_service . "', true)->" . $factory_method;
+                } else {
+                    $class_instance_creation_statement = "new " . $class_name;
+                }
             }
 
             $class_instance_creation_statement .= "(\n" . implode(",\n", $compiled_arguments) . "\n\x20\x20\x20\x20)";
-            $service_return                    = '$service_instance = ' . $class_instance_creation_statement . ';';
+            $service_return = '$service_instance = ' . $class_instance_creation_statement . ';';
 
             if ($this->hasSetterInjections($declaration)) {
                 $service_return .= $this->getSetterInjectionsCalls($declaration, $compiled_services);
@@ -257,8 +261,7 @@ class DependencyInjector implements ContainerInterface
 
             if ($this->isAPrototypedDeclaration($declaration)) {
                 $scoped_definitions[$service_key] = 'prototype';
-            }
-            else {
+            } else {
                 $scoped_definitions[$service_key] = 'container';
             }
 
@@ -268,7 +271,7 @@ class DependencyInjector implements ContainerInterface
 
             $tags_definition = $this->addAllDefinitionTags($tags_definition, $service_key, $declaration);
 
-            $service_return              .= "\n\n\x20\x20\x20\x20" . 'return $service_instance;';
+            $service_return .= "\n\n\x20\x20\x20\x20" . 'return $service_instance;';
             $compiled_services[$service_key] = "function (\$container) {\n\x20\x20\x20\x20" . $service_return . "\n};";
         }
 
@@ -286,10 +289,9 @@ class DependencyInjector implements ContainerInterface
 
     private function stringifyArguments(array $arguments, array $compiled_services, $depth = 2)
     {
-        $compiled_arguments = array();
+        $compiled_arguments = [];
 
         foreach ($arguments as $argument) {
-
             if ($this->isAVariableArgument($argument)) {
                 $compiled_arguments[] = $this->getVariableArgumentCompilation($argument);
             } elseif ($this->isALiteralArgument($argument)) {
@@ -304,7 +306,7 @@ class DependencyInjector implements ContainerInterface
 
                 $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "[\n" . $compiled_argument . str_repeat("\x20\x20\x20\x20", $depth) . ']';
             } else {
-                $dependant_service    = ltrim($argument, '@');
+                $dependant_service = ltrim($argument, '@');
                 $compiled_arguments[] = str_repeat("\x20\x20\x20\x20", $depth) . "\$container->get('" . $dependant_service . "', true)";
             }
         }
@@ -317,16 +319,16 @@ class DependencyInjector implements ContainerInterface
         $imports = is_array($parsed_yaml_content)
             ? array_key_exists('imports', $parsed_yaml_content)
                 ? $parsed_yaml_content['imports']
-                : array()
-            : array();
+                : []
+            : [];
 
         $services = is_array($parsed_yaml_content)
             ? array_key_exists('services', $parsed_yaml_content)
                 ? $parsed_yaml_content['services']
-                : array()
-            : array();
+                : []
+            : [];
 
-        $retrieved_services = array();
+        $retrieved_services = [];
 
         if ($this->hasGroupedServicesByInstances($imports)) {
             foreach ($imports as $instance => $files_to_import) {
@@ -353,7 +355,7 @@ class DependencyInjector implements ContainerInterface
 
     private function getServicesFromFilesCollection($config_files_path, array $files_to_import)
     {
-        $retrieved_services = array();
+        $retrieved_services = [];
 
         foreach ($files_to_import as $file_to_import) {
             $imported_parsed_yaml_path = $config_files_path . $file_to_import;
@@ -409,13 +411,11 @@ class DependencyInjector implements ContainerInterface
 
     private function addAllDefinitionTags($tags_definition, $service_key, $declaration)
     {
-        if (!$this->hasTags($declaration))
-        {
+        if (!$this->hasTags($declaration)) {
             return $tags_definition;
         }
 
-        foreach ($declaration["tags"] as $declaration_tag)
-        {
+        foreach ($declaration["tags"] as $declaration_tag) {
             $tags_definition = $this->addDeclarationTagDefinition($tags_definition, $service_key, $declaration_tag);
         }
 
@@ -442,8 +442,7 @@ class DependencyInjector implements ContainerInterface
     {
         $setter_injections_calls = "";
 
-        foreach ($declaration['calls'] as $setter_injection)
-        {
+        foreach ($declaration['calls'] as $setter_injection) {
             $setter_injection_compiled_arguments = $this->stringifyArguments($setter_injection[1], $compiled_services);
 
             $class_instance_creation_statement = implode(",\n", $setter_injection_compiled_arguments);
@@ -490,9 +489,9 @@ class DependencyInjector implements ContainerInterface
         $parent_instance,
         $files_suffix
     ) {
-        $dumped_configuration             = "<?php\n\n";
+        $dumped_configuration = "<?php\n\n";
         $production_dependencies_php_file = ROOT_PATH . '/instances/' . $instance . '/config/services/definition.config.php';
-        $parent_dependencies_php_file     = ROOT_PATH . '/instances/' . $parent_instance . '/config/services/definition' . $files_suffix . '.config.php';
+        $parent_dependencies_php_file = ROOT_PATH . '/instances/' . $parent_instance . '/config/services/definition' . $files_suffix . '.config.php';
 
         if ($files_suffix && file_exists($production_dependencies_php_file)) {
             $dumped_configuration .= "include ROOT_PATH . '/instances/" . $instance . "/config/services/definition.config.php';\n\n";
@@ -538,16 +537,11 @@ class DependencyInjector implements ContainerInterface
     private function dumpTagsDefinition(array $tags_definition)
     {
         $dumped_services = "\n";
-        foreach ($tags_definition as $tag_name => $service_tag_definition)
-        {
-            foreach ($service_tag_definition as $service_key => $all_tag_values)
-            {
-                if (empty($all_tag_values))
-                {
+        foreach ($tags_definition as $tag_name => $service_tag_definition) {
+            foreach ($service_tag_definition as $service_key => $all_tag_values) {
+                if (empty($all_tag_values)) {
                     $dumped_services .= "\$config['tags']['" . $tag_name . "']['" . $service_key . "'] = [];\n";
-                }
-                else
-                {
+                } else {
                     foreach ($all_tag_values as $tag_value_key => $tag_value_value) {
                         $dumped_services .= "\$config['tags']['" . $tag_name . "']['" . $service_key . "']['" . $tag_value_key . "'] = '" . $tag_value_value . "';\n";
                     }
