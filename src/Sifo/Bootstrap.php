@@ -21,6 +21,8 @@
 
 namespace Sifo;
 
+use Psr\Container\ContainerInterface;
+
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
 if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance ) )
 {
@@ -78,7 +80,7 @@ class Bootstrap
      */
     public static $container;
 
-	/**
+    /**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
 	 * @param $instance_name
@@ -116,23 +118,20 @@ class Bootstrap
 
         $class = self::convertToControllerClassName( $controller );
 
-        if (static::$container->has($class)) {
+        if (static::$container instanceof ContainerInterface && static::$container->has($class)) {
             $controller = static::$container->get($class);
+            $controller->setContainer(static::$container);
         } else {
             /** @var Controller $controller */
             $controller = new $class();
         }
 
-        $controller->setContainer(static::$container);
-
         return $controller;
     }
 
 
-    private static function convertToControllerClassName( $controller, $container = null ): string
+    private static function convertToControllerClassName( $controller ): string
     {
-        static::setContainer($container);
-
         if(class_exists($controller))
         {
             return $controller;
@@ -376,10 +375,8 @@ class Bootstrap
 	 *
 	 * @param array $php_inis
 	 */
-	private static function _overWritePHPini( Array $php_inis, $container = null )
+	private static function _overWritePHPini( Array $php_inis )
 	{
-        static::setContainer($container);
-
         foreach ( $php_inis as $varname => $newvalue )
 		{
 			ini_set( $varname, $newvalue );
@@ -388,7 +385,7 @@ class Bootstrap
 
 	protected static function setContainer($container = null)
     {
-        if (null === static::$container) {
+        if (null === static::$container && null !== $container) {
             static::$container = $container;
         }
     }
