@@ -1,5 +1,14 @@
 # Changelog
 
+## [v2.29.0](https://github.com/sifophp/SIFO/tree/HEAD)
+
+[Full Changelog](https://github.com/sifophp/SIFO/compare/v2.28.0...HEAD)
+
+**Merged pull requests:**
+
+- TARC-885: add changelog [\#90](https://github.com/sifophp/SIFO/pull/90) ([kpicaza](https://github.com/kpicaza))
+- TARC-885: allow using ContainerInterface instance as sifo container in DependencyInjector class [\#89](https://github.com/sifophp/SIFO/pull/89) ([kpicaza](https://github.com/kpicaza))
+
 ## [v2.28.0](https://github.com/sifophp/SIFO/tree/v2.28.0) (2020-07-06)
 
 [Full Changelog](https://github.com/sifophp/SIFO/compare/v2.27.3...v2.28.0)
@@ -15,6 +24,7 @@
 **Merged pull requests:**
 
 - Update dotenv to version 5.0 [\#87](https://github.com/sifophp/SIFO/pull/87) ([p0lemic](https://github.com/p0lemic))
+- TARC-237 Configure Sifo Dependency Injector to be able to locate service definition files outside instances folders [\#79](https://github.com/sifophp/SIFO/pull/79) ([xserrat](https://github.com/xserrat))
 
 ## [v2.27.2](https://github.com/sifophp/SIFO/tree/v2.27.2) (2020-04-06)
 
@@ -76,10 +86,6 @@
 ## [v2.23.0](https://github.com/sifophp/SIFO/tree/v2.23.0) (2019-05-28)
 
 [Full Changelog](https://github.com/sifophp/SIFO/compare/v2.22.4...v2.23.0)
-
-**Merged pull requests:**
-
-- TARC-237 Configure Sifo Dependency Injector to be able to locate service definition files outside instances folders [\#79](https://github.com/sifophp/SIFO/pull/79) ([xserrat](https://github.com/xserrat))
 
 ## [v2.22.4](https://github.com/sifophp/SIFO/tree/v2.22.4) (2019-03-21)
 
