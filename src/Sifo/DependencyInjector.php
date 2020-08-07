@@ -216,7 +216,7 @@ class DependencyInjector implements ContainerInterface
         }
 
         $parsed_yaml_content = Yaml::parse(file_get_contents($instance_yml_definitions_file));
-        $declared_services = $this->getImportedServices($parsed_yaml_content, $instance_yml_definitions_file);
+        $declared_services = self::getImportedServices($parsed_yaml_content, $instance_yml_definitions_file);
 
         $compiled_services = [];
         $scoped_definitions = [];
@@ -314,7 +314,7 @@ class DependencyInjector implements ContainerInterface
         return $compiled_arguments;
     }
 
-    public function getImportedServices($parsed_yaml_content, $parsed_yaml_path)
+    public static function getImportedServices($parsed_yaml_content, $parsed_yaml_path)
     {
         $imports = is_array($parsed_yaml_content)
             ? array_key_exists('imports', $parsed_yaml_content)
@@ -330,12 +330,12 @@ class DependencyInjector implements ContainerInterface
 
         $retrieved_services = [];
 
-        if ($this->hasGroupedServicesByInstances($imports)) {
+        if (self::hasGroupedServicesByInstances($imports)) {
             foreach ($imports as $instance => $files_to_import) {
                 $config_files_path = ROOT_PATH . '/instances/' . $instance . '/config/services/';
                 $retrieved_services = array_merge(
                     $retrieved_services,
-                    $this->getServicesFromFilesCollection($config_files_path, $files_to_import)
+                    self::getServicesFromFilesCollection($config_files_path, $files_to_import)
                 );
             }
 
@@ -343,17 +343,17 @@ class DependencyInjector implements ContainerInterface
         }
 
         $config_files_path = dirname($parsed_yaml_path) . '/';
-        $retrieved_services = $this->getServicesFromFilesCollection($config_files_path, $imports);
+        $retrieved_services = self::getServicesFromFilesCollection($config_files_path, $imports);
 
         return array_merge($retrieved_services, $services);
     }
 
-    private function hasGroupedServicesByInstances($imports)
+    private static function hasGroupedServicesByInstances($imports)
     {
         return count(array_filter(array_keys($imports), 'is_string')) > 0;
     }
 
-    private function getServicesFromFilesCollection($config_files_path, array $files_to_import)
+    private static function getServicesFromFilesCollection($config_files_path, array $files_to_import)
     {
         $retrieved_services = [];
 
@@ -363,7 +363,7 @@ class DependencyInjector implements ContainerInterface
 
             $retrieved_services = array_merge(
                 $retrieved_services,
-                $this->getImportedServices($imported_parsed_yaml_content, $imported_parsed_yaml_path)
+                self::getImportedServices($imported_parsed_yaml_content, $imported_parsed_yaml_path)
             );
         }
 
