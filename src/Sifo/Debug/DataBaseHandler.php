@@ -5,6 +5,7 @@ namespace Sifo;
 use DateTime;
 use PDO;
 use PDOException;
+use function var_export;
 
 class DebugDataBaseHandler
 {
@@ -110,7 +111,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not insert the execution debug record in the Sifo debug database.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 		}
 	}
 
