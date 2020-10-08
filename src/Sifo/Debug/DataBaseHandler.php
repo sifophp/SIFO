@@ -5,6 +5,7 @@ namespace Sifo;
 use DateTime;
 use PDO;
 use PDOException;
+use function print_r;
 use function var_export;
 
 class DebugDataBaseHandler
@@ -74,7 +75,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not create the Sifo debug database.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 		}
 	}
 
@@ -138,7 +139,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not delete the old execution debugs records from the Sifo debug database.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . print_r( $this->persistence->errorInfo() ,true ));
+			Error info: " . var_export( $this->persistence->errorInfo()));
 		}
 	}
 
@@ -187,7 +188,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not get the execution debug content from the Sifo debug database for the execution ID: $execution_key.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 
 			return false;
 		}
@@ -248,7 +249,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not get the last execution key from the Sifo debug database.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 
 			return false;
 		}
@@ -270,7 +271,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not link a child execution to its parent. child_execution_key: $child_execution_key, parent_execution_key: $parent_execution_key.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 
 			return false;
 		}
@@ -292,7 +293,7 @@ class DebugDataBaseHandler
 		{
 			trigger_error( "[sifo] [debug] Could not pin a execution. execution_key: $execution_key, is_pinned: $is_pinned.\n
 			Error message: " . $e->getMessage() . "\n
-			Error info: " . $this->persistence->errorInfo() );
+			Error info: " . var_export($this->persistence->errorInfo()) );
 
 			return false;
 		}
