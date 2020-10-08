@@ -5,7 +5,6 @@ namespace Sifo;
 use DateTime;
 use PDO;
 use PDOException;
-use function print_r;
 use function var_export;
 
 class DebugDataBaseHandler
