@@ -44,10 +44,10 @@ class Session
 
 			if ($session_name instanceof SessionNameStrategy) {
 				$session_name->set();
-            		}
+			}
 
-            		// Session init.
-            		session_start();
+			// Session init.
+			session_start();
         	}
 	}
 
