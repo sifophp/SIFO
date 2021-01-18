@@ -48,7 +48,7 @@ class Session
 
 			// Session init.
 			session_start();
-        	}
+		}
 	}
 
     /**
