@@ -42,15 +42,15 @@ class Session
 				return;
 			}
 
-            $instance_inheritance = Domains::getInstance()->getInstanceInheritance();
-            $vertical_instance = $instance_inheritance[count($instance_inheritance) - 1];
-            $instance_environment_initial = $_SERVER['APP_ENV'][0] ?? '';
-            $instance_session_name = "SSID_{$instance_environment_initial}_{$vertical_instance}";
-            session_name($instance_session_name);
+			$instance_inheritance = Domains::getInstance()->getInstanceInheritance();
+			$vertical_instance = $instance_inheritance[count($instance_inheritance) - 1];
+			$instance_environment_initial = $_SERVER['APP_ENV'][0] ?? '';
+			$instance_session_name = "SSID_{$instance_environment_initial}_{$vertical_instance}";
+			session_name($instance_session_name);
 
-            // Session init.
-            session_start();
-        }
+			// Session init.
+			session_start();
+		}
 	}
 
     /**
