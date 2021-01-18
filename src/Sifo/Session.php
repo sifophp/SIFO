@@ -43,12 +43,12 @@ class Session
 			}
 
 			if ($session_name instanceof SessionNameStrategy) {
-                $session_name->set();
-            }
+				$session_name->set();
+            		}
 
-            // Session init.
-            session_start();
-        }
+            		// Session init.
+            		session_start();
+        	}
 	}
 
     /**
@@ -61,15 +61,15 @@ class Session
     {
 		if ( !isset( self::$instance ) )
 		{
-            $session_name_environment = FilterEnv::getInstance()->getString('SESSION_NAME');
+			$session_name_environment = FilterEnv::getInstance()->getString('SESSION_NAME');
 
-            switch ($session_name_environment) {
-                case 'environment_and_vertical':
-                    $session_name_strategy = new SessionEnvironmentStrategy();
-                    break;
-                default:
-                    $session_name_strategy = null;
-            }
+			switch ($session_name_environment) {
+				case 'environment_and_vertical':
+					$session_name_strategy = new SessionEnvironmentStrategy();
+					break;
+				default:
+					$session_name_strategy = null;
+			}
 
 			self::$instance = new self($session_name_strategy);
 		}
