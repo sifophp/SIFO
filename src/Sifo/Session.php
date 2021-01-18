@@ -25,7 +25,7 @@ class Session
 
 	static private $instance;
 
-	private function __construct()
+	private function __construct(?SessionNameStrategy $session_name)
 	{
         if ( !headers_sent( ) )
         {
@@ -42,15 +42,13 @@ class Session
 				return;
 			}
 
-			$instance_inheritance = Domains::getInstance()->getInstanceInheritance();
-			$vertical_instance = $instance_inheritance[count($instance_inheritance) - 1];
-			$instance_environment_initial = $_SERVER['APP_ENV'][0] ?? '';
-			$instance_session_name = "SSID_{$instance_environment_initial}_{$vertical_instance}";
-			session_name($instance_session_name);
+			if ($session_name instanceof SessionNameStrategy) {
+                $session_name->set();
+            }
 
-			// Session init.
-			session_start();
-		}
+            // Session init.
+            session_start();
+        }
 	}
 
     /**
@@ -59,11 +57,21 @@ class Session
      * @static
      * @return Session
      */
-    public static function getInstance()
-	{
+    public static function getInstance(): Session
+    {
 		if ( !isset( self::$instance ) )
 		{
-			self::$instance = new self();
+            $session_name_environment = FilterEnv::getInstance()->getString('SESSION_NAME');
+
+            switch ($session_name_environment) {
+                case 'environment_and_vertical':
+                    $session_name_strategy = new SessionEnvironmentStrategy();
+                    break;
+                default:
+                    $session_name_strategy = null;
+            }
+
+			self::$instance = new self($session_name_strategy);
 		}
 		return self::$instance;
 	}
