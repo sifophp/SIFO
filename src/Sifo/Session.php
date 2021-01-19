@@ -25,7 +25,7 @@ class Session
 
 	static private $instance;
 
-	private function __construct(?SessionNameStrategy $session_name)
+	private function __construct($session_name)
 	{
         if ( !headers_sent( ) )
         {
@@ -57,7 +57,7 @@ class Session
      * @static
      * @return Session
      */
-    public static function getInstance(): Session
+    public static function getInstance()
     {
 		if ( !isset( self::$instance ) )
 		{
