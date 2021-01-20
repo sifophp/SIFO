@@ -25,7 +25,7 @@ class Session
 
 	static private $instance;
 
-	private function __construct()
+	private function __construct($session_name)
 	{
         if ( !headers_sent( ) )
         {
@@ -39,13 +39,15 @@ class Session
 			if ( headers_sent ( ) )
 			{
 				trigger_error( "Session: The session was not started before the sending of the headers." );
-				return false;
+				return;
 			}
-			else
-			{
-				// Session init.
-				session_start();
+
+			if ($session_name instanceof SessionNameStrategy) {
+				$session_name->set();
 			}
+
+			// Session init.
+			session_start();
 		}
 	}
 
@@ -56,10 +58,20 @@ class Session
      * @return Session
      */
     public static function getInstance()
-	{
+    {
 		if ( !isset( self::$instance ) )
 		{
-			self::$instance = new self();
+			$session_name_environment = FilterEnv::getInstance()->getString('SESSION_NAME');
+
+			switch ($session_name_environment) {
+				case 'environment_and_vertical':
+					$session_name_strategy = new SessionEnvironmentStrategy();
+					break;
+				default:
+					$session_name_strategy = null;
+			}
+
+			self::$instance = new self($session_name_strategy);
 		}
 		return self::$instance;
 	}
