@@ -677,7 +677,7 @@ abstract class Controller
 		$this->startBench( $benchmark_key );
 
 		// Only letters, numbers _ and . ALLOWED. Take care with parameters.
-		$buffer = preg_replace_callback( '/<\!--\s*REPLACE\:([a-zA-Z0-9:_\.\-,\/\+]*)\s*-->/', array( $this, '_executeReplacementModule' ), $buffer );
+		$buffer = preg_replace_callback( '/<\!--\s*REPLACE\:([a-zA-Z0-9:_\\\.\-,\/\+]*)\s*-->/', array( $this, '_executeReplacementModule' ), $buffer );
 
 		$this->stopBench( $benchmark_key, "---- TOTAL REALTIME REPLACEMENTS ----" );
 		return $buffer;
