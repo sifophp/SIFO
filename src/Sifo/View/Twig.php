@@ -119,7 +119,7 @@ class ViewTwig implements ViewInterface
                 {
                     continue;
                 }
-                include $filename;
+                include_once $filename;
                 $loaded_functions['twig_function_' . $matches[1]] = true;
 
                 if (!empty($matches[1]))
@@ -147,7 +147,7 @@ class ViewTwig implements ViewInterface
                 {
                     continue;
                 }
-                include $filename;
+                include_once $filename;
                 $loaded_filters['twig_filter_' . $matches[1]] = true;
 
                 if (!empty($matches[1]))
@@ -175,7 +175,7 @@ class ViewTwig implements ViewInterface
                 {
                     continue;
                 }
-                include $filename;
+                include_once $filename;
                 $loaded_tags['twig_tag_' . $matches[1]] = true;
 
                 if (!empty($matches[1]))
