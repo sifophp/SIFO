@@ -125,6 +125,13 @@ class rss_php {
 						$this->channel[$values->nodeName] = $tempNode[$nodeName];
 					}
 				}
+				if($values->nodeName == 'media:content') {
+					for($i=0;$values->attributes->item($i);$i++) {
+						if ($values->attributes->item($i)->name == 'url') {
+							$tempNode[$nodeName] = $values->attributes->item($i)->nodeValue;
+						}
+					}
+				}
 			} elseif(substr($values->nodeName,1) == 'text') {
 				$tempValue = trim(preg_replace('/\s\s+/',' ',str_replace("\n",' ', $values->textContent)));
 				if($tempValue) {
