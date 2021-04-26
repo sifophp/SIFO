@@ -78,11 +78,11 @@ class Config
 		include( $this->config_path . $this->configuration_files );
 		$this->paths_to_configs = $config;
 
-		$envFile = getenv('APP_ENV') === 'test' ? '.env.test' : '.env';
+		$env_file = getenv('APP_ENV') === 'test' ? '.env.test' : '.env';
 		$dotenv = new Dotenv();
 
 		try {
-			$dotenv->load(ROOT_PATH . "/$envFile");
+			$dotenv->load(ROOT_PATH . "/$env_file");
 		} catch (PathException $exception) {
 			return;
 		}
