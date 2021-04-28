@@ -78,7 +78,7 @@ class Config
 		include( $this->config_path . $this->configuration_files );
 		$this->paths_to_configs = $config;
 
-		$env_file = getenv('APP_ENV') === 'test' ? '.env.test' : '.env';
+		$env_file = (isset($_SERVER['APP_ENV']) && $_SERVER['APP_ENV'] === 'test') ? '.env.test' : '.env';
 		$dotenv = new Dotenv();
 
 		try {
