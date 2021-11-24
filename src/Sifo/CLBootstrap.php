@@ -102,7 +102,7 @@ if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 	echo PHP_EOL . "Execute 'php $argv[0] <domain> --help' to read the help information." . PHP_EOL . PHP_EOL;
 	echo "Your available domains:" . PHP_EOL;
 	$available_domains = CLBootstrap::get_available_domains();
-	echo implode( $available_domains, PHP_EOL );
+	echo implode(PHP_EOL, $available_domains);
 	die;
 }
 CLBootstrap::$command_line_params = $argv;
