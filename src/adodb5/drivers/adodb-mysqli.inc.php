@@ -65,7 +65,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
         var $arrayClass = 'ADORecordSet_array_mysqli';
         var $multiQuery = false;
 
-        function ADODB_mysqli()
+        function __construct()
         {
             // if(!extension_loaded("mysqli"))
             ;//trigger_error("You must have the mysqli extension installed.", E_USER_ERROR);
@@ -1131,7 +1131,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
         var $databaseType = "mysqli";
         var $canSeek = true;
 
-        function ADORecordSet_mysqli($queryID, $mode = false)
+        function __construct($queryID, $mode = false)
         {
             if ($mode === false)
             {
@@ -1466,7 +1466,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
 class ADORecordSet_array_mysqli extends ADORecordSet_array
 {
 
-    function ADORecordSet_array_mysqli($id = -1, $mode = false)
+    function __construct($id = -1, $mode = false)
     {
         $this->ADORecordSet_array($id, $mode);
     }
