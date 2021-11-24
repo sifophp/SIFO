@@ -348,7 +348,7 @@ class DB
 	}
 
 	/**
-	 * Load a PHP database extension if it is not loaded already.
+	 * Check whether an extension is loaded or not.
 	 *
 	 * @access public
 	 *
@@ -360,14 +360,7 @@ class DB
 	 */
 	function assertExtension($name)
 	{
-		if (!extension_loaded($name)) {
-			$dlext = (strncmp(PHP_OS,'WIN',3) === 0) ? '.dll' : '.so';
-			@dl($name . $dlext);
-		}
-		if (!extension_loaded($name)) {
-			return false;
-		}
-		return true;
+        return extension_loaded($name);
 	}
 }
 
