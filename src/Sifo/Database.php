@@ -194,7 +194,7 @@ class Database
 		else
 		{
 			// No comment provided by programmer, set a default comment:
-			$tag = 'Query from ' . get_class( $this ) . ' (' . $this->__getMethodName( $this ) . ')';
+			$tag = 'Query from ' . get_class( $this ) . ' (' . $this->getMethodName( $this ) . ')';
 		}
 
 		// Clean '?' character from SQL Query TAG (to avoid problems with AdoDB bindings).
@@ -279,7 +279,7 @@ class Database
 	{
 	}
 
-	private function __getMethodName( $object )
+	private function getMethodName( $object )
 	{
 		$trace_steps = debug_backtrace();
 		$class_name = get_class( $object );
