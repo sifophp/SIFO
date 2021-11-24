@@ -25,7 +25,9 @@ function twig_function_email_obfuscator()
         $textafter  = '';
         if (!empty($linktext))
         {
-            $temp = smarty_block_t($extra_params, $linktext, $this, null);
+            $calling_class = get_called_class();
+            $obj = new $calling_class();
+            $temp = smarty_block_t($extra_params, $linktext, $obj);
             // If the email is inside the text string
             $email_position = strpos($temp, $email);
             if ($email_position)
