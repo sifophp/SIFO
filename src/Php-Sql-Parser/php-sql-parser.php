@@ -1218,7 +1218,6 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                     }
                     $parseInfo['alias']['name'] = $str;
                     $parseInfo['alias']['base_expr'] = trim($parseInfo['alias']['base_expr']);
-                    continue;
 
                 case 'INDEX':
                     if ($token_category == 'CREATE') {
@@ -1240,14 +1239,10 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                 case 'INNER':
                 case 'OUTER':
                     $parseInfo['token_count']++;
-                    continue;
-                    break;
 
                 case 'FOR':
                     $parseInfo['token_count']++;
                     $skip_next = true;
-                    continue;
-                    break;
 
                 case 'LEFT':
                 case 'RIGHT':
@@ -1270,7 +1265,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
                 default:
                     if ($upper === "") {
-                        continue; # ends the switch statement!
+                        break; # ends the switch statement!
                     }
 
                     if ($parseInfo['token_count'] === 0) {
