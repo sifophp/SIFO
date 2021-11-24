@@ -131,7 +131,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $_bindInputArray = true;
 	var $_dropSeqSQL = "drop table %s";
 	
-	function ADODB_mssqlnative() 
+	function __construct() 
 	{		
         if ($this->debug) {
             error_log("<pre>");
@@ -643,7 +643,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 	
-	function ADORecordset_mssqlnative($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) { 
 			global $ADODB_FETCH_MODE;
@@ -651,7 +651,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return $this->ADORecordSet($id,$mode);
+		$this->ADORecordSet($id,$mode);
 	}
 	
 	
@@ -816,7 +816,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 
 class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
-	function ADORecordSet_array_mssqlnative($id=-1,$mode=false) 
+	function __construct($id=-1,$mode=false) 
 	{
 		$this->ADORecordSet_array($id,$mode);
 	}
