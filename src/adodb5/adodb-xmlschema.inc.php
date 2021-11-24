@@ -2210,9 +2210,11 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 		if( isset( $title ) ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
-		
-		if( is_object( $this ) ) {
-			echo '[' . get_class( $this ) . '] ';
+
+        $calling_class = get_called_class();
+        $obj = new $calling_class();
+		if( is_object($obj) ) {
+			echo '[' . get_class($obj) . '] ';
 		}
 		
 		print_r( $msg );
