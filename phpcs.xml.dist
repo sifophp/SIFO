@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Pheature coding standard">
+    <description>Pheature coding standard</description>
+
+    <!-- display progress -->
+    <arg value="p"/>
+    <arg name="colors"/>
+
+    <!-- php compatibility checker config -->
+    <rule ref="PHPCompatibility"/>
+    <config name="installed_paths" value="vendor/phpcompatibility/php-compatibility" />
+    <config name="testVersion" value="7.4-"/>
+
+    <!-- Paths to check -->
+    <file>src</file>
+    <include-pattern>src</include-pattern>
+</ruleset>

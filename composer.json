@@ -33,8 +33,13 @@
     "twig/twig": "^2.0"
   },
   "require-dev": {
+    "phpcompatibility/php-compatibility": "^9.3",
     "phpunit/phpunit": "^5.0",
     "symfony/var-dumper": "^3.2"
+  },
+  "scripts": {
+    "cs-check": "phpcs src --colors",
+    "cs-fix": "phpcbf src --colors"
   },
   "config": {
     "optimize-autoloader": true,
