@@ -2211,8 +2211,8 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
 
-        $calling_class = get_called_class();
-        $obj = new $calling_class();
+		$calling_class = get_called_class();
+		$obj = new $calling_class();
 		if( is_object($obj) ) {
 			echo '[' . get_class($obj) . '] ';
 		}
