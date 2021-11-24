@@ -542,7 +542,7 @@ function _adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 	return $rsreturn;
 }
 
-// Iv·n Oliva version
+// Iv√°n Oliva version
 function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0) 
 {
 
@@ -1107,6 +1107,7 @@ function _adodb_backtrace($printOrArr=true,$levels=9999,$skippy=0,$ishtml=null)
 	$s = ($html) ? '<pre align=left>' : '';
 	
 	if (is_array($printOrArr)) $traceArr = $printOrArr;
+    // phpcs:ignore
 	else $traceArr = debug_backtrace();
 	array_shift($traceArr);
 	array_shift($traceArr);

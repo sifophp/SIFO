@@ -309,6 +309,7 @@ class DebugMysql extends Mysql
 			"host" => $db_params['db_host'],
 			"database" => $db_params['db_name'],
 			"user" => $db_params['db_user'],
+            // phpcs:ignore
 			"trace" => DebugMysql::generateTrace( debug_backtrace( false ) ),
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
 			"resultset" => $resultset_array,
