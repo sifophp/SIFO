@@ -28,7 +28,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
 	
-	function ADODB_oci8po()
+	function __construct()
 	{
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 		# oci8po does not support adodb extension: adodb_movenext()
@@ -78,7 +78,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 
 	var $databaseType = 'oci8po';
 	
-	function ADORecordset_oci8po($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		$this->ADORecordset_oci8($queryID,$mode);
 	}
@@ -102,13 +102,13 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	{
 		 $fld = new ADOFieldObject;
  		 $fieldOffset += 1;
-		 $fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
+		 $fld->name = oci_field_name($this->_queryID, $fieldOffset);
 		 if (ADODB_ASSOC_CASE == 0) $fld->name = strtolower($fld->name);
-		 $fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
-		 $fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
+		 $fld->type = oci_field_type($this->_queryID, $fieldOffset);
+		 $fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
 		 if ($fld->type == 'NUMBER') {
 		 	//$p = OCIColumnPrecision($this->_queryID, $fieldOffset);
-			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
+			$sc = oci_field_scale($this->_queryID, $fieldOffset);
 			if ($sc == 0) $fld->type = 'INT';
 		 }
 		 return $fld;
@@ -130,7 +130,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	// 10% speedup to move MoveNext to child class
 	function MoveNext() 
 	{
-		if(@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
+		if($this->fields = @oci_fetch_array($this->_queryID, $this->fetchMode)) {
 		global $ADODB_ANSI_PADDING_OFF;
 			$this->_currentRow++;
 			
@@ -157,11 +157,11 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 			return $arr;
 		}
 		for ($i=1; $i < $offset; $i++) 
-			if (!@OCIFetch($this->_queryID)) {
+			if (!@oci_fetch($this->_queryID)) {
 				$arr = array();
 				return $arr;
 			}
-		if (!@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
+		if (!$this->fields = @oci_fetch_array($this->_queryID ,$this->fetchMode)) {
 			$arr = array();
 			return $arr;
 		}
@@ -198,8 +198,8 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	
 	function _fetch() 
 	{
-		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
-		if ($ret) {
+		$this->fields = @oci_fetch_array($this->_queryID ,$this->fetchMode);
+		if ($this->fields) {
 		global $ADODB_ANSI_PADDING_OFF;
 	
 				if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
@@ -209,7 +209,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 					}
 				}
 		}
-		return $ret;
+		return $this->fields;
 	}
 	
 }

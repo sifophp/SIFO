@@ -30,8 +30,8 @@ For Oracle the default is dd-mon-yy or dd-mon-yyyy, and for SQL-92 the default i
 yy-mm-dd or yyyy-mm-dd.
 
 Using 'RR' in the format forces two-digit years less than or equal to 49 to be
-interpreted as years in the 21st century (2000–2049), and years over 50 as years in
-the 20th century (1950–1999). Setting the RR format as the default for all two-digit
+interpreted as years in the 21st century (2000ï¿½2049), and years over 50 as years in
+the 20th century (1950ï¿½1999). Setting the RR format as the default for all two-digit
 year entries allows you to become year-2000 compliant. For example:
 NLS_DATE_FORMAT='RR-MM-DD'
 
@@ -90,7 +90,7 @@ class ADODB_oci8 extends ADOConnection {
 		
 	// var $ansiOuter = true; // if oracle9
     
-	function ADODB_oci8() 
+	function __construct() 
 	{
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 		if (defined('ADODB_EXTENSION')) $this->rsPrefix .= 'ext_';
@@ -216,23 +216,23 @@ NATSOFT.DOMAIN =
 				
  		//if ($argHostname) print "<p>Connect: 1st argument should be left blank for $this->databaseType</p>";
 		if ($mode==1) {
-			$this->_connectionID = ($this->charSet) ? 
-				OCIPLogon($argUsername,$argPassword, $argDatabasename,$this->charSet)
+			$this->_connectionID = ($this->charSet) ?
+                oci_pconnect($argUsername,$argPassword, $argDatabasename,$this->charSet)
 				:
-				OCIPLogon($argUsername,$argPassword, $argDatabasename)
+                oci_pconnect($argUsername,$argPassword, $argDatabasename)
 				;
-			if ($this->_connectionID && $this->autoRollback)  OCIrollback($this->_connectionID);
+			if ($this->_connectionID && $this->autoRollback)  oci_rollback($this->_connectionID);
 		} else if ($mode==2) {
-			$this->_connectionID = ($this->charSet) ? 
-				OCINLogon($argUsername,$argPassword, $argDatabasename,$this->charSet)
+			$this->_connectionID = ($this->charSet) ?
+                oci_new_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
 				:
-				OCINLogon($argUsername,$argPassword, $argDatabasename);
+                oci_new_connect($argUsername,$argPassword, $argDatabasename);
 				
 		} else {
-			$this->_connectionID = ($this->charSet) ? 
-				OCILogon($argUsername,$argPassword, $argDatabasename,$this->charSet)
+			$this->_connectionID = ($this->charSet) ?
+                oci_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
 				:
-				OCILogon($argUsername,$argPassword, $argDatabasename);
+                oci_connect($argUsername,$argPassword, $argDatabasename);
 		}
 		if (!$this->_connectionID) return false;
 		if ($this->_initdate) {
@@ -249,7 +249,7 @@ NATSOFT.DOMAIN =
 	function ServerInfo()
 	{
 		$arr['compat'] = $this->GetOne('select value from sys.database_compatible_level');
-		$arr['description'] = @OCIServerVersion($this->_connectionID);
+		$arr['description'] = @oci_server_version($this->_connectionID);
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
@@ -267,7 +267,7 @@ NATSOFT.DOMAIN =
 	
 	function _affectedrows()
 	{
-		if (is_resource($this->_stmt)) return @OCIRowCount($this->_stmt);
+		if (is_resource($this->_stmt)) return @oci_num_rows($this->_stmt);
 		return 0;
 	}
 	
@@ -429,7 +429,7 @@ NATSOFT.DOMAIN =
 		if (!$ok) return $this->RollbackTrans();
 		
 		if ($this->transCnt) $this->transCnt -= 1;
-		$ret = OCIcommit($this->_connectionID);
+		$ret = oci_commit($this->_connectionID);
 		$this->_commit = OCI_COMMIT_ON_SUCCESS;
 		$this->autoCommit = true;
 		return $ret;
@@ -439,7 +439,7 @@ NATSOFT.DOMAIN =
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
-		$ret = OCIrollback($this->_connectionID);
+		$ret = oci_rollback($this->_connectionID);
 		$this->_commit = OCI_COMMIT_ON_SUCCESS;
 		$this->autoCommit = true;
 		return $ret;
@@ -455,10 +455,10 @@ NATSOFT.DOMAIN =
 	{
 		if ($this->_errorMsg !== false) return $this->_errorMsg;
 
-		if (is_resource($this->_stmt)) $arr = @OCIError($this->_stmt);
+		if (is_resource($this->_stmt)) $arr = @oci_error($this->_stmt);
 		if (empty($arr)) {
-			if (is_resource($this->_connectionID)) $arr = @OCIError($this->_connectionID);
-			else $arr = @OCIError();
+			if (is_resource($this->_connectionID)) $arr = @oci_error($this->_connectionID);
+			else $arr = @oci_error();
 			if ($arr === false) return '';
 		}
 		$this->_errorMsg = $arr['message'];
@@ -470,10 +470,10 @@ NATSOFT.DOMAIN =
 	{
 		if ($this->_errorCode !== false) return $this->_errorCode;
 		
-		if (is_resource($this->_stmt)) $arr = @OCIError($this->_stmt);
+		if (is_resource($this->_stmt)) $arr = @oci_error($this->_stmt);
 		if (empty($arr)) {
-			$arr = @OCIError($this->_connectionID);
-			if ($arr == false) $arr = @OCIError();
+			$arr = @oci_error($this->_connectionID);
+			if ($arr == false) $arr = @oci_error();
 			if ($arr == false) return '';
 		}
 		
@@ -626,34 +626,34 @@ NATSOFT.DOMAIN =
 			 	foreach($inputarr as $k => $v) {
 					if (is_array($v)) {
 						if (sizeof($v) == 2) // suggested by g.giunta@libero.
-							OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1]);
+                            oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1]);
 						else
-							OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
+                            oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
 					} else {
 						$len = -1;
 						if ($v === ' ') $len = 1;
 						if (isset($bindarr)) {	// is prepared sql, so no need to ocibindbyname again
 							$bindarr[$k] = $v;
 						} else { 				// dynamic sql, so rebind every time
-							OCIBindByName($stmt,":$k",$inputarr[$k],$len);
+                            oci_bind_by_name($stmt,":$k",$inputarr[$k],$len);
 							
 						}
 					}
 				}
 			}
 			
-			 if (!OCIExecute($stmt, OCI_DEFAULT)) {
-				 OCIFreeStatement($stmt); 
+			 if (!oci_execute($stmt, OCI_DEFAULT)) {
+                 oci_free_statement($stmt); 
 				 return $false;
 			 }
 			 
-			 $ncols = OCINumCols($stmt);
+			 $ncols = oci_num_fields($stmt);
 			 for ( $i = 1; $i <= $ncols; $i++ ) {
-				 $cols[] = '"'.OCIColumnName($stmt, $i).'"';
+				 $cols[] = '"'.oci_field_name($stmt, $i).'"';
 			 }
 			 $result = false;
-			
-			 OCIFreeStatement($stmt); 
+
+             oci_free_statement($stmt); 
 			 $fields = implode(',', $cols);
 			 if ($nrows <= 0) $nrows = 999999999999;
 			 else $nrows += $offset;
@@ -716,7 +716,7 @@ NATSOFT.DOMAIN =
 		else 
 			$sql = "UPDATE $table set $column=EMPTY_{$blobtype}() WHERE $where RETURNING $column INTO :blob";
 		
-		$desc = OCINewDescriptor($this->_connectionID, OCI_D_LOB);
+		$desc = oci_new_descriptor($this->_connectionID, OCI_D_LOB);
 		$arr['blob'] = array($desc,-1,$type);
 		if ($this->session_sharing_force_blob) $this->Execute('ALTER SESSION SET CURSOR_SHARING=EXACT');
 		$commit = $this->autoCommit;
@@ -747,7 +747,7 @@ NATSOFT.DOMAIN =
 		else 
 			$sql = "UPDATE $table set $column=EMPTY_{$blobtype}() WHERE $where RETURNING $column INTO :blob";
 		
-		$desc = OCINewDescriptor($this->_connectionID, OCI_D_LOB);
+		$desc = oci_new_descriptor($this->_connectionID, OCI_D_LOB);
 		$arr['blob'] = array($desc,-1,$type);
 		
 		$this->BeginTrans();
@@ -844,12 +844,12 @@ NATSOFT.DOMAIN =
 	{
 	static $BINDNUM = 0;
 	
-		$stmt = OCIParse($this->_connectionID,$sql);
+		$stmt = oci_parse($this->_connectionID,$sql);
 
 		if (!$stmt) {
 			$this->_errorMsg = false;
 			$this->_errorCode = false;
-			$arr = @OCIError($this->_connectionID);
+			$arr = @oci_error($this->_connectionID);
 			if ($arr === false) return false;
 		
 			$this->_errorMsg = $arr['message'];
@@ -859,9 +859,9 @@ NATSOFT.DOMAIN =
 		
 		$BINDNUM += 1;
 		
-		$sttype = @OCIStatementType($stmt);
+		$sttype = @oci_statement_type($stmt);
 		if ($sttype == 'BEGIN' || $sttype == 'DECLARE') {
-			return array($sql,$stmt,0,$BINDNUM, ($cursor) ? OCINewCursor($this->_connectionID) : false);
+			return array($sql,$stmt,0,$BINDNUM, ($cursor) ? oci_new_cursor($this->_connectionID) : false);
 		}
 		return array($sql,$stmt,0,$BINDNUM);
 	}
@@ -899,7 +899,7 @@ NATSOFT.DOMAIN =
 			
 		$rs = $this->Execute($stmt);
 		if ($rs) {
-			if ($rs->databaseType == 'array') OCIFreeCursor($stmt[4]);
+			if ($rs->databaseType == 'array') oci_free_statement($stmt[4]);
 			else if ($hasref) $rs->_refcursor = $stmt[4];
 		}
 		return $rs;
@@ -941,12 +941,12 @@ NATSOFT.DOMAIN =
 		if (!is_array($stmt)) return false;
         
         if (($type == OCI_B_CURSOR) && sizeof($stmt) >= 5) { 
-            return OCIBindByName($stmt[1],":".$name,$stmt[4],$size,$type);
+            return oci_bind_by_name($stmt[1],":".$name,$stmt[4],$size,$type);
         }
         
 		if ($name == false) {
-			if ($type !== false) $rez = OCIBindByName($stmt[1],":".$stmt[2],$var,$size,$type);
-			else $rez = OCIBindByName($stmt[1],":".$stmt[2],$var,$size); // +1 byte for null terminator
+			if ($type !== false) $rez = oci_bind_by_name($stmt[1],":".$stmt[2],$var,$size,$type);
+			else $rez = oci_bind_by_name($stmt[1],":".$stmt[2],$var,$size); // +1 byte for null terminator
 			$stmt[2] += 1;
 		} else if (oci_lob_desc($type)) {
 			if ($this->debug) {
@@ -954,11 +954,11 @@ NATSOFT.DOMAIN =
 			}
             //we have to create a new Descriptor here
 			$numlob = count($this->_refLOBs);
-        	$this->_refLOBs[$numlob]['LOB'] = OCINewDescriptor($this->_connectionID, oci_lob_desc($type));
+        	$this->_refLOBs[$numlob]['LOB'] = oci_new_descriptor($this->_connectionID, oci_lob_desc($type));
 			$this->_refLOBs[$numlob]['TYPE'] = $isOutput;
 			
 			$tmp = $this->_refLOBs[$numlob]['LOB'];
-	        $rez = OCIBindByName($stmt[1], ":".$name, $tmp, -1, $type);
+	        $rez = oci_bind_by_name($stmt[1], ":".$name, $tmp, -1, $type);
 			if ($this->debug) {
 				ADOConnection::outp("<b>Bind</b>: descriptor has been allocated, var (".$name.") binded");
 			}
@@ -979,8 +979,8 @@ NATSOFT.DOMAIN =
 			if ($this->debug) 
 				ADOConnection::outp("<b>Bind</b>: name = $name");
 			
-			if ($type !== false) $rez = OCIBindByName($stmt[1],":".$name,$var,$size,$type);
-			else $rez = OCIBindByName($stmt[1],":".$name,$var,$size); // +1 byte for null terminator
+			if ($type !== false) $rez = oci_bind_by_name($stmt[1],":".$name,$var,$size,$type);
+			else $rez = oci_bind_by_name($stmt[1],":".$name,$var,$size); // +1 byte for null terminator
 		}
 		
 		return $rez;
@@ -1049,27 +1049,27 @@ NATSOFT.DOMAIN =
 					$bindarr = array();
 					foreach($inputarr as $k => $v) {
 						$bindarr[$k] = $v;
-						OCIBindByName($stmt,":$k",$bindarr[$k],is_string($v) && strlen($v)>4000 ? -1 : 4000);
+                        oci_bind_by_name($stmt,":$k",$bindarr[$k],is_string($v) && strlen($v)>4000 ? -1 : 4000);
 					}
 					$this->_bind[$bindpos] = $bindarr;
 				}
 			}
 		} else {
-			$stmt=OCIParse($this->_connectionID,$sql);
+			$stmt=oci_parse($this->_connectionID,$sql);
 		}
 			
 		$this->_stmt = $stmt;
 		if (!$stmt) return false;
 	
-		if (defined('ADODB_PREFETCH_ROWS')) @OCISetPrefetch($stmt,ADODB_PREFETCH_ROWS);
+		if (defined('ADODB_PREFETCH_ROWS')) @oci_set_prefetch($stmt,ADODB_PREFETCH_ROWS);
 			
 		if (is_array($inputarr)) {
 			foreach($inputarr as $k => $v) {
 				if (is_array($v)) {
 					if (sizeof($v) == 2) // suggested by g.giunta@libero.
-						OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1]);
+                        oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1]);
 					else
-						OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
+                        oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
 					
 					if ($this->debug==99) {
 						if (is_object($v[0])) 
@@ -1084,7 +1084,7 @@ NATSOFT.DOMAIN =
 					if (isset($bindarr)) {	// is prepared sql, so no need to ocibindbyname again
 						$bindarr[$k] = $v;
 					} else { 				// dynamic sql, so rebind every time
-						OCIBindByName($stmt,":$k",$inputarr[$k],$len);
+                        oci_bind_by_name($stmt,":$k",$inputarr[$k],$len);
 					}
 				}
 			}
@@ -1092,7 +1092,7 @@ NATSOFT.DOMAIN =
 		
         $this->_errorMsg = false;
 		$this->_errorCode = false;
-		if (OCIExecute($stmt,$this->_commit)) {
+		if (oci_execute($stmt,$this->_commit)) {
 //OCIInternalDebug(1);			
 			if (count($this -> _refLOBs) > 0) {
 		
@@ -1115,7 +1115,7 @@ NATSOFT.DOMAIN =
 				}
 			}
 		
-            switch (@OCIStatementType($stmt)) {
+            switch (@oci_statement_type($stmt)) {
                 case "SELECT":
 					return $stmt;
 				
@@ -1124,13 +1124,13 @@ NATSOFT.DOMAIN =
                     if (is_array($sql) && !empty($sql[4])) {
 						$cursor = $sql[4];
 						if (is_resource($cursor)) {
-							$ok = OCIExecute($cursor);	
+							$ok = oci_execute($cursor);	
 	                        return $cursor;
 						}
 						return $stmt;
                     } else {
 						if (is_resource($stmt)) {
-							OCIFreeStatement($stmt);
+                            oci_free_statement($stmt);
 							return true;
 						}
                         return $stmt;
@@ -1175,14 +1175,14 @@ NATSOFT.DOMAIN =
 	{
 		if (!$this->_connectionID) return;
 		
-		if (!$this->autoCommit) OCIRollback($this->_connectionID);
+		if (!$this->autoCommit) oci_rollback($this->_connectionID);
 		if (count($this->_refLOBs) > 0) {
 			foreach ($this ->_refLOBs as $key => $value) {
 				$this->_refLOBs[$key]['LOB']->free();
 				unset($this->_refLOBs[$key]);
 			}
 		}
-		OCILogoff($this->_connectionID);
+        oci_close($this->_connectionID);
 		
 		$this->_stmt = false;
 		$this->_connectionID = false;
@@ -1319,7 +1319,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	
 	//var $_arr = false;
 		
-	function ADORecordset_oci8($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		if ($mode === false) { 
 			global $ADODB_FETCH_MODE;
@@ -1373,7 +1373,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
-		$this->_numOfFields = OCInumcols($this->_queryID);
+		$this->_numOfFields = oci_num_fields($this->_queryID);
 		if ($this->_numOfFields>0) {
 			$this->_fieldobjs = array();
 			$max = $this->_numOfFields;
@@ -1390,13 +1390,13 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		$fld = new ADOFieldObject;
 		$fieldOffset += 1;
-		$fld->name =OCIcolumnname($this->_queryID, $fieldOffset);
-		$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
-		$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
+		$fld->name =oci_field_name($this->_queryID, $fieldOffset);
+		$fld->type = oci_field_type($this->_queryID, $fieldOffset);
+		$fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
 	 	switch($fld->type) {
 		case 'NUMBER':
-	 		$p = OCIColumnPrecision($this->_queryID, $fieldOffset);
-			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
+	 		$p = oci_field_precision($this->_queryID, $fieldOffset);
+			$sc = oci_field_scale($this->_queryID, $fieldOffset);
 			if ($p != 0 && $sc == 0) $fld->type = 'INT';
 			break;
 		
@@ -1435,7 +1435,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	
 	function MoveNext()
 	{
-		if (@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
+		if ($this->fields = @oci_fetch_array($this->_queryID, $this->fetchMode)) {
 			$this->_currentRow += 1;
 			return true;
 		}
@@ -1489,9 +1489,9 @@ class ADORecordset_oci8 extends ADORecordSet {
 		}
 		$arr = array();
 		for ($i=1; $i < $offset; $i++) 
-			if (!@OCIFetch($this->_queryID)) return $arr;
+			if (!@oci_fetch($this->_queryID)) return $arr;
 			
-		if (!@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) return $arr;;
+		if (!$this->fields = @oci_fetch_array($this->_queryID, $this->fetchMode)) return $arr;
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
@@ -1526,7 +1526,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	function _fetch() 
 	{
-		return @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
+		return $this->fields = @oci_fetch_array($this->_queryID, $this->fetchMode);
 	}
 
 	/*		close() only needs to be called if you are worried about using too much memory while your script
@@ -1536,10 +1536,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		if ($this->connection->_stmt === $this->_queryID) $this->connection->_stmt = false;
 		if (!empty($this->_refcursor)) {
-			OCIFreeCursor($this->_refcursor);
+            oci_free_statement($this->_refcursor);
 			$this->_refcursor = false;
 		}
-		@OCIFreeStatement($this->_queryID);
+		@oci_free_statement($this->_queryID);
  		$this->_queryID = false;
 		
 	}
@@ -1590,7 +1590,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 }
 
 class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {	
-	function ADORecordSet_ext_oci8($queryID,$mode=false) 
+	function __construct($queryID,$mode=false) 
 	{
 		if ($mode === false) { 
 			global $ADODB_FETCH_MODE;
