@@ -79,11 +79,8 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-	global $php_errormsg;
-	
-		$php_errormsg = '';
 		$this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword,SQL_CUR_USE_ODBC );
-		$this->_errorMsg = $php_errormsg;
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		
 		$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'");
 		//if ($this->_connectionID) odbc_autocommit($this->_connectionID,true);
@@ -92,10 +89,8 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-	global $php_errormsg;
-		$php_errormsg = '';
 		$this->_connectionID = odbc_pconnect($argDSN,$argUsername,$argPassword,SQL_CUR_USE_ODBC );
-		$this->_errorMsg = $php_errormsg;
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		
 		$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'");
 		//if ($this->_connectionID) odbc_autocommit($this->_connectionID,true);
