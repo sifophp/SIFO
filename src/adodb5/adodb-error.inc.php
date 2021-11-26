@@ -103,7 +103,7 @@ function adodb_error_pg($errormsg)
 			 	 => DB_ERROR_ALREADY_EXISTS
         );
 	reset($error_regexps);
-    while (list($regexp,$code) = each($error_regexps)) {
+    foreach ($error_regexps as $regexp => $code) {
         if (preg_match($regexp, $errormsg)) {
             return $code;
         }
