@@ -65,8 +65,6 @@ class ADODB_db2 extends ADOConnection {
 		// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-		global $php_errormsg;
-		
 		if (!function_exists('db2_connect')) {
 			ADOConnection::outp("Warning: The old ODBC based DB2 driver has been renamed 'odbc_db2'. This ADOdb driver calls PHP's native db2 extension which is not installed.");
 			return null;
@@ -80,7 +78,6 @@ class ADODB_db2 extends ADOConnection {
 		} else {
 			$this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
 		}
-		if (isset($php_errormsg)) $php_errormsg = '';
 
 		// For db2_connect(), there is an optional 4th arg.  If present, it must be
 		// an array of valid options.  So far, we don't use them.
@@ -95,23 +92,19 @@ class ADODB_db2 extends ADOConnection {
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-		global $php_errormsg;
 	
 		if (!function_exists('db2_connect')) return null;
 		
 		// This needs to be set before the connect().
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
-
-		if (isset($php_errormsg)) $php_errormsg = '';
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		
 		if ($argDatabasename) {
 			$this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
 		} else {
 			$this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
 		}
-		if (isset($php_errormsg)) $php_errormsg = '';
 
 		$this->_errorMsg = @db2_conn_errormsg();
 		if ($this->_connectionID && $this->autoRollback) @db2_rollback($this->_connectionID);
@@ -605,8 +598,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false) 
 	{
-	GLOBAL $php_errormsg;
-		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_error = '';
 		
 		if ($inputarr) {
@@ -616,7 +607,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$stmtid = db2_prepare($this->_connectionID,$sql);
 	
 				if ($stmtid == false) {
-					$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+					$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 					return false;
 				}
 			}
@@ -654,13 +645,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$this->_errorMsg = '';
 				$this->_errorCode = 0;
 			} else
-				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+				$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		} else {
 			if ($this->_haserrorfunctions) {
 				$this->_errorMsg = db2_stmt_errormsg();
 				$this->_errorCode = db2_stmt_error();
 			} else
-				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+				$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 
 		}
 		return $stmtid;

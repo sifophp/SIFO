@@ -48,17 +48,14 @@ class ADODB_odbc extends ADOConnection {
 		// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-	global $php_errormsg;
-		
 		if (!function_exists('odbc_connect')) return null;
 		
 		if ($this->debug && $argDatabasename && $this->databaseType != 'vfp') {
 			ADOConnection::outp("For odbc Connect(), $argDatabasename is not used. Place dsn in 1st parameter.");
 		}
-		if (isset($php_errormsg)) $php_errormsg = '';
 		if ($this->curmode === false) $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword);
 		else $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword,$this->curmode);
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
 		return $this->_connectionID != false;
@@ -67,20 +64,18 @@ class ADODB_odbc extends ADOConnection {
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
-	global $php_errormsg;
 	
 		if (!function_exists('odbc_connect')) return null;
 		
-		if (isset($php_errormsg)) $php_errormsg = '';
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		if ($this->debug && $argDatabasename) {
 			ADOConnection::outp("For odbc PConnect(), $argDatabasename is not used. Place dsn in 1st parameter.");
 		}
 	//	print "dsn=$argDSN u=$argUsername p=$argPassword<br>"; flush();
 		if ($this->curmode === false) $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword);
 		else $this->_connectionID = odbc_pconnect($argDSN,$argUsername,$argPassword,$this->curmode);
-		
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+
+		$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		if ($this->_connectionID && $this->autoRollback) @odbc_rollback($this->_connectionID);
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
@@ -491,8 +486,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false) 
 	{
-	GLOBAL $php_errormsg;
-		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_error = '';
 		
 		if ($inputarr) {
@@ -502,7 +495,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 				$stmtid = odbc_prepare($this->_connectionID,$sql);
 	
 				if ($stmtid == false) {
-					$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+					$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 					return false;
 				}
 			}
@@ -544,13 +537,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 				$this->_errorMsg = '';
 				$this->_errorCode = 0;
 			} else
-				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+				$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		} else {
 			if ($this->_haserrorfunctions) {
 				$this->_errorMsg = odbc_errormsg();
 				$this->_errorCode = odbc_error();
 			} else
-				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+				$this->_errorMsg = error_get_last() !== null ? error_get_last()['message'] : '';
 		}
 		return $stmtid;
 	}
