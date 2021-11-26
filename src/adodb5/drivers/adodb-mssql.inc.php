@@ -180,18 +180,13 @@ class ADODB_mssql extends ADOConnection {
 		}
 
  		// undo magic quotes for " unless sybase is on
- 		$sybase = ini_get('magic_quotes_sybase');
- 		if (!$sybase) {
- 			$s = str_replace('\\"','"',$s);
- 			if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
- 				return "'$s'";
- 			else {// change \' to '' for sybase/mssql
- 				$s = str_replace('\\\\','\\',$s);
- 				return "'".str_replace("\\'",$this->replaceQuote,$s)."'";
- 			}
- 		} else {
- 			return "'".$s."'";
-		}
+        $s = str_replace('\\"','"',$s);
+        if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
+            return "'$s'";
+        else {// change \' to '' for sybase/mssql
+            $s = str_replace('\\\\','\\',$s);
+            return "'".str_replace("\\'",$this->replaceQuote,$s)."'";
+        }
 	}
 // moodle change end - see readme_moodle.txt
 
