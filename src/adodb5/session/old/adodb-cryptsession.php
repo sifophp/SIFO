@@ -184,7 +184,6 @@ $Crypt = new MD5Crypt;
 	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
-		global $$var;
 		$arr['expireref'] = $$var;
 	}
 	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,

@@ -672,7 +672,6 @@ class ADODB_Session {
 			$expirevar = '';
 			if ($expire_notify) {
 				$var = reset($expire_notify);
-				global $$var;
 				if (isset($$var)) {
 					$expirevar = $$var;
 				}
@@ -693,7 +692,6 @@ class ADODB_Session {
 		$arr = array('sesskey' => $key, 'expiry' => $expiry, $data => $val, 'expireref' => '');
 		if ($expire_notify) {
 			$var = reset($expire_notify);
-			global $$var;
 			if (isset($$var)) {
 				$arr['expireref'] = $$var;
 			}

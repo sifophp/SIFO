@@ -264,7 +264,6 @@ function adodb_sess_write($key, $val)
 	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
-		global $$var;
 		$arr['expireref'] = $$var;
 	}
 
