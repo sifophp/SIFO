@@ -439,7 +439,6 @@ session_set_save_handler(
 if (0) {
 
 	session_start();
-	session_register('AVAR');
 	$_SESSION['AVAR'] += 1;
 	ADOConnection::outp( "
 -- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>",false);
