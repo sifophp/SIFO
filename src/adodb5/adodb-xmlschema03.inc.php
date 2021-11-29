@@ -174,8 +174,8 @@ class dbObject {
 	/**
 	* Destroys the object
 	*/
-	function destroy() {
-		unset( $this );
+	static function destroy(&$obj) {
+		$obj = null;
 	}
 	
 	/**
@@ -379,7 +379,7 @@ class dbTable extends dbObject {
 			case 'TABLE':
 				$this->parent->addSQL( $this->create( $this->parent ) );
 				xml_set_object( $parser, $this->parent );
-				$this->destroy();
+				self::destroy($this);
 				break;
 			case 'FIELD':
 				unset($this->current_field);
@@ -1163,7 +1163,7 @@ class dbQuerySet extends dbObject {
 			case 'SQL':
 				$this->parent->addSQL( $this->create( $this->parent ) );
 				xml_set_object( $parser, $this->parent );
-				$this->destroy();
+				self::destroy($this);
 				break;
 			default:
 				
@@ -2356,16 +2356,6 @@ class adoSchema {
 		}
 		
 		return $this->sqlArray;
-	}
-	
-	/**
-	* Destroys an adoSchema object.
-	*
-	* Call this method to clean up after an adoSchema object that is no longer in use.
-	* @deprecated adoSchema now cleans up automatically.
-	*/
-	function Destroy() {
-		unset( $this );
 	}
 }
 
