@@ -278,8 +278,7 @@
 		function getdirname($hash)
 		{
 		global $ADODB_CACHE_DIR;
-			if (!isset($this->notSafeMode)) $this->notSafeMode = !ini_get('safe_mode');
-			return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
+			return $ADODB_CACHE_DIR.'/'.substr($hash,0,2);
 		}
 
 		// create temp directories
