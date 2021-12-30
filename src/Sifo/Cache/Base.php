@@ -30,14 +30,14 @@ class CacheBase
 	 *
 	 * @var string
 	 */
-	const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
+	public const CACHE_TAG_STORE_FORMAT = '!tag-%s=%s';
 
 	/**
 	 * Contains all the tags together at their current version.
 	 *
 	 * This cache key avoids asking every TAG to cache and concentrate them all in a single call.
 	 */
-	const CACHE_TAG_VERSIONS = '!tags-versions-%s';
+	public const CACHE_TAG_VERSIONS = '!tags-versions-%s';
 
 	/**
 	 * Contains the original cache object.

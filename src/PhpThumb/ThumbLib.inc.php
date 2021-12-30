@@ -28,7 +28,7 @@
  */
 
 // define some useful constants
-define('THUMBLIB_BASE_PATH', dirname(__FILE__));
+define('THUMBLIB_BASE_PATH', __DIR__);
 define('THUMBLIB_PLUGIN_PATH', THUMBLIB_BASE_PATH . '/thumb_plugins/');
 define('DEFAULT_THUMBLIB_IMPLEMENTATION', 'gd');
 

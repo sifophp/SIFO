@@ -43,9 +43,9 @@ class Browscap
     /**
      * Current version of the class.
      */
-    const VERSION = '2.0';
+    public const VERSION = '2.0';
 
-    const CACHE_FILE_VERSION = '2.0b';
+    public const CACHE_FILE_VERSION = '2.0b';
 
     /**
      * Different ways to access remote and local files.
@@ -55,10 +55,10 @@ class Browscap
      * UPDATE_CURL: Uses the cURL extension.
      * UPDATE_LOCAL: Updates from a local file (file_get_contents).
      */
-    const UPDATE_FOPEN = 'URL-wrapper';
-    const UPDATE_FSOCKOPEN = 'socket';
-    const UPDATE_CURL = 'cURL';
-    const UPDATE_LOCAL = 'local';
+    public const UPDATE_FOPEN = 'URL-wrapper';
+    public const UPDATE_FSOCKOPEN = 'socket';
+    public const UPDATE_CURL = 'cURL';
+    public const UPDATE_LOCAL = 'local';
 
     /**
      * Options for regex patterns.
@@ -66,23 +66,23 @@ class Browscap
      * REGEX_DELIMITER: Delimiter of all the regex patterns in the whole class.
      * REGEX_MODIFIERS: Regex modifiers.
      */
-    const REGEX_DELIMITER = '@';
-    const REGEX_MODIFIERS = 'i';
+    public const REGEX_DELIMITER = '@';
+    public const REGEX_MODIFIERS = 'i';
 
-    const COMPRESSION_PATTERN_START = '@';
-    const COMPRESSION_PATTERN_DELIMITER = '|';
+    public const COMPRESSION_PATTERN_START = '@';
+    public const COMPRESSION_PATTERN_DELIMITER = '|';
 
     /**
      * The values to quote in the ini file
      */
-    const VALUES_TO_QUOTE = 'Browser|Parent';
+    public const VALUES_TO_QUOTE = 'Browser|Parent';
 
-    const BROWSCAP_VERSION_KEY = 'GJK_Browscap_Version';
+    public const BROWSCAP_VERSION_KEY = 'GJK_Browscap_Version';
 
     /**
      * The headers to be sent for checking the version and requesting the file.
      */
-    const REQUEST_HEADERS = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: %s\r\nConnection: Close\r\n\r\n";
+    public const REQUEST_HEADERS = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: %s\r\nConnection: Close\r\n\r\n";
 
     /**
      * Options for auto update capabilities
@@ -209,7 +209,7 @@ class Browscap
      * Constructor class, checks for the existence of (and loads) the cache and
      * if needed updated the definitions
      *
-     * @param string $cache_dir
+     * @param ?string $cache_dir
      *
      * @throws Exception
      */
@@ -638,10 +638,9 @@ class Browscap
             {
                 $this->_patterns[$pattern] = $pattern_data;
             }
-            elseif (2 == count($pattern_data))
+            elseif (2 == (is_countable($pattern_data) ? count($pattern_data) : 0))
             {
-                end($pattern_data);
-                $this->_patterns[$pattern_data['first']] = key($pattern_data);
+                $this->_patterns[$pattern_data['first']] = array_key_last($pattern_data);
             }
             else
             {
@@ -819,9 +818,16 @@ class Browscap
      */
     protected function _loadCache($cache_file)
     {
+        /** @var null|string $cache_version */
+        $cache_version = self::CACHE_FILE_VERSION;
+        $source_version = '';
+        $browsers = [];
+        $userAgents = [];
+        $patterns = [];
+        $properties = [];
         require $cache_file;
 
-        if (!isset($cache_version) || $cache_version != self::CACHE_FILE_VERSION)
+        if (is_null($cache_version) || $cache_version != self::CACHE_FILE_VERSION)
         {
             return false;
         }
@@ -1180,7 +1186,8 @@ class Browscap
  * @copyright  Copyright (c) 2006-2012 Jonathan Stoppani
  * @version    1.0
  * @license    http://www.opensource.org/licenses/MIT MIT License
- * @link       https://github.com/GaretJax/phpbrowscap/*/
+ * @link       https://github.com/GaretJax/phpbrowscap/
+ */
 class Exception extends BaseException
 {
 }

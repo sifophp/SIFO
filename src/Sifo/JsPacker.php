@@ -71,6 +71,7 @@ class JsPacker extends MediaPacker
 	 */
 	protected function getBasePathConfig( Array $media_list )
 	{
+		$base_array = [];
 		$base_code = <<<CODE
 var	sHostStatic = window.sHostStatic ? window.sHostStatic : "{$this->instance_static_host}",
 	Hash = window.Hash ? window.Hash : "unset",

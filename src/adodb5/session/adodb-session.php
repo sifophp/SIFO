@@ -26,12 +26,12 @@ V5.09 25 June 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reser
 */
 
 if (!defined('_ADODB_LAYER')) {
-	require realpath(dirname(__FILE__) . '/../adodb.inc.php');
+	require realpath(__DIR__ . '/../adodb.inc.php');
 }
 
 if (defined('ADODB_SESSION')) return 1;
 
-define('ADODB_SESSION', dirname(__FILE__));
+define('ADODB_SESSION', __DIR__);
 
 
 /* 
@@ -47,7 +47,7 @@ function adodb_unserialize( $serialized_string )
 {
 	$variables = array( );
 	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
-	for( $i = 0; $i < count( $a ); $i = $i+2 ) {
+	for( $i = 0; $i < (is_countable($a) ? count( $a ) : 0); $i = $i+2 ) {
 		$variables[$a[$i]] = unserialize( $a[$i+1] );
 	}
 	return( $variables );
@@ -59,6 +59,7 @@ function adodb_unserialize( $serialized_string )
 */
 function adodb_session_regenerate_id() 
 {
+	$ck = [];
 	$conn = ADODB_Session::_conn();
 	if (!$conn) return false;
 
@@ -66,9 +67,9 @@ function adodb_session_regenerate_id()
 	if (function_exists('session_regenerate_id')) {
 		session_regenerate_id();
 	} else {
-		session_id(md5(uniqid(rand(), true)));
+		session_id(md5(uniqid(random_int(0, mt_getrandmax()), true)));
 		$ck = session_get_cookie_params();
-		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		setcookie(session_name(), session_id(), ['expires' => false, 'path' => $ck['path'], 'domain' => $ck['domain'], 'secure' => $ck['secure']]);
 		//@session_start();
 	}
 	$new_id = session_id();
@@ -78,7 +79,7 @@ function adodb_session_regenerate_id()
 	if (!$ok) {
 		session_id($old_id);
 		if (empty($ck)) $ck = session_get_cookie_params();
-		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		setcookie(session_name(), session_id(), ['expires' => false, 'path' => $ck['path'], 'domain' => $ck['domain'], 'secure' => $ck['secure']]);
 		return false;
 	}
 	
@@ -672,8 +673,8 @@ class ADODB_Session {
 			$expirevar = '';
 			if ($expire_notify) {
 				$var = reset($expire_notify);
-				if (isset($$var)) {
-					$expirevar = $$var;
+				if (isset(${$var})) {
+					$expirevar = ${$var};
 				}
 			}
 			
@@ -692,8 +693,8 @@ class ADODB_Session {
 		$arr = array('sesskey' => $key, 'expiry' => $expiry, $data => $val, 'expireref' => '');
 		if ($expire_notify) {
 			$var = reset($expire_notify);
-			if (isset($$var)) {
-				$arr['expireref'] = $$var;
+			if (isset(${$var})) {
+				$arr['expireref'] = ${$var};
 			}
 		}
 

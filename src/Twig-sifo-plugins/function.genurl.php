@@ -16,7 +16,7 @@ function twig_function_genurl()
             trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
         }
 
-        $action = isset($args[0]['action']) ? $args[0]['action'] : 'replace';
+        $action = $args[0]['action'] ?? 'replace';
 
         if (!in_array($action, array('add', 'replace', 'remove', 'clean_params')))
         {

@@ -17,7 +17,7 @@ This file is provided for backwards compatibility purposes
 */
 
 if (!defined('ADODB_SESSION')) {
-	require_once dirname(__FILE__) . '/adodb-session2.php';
+	require_once __DIR__ . '/adodb-session2.php';
 }
 
 require_once  ADODB_SESSION . '/adodb-encrypt-md5.php';

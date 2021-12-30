@@ -60,11 +60,11 @@ class Cookie
 
 		if ( 0 == $days )
 		{
-			$result = setcookie( $name, $value, 0, self::$path, self::$domain );
+			$result = setcookie( $name, $value, ['expires' => 0, 'path' => self::$path, 'domain' => self::$domain] );
 		}
 		else
 		{
-			$result = setcookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain );
+			$result = setcookie( $name, $value, ['expires' => time() + ( 86400 * $days ), 'path' => self::$path, 'domain' => self::$domain] );
 		}
 		if ( !$result )
 		{
@@ -81,7 +81,7 @@ class Cookie
 	static public function delete( $name )
 	{
 		self::_initDomain();
-		$result = setcookie( $name, '', time() - 3600, self::$path, self::$domain );
+		$result = setcookie( $name, '', ['expires' => time() - 3600, 'path' => self::$path, 'domain' => self::$domain] );
 		if ( !$result )
 		{
 			trigger_error( "COOKIE DELETE FAIL: Tried to delete '$name' but failed." );

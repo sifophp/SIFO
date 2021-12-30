@@ -6,6 +6,7 @@ function twig_filter_time_since()
         'time_since', function (
         $diff_time
     ) {
+        $value = [];
         if (!is_numeric($diff_time))
         {
             $diff_time = strtotime(date("Y-m-d H:i:s")) - strtotime($diff_time);

@@ -137,6 +137,7 @@ class Metadata
 	 */
 	static public function set( $key, $value, $is_metadata_key = false )
 	{
+		$metadata_information = [];
 		$registry = Registry::getInstance();
 		if ( $registry->keyExists( 'metadata_information' ) )
 		{

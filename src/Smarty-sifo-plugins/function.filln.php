@@ -48,7 +48,7 @@ function smarty_function_filln($params, &$smarty)
         trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
     }
 
-    if (!isset($params['subject']) || count($params) < 2) {
+    if (!isset($params['subject']) || (is_countable($params) ? count($params) : 0) < 2) {
         trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
     }
 

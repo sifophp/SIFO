@@ -96,7 +96,7 @@ class ADODB_Active_Record {
 	// should be static
 	static function SetDatabaseAdapter(&$db, $index=false) 
 	{
-		return ADODB_SetDatabaseAdapter($db, $index);
+		return ADODB_SetDatabaseAdapter($db);
 	}
 	
 	
@@ -125,8 +125,7 @@ class ADODB_Active_Record {
 			$this->_dbat = ADODB_Active_Record::SetDatabaseAdapter($db);
 		} else if (!isset($this->_dbat)) {
 			if (sizeof($_ADODB_ACTIVE_DBS) == 0) $this->Error("No database connection set; use ADOdb_Active_Record::SetDatabaseAdapter(\$db)",'ADODB_Active_Record::__constructor');
-			end($_ADODB_ACTIVE_DBS);
-			$this->_dbat = key($_ADODB_ACTIVE_DBS);
+			$this->_dbat = array_key_last($_ADODB_ACTIVE_DBS);
 		}
 
 		$this->_table = $table;
@@ -169,6 +168,7 @@ class ADODB_Active_Record {
 	function _singularize($tables)
 	{
 	
+		$table = null;
 		if (!ADODB_Active_Record::$_changeNames) return $table;
 	
 		$ut = strtoupper($tables);
@@ -197,7 +197,7 @@ class ADODB_Active_Record {
 		$ar = new $foreignClass($foreignRef);
 		$ar->foreignName = $foreignRef;
 		$ar->UpdateActiveTable();
-		$ar->foreignKey = ($foreignKey) ? $foreignKey : $foreignRef.ADODB_Active_Record::$_foreignSuffix;
+		$ar->foreignKey = $foreignKey ?: $foreignRef.ADODB_Active_Record::$_foreignSuffix;
 		$table =& $this->TableInfo();
 		$table->_hasMany[$foreignRef] = $ar;
 	#	$this->$foreignRef = $this->_hasMany[$foreignRef]; // WATCHME Removed assignment by ref. to please __get()
@@ -207,7 +207,7 @@ class ADODB_Active_Record {
 	static function TableHasMany($table, $foreignRef, $foreignKey = false, $foreignClass = 'ADODB_Active_Record')
 	{
 		$ar = new ADODB_Active_Record($table);
-		$ar->hasMany($foreignRef, $foreignKey, $foreignClass);
+		$ar->hasMany($foreignRef, $foreignKey);
 	}
 	
 	// use when you don't want ADOdb to auto-pluralize tablename
@@ -215,7 +215,7 @@ class ADODB_Active_Record {
 	{
 		if (!is_array($tablePKey)) $tablePKey = array($tablePKey);
 		$ar = new ADODB_Active_Record($table,$tablePKey);
-		$ar->hasMany($foreignRef, $foreignKey, $foreignClass);
+		$ar->hasMany($foreignRef, $foreignKey);
 	}
 	
 	
@@ -236,8 +236,8 @@ class ADODB_Active_Record {
 		$ar->foreignName = $foreignRef;
 		$ar->parentKey = $parentKey;
 		$ar->UpdateActiveTable();
-		$ar->foreignKey = ($foreignKey) ? $foreignKey : $foreignRef.ADODB_Active_Record::$_foreignSuffix;
-		
+		$ar->foreignKey = $foreignKey ?: $foreignRef.ADODB_Active_Record::$_foreignSuffix;
+
 		$table =& $this->TableInfo();
 		$table->_belongsTo[$foreignRef] = $ar;
 	#	$this->$foreignRef = $this->_belongsTo[$foreignRef];
@@ -252,14 +252,14 @@ class ADODB_Active_Record {
 	static function TableBelongsTo($table, $foreignRef, $foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
 	{
 		$ar = new ADOdb_Active_Record($table);
-		$ar->belongsTo($foreignRef, $foreignKey, $parentKey, $parentClass);
+		$ar->belongsTo($foreignRef, $foreignKey);
 	}
 	
 	static function TableKeyBelongsTo($table, $tablePKey, $foreignRef, $foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
 	{
 		if (!is_array($tablePKey)) $tablePKey = array($tablePKey);
 		$ar = new ADOdb_Active_Record($table, $tablePKey);
-		$ar->belongsTo($foreignRef, $foreignKey, $parentKey, $parentClass);
+		$ar->belongsTo($foreignRef, $foreignKey);
 	}
 
 
@@ -360,7 +360,7 @@ class ADODB_Active_Record {
 			@flock($fp, LOCK_SH);
 			$acttab = unserialize(fread($fp,100000));
 			fclose($fp);
-			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(rand()) % 16) > time()) { 
+			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(random_int(0, mt_getrandmax())) % 16) > time()) { 
 				// abs(rand()) randomizes deletion, reducing contention to delete/refresh file
 				// ideally, you should cache at least 32 secs
 				$activedb->tables[$table] = $acttab;
@@ -557,6 +557,7 @@ class ADODB_Active_Record {
 	// set a numeric array (using natural table field ordering) as object properties
 	function Set(&$row)
 	{
+	$keys = null;
 	global $ACTIVE_RECORD_SAFETY;
 	
 		$db = $this->DB();
@@ -792,6 +793,7 @@ class ADODB_Active_Record {
 	// returns 0 on error, 1 on update, 2 on insert
 	function Replace()
 	{
+	$arr = [];
 	global $ADODB_ASSOC_CASE;
 		
 		$db = $this->DB(); if (!$db) return false;

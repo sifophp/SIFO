@@ -192,21 +192,19 @@ class DebugMysql extends Mysql
 	 *
 	 * @var DebugMysql Object.
 	 */
-	static private $instance = NULL;
+	static private ?\Sifo\DebugMysql $instance = NULL;
 
 	/**
 	 * The statement class that will be used.
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = '\\Sifo\\DebugMysqlStatement';
+	public const STATEMENT_CLASS = '\\Sifo\\DebugMysqlStatement';
 
 	/**
 	 * Executed queries.
-	 *
-	 * @var array
 	 */
-	static private $executed_queries = array();
+	static private array $executed_queries = array();
 
 	/**
 	 * Singleton static method.
@@ -245,7 +243,7 @@ class DebugMysql extends Mysql
 
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
-		$this->setDebug( $statement, $query_time, $context, $result, $this->db_params, $this->pdo );
+		static::setDebug($statement, $query_time, $context, $result, $this->db_params, $this->pdo);
 
 		return $result;
 	}

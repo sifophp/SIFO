@@ -13,24 +13,26 @@ class DebugDataBaseHandler
 	/**
 	 * @var string Path to store the Sifo database (set in the class constructor in order to build it based on the ROOT_PATH).
 	 */
-	private $db_path;
+	private string $db_path;
 
 	/**
 	 * @var string Sifo database name
 	 */
-	private $db_name = 'sifo.sqlite3';
+	private string $db_name = 'sifo.sqlite3';
 
 	/**
 	 * @var string table to store execution debugs name
 	 */
-	private $table_name = 'execution_debugs';
+	private string $table_name = 'execution_debugs';
 
 	/**
 	 * @var int We'll keep the executions of the last $days_to_keep_debugs days in the database
 	 */
-	private $days_to_keep_debugs = 1;
+	private int $days_to_keep_debugs = 1;
+    /** @var PDO */
+    private ?PDO $persistence;
 
-	/**
+    /**
 	 * Connects to the Sifo database and initializes the debug table if it doesn't exists
 	 */
 	function __construct()
@@ -100,8 +102,11 @@ class DebugDataBaseHandler
 
 			$statement->bindParam( ':execution_key', $execution_key, PDO::PARAM_STR );
 			$statement->bindParam( ':url', $url, PDO::PARAM_STR );
-            $encoded_debug = json_encode( $debug_content );
-			$statement->bindParam( ':debug_content', $encoded_debug , PDO::PARAM_STR );
+            try {
+                $encoded_debug = json_encode( $debug_content, JSON_THROW_ON_ERROR );
+                $statement->bindParam( ':debug_content', $encoded_debug , PDO::PARAM_STR );
+            } catch (\Throwable $exception) {
+            }
 			$statement->bindParam( ':is_json', $is_json, PDO::PARAM_INT );
 			$statement->bindParam( ':timestamp', $timestamp, PDO::PARAM_INT );
 
@@ -202,7 +207,7 @@ class DebugDataBaseHandler
 	 */
 	private function unmapExecutionDebugData( $execution_debug_data )
 	{
-		$execution_debug_data['debug_content'] = json_decode( $execution_debug_data['debug_content'], true );
+		$execution_debug_data['debug_content'] = json_decode( $execution_debug_data['debug_content'], true, 512, JSON_THROW_ON_ERROR );
 		$execution_debug_data['date_time']     = new DateTime( '@' . $execution_debug_data['timestamp'] );
 		$execution_debug_data['date_time']     = $execution_debug_data['date_time']->format( 'Y-m-d H:i:s' );
 

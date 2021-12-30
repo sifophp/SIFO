@@ -28,12 +28,12 @@ class DebugSphinxql extends Sphinxql
 	/**
 	 * @var array Query debug information.
 	 */
-	private $query_debug = array();
+	private array $query_debug = array();
 
 	/**
 	 * @var array Queries to execute in multiQuery method.
 	 */
-	private $queries;
+	private array $queries;
 
 	/**
 	 * Redefines multiQuery method adding debug information.

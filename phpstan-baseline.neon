@@ -1,0 +1,502 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Undefined variable\\: \\$list$#"
+			count: 2
+			path: src/Php-Sql-Parser/php-sql-parser.php
+
+		-
+			message: "#^Variable \\$token_category might not be defined\\.$#"
+			count: 1
+			path: src/Php-Sql-Parser/php-sql-parser.php
+
+		-
+			message: "#^Instantiated class ImagickThumb not found\\.$#"
+			count: 1
+			path: src/PhpThumb/ThumbLib.inc.php
+
+		-
+			message: "#^Result of method S3\\:\\:__construct\\(\\) \\(void\\) is used\\.$#"
+			count: 1
+			path: src/Sifo/AmazonS3.php
+
+		-
+			message: "#^Call to an undefined method Sifo\\\\Database\\:\\:close\\(\\)\\.$#"
+			count: 1
+			path: src/Sifo/Database.php
+
+		-
+			message: "#^Result of method Sifo\\\\Search\\:\\:__construct\\(\\) \\(void\\) is used\\.$#"
+			count: 1
+			path: src/Sifo/Debug/Search.php
+
+		-
+			message: "#^Call to an undefined method Sifo\\\\FilterFilesByExtensionIterator\\:\\:getBaseName\\(\\)\\.$#"
+			count: 1
+			path: src/Sifo/DirectoryList.php
+
+		-
+			message: "#^Result of method Sifo\\\\Filter\\:\\:__construct\\(\\) \\(void\\) is used\\.$#"
+			count: 1
+			path: src/Sifo/Filter.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\JsPacker\\:\\:\\$instance_static_host\\.$#"
+			count: 1
+			path: src/Sifo/JsPacker.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\JsGenerator\\:\\:\\$instance_static_host\\.$#"
+			count: 1
+			path: src/Sifo/MediaGenerator.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\MediaGenerator\\:\\:\\$hashes_file\\.$#"
+			count: 3
+			path: src/Sifo/MediaGenerator.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\MediaGenerator\\:\\:\\$instance_static_host\\.$#"
+			count: 1
+			path: src/Sifo/MediaGenerator.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\MediaPacker\\:\\:\\$instance_static_host\\.$#"
+			count: 1
+			path: src/Sifo/MediaPacker.php
+
+		-
+			message: "#^Access to an undefined property Sifo\\\\MediaPacker\\:\\:\\$working_instance\\.$#"
+			count: 1
+			path: src/Sifo/MediaPacker.php
+
+		-
+			message: "#^Call to an undefined method Sifo\\\\MediaPacker\\:\\:getBasePathConfig\\(\\)\\.$#"
+			count: 1
+			path: src/Sifo/MediaPacker.php
+
+		-
+			message: "#^Using static outside of class scope\\.$#"
+			count: 2
+			path: src/Smarty-sifo-plugins/function.email_obfuscator.php
+
+		-
+			message: "#^Using static outside of class scope\\.$#"
+			count: 2
+			path: src/Twig-sifo-plugins/function.email_obfuscator.php
+
+		-
+			message: "#^Call to static method normalize\\(\\) on an unknown class Verticalroot\\\\UrlsManagement\\.$#"
+			count: 1
+			path: src/Twig-sifo-plugins/function.filln.php
+
+		-
+			message: "#^Class ADODB_Active_Record referenced with incorrect case\\: ADOdb_Active_Record\\.$#"
+			count: 2
+			path: src/adodb5/adodb-active-record.inc.php
+
+		-
+			message: "#^Variable \\$valarr might not be defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb-active-record.inc.php
+
+		-
+			message: "#^Call to an undefined method ADODB_Active_Record\\:\\:outp_throw\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb-active-recordx.inc.php
+
+		-
+			message: "#^Variable \\$indices might not be defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb-active-recordx.inc.php
+
+		-
+			message: "#^Variable \\$valarr might not be defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb-active-recordx.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_DataDict\\:\\:\\$upperName\\.$#"
+			count: 8
+			path: src/adodb5/adodb-datadict.inc.php
+
+		-
+			message: "#^Variable \\$ty might not be defined\\.$#"
+			count: 10
+			path: src/adodb5/adodb-datadict.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_Exception\\:\\:\\$msg\\.$#"
+			count: 1
+			path: src/adodb5/adodb-exceptions.inc.php
+
+		-
+			message: "#^Function adodb_movenext not found\\.$#"
+			count: 1
+			path: src/adodb5/adodb-lib.inc.php
+
+		-
+			message: "#^Undefined variable\\: \\$hosts$#"
+			count: 1
+			path: src/adodb5/adodb-memcache.lib.inc.php
+
+		-
+			message: "#^Instantiated class PEAR_Error not found\\.$#"
+			count: 2
+			path: src/adodb5/adodb-pear.inc.php
+
+		-
+			message: "#^Access to an undefined property adodb_perf\\:\\:\\$settings\\.$#"
+			count: 2
+			path: src/adodb5/adodb-perf.inc.php
+
+		-
+			message: "#^Method adodb_perf\\:\\:OptimizeTables\\(\\) should return Returns but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-perf.inc.php
+
+		-
+			message: "#^Function adodb_daylight_sv not found\\.$#"
+			count: 1
+			path: src/adodb5/adodb-time.inc.php
+
+		-
+			message: "#^Access to an undefined property adoSchema\\:\\:\\$obj\\.$#"
+			count: 2
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Access to an undefined property dbData\\:\\:\\$current_field\\.$#"
+			count: 4
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Access to an undefined property dbTable\\:\\:\\$data\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Constructor of class dbData has an unused parameter \\$attributes\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Constructor of class dbObject has an unused parameter \\$attributes\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Method adoSchema\\:\\:SaveSQL\\(\\) should return bool but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Method dbData\\:\\:addData\\(\\) should return string but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Method dbData\\:\\:addField\\(\\) should return string but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Method dbTable\\:\\:addField\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Method dbTable\\:\\:addFieldOpt\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Using static outside of class scope\\.$#"
+			count: 2
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Variable \\$sqlArray in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Variable \\$sqlArray in isset\\(\\) is never defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema.inc.php
+
+		-
+			message: "#^Access to an undefined property adoSchema\\:\\:\\$obj\\.$#"
+			count: 2
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Access to an undefined property dbData\\:\\:\\$current_field\\.$#"
+			count: 4
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Access to an undefined property dbTable\\:\\:\\$data\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Constructor of class dbData has an unused parameter \\$attributes\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Constructor of class dbObject has an unused parameter \\$attributes\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Method adoSchema\\:\\:SaveSQL\\(\\) should return bool but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Method dbData\\:\\:addData\\(\\) should return string but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Method dbData\\:\\:addField\\(\\) should return string but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Method dbTable\\:\\:addField\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Method dbTable\\:\\:addFieldOpt\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Undefined variable\\: \\$pfx$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Using static outside of class scope\\.$#"
+			count: 2
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Variable \\$sqlArray in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Variable \\$sqlArray in isset\\(\\) is never defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb-xmlschema03.inc.php
+
+		-
+			message: "#^Access to an undefined property ADOConnection\\:\\:\\$_genIDSQL\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADOConnection\\:\\:\\$_genSeqSQL\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADOConnection\\:\\:\\$_metars\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADOConnection\\:\\:\\$locale\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_Cache_File\\:\\:\\$notSafeMode\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADORecordSet_array\\:\\:\\$adodbFetchMode\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_affectedrows\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_close\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_connect\\(\\)\\.$#"
+			count: 2
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_insertid\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_pconnect\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADOConnection\\:\\:_query\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADORecordSet\\:\\:_fetch\\(\\)\\.$#"
+			count: 6
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADORecordSet\\:\\:_initrs\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Call to an undefined method ADORecordSet\\:\\:_seek\\(\\)\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Class ADOConnection referenced with incorrect case\\: ADOCOnnection\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Function adodb_GetActiveRecordsClass invoked with 8 parameters, 7 required\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Function adodb_getall not found\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Function adodb_movenext not found\\.$#"
+			count: 5
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Instantiated class PEAR_Error not found\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Result of method ADOConnection\\:\\:GetActiveRecordsClass\\(\\) \\(void\\) is used\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Variable \\$err in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 2
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Variable \\$opt might not be defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Variable \\$ret might not be defined\\.$#"
+			count: 1
+			path: src/adodb5/adodb.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB2_mysql\\:\\:\\$upperName\\.$#"
+			count: 2
+			path: src/adodb5/datadict/datadict-mysql.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_mysqli\\:\\:\\$databaseName\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-mysqli.inc.php
+
+		-
+			message: "#^Access to an undefined property ADORecordSet_mysqli\\:\\:\\$adodbFetchMode\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-mysqli.inc.php
+
+		-
+			message: "#^Constructor of class ADORecordSet_array_mysqli has an unused parameter \\$mode\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-mysqli.inc.php
+
+		-
+			message: "#^Variable \\$rs in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-mysqli.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_pdo\\:\\:\\$_driver\\.$#"
+			count: 22
+			path: src/adodb5/drivers/adodb-pdo.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_pdo\\:\\:\\$_dropSeqSQL\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-pdo.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_pdo\\:\\:\\$_genIDSQL\\.$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-pdo.inc.php
+
+		-
+			message: "#^Access to an undefined property ADODB_pdo\\:\\:\\$_stmt\\.$#"
+			count: 4
+			path: src/adodb5/drivers/adodb-pdo.inc.php
+
+		-
+			message: "#^Access to an undefined property ADORecordSet_pdo\\:\\:\\$adodbFetchMode\\.$#"
+			count: 2
+			path: src/adodb5/drivers/adodb-pdo.inc.php
+
+		-
+			message: "#^Undefined variable\\: \\$enc$#"
+			count: 1
+			path: src/adodb5/drivers/adodb-pdo_sqlite.inc.php
+
+		-
+			message: "#^File begins with UTF\\-8 BOM character\\. This may cause problems when running the code in the web browser\\.$#"
+			count: 1
+			path: src/adodb5/lang/adodb-bgutf8.inc.php
+
+		-
+			message: "#^Variable \\$ACCEPTIP in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 1
+			path: src/adodb5/server.php
+
+		-
+			message: "#^Call to static method read\\(\\) on an unknown class Secret\\.$#"
+			count: 1
+			path: src/adodb5/session/adodb-encrypt-secret.php
+
+		-
+			message: "#^Call to static method write\\(\\) on an unknown class Secret\\.$#"
+			count: 1
+			path: src/adodb5/session/adodb-encrypt-secret.php
+
+		-
+			message: "#^Variable \\$sql in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 1
+			path: src/adodb5/session/adodb-session.php
+
+		-
+			message: "#^Variable \\$sql in empty\\(\\) always exists and is not falsy\\.$#"
+			count: 1
+			path: src/adodb5/session/adodb-session2.php
+

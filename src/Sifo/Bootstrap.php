@@ -32,9 +32,8 @@ if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance
 /**
  * Class Bootstrap
  */
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Exceptions.php';
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Config.php';
-require_once ROOT_PATH . '/vendor/autoload.php';
+require_once 'Exceptions.php';
+require_once 'Config.php';
 
 class Bootstrap
 {
@@ -93,15 +92,19 @@ class Bootstrap
 	{
 		// Set paths:
 		self::$root        = ROOT_PATH;
-		self::$application = dirname( __FILE__ );
+		self::$application = __DIR__;
 		self::$instance    = $instance_name;
         static::setContainer($container);
 
 		Benchmark::getInstance()->timingStart();
 
+        ob_start();
 		self::dispatch( $controller_name );
+        $content = ob_get_clean();
 
 		Benchmark::getInstance()->timingStop();
+
+        echo $content;
 	}
 
     /**
@@ -193,7 +196,7 @@ class Bootstrap
 				}
 
 				// If the user is authorized, we save a session cookie to prevent multiple auth under subdomains in the same session.
-				setcookie( 'domain_auth', $auth_data['hash'], 0, '/', $domain->getDomain() );
+				setcookie( 'domain_auth', $auth_data['hash'], ['expires' => 0, 'path' => '/', 'domain' => $domain->getDomain()] );
 			}
 
 			self::$language = $domain->getLanguage();

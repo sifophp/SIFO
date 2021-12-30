@@ -29,9 +29,9 @@ class RedisModel
 {
 	/**
 	 * Redis client object.
-	 * @var \Predis\Client
+     * @var \Predis\Client[] $connected_client
 	 */
-	private static $connected_client = array();
+	private static array $connected_client = array();
 
 	private $profile;
 

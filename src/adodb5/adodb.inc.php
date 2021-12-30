@@ -44,7 +44,7 @@
 	 * Set ADODB_DIR to the directory where this file resides...
 	 * This constant was formerly called $ADODB_RootPath
 	 */
-	if (!defined('ADODB_DIR')) define('ADODB_DIR',dirname(__FILE__));
+	if (!defined('ADODB_DIR')) define('ADODB_DIR',__DIR__);
 
 	//==============================================================================================
 	// GLOBAL VARIABLES
@@ -172,7 +172,7 @@
 
 		// Initialize random number generator for randomizing cache flushes
 		// -- note Since PHP 4.2.0, the seed  becomes optional and defaults to a random value if omitted.
-		 srand(((double)microtime())*1000000);
+		 mt_srand(((double)microtime())*1_000_000);
 
 		/**
 		 * ADODB version as a string.
@@ -256,6 +256,7 @@
 		// flush all items in cache
 		function flushall($debug=false)
 		{
+		$dir = null;
 		global $ADODB_CACHE_DIR;
 
 		$rez = false;
@@ -492,7 +493,7 @@
 	function Time()
 	{
 		$rs = $this->_Execute("select $this->sysTimeStamp");
-		if ($rs && !$rs->EOF) return $this->UnixTimeStamp(reset($rs->fields));
+		if ($rs && !$rs->EOF) return static::UnixTimeStamp(reset($rs->fields));
 
 		return false;
 	}
@@ -674,7 +675,7 @@
 	 */
 	function PrepareSP($sql,$param=true)
 	{
-		return $this->Prepare($sql,$param);
+		return $this->Prepare($sql);
 	}
 
 	/**
@@ -1376,7 +1377,7 @@
 		$rs2->sql = $rs->sql;
 		$rs2->dataProvider = $this->dataProvider;
 		$rs2->InitArrayFields($arr,$flds);
-		$rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+		$rs2->fetchMode = $rs->adodbFetchMode ?? $rs->fetchMode;
 		return $rs2;
 	}
 
@@ -1595,7 +1596,7 @@
 	{
 		$rezarr = $this->GetAll($sql, $arr);
 		$sz = sizeof($rezarr);
-		return $rezarr[abs(rand()) % $sz];
+		return $rezarr[abs(random_int(0, mt_getrandmax())) % $sz];
 	}
 
 	/**
@@ -2557,7 +2558,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	function UserDate($v,$fmt='Y-m-d',$gmt=false)
 	{
-		$tt = $this->UnixDate($v);
+		$tt = static::UnixDate($v);
 
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
 		if (($tt === false || $tt == -1) && $v != false) return $v;
@@ -2581,7 +2582,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (!isset($v)) return $this->emptyTimeStamp;
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (is_numeric($v) && strlen($v)<14) return ($gmt) ? adodb_gmdate($fmt,$v) : adodb_date($fmt,$v);
-		$tt = $this->UnixTimeStamp($v);
+		$tt = static::UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
 		if (($tt === false || $tt == -1) && $v != false) return $v;
 		if ($tt == 0) return $this->emptyTimeStamp;
@@ -3198,7 +3199,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s')
 	{
 		if (is_numeric($v) && strlen($v)<14) return adodb_date($fmt,$v);
-		$tt = $this->UnixTimeStamp($v);
+		$tt = static::UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
 		if (($tt === false || $tt == -1) && $v != false) return $v;
 		if ($tt === 0) return $this->emptyTimeStamp;
@@ -3214,7 +3215,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function UserDate($v,$fmt='Y-m-d')
 	{
-		$tt = $this->UnixDate($v);
+		$tt = static::UnixDate($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
 		if (($tt === false || $tt == -1) && $v != false) return $v;
 		else if ($tt == 0) return $this->emptyDate;
@@ -3490,7 +3491,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	*/
 	function MaxRecordCount()
 	{
-		return ($this->_maxRecordCount) ? $this->_maxRecordCount : $this->RecordCount();
+		return $this->_maxRecordCount ?: $this->RecordCount();
 	}
 
 	/**
@@ -3791,7 +3792,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		$tmap = false;
 		$t = strtoupper($t);
-		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : 'N';
+		$tmap = $typeMap[$t] ?? 'N';
 		switch ($tmap) {
 		case 'C':
 
@@ -4003,7 +4004,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		/* Use associative array to get fields array */
 		function Fields($colname)
 		{
-			$mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
+			$mode = $this->adodbFetchMode ?? $this->fetchMode;
 
 			if ($mode & ADODB_FETCH_ASSOC) {
 				if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) $colname = strtolower($colname);
@@ -4150,6 +4151,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function ADONewConnection($db='')
 	{
+	$obj = null;
+	$persist = null;
+	$nconnect = null;
 	GLOBAL $ADODB_NEWCONNECTION, $ADODB_LASTDB;
 
 		if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
@@ -4314,7 +4318,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		switch($drivername) {
 		case 'mysqlt':
-		case 'mysqli':
+		case \mysqli::class:
 				$drivername='mysql';
 				break;
 		case 'postgres7':

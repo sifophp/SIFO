@@ -240,6 +240,7 @@ class MediaGenerator
 
 	protected function getGeneratedHashes()
 	{
+		$revision = null;
 		if ( Domains::getInstance()->getDevMode() )
 		{
 			return false;
@@ -259,7 +260,7 @@ class MediaGenerator
 
 	protected function isGeneratedFilesUpToDate( $revision )
 	{
-		$checkout_revision = $this->getCheckoutRevision();
+		$checkout_revision = static::getCheckoutRevision();
 
 		return ( $checkout_revision === $revision );
 	}
@@ -278,12 +279,14 @@ class MediaGenerator
 
 	protected function getHashesFileContent( Array $generated )
 	{
-		$revision = $this->getCheckoutRevision();
+		$revision = static::getCheckoutRevision();
 		return "<?php\n\$revision='{$revision}';\n\$hashes=" . var_export( $generated, true ) . ';';
 	}
 
 	protected function generateAllMediaGroups()
 	{
+		$generated_media = [];
+		$generated_files = [];
 		$media = array();
 		foreach( $this->media_config['packages'] as $group => $media_config )
 		{
@@ -538,6 +541,7 @@ class JsGenerator extends MediaGenerator
 	 */
 	protected function getBaseCode( Array $media_list, Array $generated_files )
 	{
+		$base_array = [];
 		if ( count( $media_list ) !== count( $generated_files ) )
 		{
 			trigger_error( 'The number of groups does not match the number of files generated!', E_USER_WARNING );

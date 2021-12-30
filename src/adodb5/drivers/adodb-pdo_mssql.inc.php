@@ -27,12 +27,12 @@ class ADODB_pdo_mssql extends ADODB_pdo {
 	
 	function ServerInfo()
 	{
-		return ADOConnection::ServerInfo();
+		return (new ADOConnection())->ServerInfo();
 	}
 	
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
-		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+		$ret = (new ADOConnection())->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 		return $ret;
 	}
 	

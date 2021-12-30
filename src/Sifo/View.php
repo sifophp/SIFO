@@ -25,14 +25,11 @@ namespace Sifo;
  */
 class View
 {
-    /** @var string */
-    private $template_path;
+    private string $template_path = '';
 
-    /** @var ViewSmarty|ViewTwig */
-    private $templating_engine;
+    private ?\Sifo\ViewInterface $templating_engine = null;
 
-    /** @var array */
-    private $variables = [];
+    private array $variables = [];
 
     public function fetch($template)
     {

@@ -43,7 +43,7 @@
 	free
  */
  
-define('ADODB_PEAR',dirname(__FILE__));
+define('ADODB_PEAR',__DIR__);
 include_once "PEAR.php";
 include_once ADODB_PEAR."/adodb-errorpear.inc.php";
 include_once ADODB_PEAR."/adodb.inc.php";
@@ -111,6 +111,7 @@ class DB
 
 	function factory($type)
 	{
+		$dsninfo = [];
 		include_once(ADODB_DIR."/drivers/adodb-$type.inc.php");
 		$obj = NewADOConnection($type);
 		if (!is_object($obj)) $obj = new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
@@ -138,10 +139,11 @@ class DB
 	 */
 	function connect($dsn, $options = false)
 	{
+		$persist = null;
 		if (is_array($dsn)) {
 			$dsninfo = $dsn;
 		} else {
-			$dsninfo = DB::parseDSN($dsn);
+			$dsninfo = (new DB())->parseDSN($dsn);
 		}
 		switch ($dsninfo["phptype"]) {
 			case 'pgsql': 	$type = 'postgres7'; break;

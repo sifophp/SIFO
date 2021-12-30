@@ -34,10 +34,10 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	function OffsetDate($dayFraction,$date=false)
 	{		
 		if (!$date) $date = $this->sysDate;
-		
+
 		$fraction = $dayFraction * 24 * 3600;
 		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
-		
+
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 	
@@ -53,8 +53,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	
 	function ServerInfo()
 	{
-		$arr['description'] = ADOConnection::GetOne("select version()");
-		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		$arr = [];
+		$arr['description'] = (new ADOConnection())->GetOne("select version()");
+		$arr['version'] = (new ADOConnection())->_findvers($arr['description']);
 		return $arr;
 	}
 	
@@ -69,7 +70,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			$mask = $this->qstr($mask);
 			$this->metaTablesSQL .= " like $mask";
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = (new ADOConnection())->MetaTables($ttype, $showSchema);
 		
 		$this->metaTablesSQL = $save;
 		return $ret;

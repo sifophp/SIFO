@@ -36,8 +36,8 @@ class ADODB_Compress_Gzip {
 	/**
 	 */
 	function setLevel($level) {
-		assert('$level >= 0');
-		assert('$level <= 9');
+		assert($level >= 0);
+		assert($level <= 9);
 		$this->_level = (int) $level;
 	}
 
@@ -50,7 +50,7 @@ class ADODB_Compress_Gzip {
 	/**
 	 */
 	function setMinLength($min_length) {
-		assert('$min_length >= 0');
+		assert($min_length >= 0);
 		$this->_min_length = (int) $min_length;
 	}
 

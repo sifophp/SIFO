@@ -6,18 +6,18 @@ V5.09 25 June 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reser
   the BSD license will take precedence.
 	Made table name configurable - by David Johnson djohnson@inpro.net
 	Encryption by Ari Kuorikoski <ari.kuorikoski@finebyte.com>
-	
+
   Set tabs to 4 for best viewing.
-  
+
   Latest version of ADODB is available at http://php.weblogs.com/adodb
   ======================================================================
-  
+
  This file provides PHP4 session management using the ADODB database
 wrapper library.
- 
+
  Example
  =======
- 
+
 	include('adodb.inc.php');
 	#---------------------------------#
 	include('adodb-cryptsession.php'); 
@@ -28,12 +28,12 @@ wrapper library.
 	print "
 -- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>";
 
- 
+
  Installation
  ============
  1. Create a new database in MySQL or Access "sessions" like
 so:
- 
+
   create table sessions (
 	   SESSKEY char(32) not null,
 	   EXPIRY int(11) unsigned not null,
@@ -41,17 +41,17 @@ so:
 	   DATA CLOB,
 	  primary key (sesskey)
   );
-  
+
   2. Then define the following parameters. You can either modify
      this file, or define them before this file is included:
-	 
+
   	$ADODB_SESSION_DRIVER='database driver, eg. mysql or ibase';
 	$ADODB_SESSION_CONNECT='server to connect to';
 	$ADODB_SESSION_USER ='user';
 	$ADODB_SESSION_PWD ='password';
 	$ADODB_SESSION_DB ='database';
 	$ADODB_SESSION_TBL = 'sessions'
-	
+
   3. Recommended is PHP 4.0.2 or later. There are documented
 session bugs in earlier versions of PHP.
 
@@ -61,7 +61,7 @@ session bugs in earlier versions of PHP.
 include_once('crypt.inc.php');
 
 if (!defined('_ADODB_LAYER')) {
-	include (dirname(__FILE__).'/adodb.inc.php');
+	include (__DIR__.'/adodb.inc.php');
 }
 
  /* if database time and system time is difference is greater than this, then give warning */
@@ -70,7 +70,7 @@ if (!defined('_ADODB_LAYER')) {
 if (!defined('ADODB_SESSION')) {
 
  define('ADODB_SESSION',1);
- 
+
 GLOBAL 	$ADODB_SESSION_CONNECT, 
 	$ADODB_SESSION_DRIVER,
 	$ADODB_SESSION_USER,
@@ -84,7 +84,7 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	$ADODB_SESSION_TBL; 
 
 	//$ADODB_SESS_DEBUG = true;
-	
+
 	/* SET THE FOLLOWING PARAMETERS */
 if (empty($ADODB_SESSION_DRIVER)) {
 	$ADODB_SESSION_DRIVER='mysql';
@@ -127,11 +127,11 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	$ADODB_SESSION_DB,
 	$ADODB_SESS_CONN,
 	$ADODB_SESS_DEBUG;
-	
+
 	$ADODB_SESS_INSERT = false;
-	
+
 	if (isset($ADODB_SESS_CONN)) return true;
-	
+
 	$ADODB_SESS_CONN = ADONewConnection($ADODB_SESSION_DRIVER);
 	if (!empty($ADODB_SESS_DEBUG)) {
 		$ADODB_SESS_CONN->debug = true;
@@ -139,7 +139,7 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	}
 	return $ADODB_SESS_CONN->PConnect($ADODB_SESSION_CONNECT,
 			$ADODB_SESSION_USER,$ADODB_SESSION_PWD,$ADODB_SESSION_DB);
-	
+
 }
 
 function adodb_sess_close() 
@@ -167,7 +167,7 @@ global $ADODB_SESS_CONN,$ADODB_SESS_INSERT,$ADODB_SESSION_TBL;
 		return $v;
 	}
 	else $ADODB_SESS_INSERT = true;
-	
+
 	return '';
 }
 
@@ -180,11 +180,11 @@ $Crypt = new MD5Crypt;
 
 	// encrypt session data..	
 	$val = $Crypt->Encrypt(rawurlencode($val), ADODB_Session_Key());
-	
+
 	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
-		$arr['expireref'] = $$var;
+		$arr['expireref'] = ${$var};
 	}
 	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,
 	    $arr,
@@ -196,7 +196,7 @@ $Crypt = new MD5Crypt;
 	} else {
 		// bug in access driver (could be odbc?) means that info is not commited
 		// properly unless select statement executed in Win2000
-	
+
 	if ($ADODB_SESS_CONN->databaseType == 'access') $rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");
 	}
 	return isset($rs);
@@ -205,7 +205,7 @@ $Crypt = new MD5Crypt;
 function adodb_sess_destroy($key) 
 {
 	global $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_EXPIRE_NOTIFY;
-	
+
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		reset($ADODB_SESSION_EXPIRE_NOTIFY);
 		$fn = next($ADODB_SESSION_EXPIRE_NOTIFY);
@@ -251,7 +251,7 @@ function adodb_sess_gc($maxlifetime) {
 				$rs->MoveNext();
 			}
 			$rs->Close();
-			
+
 			$ADODB_SESS_CONN->Execute("DELETE FROM $ADODB_SESSION_TBL WHERE expiry < $t");
 			$ADODB_SESS_CONN->CommitTrans();
 		}
@@ -259,12 +259,12 @@ function adodb_sess_gc($maxlifetime) {
 		$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE expiry < " . time();
 		$ADODB_SESS_CONN->Execute($qry);
 	}
-	
+
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 	if (defined('ADODB_SESSION_OPTIMIZE'))
 	{
 	global $ADODB_SESSION_DRIVER;
-	
+
 		switch( $ADODB_SESSION_DRIVER ) {
 			case 'mysql':
 			case 'mysqlt':
@@ -276,13 +276,13 @@ function adodb_sess_gc($maxlifetime) {
 				break;
 		}
 	}
-	
+
 	if ($ADODB_SESS_CONN->dataProvider === 'oci8') $sql = 'select  TO_CHAR('.($ADODB_SESS_CONN->sysTimeStamp).', \'RRRR-MM-DD HH24:MI:SS\') from '. $ADODB_SESSION_TBL;
 	else $sql = 'select '.$ADODB_SESS_CONN->sysTimeStamp.' from '. $ADODB_SESSION_TBL;
-	
+
 	$rs = $ADODB_SESS_CONN->SelectLimit($sql,1);
 	if ($rs && !$rs->EOF) {
-	
+
 		$dbts = reset($rs->fields);
 		$rs->Close();
 		$dbt = $ADODB_SESS_CONN->UnixTimeStamp($dbts);
@@ -295,7 +295,7 @@ function adodb_sess_gc($maxlifetime) {
 -- $msg</p>");
 		}
 	}
-	
+
 	return true;
 }
 

@@ -16,7 +16,7 @@ V5.09 25 June 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reser
   
 */
 
-if (!defined('ADODB_DIR')) include_once(dirname(__FILE__).'/adodb.inc.php');
+if (!defined('ADODB_DIR')) include_once(__DIR__.'/adodb.inc.php');
 include_once(ADODB_DIR.'/tohtml.inc.php');
 
 define( 'ADODB_OPT_HIGH', 2);
@@ -66,7 +66,8 @@ function adodb_microtime()
 /* sql code timing */
 function adodb_log_sql(&$connx,$sql,$inputarr)
 {
-    $perf_table = adodb_perf::table();
+    $sql2 = null;
+				$perf_table = adodb_perf::table();
 	$connx->fnExecute = false;
 	$a0 = microtime(true);
 	$rs = $connx->Execute($sql,$inputarr);
@@ -227,7 +228,7 @@ class adodb_perf {
 	var $helpurl = "<a href=http://phplens.com/adodb/reference.functions.fnexecute.and.fncacheexecute.properties.html#logsql>LogSQL help</a>";
 	var $createTableSQL = false;
 	var $maxLength = 2000;
-	
+
     // Sets the tablename to be used            
     static function table($newtable = false)
     {
@@ -241,7 +242,8 @@ class adodb_perf {
 	// returns array with info to calculate CPU Load
 	function _CPULoad()
 	{
-/*
+$info = [];
+		/*
 
 cpu  524152 2662 2515228 336057010
 cpu0 264339 1408 1257951 168025827
@@ -263,20 +265,20 @@ processes 69293
 			if (PHP_VERSION == '5.0.2') return false;
 			if (PHP_VERSION == '5.0.3') return false;
 			if (PHP_VERSION == '4.3.10') return false; # see http://bugs.php.net/bug.php?id=31737
-			
+
 			static $FAIL = false;
 			if ($FAIL) return false;
-			
+
 			$objName = "winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\CIMV2";	
 			$myQuery = "SELECT * FROM Win32_PerfFormattedData_PerfOS_Processor WHERE Name = '_Total'";
-			
+
 			try {
 				@$objWMIService = new COM($objName);
 				if (!$objWMIService) {
 					$FAIL = true;
 					return false;
 				}
-		
+
 				$info[0] = -1;
 				$info[1] = 0;
 				$info[2] = 0;
@@ -284,23 +286,23 @@ processes 69293
 				foreach($objWMIService->ExecQuery($myQuery) as $objItem)  {
 						$info[0] = $objItem->PercentProcessorTime();
 				}
-			
+
 			} catch(Exception $e) {
 				$FAIL = true;
 				echo $e->getMessage();
 				return false;
 			}
-			
+
 			return $info;
 		}
-		
+
 		// Algorithm - Steve Blinch (BlitzAffe Online, http://www.blitzaffe.com)
 		$statfile = '/proc/stat';
 		if (!file_exists($statfile)) return false;
-		
+
 		$fd = fopen($statfile,"r");
 		if (!$fd) return false;
-		
+
 		$statinfo = explode("\n",fgets($fd, 1024));
 		fclose($fd);
 		foreach($statinfo as $line) {
@@ -311,11 +313,11 @@ processes 69293
 				return $info;
 			}
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 	/* NOT IMPLEMENTED */
 	function MemInfo()
 	{
@@ -343,8 +345,8 @@ SwapFree:      2085664 kB
 Committed_AS:   348732 kB
 		*/
 	}
-	
-	
+
+
 	/*
 		Remember that this is client load, not db server load!
 	*/
@@ -353,7 +355,7 @@ Committed_AS:   348732 kB
 	{
 		$info = $this->_CPULoad();
 		if (!$info) return false;
-		
+
 		if (strncmp(PHP_OS,'WIN',3)==0) {
 			return (integer) $info[0];
 		}else {
@@ -362,34 +364,34 @@ Committed_AS:   348732 kB
 				$this->_lastLoad = $info;
 				$info = $this->_CPULoad();
 			}
-			
+
 			$last = $this->_lastLoad;
 			$this->_lastLoad = $info;
-			
+
 			$d_user = $info[0] - $last[0];
 			$d_nice = $info[1] - $last[1];
 			$d_system = $info[2] - $last[2];
 			$d_idle = $info[3] - $last[3];
-			
+
 			//printf("Delta - User: %f  Nice: %f  System: %f  Idle: %f<br>",$d_user,$d_nice,$d_system,$d_idle);
-		
+
 			$total=$d_user+$d_nice+$d_system+$d_idle;
 			if ($total<1) $total=1;
 			return 100*($d_user+$d_nice+$d_system)/$total; 
 		}
 	}
-	
+
 	function Tracer($sql)
 	{
         $perf_table = adodb_perf::table();
 		$saveE = $this->conn->fnExecute;
 		$this->conn->fnExecute = false;
-		
+
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
-				
+
 		$sqlq = $this->conn->qstr($sql);
 		$arr = $this->conn->GetArray(
 "select count(*),tracer 
@@ -403,7 +405,7 @@ Committed_AS:   348732 kB
 				$s .= sprintf("%4d",$k[0]).' &nbsp; '.strip_tags($k[1]).'<br>';
 			}
 		}
-		
+
 		if (isset($savem)) $this->conn->SetFetchMode($savem);
 		$ADODB_CACHE_MODE = $save;
 		$this->conn->fnExecute = $saveE;
@@ -419,10 +421,10 @@ Committed_AS:   348732 kB
 	{	
 		return false;
 	}
-	
+
 	function InvalidSQL($numsql = 10)
 	{
-	
+
 		if (isset($_GET['sql'])) return;
 		$s = '<h3>Invalid SQL</h3>';
 		$saveE = $this->conn->fnExecute;
@@ -434,30 +436,30 @@ Committed_AS:   348732 kB
 			$s .= rs2html($rs,false,false,false,false);
 		} else
 			return "<p>$this->helpurl. ".$this->conn->ErrorMsg()."</p>";
-		
+
 		return $s;
 	}
 
-	
+
 	/*
 		This script identifies the longest running SQL
 	*/	
 	function _SuspiciousSQL($numsql = 10)
 	{
 		global $ADODB_FETCH_MODE;
-		
+
             $perf_table = adodb_perf::table();
 			$saveE = $this->conn->fnExecute;
 			$this->conn->fnExecute = false;
-			
+
 			if (isset($_GET['exps']) && isset($_GET['sql'])) {
 				$partial = !empty($_GET['part']);
 				echo "<a name=explain></a>".$this->Explain($_GET['sql'],$partial)."\n";
 			}
-			
+
 			if (isset($_GET['sql'])) return;
 			$sql1 = $this->sql1;
-			
+
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 			if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
@@ -472,7 +474,7 @@ Committed_AS:   348732 kB
 			if (isset($savem)) $this->conn->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 			$this->conn->fnExecute = $saveE;
-			
+
 			if (!$rs) return "<p>$this->helpurl. ".$this->conn->ErrorMsg()."</p>";
 			$s = "<h3>Suspicious SQL</h3>
 <font size=1>The following SQL have high average execution times</font><br>
@@ -485,7 +487,7 @@ Committed_AS:   348732 kB
 					$sql2 = substr($sql,0,$max-500);
 					$raw = urlencode($sql2).'&part='.crc32($sql);
 				}
-				$prefix = "<a target=sql".rand()." href=\"?hidem=1&exps=1&sql=".$raw."&x#explain\">";
+				$prefix = "<a target=sql".random_int(0, mt_getrandmax())." href=\"?hidem=1&exps=1&sql=".$raw."&x#explain\">";
 				$suffix = "</a>";
 				if ($this->explain == false || strlen($prefix)>$max) {
 					$suffix = ' ... <i>String too long for GET parameter: '.strlen($prefix).'</i>';
@@ -496,26 +498,26 @@ Committed_AS:   348732 kB
 				$rs->MoveNext();
 			}
 			return $s."</table>";
-		
+
 	}
-	
+
 	function CheckMemory()
 	{
 		return '';
 	}
-	
-	
+
+
 	function SuspiciousSQL($numsql=10)
 	{
-		return adodb_perf::_SuspiciousSQL($numsql);
+		return (new adodb_perf())->_SuspiciousSQL($numsql);
 	}
 
 	function ExpensiveSQL($numsql=10)
 	{
-		return adodb_perf::_ExpensiveSQL($numsql);
+		return (new adodb_perf())->_ExpensiveSQL($numsql);
 	}
 
-	
+
 	/*
 		This reports the percentage of load on the instance due to the most 
 		expensive few SQL statements. Tuning these statements can often 
@@ -524,23 +526,23 @@ Committed_AS:   348732 kB
 	function _ExpensiveSQL($numsql = 10)
 	{
 		global $ADODB_FETCH_MODE;
-		
+
             $perf_table = adodb_perf::table();
 			$saveE = $this->conn->fnExecute;
 			$this->conn->fnExecute = false;
-			
+
 			if (isset($_GET['expe']) && isset($_GET['sql'])) {
 				$partial = !empty($_GET['part']);
 				echo "<a name=explain></a>".$this->Explain($_GET['sql'],$partial)."\n";
 			}
-			
+
 			if (isset($_GET['sql'])) return;
-			
+
 			$sql1 = $this->sql1;
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 			if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
-			
+
 			$rs = $this->conn->SelectLimit(
 			"select sum(timer) as total,$sql1,count(*),max(timer) as max_timer,min(timer) as min_timer
 				from $perf_table
@@ -564,7 +566,7 @@ Committed_AS:   348732 kB
 					$sql2 = substr($sql,0,$max-500);
 					$raw = urlencode($sql2).'&part='.crc32($sql);
 				}
-				$prefix = "<a target=sqle".rand()." href=\"?hidem=1&expe=1&sql=".$raw."&x#explain\">";
+				$prefix = "<a target=sqle".random_int(0, mt_getrandmax())." href=\"?hidem=1&expe=1&sql=".$raw."&x#explain\">";
 				$suffix = "</a>";
 				if($this->explain == false || strlen($prefix>$max)) {
 					$prefix = '';
@@ -576,7 +578,7 @@ Committed_AS:   348732 kB
 			}
 			return $s."</table>";
 	}
-	
+
 	/*
 		Raw function to return parameter value from $settings.
 	*/
@@ -586,19 +588,20 @@ Committed_AS:   348732 kB
 		$sql = $this->settings[$param][1];
 		return $this->_DBParameter($sql);
 	}
-	
+
 	/*
 		Raw function returning array of poll paramters
 	*/
 	function PollParameters()
 	{
+		$arr = [];
 		$arr[0] = (float)$this->DBParameter('data cache hit ratio');
 		$arr[1] = (float)$this->DBParameter('data reads');
 		$arr[2] = (float)$this->DBParameter('data writes');
 		$arr[3] = (integer) $this->DBParameter('current connections');
 		return $arr;
 	}
-	
+
 	/*
 		Low-level Get Database Parameter
 	*/
@@ -607,7 +610,7 @@ Committed_AS:   348732 kB
 		$savelog = $this->conn->LogSQL(false);
 		if (is_array($sql)) {
 		global $ADODB_FETCH_MODE;
-		
+
 			$sql1 = $sql[0];
 			$key = $sql[1];
 			if (sizeof($sql)>2) $pos = $sql[2];
@@ -618,9 +621,9 @@ Committed_AS:   348732 kB
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 			if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
-			
+
 			$rs = $this->conn->Execute($sql1);
-			
+
 			if (isset($savem)) $this->conn->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 			if ($rs) {
@@ -645,11 +648,11 @@ Committed_AS:   348732 kB
 			$sql = str_replace('$DATABASE',$this->conn->database,$sql);
 			$ret = $this->conn->GetOne($sql);
 			$this->conn->LogSQL($savelog);
-			
+
 			return $ret;
 		}
 	}
-	
+
 	/*
 		Warn if cache ratio falls below threshold. Displayed in "Description" column.
 	*/
@@ -659,7 +662,7 @@ Committed_AS:   348732 kB
 			 return '<font color=red><b>Cache ratio should be at least '.$this->warnRatio.'%</b></font>';
 		else return '';
 	}
-	
+
 	function clearsql()
 	{
 		$perf_table = adodb_perf::table();
@@ -669,18 +672,18 @@ Committed_AS:   348732 kB
 	//                                    HIGH LEVEL UI FUNCTIONS
 	/***********************************************************************************************/
 
-	
+
 	function UI($pollsecs=5)
 	{
 	global $ADODB_LOG_CONN;
-	
+
     $perf_table = adodb_perf::table();
 	$conn = $this->conn;
-	
+
 	$app = $conn->host;
 	if ($conn->host && $conn->database) $app .= ', db=';
 	$app .= $conn->database;
-	
+
 	if ($app) $app .= ', ';
 	$savelog = $this->conn->LogSQL(false);	
 	$info = $conn->ServerInfo();
@@ -688,35 +691,35 @@ Committed_AS:   348732 kB
 		$this->clearsql();
 	}
 	$this->conn->LogSQL($savelog);
-	
+
 	// magic quotes
-	
+
 	if (isset($_GET['sql'])) {
 		$_GET['sql'] = $_GET['sql'] = str_replace(array("\\'",'\"'),array("'",'"'),$_GET['sql']);
 	}
-	
+
 	if (!isset($_SESSION['ADODB_PERF_SQL'])) $nsql = $_SESSION['ADODB_PERF_SQL'] = 10;
 	else  $nsql = $_SESSION['ADODB_PERF_SQL'];
-	
+
 	$app .= $info['description'];
-	
-	
+
+
 	if (isset($_GET['do'])) $do = $_GET['do'];
 	else if (isset($_POST['do'])) $do = $_POST['do'];
 	 else if (isset($_GET['sql'])) $do = 'viewsql';
 	 else $do = 'stats';
-	 
+
 	if (isset($_GET['nsql'])) {
 		if ($_GET['nsql'] > 0) $nsql = $_SESSION['ADODB_PERF_SQL'] = (integer) $_GET['nsql'];
 	}
 	echo "<title>ADOdb Performance Monitor on $app</title><body bgcolor=white>";
 	if ($do == 'viewsql') $form = "<td><form># SQL:<input type=hidden value=viewsql name=do> <input type=text size=4 name=nsql value=$nsql><input type=submit value=Go></td></form>";
 	else $form = "<td>&nbsp;</td>";
-	
+
 	$allowsql = !defined('ADODB_PERF_NO_RUN_SQL');
 	global $ADODB_PERF_MIN;
 	$app .= " (Min sql timing \$ADODB_PERF_MIN=$ADODB_PERF_MIN secs)";
-	
+
 	if  (empty($_GET['hidem']))
 	echo "<table border=1 width=100% bgcolor=lightyellow><tr><td colspan=2>
 	<b><a href=http://adodb.sourceforge.net/?perf=1>ADOdb</a> Performance Monitor</b> <font size=1>for $app</font></tr><tr><td>
@@ -726,7 +729,7 @@ Committed_AS:   348732 kB
 	 "$form",
 	 "</tr></table>";
 
-	 
+
 	 	switch ($do) {
 		default:
 		case 'stats':
@@ -745,10 +748,10 @@ Committed_AS:   348732 kB
 			echo "<pre>";
 			$this->Poll($pollsecs);
 			break;
-		
+
 		case 'dosql':
 			if (!$allowsql) break;
-			
+
 			$this->DoSQLForm();
 			break;
 		case 'viewsql':
@@ -764,7 +767,7 @@ Committed_AS:   348732 kB
 		global $ADODB_vers;
 		echo "<p><div align=center><font size=1>$ADODB_vers Sponsored by <a href=http://phplens.com/>phpLens</a></font></div>";
 	}
-	
+
 	/*
 		Runs in infinite loop, returning real-time statistics
 	*/
@@ -781,12 +784,12 @@ Committed_AS:   348732 kB
 		while (1) {
 
 			$arr = $this->PollParameters();
-			
+
 			$hits   = sprintf('%2.2f',$arr[0]);
 			$reads  = sprintf('%12.4f',($arr[1]-$arro[1])/$secs);
 			$writes = sprintf('%12.4f',($arr[2]-$arro[2])/$secs);
 			$sess = sprintf('%5d',$arr[3]);
-			
+
 			$load = $this->CPULoad();
 			if ($load !== false) {
 				$oslabel = 'WS-CPU%';
@@ -799,14 +802,14 @@ Committed_AS:   348732 kB
 			$cnt += 1;
 			echo date('H:i:s').'  '.$osval."$hits  $sess $reads $writes\n";
 			flush();
-			
+
 			if (connection_aborted()) return;
-			
+
 			sleep($secs);
 			$arro = $arr;
 		}
 	}
-	
+
 	/*
 		Returns basic health check in a command line interface
 	*/
@@ -814,8 +817,8 @@ Committed_AS:   348732 kB
 	{
 		return $this->HealthCheck(true);
 	}
-	
-		
+
+
 	/*
 		Returns basic health check as HTML
 	*/
@@ -825,34 +828,34 @@ Committed_AS:   348732 kB
 		$this->conn->fnExecute = false;	
 		if ($cli) $html = '';
 		else $html = $this->table.'<tr><td colspan=3><h3>'.$this->conn->databaseType.'</h3></td></tr>'.$this->titles;
-		
+
 		$oldc = false;
 		$bgc = '';
 		foreach($this->settings as $name => $arr) {
 			if ($arr === false) break;
-			
+
 			if (!is_string($name)) {
 				if ($cli) $html .= " -- $arr -- \n";
 				else $html .= "<tr bgcolor=$this->color><td colspan=3><i>$arr</i> &nbsp;</td></tr>";
 				continue;
 			}
-			
+
 			if (!is_array($arr)) break;
 			$category = $arr[0];
 			$how = $arr[1];
 			if (sizeof($arr)>2) $desc = $arr[2];
 			else $desc = ' &nbsp; ';
-			
-			
+
+
 			if ($category == 'HIDE') continue;
-			
+
 			$val = $this->_DBParameter($how);
-			
+
 			if ($desc && strncmp($desc,"=",1) === 0) {
 				$fn = substr($desc,1);
 				$desc = $this->$fn($val);
 			}
-			
+
 			if ($val === false) {
 				$m = $this->conn->ErrorMsg();
 				$val = "Error: $m"; 
@@ -876,52 +879,52 @@ Committed_AS:   348732 kB
 			if (strlen($val)==0) $val = '&nbsp;';
 			if ($cli) {
 				$html  .= str_replace('&nbsp;','',sprintf($this->cliFormat,strip_tags($name),strip_tags($val),strip_tags($desc)));
-				
+
 			}else {
 				$html .= "<tr$bgc><td>".$name.'</td><td>'.$val.'</td><td>'.$desc."</td></tr>\n";
 			}
 		}
-		
+
 		if (!$cli) $html .= "</table>\n";
 		$this->conn->fnExecute = $saveE;
-			
+
 		return $html;	
 	}
-	
+
 	function Tables($orderby='1')
 	{
 		if (!$this->tablesSQL) return false;
-		
+
 		$savelog = $this->conn->LogSQL(false);
 		$rs = $this->conn->Execute($this->tablesSQL.' order by '.$orderby);
 		$this->conn->LogSQL($savelog);
 		$html = rs2html($rs,false,false,false,false);
 		return $html;
 	}
-	
+
 
 	function CreateLogTable()
 	{
 		if (!$this->createTableSQL) return false;
-		
-		$table = $this->table();
+
+		$table = static::table();
 		$sql = str_replace('adodb_logsql',$table,$this->createTableSQL);
 		$savelog = $this->conn->LogSQL(false);
 		$ok = $this->conn->Execute($sql);
 		$this->conn->LogSQL($savelog);
 		return ($ok) ? true : false;
 	}
-	
+
 	function DoSQLForm()
 	{
-	
-		
+
+
 		$PHP_SELF = htmlspecialchars($_SERVER['PHP_SELF']);
-		$sql = isset($_REQUEST['sql']) ? $_REQUEST['sql'] : '';
+		$sql = $_REQUEST['sql'] ?? '';
 
 		if (isset($_SESSION['phplens_sqlrows'])) $rows = $_SESSION['phplens_sqlrows'];
 		else $rows = 3;
-		
+
 		if (isset($_REQUEST['SMALLER'])) {
 			$rows /= 2;
 			if ($rows < 3) $rows = 3;
@@ -931,7 +934,7 @@ Committed_AS:   348732 kB
 			$rows *= 2;
 			$_SESSION['phplens_sqlrows'] = $rows;
 		}
-		
+
 ?>
 
 <form method="POST" action="<?php echo $PHP_SELF ?>">
@@ -950,7 +953,7 @@ Committed_AS:   348732 kB
 
 <?php
 		if (!isset($_REQUEST['sql'])) return;
-		
+
 		$sql = trim($sql);
 		if (substr($sql,strlen($sql)-1) === ';') {
 			$print = true;
@@ -962,7 +965,7 @@ Committed_AS:   348732 kB
 		foreach($sqla as $sqls) {
 
 			if (!$sqls) continue;
-			
+
 			if ($print) {
 				print "<p>".htmlspecialchars($sqls)."</p>";
 				flush();
@@ -988,16 +991,16 @@ Committed_AS:   348732 kB
 			}
 		} // foreach
 	}
-	
+
 	function SplitSQL($sql)
 	{
 		$arr = explode(';',$sql);
 		return $arr;
 	}
 
-    
+
    /************************************************************************/
-   
+
     /** 
      * Reorganise multiple table-indices/statistics/..
      * OptimizeMode could be given by last Parameter
@@ -1025,16 +1028,16 @@ Committed_AS:   348732 kB
     {
         $args = func_get_args();
         $numArgs = func_num_args();
-        
+
         if ( $numArgs == 0) return false;
-        
+
         $mode = ADODB_OPT_LOW; 
         $lastArg = $args[ $numArgs - 1];
         if ( !is_string($lastArg)) {
             $mode = $lastArg;
             unset( $args[ $numArgs - 1]);
         }
-        
+
         foreach( $args as $table) {
             $this->optimizeTable( $table, $mode);
         }
@@ -1054,10 +1057,10 @@ Committed_AS:   348732 kB
      */
     function OptimizeTable( $table, $mode = ADODB_OPT_LOW) 
     {
-        ADOConnection::outp( sprintf( "<p>%s: '%s' not implemented for driver '%s'</p>", __CLASS__, __FUNCTION__, $this->conn->databaseType));
+        ADOConnection::outp( sprintf( "<p>%s: '%s' not implemented for driver '%s'</p>", self::class, __FUNCTION__, $this->conn->databaseType));
         return false;
     }
-    
+
     /** 
      * Reorganise current database.
      * Default implementation loops over all <code>MetaTables()</code> and 
@@ -1070,7 +1073,7 @@ Committed_AS:   348732 kB
     {
         $conn = $this->conn;
         if ( !$conn) return false;
-        
+
         $tables = $conn->MetaTables( 'TABLES');
         if ( !$tables ) return false;
 
@@ -1079,7 +1082,7 @@ Committed_AS:   348732 kB
                 return false;
             }
         }
-      
+
         return true;
     }
     // end hack 

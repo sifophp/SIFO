@@ -34,7 +34,7 @@ function twig_function_fill($twig)
             trigger_error("fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE);
         }
 
-        if (!isset($args[0]['subject']) || count($args[0]) < 2)
+        if (!isset($args[0]['subject']) || (is_countable($args[0]) ? count($args[0]) : 0) < 2)
         {
             trigger_error("fill: The attribute 'subject' and at least one parameter is needed in function {url}", E_USER_NOTICE);
         }
@@ -70,7 +70,7 @@ function twig_function_fill($twig)
             }
         }
 
-        if (false !== strpos(urldecode($html_result), $delimiter))
+        if (false !== strpos(urldecode($html_result), (string) $delimiter))
         {
             trigger_error("fill: There are still parameters to replace, because the '$delimiter' delimiter was found in $html_result");
         }

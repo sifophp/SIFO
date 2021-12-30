@@ -77,13 +77,6 @@ class I18N
 	static public $instance_translations = null;
 
 	/**
-	 * LanguageDetect class instance.
-	 *
-	 * @var \GoogleTranslateWrapper
-	 */
-	static protected $google_translate_api_instance;
-
-	/**
 	 * Private constructor, use getInstance() instead of this to get the object.
 	 */
 	private function __construct()
@@ -132,6 +125,7 @@ class I18N
 	 */
 	static protected function bindTextDomain( $instance = null )
 	{
+        $translations = null;
 		//		Only if gettext is enabled:
 		//		setlocale( LC_ALL, self::$locale );
 		//		bindtextdomain( self::$domain, PATH_LOCALE );
@@ -155,7 +149,7 @@ class I18N
 				$translations_file = Config::getInstance( $instance )->getConfig( 'locale', self::$active_domain_and_locale );
 				include( ROOT_PATH . "/$translations_file" );
 
-				if ( !isset( $translations ) )
+				if ( is_null( $translations ) )
 				{
 					throw new Exception_500( 'Failed to include a valid translations file for domain ' . self::$domain . ' and language ' . self::$locale );
 				}
@@ -234,41 +228,4 @@ class I18N
 		return self::$locale;
 
 	}
-
-	/**
-	 * Identify the used language.
-	 *
-	 * @param string $text The text to identify.
-	 * @return string Language Iso.
-	 */
-	static public function identifyUsedLanguage( $text )
-	{
-		if ( !( isset( self::$google_translate_api_instance ) ) )
-		{
-			include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'googleTranslate' ) . '/googleTranslate.class.php';
-			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
-		}
-		$result = self::$google_translate_api_instance->detectLanguage( $text );
-
-		return $result['language'];
-	}
-
-	/**
-	 *
-	 * @param string $text Texto to translate
-	 * @param string $dest_iso Language destination
-	 * @return string Translated text.
-	 */
-	static public function translateTo( $text, $dest_iso )
-	{
-		if ( !( isset( self::$google_translate_api_instance ) ) )
-		{
-			include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'googleTranslate' ) . '/googleTranslate.class.php';
-			self::$google_translate_api_instance = new \GoogleTranslateWrapper();
-		}
-		self::$google_translate_api_instance->translatedText = '';
-
-		return self::$google_translate_api_instance->translate( $text, $dest_iso );
-	}
-
 }

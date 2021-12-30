@@ -4,8 +4,7 @@ namespace Sifo;
 
 class ViewTwig implements ViewInterface
 {
-    /** @var \Twig_Environment */
-    private $twig;
+    private \Twig_Environment $twig;
 
     private $auto_literal;
 
@@ -13,8 +12,7 @@ class ViewTwig implements ViewInterface
 
     private $twig_plugins_directory_path;
 
-    /** @var array */
-    private $variables = [];
+    private array $variables = [];
 
     public function __construct()
     {

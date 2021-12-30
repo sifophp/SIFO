@@ -38,9 +38,12 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function ServerInfo()
 	{
+		$arr = [];
 		$parent = $this->pdoDriver;
-		@($ver = array_pop($parent->GetCol("SELECT sqlite_version()")));
-		@($end = array_pop($parent->GetCol("PRAGMA encoding")));
+		$getCol = $parent->GetCol("SELECT sqlite_version()");
+		@($ver = array_pop($getCol));
+		$getCol2 = $parent->GetCol("PRAGMA encoding");
+		@($end = array_pop($getCol2));
 
 		$arr['version']     = $ver;
 		$arr['description'] = 'SQLite ';
@@ -64,12 +67,14 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function GenID($seq='adodbseq',$start=1)
 	{
+		$ok = null;
 		$parent = $this->pdoDriver;
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$MAXLOOPS = 100;
 		while (--$MAXLOOPS>=0) {
-			@($num = array_pop($parent->GetCol("SELECT id FROM {$seq}")));
+			$getCol = $parent->GetCol("SELECT id FROM {$seq}");
+			@($num = array_pop($getCol));
 			if ($num === false || !is_numeric($num)) {
 				@$parent->Execute(sprintf($this->_genSeqSQL ,$seq));
 				$start -= 1;

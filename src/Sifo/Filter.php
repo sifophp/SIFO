@@ -33,7 +33,7 @@ class Filter
 	 * Regular expression for email validation.
 	 * If you want to know why we're not using the filter_var method with the FILTER_VALIDATE_EMAIL flag, see: https://groups.google.com/forum/?hl=en#!topic/sifophp/5o0tkI2nC44
 	 */
-	const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
+	public const VALID_EMAIL_REGEXP = '/^(([a-z0-9_%\-]+\.?)+)?(\+(([a-z0-9_%\-]+\.?)|)+)?[a-z0-9\-_]@(([a-z0-9\-]+)?[a-z0-9]\.)+([a-z]{2}|com|edu|org|net|biz|info|name|aero|biz|info|jobs|travel|museum|name|cat|asia|coop|jobs|mobi|tel|pro|arpa|gov|mil|int|post|xxx|gold)$/i';
 
 	/**
 	 * Singleton object.
@@ -104,7 +104,7 @@ class Filter
 	 */
 	public function countVars()
 	{
-		return count( $this->request );
+		return count( (array) $this->request );
 	}
 
 
@@ -256,6 +256,7 @@ class Filter
 	 */
 	public function getIP( $var_name, $min_range = null, $max_range = null )
 	{
+		$options = [];
 		if ( !isset( $this->request[$var_name] ) )
 		{
 			return false;
@@ -289,6 +290,7 @@ class Filter
 
 	public function getUrl( $var_name )
 	{
+		$options = [];
 		if ( !isset( $this->request[$var_name] ) )
 		{
 			return false;

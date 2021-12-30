@@ -5,9 +5,9 @@ function twig_function_email_obfuscator()
     return new \Twig_Function(
         'email_obfuscator', function (array $args = []) {
         // email address to obfuscate.
-        $email = isset($args[0]['email']) ? $args[0]['email'] : '';
+        $email = $args[0]['email'] ?? '';
         // optional text to show instead the email
-        $linktext = isset($args[0]['text']) ? $args[0]['text'] : '';
+        $linktext = $args[0]['text'] ?? '';
         // style information via class.
         $style_class = isset($args[0]['class']) ? ' class=\"' . $args[0]['class'] . '\" ' : '';
         // style information via id.
@@ -25,16 +25,16 @@ function twig_function_email_obfuscator()
         $textafter  = '';
         if (!empty($linktext))
         {
-            $calling_class = get_called_class();
+            $calling_class = static::class;
             $obj = new $calling_class();
             $temp = smarty_block_t($extra_params, $linktext, $obj);
             // If the email is inside the text string
-            $email_position = strpos($temp, $email);
+            $email_position = strpos($temp, (string) $email);
             if ($email_position)
             {
                 // If the email is inside the string we make the link only in the email address
                 $textbefore = substr($temp, 0, $email_position);
-                $textafter  = substr($temp, strpos($temp, $email) + strlen($email));
+                $textafter  = substr($temp, strpos($temp, (string) $email) + strlen($email));
                 $linktext   = '';
             }
             else
@@ -47,10 +47,10 @@ function twig_function_email_obfuscator()
         $character_set = '+-.0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
         $key           = str_shuffle($character_set);
         $cipher_text   = '';
-        $id            = 'e' . rand(1, 999999999);
+        $id            = 'e' . random_int(1, 999_999_999);
         for ($i = 0; $i < strlen($email); $i += 1)
         {
-            $cipher_text .= $key[strpos($character_set, $email[$i])];
+            $cipher_text .= $key[strpos($character_set, (string) $email[$i])];
         }
         $script = 'var namex="' . $linktext . '";var a="' . $key . '";var b=a.split("").sort().join("");var c="' . $cipher_text . '";var d="";';
         $script .= 'for(var e=0;e<c.length;e++)d+=b.charAt(a.indexOf(c.charAt(e)));var linktext=(namex.length == 0)?linktext=d:linktext=namex;var textbefore="'

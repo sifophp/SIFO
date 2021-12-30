@@ -31,10 +31,8 @@ class Client
 
 	/**
 	 * Filter server.
-	 *
-	 * @var FilterServer
 	 */
-	static private $server;
+	static private \Sifo\FilterServer $server;
 
 	/**
 	 * Singleton of Client class.

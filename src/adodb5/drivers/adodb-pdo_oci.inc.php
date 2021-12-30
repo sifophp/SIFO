@@ -39,7 +39,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 			$mask = $this->qstr(strtoupper($mask));
 			$this->metaTablesSQL .= " AND table_name like $mask";
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = (new ADOConnection())->MetaTables($ttype, $showSchema);
 		
 		if ($mask) {
 			$this->metaTablesSQL = $save;

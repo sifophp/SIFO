@@ -27,27 +27,23 @@ class Debug
 {
 	/**
 	 * Array where all the storage is done.
-	 *
-	 * @var array
 	 */
-	private static $storage 		= array();
+	private static array $storage 		= array();
 
 	/**
 	 * Debug config configuration.
-	 * @var array
 	 */
-	private static $debug_config 	= array();
+	private static array $debug_config 	= array();
 
 	/**
 	 * Defines if all debug modules ara availables. That's defined in debug_config.config.php
-	 * @var bool
 	 */
-	private static $all_modules_available = true;
+	private static bool $all_modules_available = true;
 
 	/**
 	 * @var string Identifier of the current request execution. It will be set from the debug/index.ctrl in order to get it from the Controller in case of a JSON execution.
 	 */
-	private static $execution_key;
+	private static string $execution_key;
 
 	/**
 	 * Avoid external construction of class without singleton usage.
@@ -71,13 +67,14 @@ class Debug
 	 */
 	public static function log( $message, $type = 'log', $display = 'html' )
 	{
+		$message_log = [];
 		$is_object = false;
 		if ( $display != 'html')
 		{
 			if ( is_array( $message ) || is_object( $message ) )
 			{
 				$is_object 	= true;
-				$message 	= "'" . str_replace( "'", "\\'", json_encode( $message ) ) . "'";
+				$message 	= "'" . str_replace( "'", "\\'", json_encode( $message, JSON_THROW_ON_ERROR ) ) . "'";
 			}
 			else
 			{
@@ -237,7 +234,7 @@ class Debug
 	{
 		if ( !isset( self::$execution_key ) )
 		{
-			self::$execution_key = md5( time() . rand() );
+			self::$execution_key = md5( time() . random_int(0, mt_getrandmax()) );
 		}
 
 		return self::$execution_key;

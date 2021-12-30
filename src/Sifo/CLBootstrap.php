@@ -5,7 +5,7 @@
  */
 namespace Sifo;
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Bootstrap.php';
+require_once 'Bootstrap.php';
 
 class CLBootstrap extends Bootstrap
 {
@@ -16,8 +16,8 @@ class CLBootstrap extends Bootstrap
 	/**
 	 * Starts the execution. Root path is passed to avoid recalculation.
 	 *
-	 * @param null $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
-	 * @param null $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
+	 * @param null|string $instance_name Name of the instance. Required for Bootsrap::execute compatibility.
+	 * @param null|string $controller_name Script that will be executed. Required for Bootsrap::execute compatibility.
 	 */
 	public static function execute( $instance_name = null, $controller_name = null, $psr_container = null )
 	{
@@ -31,7 +31,7 @@ class CLBootstrap extends Bootstrap
 
 		// Set paths:
 		self::$root = ROOT_PATH;
-		self::$application = dirname( __FILE__ );
+		self::$application = __DIR__;
 
 		Benchmark::getInstance()->timingStart();
 		self::dispatch( $controller_name );
@@ -87,13 +87,14 @@ class CLBootstrap extends Bootstrap
 preg_match("/\/([^\/]+)\/([^\/]+)\/[^\/]+$/", $_SERVER['PHP_SELF'], $matchs);
 
 // Set the real and active instance name.
-CLBootstrap::$instance = $matchs[1];
+CLBootstrap::$instance = $matchs[1] ?? 'default';
 
 if ( extension_loaded( 'newrelic' ) && isset( CLBootstrap::$instance ) )
 {
 	newrelic_set_appname( ucfirst( CLBootstrap::$instance ) );
 }
 
+$argv ??= [null, 'default'];
 if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 {
 	// Dump help info:

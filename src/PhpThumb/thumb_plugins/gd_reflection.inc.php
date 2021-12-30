@@ -96,7 +96,7 @@ class GdReflectionLib
 		{
             $rgb 			= $this->hex2rgb($borderColor, false);
             $colorToPaint 	= imagecolorallocate($this->workingImage, $rgb[0], $rgb[1], $rgb[2]);
-			
+
             imageline($this->workingImage, 0, 0, $width, 0, $colorToPaint); //top line
             imageline($this->workingImage, 0, $height, $width, $height, $colorToPaint); //bottom line
             imageline($this->workingImage, 0, 0, 0, $height, $colorToPaint); //left line

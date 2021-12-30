@@ -32,7 +32,7 @@ function smarty_modifier_time_format( $time, $decimals=3 )
 	{
 		$decimals = 0;
 	}
-	
+
 	$time = $time*1000;
 
 	if ( $time < 100 )

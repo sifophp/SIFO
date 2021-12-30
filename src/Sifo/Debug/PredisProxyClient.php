@@ -25,6 +25,7 @@ class DebugPredisProxyClient extends PredisProxyClient
 
 	public function getCallerClass()
 	{
+		$classes = [];
 		$trace = debug_backtrace();
 		foreach( $trace as $steps )
 		{

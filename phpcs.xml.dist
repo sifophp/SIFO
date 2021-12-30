@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ruleset name="Pheature coding standard">
-    <description>Pheature coding standard</description>
+<ruleset name="SifoPHP coding standard">
+    <description>SifoPHP coding standard</description>
 
     <!-- display progress -->
     <arg value="p"/>

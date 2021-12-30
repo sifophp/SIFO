@@ -30,10 +30,9 @@ class Urls
 
 	/**
 	 * Singleton Instance.
-	 *
-	 * @var Urls
+     * @var \Sifo\Urls[] $instance
 	 */
-	static private $instance;
+	static private array $instance;
 	/**
 	 * Params passed via URL.
 	 *
@@ -54,16 +53,12 @@ class Urls
 	static public $scheme = 'http';
 	/**
 	 * Evaluated path context.
-	 *
-	 * @var string
 	 */
-	static private $path = '';
+	static private string $path = '';
 	/**
 	 * Splitted path.
-	 *
-	 * @var string
 	 */
-	static private $path_parts = array( );
+	static private array $path_parts = array( );
 	/**
 	 * This is the address the user used to access this webpage. E.g: http://myapp.com
 	 *
@@ -93,12 +88,10 @@ class Urls
 	static public $url_definition = array( );
 	/**
 	 * Stores all the available URLs.
-	 *
-	 * @var array
 	 */
-	static private $url_config = array( );
+	static private array $url_config = array( );
 
-	private $url_instance_config = array( );
+	private array $url_instance_config = array( );
 
 	/**
 	 * Singleton for managing URLs. Use this static method instead of construct.
@@ -122,7 +115,7 @@ class Urls
 
 	private function __construct( $instance_name )
 	{
-		$domains = Domains::getInstance( $instance_name );
+		$domains = Domains::getInstance();
 		$filter_server = FilterServer::getInstance();
 
 		$language = $domains->getLanguage();
@@ -175,7 +168,7 @@ class Urls
 		// Path is the first part of the explode, rest are parameters.
 		self::$path = array_shift( $params_parts );
 
-		if ( count( $params_parts ) > 0 )
+		if ( (is_countable($params_parts) ? count( $params_parts ) : 0) > 0 )
 		{
 			self::$params = $params_parts;
 		}
@@ -322,7 +315,7 @@ class Urls
 	static public function buildUrl( $hostname, $controller, array $actions = array(), array $params = array() )
 	{
 		$url = Urls::getUrl( $hostname ) . '/';
-		$callback = function( $a ) { return urlencode( $a ); };
+		$callback = fn($a) => urlencode( $a );
 
 		$actions = array_map($callback, $actions );
 		array_unshift( $actions, Urls::getUrl( $controller ) );

@@ -87,7 +87,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
 */
 
 if (!defined('_ADODB_LAYER')) {
-	include (dirname(__FILE__).'/adodb.inc.php');
+	include (__DIR__.'/adodb.inc.php');
 }
 
 if (!defined('ADODB_SESSION')) {
@@ -219,15 +219,15 @@ global $ADODB_SESS_CONN,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC;
 			$v = '';
 		} else 
 			$v = rawurldecode(reset($rs->fields));
-			
+
 		$rs->Close();
-		
+
 		// new optimization adodb 2.1
 		$ADODB_SESSION_CRC = strlen($v).crc32($v);
-		
+
 		return $v;
 	}
-	
+
 	return ''; // thx to Jorma Tuomainen, webmaster#wizactive.com
 }
 
@@ -238,6 +238,7 @@ global $ADODB_SESS_CONN,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC;
 \****************************************************************************************/
 function adodb_sess_write($key, $val) 
 {
+	$err = null;
 	global
 		$ADODB_SESS_CONN, 
 		$ADODB_SESS_LIFE, 
@@ -264,7 +265,7 @@ function adodb_sess_write($key, $val)
 	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
-		$arr['expireref'] = $$var;
+		$arr['expireref'] = ${$var};
 	}
 
 	
@@ -353,6 +354,8 @@ function adodb_sess_destroy($key)
 
 function adodb_sess_gc($maxlifetime) 
 {
+	$qry = null;
+	$opt_qry = null;
 	global $ADODB_SESS_DEBUG, $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_EXPIRE_NOTIFY;
 	
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {

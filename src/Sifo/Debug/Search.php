@@ -38,7 +38,7 @@ class DebugSearch extends Search
 	/**
 	 * @var array Text related to sort functions. Needed to show it in the debug.
 	 */
-	private $sort_text = array(
+	private array $sort_text = array(
 		0 => "SPH_SORT_RELEVANCE",
 		1 => "SPH_SORT_ATTR_DESC",
 		2 => "SPH_SORT_ATTR_ASC",
@@ -50,7 +50,7 @@ class DebugSearch extends Search
 	/**
 	 * @var array Text related to group by functions. Needed to show it in the debug.
 	 */
-	private $group_text = array(
+	private array $group_text = array(
 		0 => "SPH_GROUPBY_DAY",
 		1 => "SPH_GROUPBY_WEEK",
 		2 => "SPH_GROUPBY_MONTH",
@@ -112,6 +112,7 @@ class DebugSearch extends Search
 	 */
 	public function SetFilter( $attribute, $values, $exclude = false )
 	{
+		$filter_debug = [];
 		$this->sphinx->SetFilter( $attribute, $values, $exclude );
 
 		$filter_debug['attribute'] = $attribute;
@@ -131,6 +132,7 @@ class DebugSearch extends Search
 	 */
 	public function SetFilterRange( $attribute, $min, $max, $exclude = false )
 	{
+		$filter_debug = [];
 		$this->sphinx->SetFilterRange( $attribute, $min, $max, $exclude );
 
 		$filter_debug['attribute'] 	= $attribute;
@@ -174,9 +176,9 @@ class DebugSearch extends Search
 			foreach( $sphinx_results as $key => $result )
 			{
 				$this->query_debug['queries'][$key]['resultset'] 	= $result;
-				$this->query_debug['queries'][$key]['total_found'] 	= ( isset( $result['total_found'] ) ) ? $result['total_found'] : 0;
+				$this->query_debug['queries'][$key]['total_found'] 	= $result['total_found'] ?? 0;
 				$this->query_debug['queries'][$key]['returned_rows'] = ( isset( $result['matches'] ) ) ? count( $result['matches'] ) : 0;
-				$this->query_debug['queries'][$key]['error'] 		= ( isset( $result['error'] ) ) ? $result['error'] : '';
+				$this->query_debug['queries'][$key]['error'] 		= $result['error'] ?? '';
 			}
 		}
 
@@ -272,6 +274,7 @@ class DebugSearch extends Search
 	 */
 	public function getCallerClass()
 	{
+		$classes = [];
 		$trace = debug_backtrace();
 		foreach( $trace as $steps )
 		{

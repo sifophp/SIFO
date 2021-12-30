@@ -10,7 +10,7 @@ function twig_function_pagelink()
             $delimiter = $args[0]['delimiter'];
             unset($args[0]['delimiter']);
         }
-        if (class_exists('\Sifo\FilterServer') && method_exists('\Sifo\FilterServer', 'getString'))
+        if (class_exists(\Sifo\FilterServer::class) && method_exists(\Sifo\FilterServer::class, 'getString'))
         {
             $current_querystring = \Sifo\FilterServer::getInstance()->getString('QUERY_STRING');
             $current_path        = \Sifo\FilterServer::getInstance()->getString('REQUEST_URI');
@@ -44,7 +44,7 @@ function twig_function_pagelink()
 
         if (!isset($args[0]['page']))
         {
-            trigger_error('pagelink: You should provide the destination pagelink. Params: ' . json_encode($args[0]), E_USER_WARNING);
+            trigger_error('pagelink: You should provide the destination pagelink. Params: ' . json_encode($args[0], JSON_THROW_ON_ERROR), E_USER_WARNING);
         }
         else
         {
