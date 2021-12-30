@@ -59,6 +59,7 @@ abstract class ImageController extends Controller
 	 */
 	protected function customizeHeader()
 	{
+		$content_type = null;
 		if ( !( $this->is_gif || $this->is_jpeg || $this->is_png || $this->is_bmp || $this->is_ico ) || ( $this->is_gif + $this->is_jpeg + $this->is_png + $this->is_bmp + $this->is_ico ) > 1 )
 		{
 			throw new Exception_500( "Please do the favour of use one (and only one) image content_type helper!" );
@@ -115,13 +116,13 @@ abstract class ImageController extends Controller
 		$cache = new CacheDisk();
 		$content = $cache->get( $cache_key['name'] );
 
-		return ( $content ? $content : false );
+		return ( $content ?: false );
 	}
 
 	/**
 	 * Dispatch the controller.
 	 */
-	public function dispatch()
+	public function dispatch($container = null)
 	{
 		$this->customizeHeader();
 

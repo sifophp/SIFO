@@ -4,8 +4,8 @@ namespace Sifo;
 
 class ViewSmarty implements ViewInterface
 {
-    /** @var \Smarty */
-    private $smarty;
+    private \Smarty $smarty;
+    private $template_path;
 
     public function __construct()
     {
@@ -70,10 +70,7 @@ class ViewSmarty implements ViewInterface
                 $template,
                 $cache_id = null,
                 $compile_id = null,
-                $parent = null,
-                $display = false,
-                $merge_tpl_vars = true,
-                $no_output_filter = false
+                $parent = null
             );
         }
         catch (\Exception $e)

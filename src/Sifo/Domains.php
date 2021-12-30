@@ -72,7 +72,7 @@ class Domains
 		{
 			$host_data = explode( ':', $filter_server->getString( "HTTP_HOST" ) ); // Explode hostname and port.
 			$this->http_host = $host_data[0];
-			$this->port = isset( $host_data[1] ) ? $host_data[1] : null;
+			$this->port = $host_data[1] ?? null;
 		}
 
 		$this->domain_configuration = Config::getInstance()->getConfig( 'domains' );
@@ -288,7 +288,6 @@ class Domains
 
 	/**
 	 * Change debug mode during the execution.
-	 * @return bool
 	 */
 	public function setDebugMode( $mode )
 	{

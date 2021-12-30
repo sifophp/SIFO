@@ -49,8 +49,7 @@ class DependencyInjector implements ContainerInterface
      * @var array
      */
     protected $service_definitions;
-    /** @var null|ContainerInterface */
-    private static $container;
+    private static ?\Psr\Container\ContainerInterface $container = null;
 
     /**
      * Private constructor, use getInstance() instead to get an instance.

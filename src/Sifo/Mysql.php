@@ -113,7 +113,7 @@ class Mysql
 	 *
 	 * @var Mysql Object.
 	 */
-	static private $instance = NULL;
+	static private ?\Sifo\Mysql $instance = NULL;
 
 	/**
 	 * The PDO instance.
@@ -134,7 +134,7 @@ class Mysql
 	 *
 	 * @var string
 	 */
-	const STATEMENT_CLASS = '\\Sifo\\MysqlStatement';
+	public const STATEMENT_CLASS = '\\Sifo\\MysqlStatement';
 
 	/**
 	 * Initializes the PDO object with the domains.config.php database configuration.
@@ -158,7 +158,7 @@ class Mysql
 			$init_commands
 
 		);
-		$class = get_called_class();
+		$class = static::class;
 		$this->pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( $class::STATEMENT_CLASS, array( $this->pdo, $profile ) ) );
 	}
 

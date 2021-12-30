@@ -33,10 +33,8 @@ class Registry
 
 	/**
 	 * Array where all the storage is done.
-	 *
-	 * @var array
 	 */
-	private static $storage = array();
+	private static array $storage = array();
 
 	/**
 	 * Retrieves the default registry instance.

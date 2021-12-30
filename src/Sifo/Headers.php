@@ -53,12 +53,12 @@ class Headers
 	/**
 	 * Headers that are status codes. E.g: "HTTP/1.0 404 Not Found"
 	 */
-	const FORMAT_TYPE_STATUS = 'HTTP/1.0 %s %s';
+	public const FORMAT_TYPE_STATUS = 'HTTP/1.0 %s %s';
 
 	/**
 	 * Headers made of a key and a value. E.g: "WWW-Authenticate: Negotiate"
 	 */
-	const FORMAT_KEY_VALUE = '%s: %s';
+	public const FORMAT_KEY_VALUE = '%s: %s';
 
 	/**
 	 * List of all the headers sent by the application so far.

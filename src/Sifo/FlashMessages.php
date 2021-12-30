@@ -25,13 +25,13 @@ namespace Sifo;
  */
 class FlashMessages
 {
-	const MSG_KO = 'msg_ko';
-	const MSG_OK = 'msg_ok';
-	const MSG_WARNING = 'msg_warning';
-	const MSG_INFO = 'msg_info';
+	public const MSG_KO = 'msg_ko';
+	public const MSG_OK = 'msg_ok';
+	public const MSG_WARNING = 'msg_warning';
+	public const MSG_INFO = 'msg_info';
 
-	const STORAGE_REGISTRY = 1;
-	const STORAGE_SESSION = 2;
+	public const STORAGE_REGISTRY = 1;
+	public const STORAGE_SESSION = 2;
 
 	/**
 	 * Store the message in registry.
@@ -42,6 +42,7 @@ class FlashMessages
 	 */
 	static public function set( $message, $type = self::MSG_OK, $storage_engine = self::STORAGE_REGISTRY )
 	{
+		$flash_messages = [];
 		switch ( $type )
 		{
 			case self::MSG_KO:

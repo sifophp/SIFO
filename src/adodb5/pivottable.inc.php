@@ -123,7 +123,7 @@ if (0) {
  print "<pre>$sql";
  $rs = $gDB->Execute($sql);
  rs2html($rs);
- 
+
 /*
 Generated SQL:
 
@@ -171,7 +171,7 @@ array(
  rs2html($rs);
  /*
  Generated SQL:
- 
+
 SELECT CompanyName,QuantityPerUnit, 
 	SUM(CASE WHEN UnitsInStock <= 0 THEN UnitsInStock ELSE 0 END) AS "Sum  0 ", 
 	SUM(CASE WHEN 0 < UnitsInStock and UnitsInStock <= 5 THEN UnitsInStock ELSE 0 END) AS "Sum 1 to 5", 

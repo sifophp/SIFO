@@ -52,7 +52,7 @@ global $ADODB_LANG,$ADODB_LANG_ARRAY;
 	else {
 		include_once(ADODB_DIR."/lang/adodb-$ADODB_LANG.inc.php");
     }
-	return isset($ADODB_LANG_ARRAY[$value]) ? $ADODB_LANG_ARRAY[$value] : $ADODB_LANG_ARRAY[DB_ERROR];
+	return $ADODB_LANG_ARRAY[$value] ?? $ADODB_LANG_ARRAY[DB_ERROR];
 }
 
 function adodb_error($provider,$dbType,$errno)

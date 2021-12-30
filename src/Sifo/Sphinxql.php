@@ -44,7 +44,7 @@ class Sphinxql
 	/**
 	 * @var string Multi query string.
 	 */
-	private $multi_query = '';
+	private string $multi_query = '';
 
 	/**
 	 * Query options.
@@ -395,8 +395,7 @@ class LoadBalancerSphinxql extends LoadBalancer
      */
     protected $load_balancer_cache_key = 'BalancedNodesSphinxql';
 
-    /** @var Sphinxql */
-	private $sphinxql_object;
+    private \Sifo\Sphinxql $sphinxql_object;
 
 	protected function addNodeIfAvailable( $index, $node_properties )
 	{

@@ -61,7 +61,7 @@ function smarty_function_genurl( $params, &$smarty )
 		trigger_error( "fill: The delimiter '$' is banned in function {url}", E_USER_NOTICE );
 	}
 
-	$action = ( isset( $params['action'] ) ) ? $params['action'] : 'replace';
+	$action = $params['action'] ?? 'replace';
 
 	if ( !in_array( $action, array( 'add', 'replace', 'remove', 'clean_params' ) ) )
 	{

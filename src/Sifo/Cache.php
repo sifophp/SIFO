@@ -25,13 +25,13 @@ namespace Sifo;
  */
 class Cache
 {
-	const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
-	const CACHE_TYPE_MEMCACHED = 'MEMCACHED';
-	const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
-	const CACHE_TYPE_DISK = 'DISK';
+	public const CACHE_TYPE_AUTODISCOVER = 'AUTODISCOVER';
+	public const CACHE_TYPE_MEMCACHED = 'MEMCACHED';
+	public const CACHE_TYPE_MEMCACHE = 'MEMCACHE';
+	public const CACHE_TYPE_DISK = 'DISK';
 
-	const CACHE_LOCKING_ENABLED = 1;
-	const CACHE_LOCKING_DISABLED = 0;
+	public const CACHE_LOCKING_ENABLED = 1;
+	public const CACHE_LOCKING_DISABLED = 0;
 
 	static private $instance;
 	static public $cache_type;

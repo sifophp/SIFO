@@ -39,7 +39,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
 
     class ADODB_mysqli extends ADOConnection
     {
-        var $databaseType = 'mysqli';
+        var $databaseType = \mysqli::class;
         var $dataProvider = 'native';
         var $hasInsertID = true;
         var $hasAffectedRows = true;
@@ -99,7 +99,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
             $persist = false
         )
         {
-            if (!extension_loaded("mysqli"))
+            if (!extension_loaded(\mysqli::class))
             {
                 return null;
             }
@@ -210,6 +210,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
 
         function ServerInfo()
         {
+            $arr = [];
             $arr['description'] = $this->GetOne("select version()");
             $arr['version']     = ADOConnection::_findvers($arr['description']);
 
@@ -728,7 +729,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
             $a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
             if ($associative)
             {
-                $create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
+                $create_sql = $a_create_table["Create Table"] ?? $a_create_table["Create View"];
             }
             else
             {
@@ -742,7 +743,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
                 return false;
             }
             $foreign_keys = array();
-            $num_keys     = count($matches[0]);
+            $num_keys     = is_countable($matches[0]) ? count($matches[0]) : 0;
             for ($i = 0; $i < $num_keys; $i++)
             {
                 $my_field  = explode('`, `', $matches[1][$i]);
@@ -994,7 +995,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
                 {
                     $rs = ($ADODB_COUNTRECS) ? @mysqli_store_result($this->_connectionID) : @mysqli_use_result($this->_connectionID);
 
-                    return $rs ? $rs : true; // mysqli_more_results( $this->_connectionID )
+                    return $rs ?: true; // mysqli_more_results( $this->_connectionID )
                 }
             }
             else
@@ -1063,7 +1064,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
         */
         function TextMax()
         {
-            return 4294967295;
+            return 4_294_967_295;
         }
 
 
@@ -1128,7 +1129,7 @@ if (!defined("_ADODB_MYSQLI_LAYER"))
     class ADORecordSet_mysqli extends ADORecordSet
     {
 
-        var $databaseType = "mysqli";
+        var $databaseType = \mysqli::class;
         var $canSeek = true;
 
         function __construct($queryID, $mode = false)
@@ -1468,7 +1469,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 
     function __construct($id = -1, $mode = false)
     {
-        $this->ADORecordSet_array($id, $mode);
+        $this->ADORecordSet_array($id);
     }
 
     function MetaType($t, $len = -1, $fieldobj = false)

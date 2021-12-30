@@ -33,6 +33,7 @@ $ADODB_INCLUDED_CSV = 1;
 	 */
 	function _rs2serialize(&$rs,$conn=false,$sql='')
 	{
+		$flds = [];
 		$max = ($rs) ? $rs->FieldCount() : 0;
 		
 		if ($sql) $sql = urlencode($sql);
@@ -48,7 +49,7 @@ $ADODB_INCLUDED_CSV = 1;
 			$text = "====-1,0,$sql\n";
 			return $text;
 		}
-		$tt = ($rs->timeCreated) ? $rs->timeCreated : time();
+		$tt = $rs->timeCreated ?: time();
 		
 		## changed format from ====0 to ====1
 		$line = "====1,$tt,$sql\n";
@@ -68,7 +69,7 @@ $ADODB_INCLUDED_CSV = 1;
 			$flds[] = $o;
 		}
 	
-		$savefetch = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+		$savefetch = $rs->adodbFetchMode ?? $rs->fetchMode;
 		$class = $rs->connection->arrayClass;
 		$rs2 = new $class();
 		$rs2->sql = $rs->sql;
@@ -154,21 +155,21 @@ $ADODB_INCLUDED_CSV = 1;
 							switch($tdiff) {
 							case 4:
 							case 3:
-								if ((rand() & 31) == 0) {
+								if ((random_int(0, mt_getrandmax()) & 31) == 0) {
 									fclose($fp);
 									$err = "Timeout 3";
 									return $false;
 								}
 								break;
 							case 2: 
-								if ((rand() & 15) == 0) {
+								if ((random_int(0, mt_getrandmax()) & 15) == 0) {
 									fclose($fp);
 									$err = "Timeout 2";
 									return $false;
 								}
 								break;
 							case 1:
-								if ((rand() & 3) == 0) {
+								if ((random_int(0, mt_getrandmax()) & 3) == 0) {
 									fclose($fp);
 									$err = "Timeout 1";
 									return $false;
@@ -179,7 +180,7 @@ $ADODB_INCLUDED_CSV = 1;
 								$err = "Timeout 0";
 								return $false;
 							} // switch
-							
+
 						} // if check flush cache
 					}// (timeout>0)
 					$ttl = $meta[1];

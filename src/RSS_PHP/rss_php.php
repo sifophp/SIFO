@@ -99,6 +99,7 @@ class rss_php {
 	
 	private function extractDOM($nodeList,$parentNodeName=false) {
 		$itemCounter = 0;
+		$tempNode = null;
 		foreach($nodeList as $values) {
 			if(substr($values->nodeName,0,1) != '#') {
 				if($values->nodeName == 'item') {
@@ -139,9 +140,9 @@ class rss_php {
 	
 	private function randomContext() {
 		$headerstrings = array();
-		$headerstrings['User-Agent'] = 'Mozilla/5.0 (Windows; U; Windows NT 5.'.rand(0,2).'; en-US; rv:1.'.rand(2,9).'.'.rand(0,4).'.'.rand(1,9).') Gecko/2007'.rand(10,12).rand(10,30).' Firefox/2.0.'.rand(0,1).'.'.rand(1,9);
-		$headerstrings['Accept-Charset'] = rand(0,1) ? 'en-gb,en;q=0.'.rand(3,8) : 'en-us,en;q=0.'.rand(3,8);
-		$headerstrings['Accept-Language'] = 'en-us,en;q=0.'.rand(4,6);
+		$headerstrings['User-Agent'] = 'Mozilla/5.0 (Windows; U; Windows NT 5.'.random_int(0,2).'; en-US; rv:1.'.random_int(2,9).'.'.random_int(0,4).'.'.random_int(1,9).') Gecko/2007'.random_int(10,12).random_int(10,30).' Firefox/2.0.'.random_int(0,1).'.'.random_int(1,9);
+		$headerstrings['Accept-Charset'] = random_int(0,1) ? 'en-gb,en;q=0.'.random_int(3,8) : 'en-us,en;q=0.'.random_int(3,8);
+		$headerstrings['Accept-Language'] = 'en-us,en;q=0.'.random_int(4,6);
 		$setHeaders = 	'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5'."\r\n".
 						'Accept-Charset: '.$headerstrings['Accept-Charset']."\r\n".
 						'Accept-Language: '.$headerstrings['Accept-Language']."\r\n".
@@ -156,5 +157,3 @@ class rss_php {
 	}
 	
 }
-
-?>

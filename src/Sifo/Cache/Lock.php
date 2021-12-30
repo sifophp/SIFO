@@ -23,13 +23,13 @@ namespace Sifo;
 class CacheLock
 {
 	/** Maximum time a lock is effective. */
-	const TTL = 8;
+	public const TTL = 8;
 
 	/** Time until the next locking check is performed (in microseconds). */
-	const WAIT_TIME = 100000; // 0,1 seconds
+	public const WAIT_TIME = 100000; // 0,1 seconds
 
 	/** Cache key prefix. */
-	const KEY_PREFIX = '$LOCK$';
+	public const KEY_PREFIX = '$LOCK$';
 
 	/** @var string */
 	protected $lock_id;
@@ -38,7 +38,7 @@ class CacheLock
 	protected $key;
 
 	/** @var CacheLock[]  */
-	private static $instances;
+	private static array $instances;
 
 	/** @var CacheBase */
 	protected $cache_object;
@@ -82,8 +82,6 @@ class CacheLock
 
 	/**
 	 * Acquire lock.
-	 *
-	 * @return boolean
 	 */
 	public function acquire()
 	{

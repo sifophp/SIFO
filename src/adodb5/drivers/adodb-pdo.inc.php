@@ -116,7 +116,7 @@ class ADODB_pdo extends ADOConnection {
 		else $sql = "select $this->sysTimeStamp";
 		
 		$rs = $this->_Execute($sql);
-		if ($rs && !$rs->EOF) return $this->UnixTimeStamp(reset($rs->fields));
+		if ($rs && !$rs->EOF) return static::UnixTimeStamp(reset($rs->fields));
 		
 		return false;
 	}
@@ -264,6 +264,7 @@ class ADODB_pdo extends ADOConnection {
 
 	function SetTransactionMode($transaction_mode) 
 	{
+		$seqname = null;
 		if(method_exists($this->_driver, 'SetTransactionMode')) 
 			return $this->_driver->SetTransactionMode($transaction_mode); 
 		
@@ -358,6 +359,7 @@ class ADODB_pdo extends ADOConnection {
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false) 
 	{
+		$ok = null;
 		if (is_array($sql)) {
 			$stmt = $sql[1];
 		} else {
@@ -427,12 +429,12 @@ class ADODB_pdo_base extends ADODB_pdo {
 	
 	function ServerInfo()
 	{
-		return ADOConnection::ServerInfo();
+		return (new ADOConnection())->ServerInfo();
 	}
 	
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
-		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+		$ret = (new ADOConnection())->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 		return $ret;
 	}
 	

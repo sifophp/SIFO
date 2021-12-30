@@ -27,14 +27,14 @@ abstract class Controller
      /**
 	 * Cache expiration time default for exceptions.
 	 */
-	const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
+	public const CACHE_DEFAULT_EXPIRATION_EXCEPTIONS = 10; // secs.
 
 	/**
 	 * Cache expiration for this controller, by default set to 4 hours (expressed in seconds).
 	 *
 	 * @var integer
 	 */
-	const CACHE_DEFAULT_EXPIRATION = 14400;
+	public const CACHE_DEFAULT_EXPIRATION = 14400;
 
 	/**
 	 * Information useful for debugging.
@@ -119,8 +119,9 @@ abstract class Controller
 	 * @var string
 	 */
 	protected $layout;
+    private array $url_definition = [];
 
-	abstract function build();
+    abstract function build();
 
 	public function __construct()
 	{
@@ -195,7 +196,7 @@ abstract class Controller
 	{
 		$post = FilterPost::getInstance();
 
-		$form = new Form( $post, $this->view );
+		$form = new Form( $post );
 		if ( $post->isSent( $submit_button ) )
 		{
 			$return = $form->validateElements( $form_config );
@@ -430,7 +431,7 @@ abstract class Controller
 			}
 
 			$json_callback = FilterGet::getInstance()->getString( 'json_callback' );
-			$content = ( $json_callback ? $json_callback . '(' . json_encode( $return ) . ')':	json_encode( $return ) );
+			$content = ( $json_callback ? $json_callback . '(' . json_encode( $return, JSON_THROW_ON_ERROR ) . ')':	json_encode( $return, JSON_THROW_ON_ERROR ) );
 		}
 		else
 		{
@@ -808,12 +809,12 @@ abstract class Controller
 	/**
 	 * Return a param results from expected definition parse.
 	 *
-	 * @param string $param_name
+	 * @param string|null $param_name
 	 * @return mixed
 	 */
 	public function getParsedParam( $param_name )
 	{
-		if ( !empty( $this->params['parsed_params'] ) && isset( $param_name, $this->params['parsed_params'], $this->params['parsed_params'][$param_name] ) )
+		if ( !empty( $this->params['parsed_params'] ) && isset($this->params['parsed_params'], $this->params['parsed_params'][$param_name] ) )
 		{
 			return $this->params['parsed_params'][$param_name];
 		}
@@ -1021,13 +1022,13 @@ abstract class Controller
 			}
 		}
 
-		if ( empty( $expected_params ) && ( empty( $this->params['params'] ) || empty( $expected_url_params ) ) )
+		if ( empty( $expected_params ) && ( empty( $this->params['params'] ) ) )
 		{
 			return array();
 		}
 
 		// Expected params:
-		$max = ( count( $this->params['params'] ) - 1 ); // -1 because the last param never is a param key and to avoid asking a non existing key.
+		$max = ( (is_countable($this->params['params']) ? count( $this->params['params'] ) : 0) - 1 ); // -1 because the last param never is a param key and to avoid asking a non existing key.
 
 		if ( count( $expected_url_params ) )
 		{

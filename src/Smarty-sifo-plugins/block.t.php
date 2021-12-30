@@ -59,7 +59,7 @@ function smarty_block_t($params, $text, &$smarty)
 	if( ( $smarty == null ) || ( !$smarty->escape_html ) )
 	{
 		// In the don't protected configuration, the expectd behaviour is escapeing html:
-		$escape = ( isset($params['escape'] ) )? $params['escape'] : "html";
+		$escape = $params['escape'] ?? "html";
 		unset($params['escape']);
 
 		if( isset( $params['escapevar'] ) )
@@ -106,7 +106,7 @@ function smarty_block_t($params, $text, &$smarty)
 	$text = \Sifo\I18N::getTranslation( $text );
 
 	// run strarg if there are parameters
-	if (count($params)) {
+	if (is_countable($params) ? count($params) : 0) {
 		$text = smarty_gettext_strarg($text, $params);
 	}
 

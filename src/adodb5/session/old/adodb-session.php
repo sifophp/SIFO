@@ -97,7 +97,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
 */
 
 if (!defined('_ADODB_LAYER')) {
-	include (dirname(__FILE__).'/adodb.inc.php');
+	include (__DIR__.'/adodb.inc.php');
 }
 
 if (!defined('ADODB_SESSION')) {
@@ -112,6 +112,7 @@ if (!defined('ADODB_SESSION')) {
 */
 function adodb_session_regenerate_id() 
 {
+	$ck = [];
 	$conn = ADODB_Session::_conn();
 	if (!$conn) return false;
 
@@ -119,9 +120,9 @@ function adodb_session_regenerate_id()
 	if (function_exists('session_regenerate_id')) {
 		session_regenerate_id();
 	} else {
-		session_id(md5(uniqid(rand(), true)));
+		session_id(md5(uniqid(random_int(0, mt_getrandmax()), true)));
 		$ck = session_get_cookie_params();
-		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		setcookie(session_name(), session_id(), ['expires' => false, 'path' => $ck['path'], 'domain' => $ck['domain'], 'secure' => $ck['secure']]);
 		//@session_start();
 	}
 	$new_id = session_id();
@@ -131,7 +132,7 @@ function adodb_session_regenerate_id()
 	if (!$ok) {
 		session_id($old_id);
 		if (empty($ck)) $ck = session_get_cookie_params();
-		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		setcookie(session_name(), session_id(), ['expires' => false, 'path' => $ck['path'], 'domain' => $ck['domain'], 'secure' => $ck['secure']]);
 		return false;
 	}
 	
@@ -252,15 +253,15 @@ global $ADODB_SESS_CONN,$ADODB_SESSION_TBL,$ADODB_SESSION_CRC;
 			$v = '';
 		} else 
 			$v = rawurldecode(reset($rs->fields));
-			
+
 		$rs->Close();
-		
+
 		// new optimization adodb 2.1
 		$ADODB_SESSION_CRC = strlen($v).crc32($v);
-		
+
 		return $v;
 	}
-	
+
 	return ''; // thx to Jorma Tuomainen, webmaster#wizactive.com
 }
 
@@ -295,7 +296,7 @@ function adodb_sess_write($key, $val)
 	$arr = array('sesskey' => $key, 'expiry' => $expiry, 'data' => $val);
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {
 		$var = reset($ADODB_SESSION_EXPIRE_NOTIFY);
-		$arr['expireref'] = $$var;
+		$arr['expireref'] = ${$var};
 	}
 	$rs = $ADODB_SESS_CONN->Replace($ADODB_SESSION_TBL,$arr,
     	'sesskey',$autoQuote = true);
@@ -342,6 +343,7 @@ function adodb_sess_destroy($key)
 
 function adodb_sess_gc($maxlifetime) 
 {
+	$opt_qry = null;
 	global $ADODB_SESS_DEBUG, $ADODB_SESS_CONN, $ADODB_SESSION_TBL,$ADODB_SESSION_EXPIRE_NOTIFY;
 	
 	if ($ADODB_SESSION_EXPIRE_NOTIFY) {

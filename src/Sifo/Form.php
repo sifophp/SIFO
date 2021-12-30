@@ -218,7 +218,7 @@ class Form
 					( isset( $element['required']) && $element['required'] ), // Boolean: Field is required?
 					$element['name'], // Name of the input
 					$element['filter'], // Filter rule to apply
-					( isset( $element['params'] ) ? $element['params'] : array() ) // Passed params
+					( $element['params'] ?? array() ) // Passed params
 			);
 
 			if ( !$single_element_validation )

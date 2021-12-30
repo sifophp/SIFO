@@ -32,7 +32,7 @@ abstract class LoadBalancer
 	 * Time in seconds the servers will be cached after checking if they are online.
 	 * @var integer
 	 */
-	const CACHE_EXPIRATION = 60;
+	public const CACHE_EXPIRATION = 60;
 
 	/**
 	 * Name of the cache where the results of server status are stored.
@@ -96,7 +96,7 @@ abstract class LoadBalancer
 			$this->total_weights = $available_servers['total_weights'];
 		}
 
-		$num_nodes = count( $this->nodes );
+		$num_nodes = count( (array) $this->nodes );
 
 		if ( 1 > $num_nodes )
 		{
@@ -136,7 +136,7 @@ abstract class LoadBalancer
 			throw new LoadBalancer_Exception( "There aren't any nodes set in the balancer. Have you called setNodes( Array nodes ) ?" );
 		}
 
-		$x = round( mt_rand( 0, $this->total_weights ) );
+		$x = round( random_int( 0, $this->total_weights ) );
 
 		$max = ( $i = 0 );
 		do

@@ -22,6 +22,7 @@ include_once('block.t.php');
  */
 function smarty_modifier_time_since( $diff_time )
 {
+	$value = [];
 	if ( !is_numeric ( $diff_time ) )
 		$diff_time = strtotime( date("Y-m-d H:i:s") ) - strtotime($diff_time);
 

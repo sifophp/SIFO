@@ -280,8 +280,8 @@ class dbTable extends dbObject {
 				// Add a field
 				$fieldName = $attributes['NAME'];
 				$fieldType = $attributes['TYPE'];
-				$fieldSize = isset( $attributes['SIZE'] ) ? $attributes['SIZE'] : NULL;
-				$fieldOpts = isset( $attributes['OPTS'] ) ? $attributes['OPTS'] : NULL;
+				$fieldSize = $attributes['SIZE'] ?? NULL;
+				$fieldOpts = $attributes['OPTS'] ?? NULL;
 				
 				$this->addField( $fieldName, $fieldType, $fieldSize, $fieldOpts );
 				break;
@@ -496,10 +496,10 @@ class dbTable extends dbObject {
 			// drop table
 			if( $this->drop_table ) {
 				$sql[] = $xmls->dict->DropTableSQL( $this->name );
-				
+
 				return $sql;
 			}
-			
+
 			// drop any existing fields not in schema
 			foreach( $legacy_fields as $field_id => $field ) {
 				if( !isset( $this->fields[$field_id] ) ) {
@@ -856,7 +856,7 @@ class dbData extends dbObject {
 		if( isset( $attributes['NAME'] ) ) {
 			$name = $attributes['NAME'];
 		} else {
-			$name = count($this->data[$this->row]);
+			$name = is_countable($this->data[$this->row]) ? count($this->data[$this->row]) : 0;
 		}
 		
 		// Set the field index so we know where we are
@@ -889,7 +889,7 @@ class dbData extends dbObject {
 	*/
 	function create( &$xmls ) {
 		$table = $xmls->dict->TableName($this->parent->name);
-		$table_field_count = count($this->parent->fields);
+		$table_field_count = is_countable($this->parent->fields) ? count($this->parent->fields) : 0;
 		$sql = array();
 		
 		// eliminate any columns that aren't in the table
@@ -900,7 +900,8 @@ class dbData extends dbObject {
 			foreach( $row as $field_id => $field_data ) {
 				if( !array_key_exists( $field_id, $table_fields ) ) {
 					if( is_numeric( $field_id ) ) {
-						$field_id = reset( array_keys( $table_fields ) );
+						$arrayKeys = array_keys( $table_fields );
+						$field_id = reset( $arrayKeys );
 					} else {
 						continue;
 					}
@@ -1774,7 +1775,7 @@ class adoSchema {
 			return FALSE;
 		}
 		
-		$xsl_file = dirname( __FILE__ ) . '/xsl/' . $xsl . '.xsl';
+		$xsl_file = __DIR__ . '/xsl/' . $xsl . '.xsl';
 		
 		// look for xsl
 		if( !is_readable( $xsl_file ) ) {
@@ -2191,7 +2192,7 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
 
-		$calling_class = get_called_class();
+		$calling_class = static::class;
 		$obj = new $calling_class();
 		if( is_object($obj) ) {
 			echo '[' . get_class($obj) . '] ';
@@ -2202,4 +2203,3 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 		echo '</pre>';
 	}
 }
-?>

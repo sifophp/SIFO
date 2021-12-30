@@ -127,13 +127,13 @@ $db->CacheExecute($sql);
 			if ($tdiff <= 2) {
 				switch($tdiff) {
 					case 2: 
-						if ((rand() & 15) == 0) {
+						if ((random_int(0, mt_getrandmax()) & 15) == 0) {
 							$err = "Timeout 2";
 							return $false;
 						}
 						break;
 					case 1:
-						if ((rand() & 3) == 0) {
+						if ((random_int(0, mt_getrandmax()) & 3) == 0) {
 							$err = "Timeout 1";
 							return $false;
 						}
@@ -165,6 +165,7 @@ $db->CacheExecute($sql);
 		
 		function flushcache($filename, $debug=false)
 		{
+			$key = null;
 			if (!$this->_connected) {
   				$err = '';
   				if (!$this->connect($err) && $debug) ADOConnection::outp($err); 

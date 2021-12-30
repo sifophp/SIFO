@@ -174,6 +174,7 @@ class Search
 	 */
 	static function connect( $node_properties )
 	{
+		$sphinx = null;
 		if ( true === $node_properties['active'] )
 		{
 			$sphinx 			= new \SphinxClient();

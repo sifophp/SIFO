@@ -24,7 +24,7 @@ function twig_filter_size_format()
             // Kilobytes.
             $formatted_size = number_format($size, $decimals, $decimal_separator, $thousand_separator) . ' B';
         }
-        elseif ($size < 1048576)
+        elseif ($size < 1_048_576)
         {
             if (null === $decimals)
             {
@@ -33,14 +33,14 @@ function twig_filter_size_format()
             // Kylobytes.
             $formatted_size = number_format(($size / 1024), $decimals, $decimal_separator, $thousand_separator) . ' KB';
         }
-        elseif ($size < 1073741824)
+        elseif ($size < 1_073_741_824)
         {
             if (null === $decimals)
             {
                 $decimals = 1;
             }
             // Megabytes.
-            $formatted_size = number_format(($size / 1048576), $decimals, $decimal_separator, $thousand_separator) . ' MB';
+            $formatted_size = number_format(($size / 1_048_576), $decimals, $decimal_separator, $thousand_separator) . ' MB';
         }
         else
         {
@@ -49,7 +49,7 @@ function twig_filter_size_format()
                 $decimals = 1;
             }
             // Gigabytes.
-            $formatted_size = number_format(($size / 1073741824), $decimals, $decimal_separator, $thousand_separator) . ' GB';
+            $formatted_size = number_format(($size / 1_073_741_824), $decimals, $decimal_separator, $thousand_separator) . ' GB';
         }
 
         return $formatted_size;

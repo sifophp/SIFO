@@ -293,7 +293,7 @@ class ADODB_Active_Record {
 		$ar = new ADODB_Active_Record($foreignRef);
 		$ar->foreignName = $foreignRef;
 		$ar->UpdateActiveTable();
-		$ar->foreignKey = ($foreignKey) ? $foreignKey : strtolower(get_class($this)) . self::$_foreignSuffix;
+		$ar->foreignKey = $foreignKey ?: strtolower(get_class($this)) . self::$_foreignSuffix;
 
 		$table =& $this->TableInfo();
 		if(!isset($table->_hasMany[$foreignRef]))
@@ -319,7 +319,7 @@ class ADODB_Active_Record {
 		$ar = new ADODB_Active_Record($this->_pluralize($foreignRef));
 		$ar->foreignName = $foreignRef;
 		$ar->UpdateActiveTable();
-		$ar->foreignKey = ($foreignKey) ? $foreignKey : $ar->foreignName . self::$_foreignSuffix;
+		$ar->foreignKey = $foreignKey ?: $ar->foreignName . self::$_foreignSuffix;
 		
 		$table =& $this->TableInfo();
 		if(!isset($table->_belongsTo[$foreignRef]))
@@ -420,7 +420,7 @@ class ADODB_Active_Record {
 			@flock($fp, LOCK_SH);
 			$acttab = unserialize(fread($fp,100000));
 			fclose($fp);
-			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(rand()) % 16) > time()) { 
+			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(random_int(0, mt_getrandmax())) % 16) > time()) { 
 				// abs(rand()) randomizes deletion, reducing contention to delete/refresh file
 				// ideally, you should cache at least 32 secs
 				$activedb->tables[$table] = $acttab;
@@ -619,6 +619,7 @@ class ADODB_Active_Record {
 	// set a numeric array (using natural table field ordering) as object properties
 	function Set(&$row)
 	{
+	$keys = null;
 	global $ACTIVE_RECORD_SAFETY;
 	
 		$db = $this->DB();
@@ -782,7 +783,7 @@ class ADODB_Active_Record {
 			$qry .= ' WHERE '.$where;
 		
 		// Simple case: no relations. Load row and return.
-		if((count($table->_hasMany) + count($table->_belongsTo)) < 1)
+		if(((is_countable($table->_hasMany) ? count($table->_hasMany) : 0) + (is_countable($table->_belongsTo) ? count($table->_belongsTo) : 0)) < 1)
 		{
 			$row = $db->GetRow($qry,$bindarr);
 			if(!$row)
@@ -796,7 +797,7 @@ class ADODB_Active_Record {
 		if(!$rows)
 			return false;
 		$db->SetFetchMode($save);
-		if(count($rows) < 1)
+		if((is_countable($rows) ? count($rows) : 0) < 1)
 			return false;
 		$class = get_class($this);
 		$isFirstRow = true;
@@ -834,7 +835,7 @@ class ADODB_Active_Record {
 				$obj = new $class($table,false,$db);
 				$obj->Set($row);
 				// TODO Copy/paste code below: bad!
-				if(count($table->_hasMany) > 0)
+				if((is_countable($table->_hasMany) ? count($table->_hasMany) : 0) > 0)
 				{
 					foreach($table->_hasMany as $foreignTable)
 					{
@@ -854,7 +855,7 @@ class ADODB_Active_Record {
 						}
 					}
 				}
-				if(count($table->_belongsTo) > 0)
+				if((is_countable($table->_belongsTo) ? count($table->_belongsTo) : 0) > 0)
 				{
 					foreach($table->_belongsTo as $foreignTable)
 					{
@@ -984,6 +985,7 @@ class ADODB_Active_Record {
 	// returns 0 on error, 1 on update, 2 on insert
 	function Replace()
 	{
+	$arr = [];
 	global $ADODB_ASSOC_CASE;
 		
 		$db = $this->DB(); if (!$db) return false;

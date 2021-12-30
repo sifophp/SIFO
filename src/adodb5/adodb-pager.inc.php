@@ -132,9 +132,10 @@ class ADODB_Pager {
 	// original code by "Pablo Costa" <pablo@cbsp.com.br> 
         function render_pagelinks()
         {
-        global $PHP_SELF;
+        $start = null;
+								global $PHP_SELF;
             $pages        = $this->rs->LastPageNo();
-            $linksperpage = $this->linksPerPage ? $this->linksPerPage : $pages;
+            $linksperpage = $this->linksPerPage ?: $pages;
             for($i=1; $i <= $pages; $i+=$linksperpage)
             {
                 if($this->rs->AbsolutePage() >= $i)

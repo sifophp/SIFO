@@ -64,8 +64,9 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	
 	function ServerInfo()
 	{
-		$arr['description'] = ADOConnection::GetOne("select version()");
-		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		$arr = [];
+		$arr['description'] = (new ADOConnection())->GetOne("select version()");
+		$arr['version'] = (new ADOConnection())->_findvers($arr['description']);
 		return $arr;
 	}
 	
@@ -104,7 +105,7 @@ select tablename,'T' from pg_tables where tablename like $mask
  union 
 select viewname,'V' from pg_views where viewname like $mask";
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = (new ADOConnection())->MetaTables($ttype, $showSchema);
 		
 		if ($mask) {
 			$this->metaTablesSQL = $save;
@@ -114,6 +115,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 	
 	function MetaColumns($table,$normalize=true) 
 	{
+	$keys = null;
 	global $ADODB_FETCH_MODE;
 	
 		$schema = false;

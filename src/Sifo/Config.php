@@ -62,9 +62,12 @@ class Config
 	 * @var array
 	 */
 	protected $paths_to_configs = array();
+	protected $instance_name = 'default';
+	private string $config_path = '';
 
-	protected function __construct( $instance_name )
+	protected function __construct( $instance_name = 'default')
 	{
+		$config = [];
 		$this->instance_name = $instance_name;
 		if ( $instance_name === 'tests' )
 		{
@@ -91,13 +94,13 @@ class Config
 	/**
 	 * Singleton of config class.
 	 *
-	 * @param string $instance_name Instance Name, needed to determine correct paths.
+	 * @param string|null $instance_name Instance Name, needed to determine correct paths.
 	 * @return Config
 	 */
 	public static function getInstance( $instance_name = null )
 	{
 		// Load instance from bootsrap
-		if ( !isset( $instance_name ) )
+		if ( is_null( $instance_name ) )
 		{
 			$instance_name = Bootstrap::$instance;
 		}
@@ -119,6 +122,7 @@ class Config
 	 */
 	protected function loadConfig( $profile )
 	{
+		$config = null;
 		if( !isset( $this->paths_to_configs[$profile] ) )
 		{
 			throw new Exception_Configuration( "The profile '$profile' was not found" );
@@ -132,7 +136,7 @@ class Config
 			else
 			{
 				// The file was correctly included. We include the variable $config found.
-				if ( !isset( $config ) )
+				if ( is_null( $config ) )
 				{
 					throw new Exception_Configuration( 'The configuration files must have a variable named $config' );
 				}

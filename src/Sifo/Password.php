@@ -122,7 +122,7 @@ class Password
 		if ( $id != '$P$' && $id != '$H$' )
 			return $output;
 
-		$count_log2 = strpos( $this->itoa64, $setting[3] );
+		$count_log2 = strpos( $this->itoa64, (string) $setting[3] );
 		if ( $count_log2 < 7 || $count_log2 > 30 )
 			return $output;
 

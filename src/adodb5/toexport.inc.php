@@ -62,6 +62,7 @@ function rs2tabout(&$rs,$addtitles=true)
 
 function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = '"',$escquote = '"',$replaceNewLine = ' ')
 {
+	$elements = [];
 	if (!$rs) return '';
 	//----------
 	// CONSTANTS
@@ -100,7 +101,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 				if ($escquote) $v = str_replace($quote,$escquotequote,$v);
 				$v = strip_tags(str_replace("\n", $replaceNewLine, str_replace("\r\n",$replaceNewLine,str_replace($sep,$sepreplace,$v))));
 				
-				if (strpos($v,$sep) !== false || strpos($v,$quote) !== false) $elements[] = "$quote$v$quote";
+				if (strpos($v,(string) $sep) !== false || strpos($v,(string) $quote) !== false) $elements[] = "$quote$v$quote";
 				else $elements[] = $v;
 			}
 		} else { // ASSOCIATIVE ARRAY
@@ -108,7 +109,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 				if ($escquote) $v = str_replace($quote,$escquotequote,trim($v));
 				$v = strip_tags(str_replace("\n", $replaceNewLine, str_replace("\r\n",$replaceNewLine,str_replace($sep,$sepreplace,$v))));
 				
-				if (strpos($v,$sep) !== false || strpos($v,$quote) !== false) $elements[] = "$quote$v$quote";
+				if (strpos($v,(string) $sep) !== false || strpos($v,(string) $quote) !== false) $elements[] = "$quote$v$quote";
 				else $elements[] = $v;
 			}
 		}

@@ -113,7 +113,7 @@ class SEO_Exception extends \Exception implements \Serializable
 
     public function unserialize($serialized)
     {
-        list( $this->code, $this->message, $this->http_code, $this->http_code_msg, $this->redirect ) = unserialize( $serialized );
+        [$this->code, $this->message, $this->http_code, $this->http_code_msg, $this->redirect] = unserialize( $serialized );
     }
 }
 

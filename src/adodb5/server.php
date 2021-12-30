@@ -73,7 +73,7 @@ if (isset($_REQUEST['fetch']))
 	
 if (isset($_REQUEST['nrows'])) {
 	$nrows = $_REQUEST['nrows'];
-	$offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : -1;
+	$offset = $_REQUEST['offset'] ?? -1;
 	$rs = $conn->SelectLimit($sql,$nrows,$offset);
 } else 
 	$rs = $conn->Execute($sql);

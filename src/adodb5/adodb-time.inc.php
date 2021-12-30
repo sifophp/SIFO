@@ -407,7 +407,7 @@ if (!defined('ADODB_ALLOW_NEGATIVE_TS')) define('ADODB_NO_NEGATIVE_TS',1);
 
 function adodb_date_test_date($y1,$m,$d=13)
 {
-	$h = round(rand()% 24);
+	$h = round(random_int(0, mt_getrandmax())% 24);
 	$t = adodb_mktime($h,0,0,$m,$d,$y1);
 	$rez = adodb_date('Y-n-j H:i:s',$t);
 	if ($h == 0) $h = '00';
@@ -525,7 +525,7 @@ function adodb_date_test()
 	flush();
 	for ($i=100; --$i > 0; ) {
 
-		$ts = 3600.0*((rand()%60000)+(rand()%60000))+(rand()%60000);
+		$ts = 3600.0*((random_int(0, mt_getrandmax())%60000)+(random_int(0, mt_getrandmax())%60000))+(random_int(0, mt_getrandmax())%60000);
 		$s1 = date($fmt,$ts);
 		$s2 = adodb_date($fmt,$ts);
 		//print "$s1 <br>$s2 <p>";
@@ -561,18 +561,18 @@ function adodb_date_test()
 	print "<p>Testing random dates between 100 and 4000</p>";
 	adodb_date_test_date(100,1);
 	for ($i=100; --$i >= 0;) {
-		$y1 = 100+rand(0,1970-100);
-		$m = rand(1,12);
+		$y1 = 100+random_int(0,1970-100);
+		$m = random_int(1,12);
 		adodb_date_test_date($y1,$m);
 		
-		$y1 = 3000-rand(0,3000-1970);
+		$y1 = 3000-random_int(0,3000-1970);
 		adodb_date_test_date($y1,$m);
 	}
 	print '<p>';
-	$start = 1960+rand(0,10);
+	$start = 1960+random_int(0,10);
 	$yrs = 12;
 	$i = 365.25*86400*($start-1970);
-	$offset = 36000+rand(10000,60000);
+	$offset = 36000+random_int(10000,60000);
 	$max = 365*$yrs*86400;
 	$lastyear = 0;
 	
@@ -799,6 +799,11 @@ global $_month_table_normal,$_month_table_leaf;
 */
 function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 {
+$leaf = null;
+$lastd = null;
+$ndays = null;
+$year = null;
+$month = null;
 static $YRS;
 global $_month_table_normal,$_month_table_leaf;
 
@@ -807,7 +812,7 @@ global $_month_table_normal,$_month_table_leaf;
 	$_hour_power = 3600;
 	$_min_power = 60;
 	
-	if ($d < -12219321600) $d -= 86400*10; // if 15 Oct 1582 or earlier, gregorian correction 
+	if ($d < -12_219_321_600) $d -= 86400*10; // if 15 Oct 1582 or earlier, gregorian correction 
 	
 	$_month_table_normal = array("",31,28,31,30,31,30,31,31,30,31,30,31);
 	$_month_table_leaf = array("",31,29,31,30,31,30,31,31,30,31,30,31);
@@ -819,43 +824,43 @@ global $_month_table_normal,$_month_table_leaf;
 		
 		if (empty($YRS)) $YRS = array(
 			1970 => 0,
-			1960 => -315619200,
-			1950 => -631152000,
-			1940 => -946771200,
-			1930 => -1262304000,
-			1920 => -1577923200,
-			1910 => -1893456000,
-			1900 => -2208988800,
-			1890 => -2524521600,
-			1880 => -2840140800,
-			1870 => -3155673600,
-			1860 => -3471292800,
-			1850 => -3786825600,
-			1840 => -4102444800,
-			1830 => -4417977600,
-			1820 => -4733596800,
-			1810 => -5049129600,
-			1800 => -5364662400,
-			1790 => -5680195200,
-			1780 => -5995814400,
-			1770 => -6311347200,
-			1760 => -6626966400,
-			1750 => -6942499200,
-			1740 => -7258118400,
-			1730 => -7573651200,
-			1720 => -7889270400,
-			1710 => -8204803200,
-			1700 => -8520336000,
-			1690 => -8835868800,
-			1680 => -9151488000,
-			1670 => -9467020800,
-			1660 => -9782640000,
-			1650 => -10098172800,
-			1640 => -10413792000,
-			1630 => -10729324800,
-			1620 => -11044944000,
-			1610 => -11360476800,
-			1600 => -11676096000);
+			1960 => -315_619_200,
+			1950 => -631_152_000,
+			1940 => -946_771_200,
+			1930 => -1_262_304_000,
+			1920 => -1_577_923_200,
+			1910 => -1_893_456_000,
+			1900 => -2_208_988_800,
+			1890 => -2_524_521_600,
+			1880 => -2_840_140_800,
+			1870 => -3_155_673_600,
+			1860 => -3_471_292_800,
+			1850 => -3_786_825_600,
+			1840 => -4_102_444_800,
+			1830 => -4_417_977_600,
+			1820 => -4_733_596_800,
+			1810 => -5_049_129_600,
+			1800 => -5_364_662_400,
+			1790 => -5_680_195_200,
+			1780 => -5_995_814_400,
+			1770 => -6_311_347_200,
+			1760 => -6_626_966_400,
+			1750 => -6_942_499_200,
+			1740 => -7_258_118_400,
+			1730 => -7_573_651_200,
+			1720 => -7_889_270_400,
+			1710 => -8_204_803_200,
+			1700 => -8_520_336_000,
+			1690 => -8_835_868_800,
+			1680 => -9_151_488_000,
+			1670 => -9_467_020_800,
+			1660 => -9_782_640_000,
+			1650 => -10_098_172_800,
+			1640 => -10_413_792_000,
+			1630 => -10_729_324_800,
+			1620 => -11_044_944_000,
+			1610 => -11_360_476_800,
+			1600 => -11_676_096_000);
 
 		if ($is_gmt) $origd = $d;
 		// The valid range of a 32bit signed timestamp is typically from 
@@ -1206,6 +1211,7 @@ function adodb_gmmktime($hr,$min,$sec,$mon=false,$day=false,$year=false,$is_dst=
 */
 function adodb_mktime($hr,$min,$sec,$mon=false,$day=false,$year=false,$is_dst=false,$is_gmt=false) 
 {
+	$loop_table = [];
 	if (!defined('ADODB_TEST_DATES')) {
 
 		if ($mon === false) {
@@ -1301,12 +1307,12 @@ function adodb_mktime($hr,$min,$sec,$mon=false,$day=false,$year=false,$is_dst=fa
 			}
 		}
 		$_total_date += $loop_table[$mon] - $day;
-		
+
 		$_day_time = $hr * $_hour_power + $min * $_min_power + $sec;
 		$_day_time = $_day_power - $_day_time;
 		$ret = -( $_total_date * $_day_power + $_day_time - $gmt_different);
-		if ($ret < -12220185600) $ret += 10*86400; // if earlier than 5 Oct 1582 - gregorian correction
-		else if ($ret < -12219321600) $ret = -12219321600; // if in limbo, reset to 15 Oct 1582.
+		if ($ret < -12_220_185_600) $ret += 10*86400; // if earlier than 5 Oct 1582 - gregorian correction
+		else if ($ret < -12_219_321_600) $ret = -12_219_321_600; // if in limbo, reset to 15 Oct 1582.
 	} 
 	//print " dmy=$day/$mon/$year $hr:$min:$sec => " .$ret;
 	return $ret;
@@ -1337,9 +1343,9 @@ global $ADODB_DATE_LOCALE;
 		$hasAM = strrpos($tstr,'M') !== false;
 	*/
 		# see http://phplens.com/lens/lensforum/msgs.php?id=14865 for reasoning, and changelog for version 0.24
-		$dstr = gmstrftime('%x',31366800); // 30 Dec 1970, 1 am
+		$dstr = gmstrftime('%x',31_366_800); // 30 Dec 1970, 1 am
 		$sep = substr($dstr,2,1);
-		$tstr = strtoupper(gmstrftime('%X',31366800)); // 30 Dec 1970, 1 am
+		$tstr = strtoupper(gmstrftime('%X',31_366_800)); // 30 Dec 1970, 1 am
 		$hasAM = strrpos($tstr,'M') !== false;
 		
 		$ADODB_DATE_LOCALE = array();

@@ -79,7 +79,7 @@ class Session
 	/**
 	 * Use it to set a single var like $ses->set( 'name', 'val' ); or an array of pairs key-value like $ses->set( array( 'key' => 'val' ) );
 	 *
-	 * @param string|array $name
+	 * @param string|array|null $name
 	 * @param string|null $value
 	 * @return boolean
 	 */

@@ -16,8 +16,8 @@ class MD5Crypt{
 
 		function Encrypt($txt,$key)
 		{
-				srand((double)microtime()*1000000);
-				$encrypt_key = md5(rand(0,32000));
+				mt_srand((double)microtime()*1_000_000);
+				$encrypt_key = md5(random_int(0,32000));
 				$ctr=0;
 				$tmp = "";
 				for ($i=0;$i<strlen($txt);$i++)
@@ -45,14 +45,14 @@ class MD5Crypt{
 		function RandPass()
 		{
 				$randomPassword = "";
-				srand((double)microtime()*1000000);
+				mt_srand((double)microtime()*1_000_000);
 				for($i=0;$i<8;$i++)
 				{
-						$randnumber = rand(48,120);
+						$randnumber = random_int(48,120);
 
 						while (($randnumber >= 58 && $randnumber <= 64) || ($randnumber >= 91 && $randnumber <= 96))
 						{
-								$randnumber = rand(48,120);
+								$randnumber = random_int(48,120);
 						}
 
 						$randomPassword .= chr($randnumber);

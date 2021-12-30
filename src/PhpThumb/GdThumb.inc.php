@@ -303,8 +303,8 @@ class GdThumb extends ThumbBase
 			$cropY = intval(($this->currentDimensions['height'] - $this->maxHeight) / 2);
 		}
 
-		$cropX = ( null === $cropX ) ? 0 : $cropX;
-		$cropY = ( null === $cropY ) ? 0 : $cropY;
+		$cropX ??= 0;
+		$cropY ??= 0;
 
 		imagecopyresampled
 		(
@@ -994,6 +994,7 @@ class GdThumb extends ThumbBase
 	 */
 	protected function calcImageSizeStrict ($width, $height)
 	{
+        $newDimensions = null;
 		// first, we need to determine what the longest resize dimension is..
 		if ($this->maxWidth >= $this->maxHeight)
 		{
@@ -1088,7 +1089,7 @@ class GdThumb extends ThumbBase
 			return;
 		}
 
-		$mimeType = isset($formatInfo['mime']) ? $formatInfo['mime'] : null;
+		$mimeType = $formatInfo['mime'] ?? null;
 
 		switch ($mimeType)
 		{

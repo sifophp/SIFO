@@ -50,35 +50,33 @@ class Database
 
 	/**
 	 * Stores the current query type needed.
-	 *
-	 * @var integer
 	 */
-	static private $destination_type;
+	static private string $destination_type = '';
 
 	/**
 	 * Identifies a query as write operation and is sent to the master.
 	 *
 	 * @var integer
 	 */
-	const TYPE_MASTER = 'master';
+	public const TYPE_MASTER = 'master';
 
 	/**
 	 * Identifies a query as read operation and is sent to a slave.
 	 *
 	 * @var integer
 	 */
-	const TYPE_SLAVE = 'slave';
+	public const TYPE_SLAVE = 'slave';
 
 	/**
 	 * No need to identify a query because is a single server.
 	 *
 	 * @var integer
 	 */
-	const TYPE_SINGLE_SERVER = 'single_server';
+	public const TYPE_SINGLE_SERVER = 'single_server';
 
 	// Methods capable to be marked as duplicates:
 	// Input in lower case:
-	private $methods_whitout_duplicated_validation = array(
+	private array $methods_whitout_duplicated_validation = array(
 		'prepare',
 		'affected_rows',
 		'insert_id',
@@ -239,7 +237,7 @@ class Database
 			$this->writeDiskLog( $error );
 
 			// Command Line scripts show the exception since there is no debug to getvacvar it.
-			if ( class_exists( 'Sifo\CLBootstrap', false ) )
+			if ( class_exists( \Sifo\CLBootstrap::class, false ) )
 			{
 				throw $e;
 			}
@@ -254,7 +252,7 @@ class Database
 			$resultset = $answer;
 		}
 
-		$this->queryDebug( $resultset, $tag, $method, $read_operation, isset( $error ) ? $error : null );
+		$this->queryDebug( $resultset, $tag, $method, $read_operation, $error ?? null );
 
 		// Reset queries in master flag:
 		self::$launch_in_master = false;
@@ -346,7 +344,7 @@ class Database
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
 			"resultset"   => is_integer( $resultset ) ? array( array( $method => $resultset ) ) : $resultset,
 			"time"        => $query_time,
-			"error"			=> ( isset( $error ) ? $error : false ),
+			"error"			=> ( $error ?? false ),
 			"duplicated"	=> false
 		);
 
@@ -400,6 +398,7 @@ class Database
 	 */
 	public function getCallerClass()
 	{
+		$classes = [];
 		$trace = debug_backtrace();
 		$i = 1;
 		foreach( $trace as $steps )

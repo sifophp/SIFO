@@ -29,10 +29,7 @@ class Mail
      */
     protected $mail;
 
-    /**
-     * @var self
-     */
-    static private $instance;
+    static private self $instance;
 
     /**
      * Singleton of Client class.

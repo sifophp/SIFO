@@ -179,7 +179,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
     class LexerSplitter {
 
-        private static $splitters = array("\r\n", "!=", ">=", "<=", "<>", "\\", "&&", ">", "<", "|", "=", "^", "(", ")", "\t", "\n",
+        private static array $splitters = array("\r\n", "!=", ">=", "<=", "<>", "\\", "&&", ">", "<", "|", "=", "^", "(", ")", "\t", "\n",
                          "'", "\"", "`", ",", "@", " ", "+", "-", "*", "/", ";");
         private $tokenSize;
         private $hashSet;
@@ -265,7 +265,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             $result = array();
             
             $i = 0;
-            $cnt = count($tokens);
+            $cnt = is_countable($tokens) ? count($tokens) : 0;
             $comment = false;
 
             while ($i < $cnt) {
@@ -311,7 +311,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
         private function balanceBackticks($tokens) {
             $i = 0;
-            $cnt = count($tokens);
+            $cnt = is_countable($tokens) ? count($tokens) : 0;
             while ($i < $cnt) {
 
                 if (!isset($tokens[$i])) {
@@ -335,7 +335,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
         # to re-combine some tokens
         private function balanceCharacter($tokens, $idx, $char) {
 
-            $token_count = count($tokens);
+            $token_count = is_countable($tokens) ? count($tokens) : 0;
             $i = $idx + 1;
             while ($i < $token_count) {
 
@@ -366,7 +366,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
          */
         private function concatColReferences($tokens) {
 
-            $cnt = count($tokens);
+            $cnt = is_countable($tokens) ? count($tokens) : 0;
             $i = 0;
             while ($i < $cnt) {
 
@@ -414,7 +414,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
         }
 
         private function concatEscapeSequences($tokens) {
-            $tokenCount = count($tokens);
+            $tokenCount = is_countable($tokens) ? count($tokens) : 0;
             $i = 0;
             while ($i < $tokenCount) {
 
@@ -431,7 +431,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
         }
 
         private function balanceParenthesis($tokens) {
-            $token_count = count($tokens);
+            $token_count = is_countable($tokens) ? count($tokens) : 0;
             $i = 0;
             while ($i < $token_count) {
                 if ($tokens[$i] !== '(') {
@@ -468,6 +468,8 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
     class PHPSQLParser extends PHPSQLParserUtils {
 
         private $lexer;
+        /** @var array|false|mixed */
+        private $parsed;
 
         public function __construct($sql = false, $calcPositions = false) {
             $this->lexer = new PHPSQLLexer();
@@ -539,7 +541,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                 $unionType = "UNION";
 
                 # we are looking for an ALL token right after UNION
-                for ($i = $key + 1; $i < count($inputArray); ++$i) {
+                for ($i = $key + 1; $i < (is_countable($inputArray) ? count($inputArray) : 0); ++$i) {
                     if (trim($inputArray[$i]) === "") {
                         continue;
                     }
@@ -633,7 +635,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             $skip_next = false;
             $out = false;
 
-            $tokenCount = count($tokens);
+            $tokenCount = is_countable($tokens) ? count($tokens) : 0;
             for ($tokenNumber = 0; $tokenNumber < $tokenCount; ++$tokenNumber) {
 
                 $token = $tokens[$tokenNumber];
@@ -927,11 +929,11 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             }
             if (!empty($out['GROUP'])) {
                 # set empty array if we have partial SQL statement 
-                $out['GROUP'] = $this->process_group($out['GROUP'], isset($out['SELECT']) ? $out['SELECT'] : array());
+                $out['GROUP'] = $this->process_group($out['GROUP'], $out['SELECT'] ?? array());
             }
             if (!empty($out['ORDER'])) {
                 # set empty array if we have partial SQL statement
-                $out['ORDER'] = $this->process_order($out['ORDER'], isset($out['SELECT']) ? $out['SELECT'] : array());
+                $out['ORDER'] = $this->process_order($out['ORDER'], $out['SELECT'] ?? array());
             }
             if (!empty($out['LIMIT'])) {
                 $out['LIMIT'] = $this->process_limit($out['LIMIT']);
@@ -1009,7 +1011,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             $comma = -1;
             $exchange = false;
 
-            for ($i = 0; $i < count($tokens); ++$i) {
+            for ($i = 0; $i < (is_countable($tokens) ? count($tokens) : 0); ++$i) {
                 $trim = trim($tokens[$i]);
                 if ($trim === ",") {
                     $comma = $i;
@@ -1030,7 +1032,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                 }
             }
 
-            for ($i = $comma + 1; $i < count($tokens); ++$i) {
+            for ($i = $comma + 1; $i < (is_countable($tokens) ? count($tokens) : 0); ++$i) {
                 if ($exchange) {
                     $offset .= $tokens[$i];
                 } else {
@@ -1078,7 +1080,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
         private function process_select_expr($expression) {
 
             $tokens = $this->split_sql($expression);
-            $token_count = count($tokens);
+            $token_count = is_countable($tokens) ? count($tokens) : 0;
 
             /* Determine if there is an explicit alias after the AS clause.
              If AS is found, then the next non-whitespace token is captured as the alias.
@@ -1153,7 +1155,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             # if there is only one part, we copy the expr_type
             # in all other cases we use "expression" as global type
             $type = 'expression';
-            if (count($processed) == 1) {
+            if ((is_countable($processed) ? count($processed) : 0) == 1) {
                 if ($processed[0]['expr_type'] != 'subquery') {
                     $type = $processed[0]['expr_type'];
                     $base_expr = $processed[0]['base_expr'];
@@ -1303,7 +1305,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
             # exchange the join types (join_type is save now, saved_join_type holds the next one)
             $parseInfo['join_type'] = $parseInfo['saved_join_type']; # initialized with JOIN
-            $parseInfo['saved_join_type'] = ($parseInfo['next_join_type'] ? $parseInfo['next_join_type'] : 'JOIN');
+            $parseInfo['saved_join_type'] = ($parseInfo['next_join_type'] ?: 'JOIN');
 
             # we have a reg_expr, so we have to parse it
             if ($parseInfo['ref_expr'] !== false) {
@@ -1577,7 +1579,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                     if ($parseInfo['prevToken'] == 'AGAINST') {
 
                         $tmptokens = $this->split_sql($this->removeParenthesisFromStart($parseInfo['trim']));
-                        if (count($tmptokens) > 1) {
+                        if ((is_countable($tmptokens) ? count($tmptokens) : 0) > 1) {
                             $match_mode = implode('', array_slice($tmptokens, 1));
                             $parseInfo['processed'] = array($list[0], $match_mode);
                         } else {
@@ -1747,7 +1749,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                     $parseInfo['processed'] = $this->process_expr_list($this->split_sql($local_expr));
                     $parseInfo['tokenType'] = 'expression';
 
-                    if (count($parseInfo['processed']) === 1) {
+                    if ((is_countable($parseInfo['processed']) ? count($parseInfo['processed']) : 0) === 1) {
                         $parseInfo['tokenType'] = $parseInfo['processed'][0]['expr_type'];
                         $parseInfo['base_expr'] = $parseInfo['processed'][0]['base_expr'];
                         $parseInfo['processed'] = $parseInfo['processed'][0]['sub_tree'];
@@ -1879,8 +1881,8 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
      */
     class PositionCalculator extends PHPSQLParserUtils {
 
-        private static $allowedOnOperator = array("\t", "\n", "\r", " ", ",", "(", ")", "_", "'");
-        private static $allowedOnOther = array("\t", "\n", "\r", " ", ",", "(", ")", "<", ">", "*", "+", "-", "/", "|", "&", "=", "!", ";");
+        private static array $allowedOnOperator = array("\t", "\n", "\r", " ", ",", "(", ")", "_", "'");
+        private static array $allowedOnOther = array("\t", "\n", "\r", " ", ",", "(", ")", "<", ">", "*", "+", "-", "/", "|", "&", "=", "!", ";");
 
         private function printPos($text, $sql, $charPos, $key, $parsed, $backtracking) {
             if (!isset($_ENV['DEBUG'])) {
@@ -1912,7 +1914,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
             $ok = false;
             while (true) {
 
-                $pos = strpos($sql, $value, $offset);
+                $pos = strpos($sql, (string) $value, $offset);
                 if ($pos === false) {
                     break;
                 }
@@ -1982,21 +1984,21 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
                     # there is an array of sub-elements before (!) the base_expr clause of the current element
                     # so we go through the sub-elements and must come at the end
                     $backtracking[] = $charPos;
-                    for ($i = 1; $i < count($parsed); $i++) {
+                    for ($i = 1; $i < (is_countable($parsed) ? count($parsed) : 0); $i++) {
                         $backtracking[] = false; # backtracking only after n base_expr!
                     }
                 } elseif ($key === 'sub_tree' && $parsed !== false) {
                     # we prevent wrong backtracking on subtrees (too much array_pop())
                     # there is an array of sub-elements after(!) the base_expr clause of the current element
                     # so we go through the sub-elements and must not come back at the end
-                    for ($i = 1; $i < count($parsed); $i++) {
+                    for ($i = 1; $i < (is_countable($parsed) ? count($parsed) : 0); $i++) {
                         $backtracking[] = false;
                     }
                 } else {
                     # move the current pos after the keyword
                     # SELECT, WHERE, INSERT etc.
                     if (in_array($key, parent::$reserved)) {
-                        $charPos = stripos($sql, $key, $charPos);
+                        $charPos = stripos($sql, (string) $key, $charPos);
                         $charPos += strlen($key);
                     }
                 }
@@ -2013,7 +2015,7 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
                     $subject = substr($sql, $charPos);
                     $pos = $this->findPositionWithinString($subject, $value,
-                            isset($parsed['expr_type']) ? $parsed['expr_type'] : 'alias');
+                            $parsed['expr_type'] ?? 'alias');
                     if ($pos === false) {
                         throw new UnableToCalculatePositionException($value, $subject);
                     }
@@ -2073,4 +2075,3 @@ if (!defined('HAVE_PHP_SQL_PARSER')) {
 
     define('HAVE_PHP_SQL_PARSER', 1);
 }
-
