@@ -112,10 +112,6 @@ class Database
 		// When adodb is instantiated for the first time the object becomes in an array with a type of operation.
 		if ( !is_array( self::$adodb ) )
 		{
-			$version = Config::getInstance()->getLibrary( 'adodb' );
-			include_once( ROOT_PATH . "/vendor/sifophp/sifo/src/$version/adodb-exceptions.inc.php" ); //include exceptions for php5
-			include_once( ROOT_PATH . "/vendor/sifophp/sifo/src/$version/adodb.inc.php" );
-
 			if ( !isset( $db_params['profile'] ) )
 			{
 				// No Master/Slave schema expected:
@@ -149,16 +145,17 @@ class Database
 						$db_params = $db_profiles['slaves'][$selected_slave];
 					}
 				}
+
 				self::$adodb[self::$destination_type] = \NewADOConnection( $db_params['db_driver'] );
 				self::$adodb[self::$destination_type]->Connect( $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'] ); //connect to database constants are taken from config
 				if ( isset( $db_params['db_init_commands'] ) && is_array( $db_params['db_init_commands'] ) )
 				{
 					foreach ( $db_params['db_init_commands'] as $command )
 					{
-						self::$adodb[self::$destination_type]->Execute( $command );
+                        self::$adodb[self::$destination_type]->Execute( $command );
 					}
 				}
-				$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+                self::$adodb[self::$destination_type]->fetchMode = ADODB_FETCH_ASSOC;
 			}
 				// If connection to database fails throw a SIFO 500 error.
 			catch ( \ADODB_Exception $e )
@@ -185,12 +182,12 @@ class Database
 
 	public function __call( $method, $args ) //call adodb methods
 	{
-		// Method provides a valid comment to associate to this query:
+        // Method provides a valid comment to associate to this query:
 		if ( isset( $args[1] ) && is_array( $args[1] ) && key_exists( 'tag', $args[1] ) ) // Arg could be a single string, not an array. Do not do isset($args[1]['tag'])
 		{
 			$tag = $args[1]['tag'];
-			unset( $args[1]['tag'] );
-		}
+            unset( $args[1]['tag'] );
+        }
 		else
 		{
 			// No comment provided by programmer, set a default comment:
@@ -228,6 +225,13 @@ class Database
 
 		try
 		{
+            if (isset($args[1]) && is_array($args[1])) {
+                $args[1] = $this->fixQueryParamsForMultidimensionalArray($args[0], $args[1]);
+                if (count($args[1]) === 0) {
+                    unset($args[1]);
+                }
+            }
+
 			$answer = call_user_func_array( array( self::$adodb[self::$destination_type], $method ), $args );
 		}
 		catch ( \ADODB_Exception $e )
@@ -254,7 +258,15 @@ class Database
 			$resultset = $answer;
 		}
 
-		$this->queryDebug( $resultset, $tag, $method, $read_operation, isset( $error ) ? $error : null );
+		$this->queryDebug(
+            $resultset,
+            $tag,
+            $method,
+            $read_operation,
+            isset( $error ) ? $error : null,
+            $args[0] ?? null,
+            $args[1] ?? null
+        );
 
 		// Reset queries in master flag:
 		self::$launch_in_master = false;
@@ -262,6 +274,23 @@ class Database
 
 		return $answer;
 	}
+
+    private function fixQueryParamsForMultidimensionalArray(string $query, array $params): array
+    {
+        if (false === isset($params[0])) {
+            return $params;
+        }
+
+        $query = str_replace(["\r", "\n", PHP_EOL], ' ', $query);
+        $param_count = preg_match_all('`(?:\s|,)(\?)(?:;|,|\)|)`', $query);
+        $params = is_array($params[0]) ? $params[0] : $params;
+
+        if (count($params) > $param_count) {
+            array_splice($params, -(count($params) - $param_count));
+        }
+
+        return $params;
+    }
 
 	function __get( $property )
 	{
@@ -323,20 +352,20 @@ class Database
 	 * @param $error
 	 * @return void
 	 */
-	protected function queryDebug( $resultset, $tag, $method, $read_operation, $error )
+	protected function queryDebug( $resultset, $tag, $method, $read_operation, $error, $query = '', $params = [])
 	{
 		if ( !Domains::getInstance()->getDebugMode() )
 		{
 			return false;
 		}
 
-		$query = self::$adodb[self::$destination_type]->_querySQL;
-
 		$query_time = Benchmark::getInstance()->timingCurrentToRegistry( 'db_queries' );
 
 		$debug_query = array(
 			"tag"         => $tag,
-			"sql"         => in_array( strtolower($method), $this->methods_whitout_duplicated_validation ) ? $method : $query,
+			"sql"         => in_array( strtolower($method), $this->methods_whitout_duplicated_validation )
+                ? $method
+                : $this->printQuery($query, $params),
 			"type"        => ( $read_operation ? 'read' : 'write' ),
 			"destination" => self::$destination_type,
 			"host"        => self::$adodb[self::$destination_type]->host,
@@ -393,6 +422,16 @@ class Database
 			Debug::push( 'queries_errors', $error );
 		}
 	}
+
+    private function printQuery(string $query, ?array $params)
+    {
+        $params_to_print = [];
+        foreach ($params ?? [] as $key => $param) {
+            $params_to_print[] = sprintf('* %s: %s', $key, $param);
+        }
+
+        return sprintf('%s\n%s', $query, implode(PHP_EOL, $params_to_print));
+    }
 
 	/**
 	 * Build the caller classes stack.
