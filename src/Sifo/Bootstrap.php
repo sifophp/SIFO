@@ -21,6 +21,7 @@
 
 namespace Sifo;
 
+use Exception;
 use Psr\Container\ContainerInterface;
 
 $is_defined_in_vhost = (false !== ini_get('newrelic.appname') && 'PHP Application' !== ini_get('newrelic.appname'));
@@ -32,8 +33,6 @@ if ( !$is_defined_in_vhost && extension_loaded( 'newrelic' ) && isset( $instance
 /**
  * Class Bootstrap
  */
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Exceptions.php';
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Config.php';
 require_once ROOT_PATH . '/vendor/autoload.php';
 
 class Bootstrap
@@ -110,7 +109,7 @@ class Bootstrap
      * @param string $controller The controller in folder/action form.
      *
      * @return Controller
-     * @throws Exception_DependencyInjector
+     * @throws \Sifo\Exception_DependencyInjector
      */
     public static function invokeController( $controller, $container = null )
     {
@@ -269,18 +268,18 @@ class Bootstrap
 			}
 		}
 			// Don't know what to do after Domain is evaluated. Goodbye:
-		catch ( DomainsException $d )
+		catch (DomainsException $d )
 		{
 			Headers::setResponseStatus( 404 );
 			Headers::send();
 			echo "<h1>{$d->getMessage()}</h1>";
 			die;
 		}
-		catch ( ControllerException $e )
+		catch (ControllerException $e )
 		{
 			self::_dispatchErrorController( $e->getPrevious() );
 		}
-		catch ( \Exception $e )
+		catch ( Exception $e )
 		{
 			self::_dispatchErrorController( $e );
 		}
