@@ -1,21 +1,14 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Test\Sifo;
 
 use PHPUnit\Framework\TestCase;
+use Sifo\I18N;
 
 class I18NTest extends TestCase
 {
-    /** @var false|string */
-    private $rootDir;
-
     protected function setUp(): void
     {
-        $this->rootDir = realpath(dir('.')->path);
-        if (false === defined('ROOT_PATH')) {
-            define('ROOT_PATH', $this->rootDir);
-        }
-        Bootstrap::$instance = 'example';
         I18N::setDomain('messages', 'en_US', 'example');
     }
 

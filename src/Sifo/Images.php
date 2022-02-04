@@ -20,6 +20,8 @@
 
 namespace Sifo;
 
+use PhpThumbFactory;
+
 class Images
 {
 	/**
@@ -35,30 +37,35 @@ class Images
 	 * @param int $quality
 	 * @return boolean
 	 */
-	static public function resizeAndSave( $from, $to, $width, $height, $crop = false, $resizeUp = false, $transparency = false, $quality = 100 )
-	{
-		include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
+	public static function resizeAndSave(
+        string $from,
+        string  $to,
+        int $width,
+        int $height,
+        array $crop = [],
+        bool $resizeUp = false,
+        bool $transparency = false,
+        int $quality = 100
+    ) {
+		$fileinfo = pathinfo($to);
 
-		$fileinfo = pathinfo( $to );
-
-		$thumb = \PhpThumbFactory::create( $from );
-		$thumb = \PhpThumbFactory::create( $from, array(
+		$thumb = PhpThumbFactory::create(
+            $from,
+            [
 					'resizeUp' => $resizeUp,
 					'preserveAlpha' => $transparency,
 					'preserveTransparency' => $transparency,
 					'jpegQuality'	=> $quality,
-						) );
+            ]
+        );
 
-		if ( false === $crop )
-		{
-			$thumb->resize( $width, $height );
-		}
-		else
-		{
-			$thumb->adaptiveResize( $width, $height, $crop['x'], $crop['y'] );
+		if (self::isCropRequired($crop)) {
+            $thumb->adaptiveResize($width, $height, $crop['x'], $crop['y']);
+		} else {
+            $thumb->resize($width, $height);
 		}
 
-		$thumb->save( $to, $fileinfo['extension'] );
+		$thumb->save($to, $fileinfo['extension']);
 
 		return true;
 	}
@@ -77,23 +84,32 @@ class Images
 	 * @param int $quality
 	 * @return bool
 	 */
-	static public function cropAndSave( $from, $to, $startX, $startY, $width, $height, $resizeUp = false, $transparency = false, $quality = 100 )
-	{
-		include_once ROOT_PATH . '/vendor/sifophp/sifo/src/' . Config::getInstance()->getLibrary( 'phpthumb' ) . '/ThumbLib.inc.php';
+	static public function cropAndSave(
+        string $from,
+        string $to,
+        int $startX,
+        int $startY,
+        int $width,
+        int $height,
+        bool $resizeUp = false,
+        bool $transparency = false,
+        int $quality = 100
+    ) {
+		$fileInfo = pathinfo($to);
 
-		$fileinfo = pathinfo( $to );
+        $thumb = \PhpThumbFactory::create(
+            $from,
+            [
+                'resizeUp' => $resizeUp,
+                'preserveAlpha' => $transparency,
+                'preserveTransparency' => $transparency,
+                'jpegQuality' => $quality,
+            ]
+        );
 
-		$thumb = \PhpThumbFactory::create( $from );
-		$thumb = \PhpThumbFactory::create( $from, array(
-					'resizeUp' => $resizeUp,
-					'preserveAlpha' => $transparency,
-					'preserveTransparency' => $transparency,
-					'jpegQuality'	=> $quality,
-						) );
+		$thumb->crop($startX, $startY, $width, $height);
 
-		$thumb->crop( $startX, $startY, $width, $height );
-
-		$thumb->save( $to, $fileinfo['extension'] );
+		$thumb->save($to, $fileInfo['extension']);
 
 		return true;
 	}
@@ -108,16 +124,35 @@ class Images
 	 * @param boolean $crop
 	 * @return boolean
 	 */
-	static public function uploadResizeAndSave( $post_file, $destination, $width, $height, $crop = false, $resizeUp = false, $transparency = false )
-	{
+	static public function uploadResizeAndSave(
+        array $post_file,
+        string $destination,
+        int $width,
+        int $height,
+        array $crop = [],
+        bool $resizeUp = false,
+        bool $transparency = false
+    ) {
 		$old_name = $post_file['tmp_name'];
 		$upload_info = pathinfo( $old_name );
 		$new_name = $upload_info['dirname'].'/'.$post_file['name'];
+        static::moveFile($old_name, $new_name);
 
-		move_uploaded_file( $old_name, $new_name );
-
-		self::resizeAndSave( $new_name, $destination, $width, $height, $crop, $resizeUp, $transparency );
+		self::resizeAndSave($new_name, $destination, $width, $height, (array)$crop, $resizeUp, $transparency);
 
 		return true;
 	}
+
+    private static function isCropRequired(array $crop): bool
+    {
+        return array_key_exists('x', $crop)
+            && is_int($crop['x'])
+            && array_key_exists('y', $crop)
+            && is_int($crop['y']);
+    }
+
+    protected static function moveFile(string $from, string $to): void
+    {
+        move_uploaded_file($from, $to);
+    }
 }

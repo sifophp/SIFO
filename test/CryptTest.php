@@ -1,6 +1,8 @@
 <?php
 
-namespace Sifo;
+namespace Sifo\Test;
+
+use Sifo\Crypt;
 
 class CryptTest extends \PHPUnit_Framework_TestCase
 {
