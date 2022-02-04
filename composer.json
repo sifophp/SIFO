@@ -36,10 +36,12 @@
     "symfony/yaml": "^3.2|^4.3.1|^5.0.1",
     "tpyo/amazon-s3-php-class": "^0.5",
     "twig/extensions": "^1.4",
-    "twig/twig": "^2.0"
+    "twig/twig": "^2.0",
+    "weotch/phpthumb": "^1.0"
   },
   "require-dev": {
     "adlawson/vfs": "^0.12.1",
+    "mikey179/vfsstream": "^1.6",
     "phpcompatibility/php-compatibility": "^9.3",
     "phpunit/phpunit": "^5.0",
     "sifophp/sifo-common-instance": "*",
@@ -63,6 +65,8 @@
     ]
   },
   "autoload-dev": {
-    "classmap" : ["test"]
+    "psr-4": {
+      "Sifo\\Test\\": "test/"
+    }
   }
 }
