@@ -282,7 +282,7 @@ class Database
         }
 
         $query = str_replace(["\r", "\n", PHP_EOL], ' ', $query);
-        $param_count = preg_match_all('`(?:\s|,)(\?)(?:;|,|\)|)`', $query);
+        $param_count = preg_match_all('`(?:\s|,|\()(\?)(?:;|,|\)|)`', $query);
         $params = is_array($params[0]) ? $params[0] : $params;
 
         if (count($params) > $param_count) {
