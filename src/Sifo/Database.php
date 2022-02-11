@@ -281,12 +281,27 @@ class Database
             return $params;
         }
 
-        $query = str_replace(["\r", "\n", PHP_EOL], ' ', $query);
-        $param_count = preg_match_all('`(?:\s|,|\()(\?)(?:;|,|\)|)`', $query);
+        $split_query = explode('?', $query);
+        $bind_count = count($split_query) - 1;
         $params = is_array($params[0]) ? $params[0] : $params;
+        $params_count = count($params);
 
-        if (count($params) > $param_count) {
-            array_splice($params, -(count($params) - $param_count));
+        if ($params_count > $bind_count) {
+            $template = <<<EOF
+Adding more parameters than query binds will be not allowed starting from 3.1.0 version. 
+
+Query: %s
+Params: %s
+Bindings: %s
+
+EOF;
+
+            trigger_error(
+                sprintf($template, $query, var_export($params, true), $bind_count),
+                \E_USER_DEPRECATED
+            );
+
+            array_splice($params, -(count($params) - $bind_count));
         }
 
         return $params;
