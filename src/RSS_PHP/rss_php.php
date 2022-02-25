@@ -1,4 +1,7 @@
 <?php
+/**
+ * @depracated It will be deleted cost is part of a third party library.
+ */
 /*
 	RSS_PHP - the PHP DOM based RSS Parser
 	Author: <rssphp.net>

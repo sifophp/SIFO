@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @depracated It will be deleted cost is part of a third party library.
+ */
+
 $source_version='5020';
 $cache_version='2.0b';
 $properties=array(
