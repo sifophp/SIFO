@@ -1,26 +1,43 @@
-Flexible PHP framework for real-world web applications
-=======================================================
-[SIFO] is a well-proven open source PHP5 framework currently running on several
-sites, from small installations to large websites with multiple servers.
+Sifo PHP
+========
 
-SIFO is free and very easy to use. Contains a lot of libraries and classes that resolve your basic problems and allow you to focus in your business logic, at a very low learning curve. If there is a curve :)
-
-It comes with several technologies *ready to use* such as Memcached, Sphinx, Mysql, Redis... and all the debugging tools.
+[SIFO] is a battle-tested open source Legacy PHP framework currently running on several production
+sites since more than 7 years, from small installations to large websites with multiple servers.
 
 ---
 
-**If you want to start using it** clone the sample application:
+## Installation
 
-**Clone [Sifo App](https://github.com/sifophp/sifo-app)**
+```bash
+composer require sifophp/sifo sifophp/sifo-common-instance
+```
 
-If you don't have a LAMP environment, you can download a pre-configure vagrant machine:
+## Future of Sifo Framework
 
-**Download  [Vagrant Sifo](https://github.com/sifophp/vagrant-sifo)**
+### Support
+
+* Sifo is actively maintained cost it is used by some companies in production
+* Fill free to open issue or a pull request for any kind of fix or improvement
+
+### New Features
+
+* Although, the framework is actively maintained, we aren't go to add any new feature, 
+Sifo has a lot of features that we are trying to remove in order to archieve a more cleaner integration between the 
+framework and the business code. 
+
+### Deprecations
+
+* Use only classes located inner `Sifo\`  namespace every other library included will be deleted in future releases
+
+### Maybe
+
+* Allow Framework Agnostic Controllers
+* Clean package without external libraries 
 
 ---
 
-More documentation in the *official site*: [sifo.me] [SIFO]
+More documentation in the *official site*: [https://web.archive.org/web/20180809060838/http://sifo.me/] [SIFO]
 
-[SIFO]: http://sifo.me
+[SIFO]: https://web.archive.org/web/20180809060838/http://sifo.me/
 
 
