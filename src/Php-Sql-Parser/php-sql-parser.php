@@ -1,5 +1,8 @@
 <?php
 /**
+ * @depracated It will be deleted cost is part of a third party library.
+ */
+/**
  * PHPSQLParser
  *
  * A pure PHP SQL (non validating) parser w/ focus on MySQL dialect of SQL

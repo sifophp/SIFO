@@ -5,6 +5,10 @@ namespace phpbrowscap;
 use \Exception as BaseException;
 
 /**
+ * @depracated It will be deleted cost is part of a third party library.
+ */
+
+/**
  * Browscap.ini parsing class with caching and update capabilities
  *
  * PHP version 5
