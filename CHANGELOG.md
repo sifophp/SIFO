@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.1](https://github.com/sifophp/sifo/tree/3.0.1) (2022-03-14)
+
+[Full Changelog](https://github.com/sifophp/sifo/compare/3.0.0...3.0.1)
+
+**Merged pull requests:**
+
+- fix: default parameters for query debug call  [\#138](https://github.com/sifophp/SIFO/pull/138) ([kpicaza](https://github.com/kpicaza))
+
 ## [3.0.0](https://github.com/sifophp/sifo/tree/HEAD)
 
 [Full Changelog](https://github.com/sifophp/sifo/compare/v2.32.0...3.0.0)
