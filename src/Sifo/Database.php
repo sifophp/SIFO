@@ -264,8 +264,8 @@ class Database
             $method,
             $read_operation,
             isset( $error ) ? $error : null,
-            $args[0] ?? null,
-            $args[1] ?? null
+            $args[0] ?? '',
+            $args[1] ?? []
         );
 
 		// Reset queries in master flag:
