@@ -53,18 +53,18 @@ class Cookie
 		self::$path = '/';
 	}
 
-	static public function set( $name, $value, $days = 14, $domain = false )
+	static public function set( $name, $value, $days = 14, $domain = false, $secure = false, $http_only = false )
 	{
 
 		$domain ?: self::_initDomain();
 
 		if ( 0 == $days )
 		{
-			$result = setcookie( $name, $value, 0, self::$path, self::$domain );
+			$result = setcookie( $name, $value, 0, self::$path, self::$domain, $secure, $http_only );
 		}
 		else
 		{
-			$result = setcookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain );
+			$result = setcookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain, $secure, $http_only );
 		}
 		if ( !$result )
 		{
