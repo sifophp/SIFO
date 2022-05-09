@@ -49,22 +49,21 @@ class Cookie
 	{
 		self::$cookies = array( );
 		// Take domain from configuration to allow multiple subdomain compatibility with cookies.
-		self::$domain = Domains::getInstance()->getDomain();
+		self::$domain = static::domain();
 		self::$path = '/';
 	}
 
-	static public function set( $name, $value, $days = 14, $domain = false, $secure = false, $http_only = false )
+	static public function set( $name, $value, $days = 14, $domain = false, $secure = false, $httpOnly = false )
 	{
-
 		$domain ?: self::_initDomain();
 
 		if ( 0 == $days )
 		{
-			$result = setcookie( $name, $value, 0, self::$path, self::$domain, $secure, $http_only );
+			$result = static::setCookie( $name, $value, 0, self::$path, self::$domain, $secure, $httpOnly );
 		}
 		else
 		{
-			$result = setcookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain, $secure, $http_only );
+			$result = static::setCookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain, $secure, $httpOnly );
 		}
 		if ( !$result )
 		{
@@ -81,7 +80,7 @@ class Cookie
 	static public function delete( $name )
 	{
 		self::_initDomain();
-		$result = setcookie( $name, '', time() - 3600, self::$path, self::$domain );
+		$result = static::setCookie( $name, '', 0, self::$path, self::$domain);
 		if ( !$result )
 		{
 			trigger_error( "COOKIE DELETE FAIL: Tried to delete '$name' but failed." );
@@ -140,4 +139,14 @@ class Cookie
 
 		return false;
 	}
+
+    static protected function setCookie(string $name, $value = "", $expires_or_options = 0, $path = "", $domain = "", $secure = false, $httponly = false): bool
+    {
+        return setcookie( $name, $value, $expires_or_options, $path, $domain, $secure, $httponly );
+    }
+
+    static protected function domain()
+    {
+        return Domains::getInstance()->getDomain();
+    }
 }
