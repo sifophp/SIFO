@@ -21,7 +21,7 @@ class CookieTest extends TestCase
 
         $this->assertEquals(
             $defaultExpiration,
-            TestCookie::getExpiresOrOptions($cookieName),
+            TestCookie::getExpires($cookieName),
             "Expires doesn't match with expected."
         );
         $this->assertSame(
@@ -45,7 +45,7 @@ class CookieTest extends TestCase
 
         TestCookie::set($cookieName, 'oreo', 0);
 
-        $this->assertSame(0, TestCookie::getExpiresOrOptions($cookieName));
+        $this->assertSame(0, TestCookie::getExpires($cookieName));
     }
 
     public function testCookieIsSetWithCustomParameters(): void
@@ -58,7 +58,7 @@ class CookieTest extends TestCase
 
         $this->assertEquals(
             $defaultExpiration,
-            TestCookie::getExpiresOrOptions($cookieName),
+            TestCookie::getExpires($cookieName),
             "Expires doesn't match with expected."
         );
         $this->assertSame(

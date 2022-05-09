@@ -136,10 +136,10 @@ class Cookie
 		return false;
 	}
 
-    static protected function setCookie(string $name, $value = "", $expires_or_options = 0, $path = "", $domain = "", $secure = false, $httponly = false, string $samesite = null): bool
+    static protected function setCookie(string $name, $value = "", $expires = 0, $path = "", $domain = "", $secure = false, $httponly = false, string $samesite = null): bool
     {
         $options = [
-            'expires' => $expires_or_options,
+            'expires' => $expires,
             'path' => $path,
             'domain' => $domain,
             'secure' => $secure,

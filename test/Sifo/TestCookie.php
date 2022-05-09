@@ -11,7 +11,7 @@ class TestCookie extends Cookie
     protected static function setCookie(
         string $name,
         $value = "",
-        $expires_or_options = 0,
+        $expires = 0,
         $path = "",
         $domain = "",
         $secure = false,
@@ -26,7 +26,7 @@ class TestCookie extends Cookie
 
         self::$cookies[$name] = [
             'value' => $value,
-            'expires_or_options' => $expires_or_options,
+            'expires' => $expires,
             'path' => $path,
             'domain' => $domain,
             'secure' => $secure,
@@ -55,9 +55,9 @@ class TestCookie extends Cookie
         return (string) self::getCookieParam($name, 'value');
     }
 
-    public static function getExpiresOrOptions(string $name)
+    public static function getExpires(string $name)
     {
-        return self::getCookieParam($name, 'expires_or_options');
+        return self::getCookieParam($name, 'expires');
     }
 
     public static function getPath(string $name): string
