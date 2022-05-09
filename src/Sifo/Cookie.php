@@ -49,7 +49,7 @@ class Cookie
 	{
 		self::$cookies = array( );
 		// Take domain from configuration to allow multiple subdomain compatibility with cookies.
-		self::$domain = static::domain();
+		self::$domain = Domains::getInstance()->getDomain();
 		self::$path = '/';
 	}
 
@@ -151,10 +151,5 @@ class Cookie
         }
 
         return setcookie( $name, $value, $options );
-    }
-
-    static protected function domain()
-    {
-        return Domains::getInstance()->getDomain();
     }
 }
