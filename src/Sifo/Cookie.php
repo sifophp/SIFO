@@ -76,7 +76,7 @@ class Cookie
 	static public function delete( $name )
 	{
 		self::_initDomain();
-		$result = static::setCookie( $name, '', 0, self::$path, self::$domain);
+		$result = static::setCookie( $name, '', time() - 3600, self::$path, self::$domain);
 		if ( !$result )
 		{
 			trigger_error( "COOKIE DELETE FAIL: Tried to delete '$name' but failed." );
