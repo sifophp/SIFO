@@ -15,7 +15,8 @@ class TestCookie extends Cookie
         $path = "",
         $domain = "",
         $secure = false,
-        $httponly = false
+        $httponly = false,
+        string $samesite = null
     ): bool {
         if ($value === "") {
             unset(self::$cookies[$name]);
@@ -29,9 +30,9 @@ class TestCookie extends Cookie
             'path' => $path,
             'domain' => $domain,
             'secure' => $secure,
-            'httponly' => $httponly
+            'httponly' => $httponly,
+            'samesite' => $samesite,
         ];
-
 
         return true;
     }
@@ -43,7 +44,7 @@ class TestCookie extends Cookie
         }
 
         if (!array_key_exists($param, self::$cookies[$name] ?? [])) {
-            throw new InvalidArgumentException("Param $param does not exist in a cookie.");
+            return null;
         }
 
         return self::$cookies[$name][$param];
@@ -77,6 +78,11 @@ class TestCookie extends Cookie
     public static function isHttpOnly(string $name): bool
     {
         return (bool) self::getCookieParam($name, 'httponly');
+    }
+
+    public static function getSameSite(string $name): ?string
+    {
+        return self::getCookieParam($name, 'samesite');
     }
 
     public static function clearCookies(): void

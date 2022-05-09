@@ -34,6 +34,7 @@ class CookieTest extends TestCase
             TestCookie::getPath($cookieName),
             "Path doesn't match with expected."
         );
+        $this->assertNull(TestCookie::getSameSite($cookieName));
         $this->assertFalse(TestCookie::isSecure($cookieName));
         $this->assertFalse(TestCookie::isHttpOnly($cookieName));
     }
@@ -53,7 +54,7 @@ class CookieTest extends TestCase
         $expirationDays = 7;
         $defaultExpiration = time() + ( 86400 * $expirationDays );
 
-        TestCookie::set($cookieName, 'chips_ahoy', $expirationDays, false, true, true);
+        TestCookie::set($cookieName, 'chips_ahoy', $expirationDays, false, true, true, 'Lax');
 
         $this->assertEquals(
             $defaultExpiration,
@@ -69,6 +70,11 @@ class CookieTest extends TestCase
             '/',
             TestCookie::getPath($cookieName),
             "Path doesn't match with expected."
+        );
+        $this->assertSame(
+            'Lax',
+            TestCookie::getSameSite($cookieName),
+            "Same site doesn't match with expected."
         );
         $this->assertTrue(TestCookie::isSecure($cookieName));
         $this->assertTrue(TestCookie::isHttpOnly($cookieName));

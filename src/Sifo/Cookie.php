@@ -53,15 +53,13 @@ class Cookie
 		self::$path = '/';
 	}
 
-	static public function set( $name, $value, $days = 14, $domain = false, $secure = false, $httpOnly = false )
+	static public function set( $name, $value, $days = 14, $domain = false, $secure = false, $httpOnly = false, string $samesite = null )
 	{
 		$domain ?: self::_initDomain();
 
-        $expires = 0 == $days
-            ? 0
-            : time() + ( 86400 * $days );
+		$expires = 0 == $days ? 0 : time() + ( 86400 * $days );
 
-        $result = static::setCookie( $name, $value, $expires, self::$path, self::$domain, $secure, $httpOnly );
+		$result = static::setCookie( $name, $value, $expires, self::$path, self::$domain, $secure, $httpOnly, $samesite );
 
 		if ( !$result )
 		{
@@ -138,9 +136,21 @@ class Cookie
 		return false;
 	}
 
-    static protected function setCookie(string $name, $value = "", $expires_or_options = 0, $path = "", $domain = "", $secure = false, $httponly = false): bool
+    static protected function setCookie(string $name, $value = "", $expires_or_options = 0, $path = "", $domain = "", $secure = false, $httponly = false, string $samesite = null): bool
     {
-        return setcookie( $name, $value, $expires_or_options, $path, $domain, $secure, $httponly );
+        $options = [
+            'expires' => $expires_or_options,
+            'path' => $path,
+            'domain' => $domain,
+            'secure' => $secure,
+            'httponly' => $httponly,
+        ];
+
+        if ( $samesite !== null) {
+            $options['samesite'] = $samesite;
+        }
+
+        return setcookie( $name, $value, $options );
     }
 
     static protected function domain()
