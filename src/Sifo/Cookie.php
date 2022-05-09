@@ -57,14 +57,12 @@ class Cookie
 	{
 		$domain ?: self::_initDomain();
 
-		if ( 0 == $days )
-		{
-			$result = static::setCookie( $name, $value, 0, self::$path, self::$domain, $secure, $httpOnly );
-		}
-		else
-		{
-			$result = static::setCookie( $name, $value, time() + ( 86400 * $days ), self::$path, self::$domain, $secure, $httpOnly );
-		}
+        $expires = 0 == $days
+            ? 0
+            : time() + ( 86400 * $days );
+
+        $result = static::setCookie( $name, $value, $expires, self::$path, self::$domain, $secure, $httpOnly );
+
 		if ( !$result )
 		{
 			trigger_error( "COOKIE WRITE FAIL: Tried to write '$name' with value '$value' but failed." );
