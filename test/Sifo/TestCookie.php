@@ -89,9 +89,4 @@ class TestCookie extends Cookie
     {
         self::$cookies = [];
     }
-
-    protected static function domain()
-    {
-        return 'example';
-    }
 }

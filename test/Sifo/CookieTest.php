@@ -25,7 +25,7 @@ class CookieTest extends TestCase
             "Expires doesn't match with expected."
         );
         $this->assertSame(
-            'example',
+            'sifo.local',
             TestCookie::getDomain($cookieName),
             "Domain doesn't match with expected."
         );
@@ -62,7 +62,7 @@ class CookieTest extends TestCase
             "Expires doesn't match with expected."
         );
         $this->assertSame(
-            'example',
+            'sifo.local',
             TestCookie::getDomain($cookieName),
             "Domain doesn't match with expected."
         );
