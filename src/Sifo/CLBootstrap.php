@@ -94,6 +94,10 @@ if ( extension_loaded( 'newrelic' ) && isset( CLBootstrap::$instance ) )
 	newrelic_set_appname( ucfirst( CLBootstrap::$instance ) );
 }
 
+if (false === isset($argv)) {
+    $argv = $_SERVER['argv'] ?? [];
+}
+
 if ( !isset( $argv[1] ) || ( '-h' == $argv[1] ) || ( '--help' == $argv[1] ) )
 {
 	// Dump help info:
