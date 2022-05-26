@@ -60,6 +60,21 @@ class Domains
 		return self::$singleton;
 	}
 
+    /**
+     * Singleton for domain calculation.
+     *
+     * @return Domains
+     */
+    static public function getInstanceFromDomainName($domainName)
+    {
+        if ( !isset( self::$singleton ) )
+        {
+            self::$singleton = new self($domainName);
+        }
+
+        return self::$singleton;
+    }
+
 	private function __construct( $host = null )
 	{
 		$filter_server = FilterServer::getInstance();
