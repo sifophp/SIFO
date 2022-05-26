@@ -29,23 +29,24 @@
     "adodb/adodb-php": "^5.21",
     "geoip/geoip": "^1.17",
     "neutron/sphinxsearch-api": "^2.0",
-    "phpmailer/phpmailer": "^6.0",
+    "phpmailer/phpmailer": "^6.5",
     "psr/container": "^1.0",
-    "smarty/smarty": "^3.1",
+    "smarty/smarty": "^3.1.43",
     "symfony/dotenv": "^3.3.1|^4.3.1|^5.0.1",
     "symfony/yaml": "^3.2|^4.3.1|^5.0.1",
     "tpyo/amazon-s3-php-class": "^0.5",
     "twig/extensions": "^1.4",
-    "twig/twig": "^2.0",
+    "twig/twig": "^2.15",
     "weotch/phpthumb": "^1.0"
   },
   "require-dev": {
     "adlawson/vfs": "^0.12.1",
     "mikey179/vfsstream": "^1.6",
     "phpcompatibility/php-compatibility": "^9.3",
-    "phpunit/phpunit": "^5.0",
+    "phpunit/phpunit": "^5.7",
     "sifophp/sifo-common-instance": "*",
     "sifophp/sifoweb": "@dev",
+    "squizlabs/php_codesniffer": "^3.6",
     "symfony/var-dumper": "^5.4"
   },
   "scripts": {
