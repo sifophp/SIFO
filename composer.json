@@ -67,7 +67,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Sifo\\Test\\": "test/"
+      "Sifo\\Test\\": "test/",
+      "Sifo\\Example\\": "instances/example/"
     }
   }
 }

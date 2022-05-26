@@ -5,8 +5,6 @@
  */
 namespace Sifo;
 
-require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Bootstrap.php';
-
 class CLBootstrap extends Bootstrap
 {
 	static $script_controller;
