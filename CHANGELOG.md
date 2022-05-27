@@ -1,20 +1,36 @@
 # Changelog
 
+## [3.0.2](https://github.com/sifophp/sifo/tree/3.0.2) (2022-05-27)
+
+[Full Changelog](https://github.com/sifophp/sifo/compare/3.0.1...3.0.2)
+
+**Merged pull requests:**
+
+- Add symfony security checker action to pipeline [\#142](https://github.com/sifophp/SIFO/pull/142) ([kpicaza](https://github.com/kpicaza))
+- Add easy way to instantiate domains [\#141](https://github.com/sifophp/SIFO/pull/141) ([kpicaza](https://github.com/kpicaza))
+- allow to put argv via $\_SERVER [\#140](https://github.com/sifophp/SIFO/pull/140) ([kpicaza](https://github.com/kpicaza))
+- AD-231 Add secure and http\_only parameters support for cookies [\#139](https://github.com/sifophp/SIFO/pull/139) ([destebang](https://github.com/destebang))
+
 ## [3.0.1](https://github.com/sifophp/sifo/tree/3.0.1) (2022-03-14)
 
 [Full Changelog](https://github.com/sifophp/sifo/compare/3.0.0...3.0.1)
 
 **Merged pull requests:**
 
-- fix: default parameters for query debug call  [\#138](https://github.com/sifophp/SIFO/pull/138) ([kpicaza](https://github.com/kpicaza))
+- fix: default parameters for query debug call [\#138](https://github.com/sifophp/SIFO/pull/138) ([kpicaza](https://github.com/kpicaza))
 
-## [3.0.0](https://github.com/sifophp/sifo/tree/HEAD)
+## [3.0.0](https://github.com/sifophp/sifo/tree/3.0.0) (2022-02-25)
 
 [Full Changelog](https://github.com/sifophp/sifo/compare/v2.32.0...3.0.0)
 
 **Closed issues:**
 
 - Unit testing for Sifo classes [\#57](https://github.com/sifophp/SIFO/issues/57)
+- Change getClass\(\) to support the new autoloader and inheritance [\#40](https://github.com/sifophp/SIFO/issues/40)
+- Adapt existing code to PSR-4 [\#39](https://github.com/sifophp/SIFO/issues/39)
+- Create new PSR directory structure with Composer [\#38](https://github.com/sifophp/SIFO/issues/38)
+- Composer dependencies and repositories definition [\#36](https://github.com/sifophp/SIFO/issues/36)
+- Analysis of migration needed in Sifo 2.xx instances [\#32](https://github.com/sifophp/SIFO/issues/32)
 
 **Merged pull requests:**
 
@@ -486,6 +502,7 @@
 
 - Update README.md [\#30](https://github.com/sifophp/SIFO/pull/30) ([alombarte](https://github.com/alombarte))
 - Validate email regex used in the Filter class improved [\#29](https://github.com/sifophp/SIFO/pull/29) ([JavierCane](https://github.com/JavierCane))
+- Improved findi18n [\#28](https://github.com/sifophp/SIFO/pull/28) ([JavierCane](https://github.com/JavierCane))
 - Added "memory" for change directory [\#26](https://github.com/sifophp/SIFO/pull/26) ([alexgt9](https://github.com/alexgt9))
 - Fix problem with script, to not depends on the current directory [\#25](https://github.com/sifophp/SIFO/pull/25) ([alexgt9](https://github.com/alexgt9))
 - Command line options "Did you mean". [\#24](https://github.com/sifophp/SIFO/pull/24) ([JavierCane](https://github.com/JavierCane))
@@ -536,15 +553,15 @@
 
 ## [sifo-2.2](https://github.com/sifophp/sifo/tree/sifo-2.2) (2012-02-10)
 
-[Full Changelog](https://github.com/sifophp/sifo/compare/sifo-1.9...sifo-2.2)
-
-## [sifo-1.9](https://github.com/sifophp/sifo/tree/sifo-1.9) (2011-12-07)
-
-[Full Changelog](https://github.com/sifophp/sifo/compare/stable-php-5.2-last-commit...sifo-1.9)
+[Full Changelog](https://github.com/sifophp/sifo/compare/stable-php-5.2-last-commit...sifo-2.2)
 
 ## [stable-php-5.2-last-commit](https://github.com/sifophp/sifo/tree/stable-php-5.2-last-commit) (2011-12-07)
 
-[Full Changelog](https://github.com/sifophp/sifo/compare/sifo-2.1...stable-php-5.2-last-commit)
+[Full Changelog](https://github.com/sifophp/sifo/compare/sifo-1.9...stable-php-5.2-last-commit)
+
+## [sifo-1.9](https://github.com/sifophp/sifo/tree/sifo-1.9) (2011-12-07)
+
+[Full Changelog](https://github.com/sifophp/sifo/compare/sifo-2.1...sifo-1.9)
 
 **Closed issues:**
 
