@@ -27,6 +27,6 @@ class CLBootstrapTest extends TestCase
 
         $output = $testRunner->run($this->createMock(ContainerInterface::class));
 
-        self::assertContains('Hello World!', $output);
+        self::assertStringContainsString('Hello World!', $output);
     }
 }
