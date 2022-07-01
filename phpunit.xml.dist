@@ -7,25 +7,23 @@
         convertWarningsToExceptions="true"
         beStrictAboutCoversAnnotation="true"
         beStrictAboutOutputDuringTests="true"
-        beStrictAboutTestSize="true"
+        enforceTimeLimit="true"
         beStrictAboutTestsThatDoNotTestAnything="false"
         processIsolation="false"
         stopOnFailure="false"
-        syntaxCheck="false"
 >
+    <coverage includeUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./src/Sifo</directory>
+        </include>
+        <exclude>
+            <directory>./vendor</directory>
+            <directory>./test</directory>
+        </exclude>
+    </coverage>
     <testsuites>
         <testsuite name="sifo">
             <directory suffix="Test.php">./test</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/Sifo</directory>
-            <exclude>
-                <directory>./vendor</directory>
-                <directory>./test</directory>
-            </exclude>
-        </whitelist>
-    </filter>
 </phpunit>

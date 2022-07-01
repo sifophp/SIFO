@@ -4,6 +4,7 @@ namespace Sifo\Test;
 
 use PHPUnit\Framework\TestCase;
 use Sifo\Crypt;
+use PHPUnit\Framework\TestCase;
 
 class CryptTest extends TestCase
 {
@@ -13,7 +14,7 @@ class CryptTest extends TestCase
     /** @var string */
     private $crypted_text;
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->text = null;
         $this->crypted_text = null;
