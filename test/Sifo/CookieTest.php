@@ -7,7 +7,7 @@ use Sifo\FilterCookieRuntime;
 
 class CookieTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         TestCookie::clearCookies();
     }
