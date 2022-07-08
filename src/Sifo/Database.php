@@ -226,7 +226,7 @@ class Database
 		try
 		{
             if (isset($args[1]) && is_array($args[1])) {
-                $args[1] = $this->fixQueryParamsForMultidimensionalArray($args[0], $args[1]);
+                $args[1] = $this->parseQueryParamsForMultidimensionalArray($args[1]);
                 if (count($args[1]) === 0) {
                     unset($args[1]);
                 }
@@ -275,36 +275,13 @@ class Database
 		return $answer;
 	}
 
-    private function fixQueryParamsForMultidimensionalArray(string $query, array $params): array
+    private function parseQueryParamsForMultidimensionalArray(array $params): array
     {
         if (false === isset($params[0])) {
             return $params;
         }
 
-        $split_query = explode('?', $query);
-        $bind_count = count($split_query) - 1;
-        $params = is_array($params[0]) ? $params[0] : $params;
-        $params_count = count($params);
-
-        if ($params_count > $bind_count) {
-            $template = <<<EOF
-Adding more parameters than query binds will be not allowed starting from 3.1.0 version. 
-
-Query: %s
-Params: %s
-Bindings: %s
-
-EOF;
-
-            trigger_error(
-                sprintf($template, $query, var_export($params, true), $bind_count),
-                \E_USER_DEPRECATED
-            );
-
-            array_splice($params, -(count($params) - $bind_count));
-        }
-
-        return $params;
+        return is_array($params[0]) ? $params[0] : $params;
     }
 
 	function __get( $property )
