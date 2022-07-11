@@ -43,7 +43,7 @@
     "adlawson/vfs": "^0.12.1",
     "mikey179/vfsstream": "^1.6",
     "phpcompatibility/php-compatibility": "^9.3",
-    "phpunit/phpunit": "^9",
+    "phpunit/phpunit": "^9.5",
     "sifophp/sifo-common-instance": "@dev",
     "sifophp/sifoweb": "@dev",
     "squizlabs/php_codesniffer": "^3.6",

@@ -4,7 +4,6 @@ namespace Sifo\Test;
 
 use PHPUnit\Framework\TestCase;
 use Sifo\Crypt;
-use PHPUnit\Framework\TestCase;
 
 class CryptTest extends TestCase
 {
