@@ -13,7 +13,7 @@ class CryptTest extends TestCase
     /** @var string */
     private $crypted_text;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->text = null;
         $this->crypted_text = null;

@@ -25,7 +25,7 @@
     }
   ],
   "require": {
-    "php": "^7.3|^7.4",
+    "php": "^7.3|^7.4|^8.0",
     "adodb/adodb-php": "^5.21",
     "geoip/geoip": "^1.17",
     "neutron/sphinxsearch-api": "^2.0",
@@ -41,7 +41,7 @@
   },
   "require-dev": {
     "adlawson/vfs": "^0.12.1",
-    "mikey179/vfsstream": "^1.6",
+    "mikey179/vfsstream": "^1.6.10",
     "phpcompatibility/php-compatibility": "^9.3",
     "phpunit/phpunit": "^9.5",
     "sifophp/sifo-common-instance": "@dev",
@@ -51,6 +51,7 @@
   },
   "scripts": {
     "cs-check": "phpcs src --colors",
+    "cs-check:php8": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0",
     "cs-fix": "phpcbf src --colors"
   },
   "config": {

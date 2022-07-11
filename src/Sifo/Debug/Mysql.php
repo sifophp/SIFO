@@ -161,7 +161,7 @@ class DebugMysqlStatement extends MysqlStatement
 	 * @param array $ctor_args Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
 	 * @return array
 	 */
-	public function fetchAll( $fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, $ctor_args = array() )
+	public function fetchAll( int $fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, mixed ...$ctor_args ): array
 	{
         if ($this->result !== null)
         {
