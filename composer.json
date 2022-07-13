@@ -52,6 +52,8 @@
   },
   "scripts": {
     "cs-check": "phpcs src --colors",
+    "cs-check:php73": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.3",
+    "cs-check:php74": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4",
     "cs-check:php8": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0",
     "cs-fix": "phpcbf src --colors"
   },
