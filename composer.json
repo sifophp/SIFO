@@ -40,6 +40,7 @@
     "weotch/phpthumb": "^1.0.5"
   },
   "require-dev": {
+    "ext-pdo_sqlite": "*",
     "adlawson/vfs": "^0.12.1",
     "mikey179/vfsstream": "^1.6.10",
     "phpcompatibility/php-compatibility": "^9.3",
