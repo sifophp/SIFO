@@ -25,7 +25,7 @@
     }
   ],
   "require": {
-    "php": "^7.3|^7.4",
+    "php": "^7.3|^7.4|^8.0",
     "adodb/adodb-php": "^5.21",
     "geoip/geoip": "^1.17",
     "neutron/sphinxsearch-api": "^2.0",
@@ -40,8 +40,9 @@
     "weotch/phpthumb": "^1.0.5"
   },
   "require-dev": {
+    "ext-pdo_sqlite": "*",
     "adlawson/vfs": "^0.12.1",
-    "mikey179/vfsstream": "^1.6",
+    "mikey179/vfsstream": "^1.6.10",
     "phpcompatibility/php-compatibility": "^9.3",
     "phpunit/phpunit": "^9.5",
     "sifophp/sifo-common-instance": "@dev",
@@ -51,6 +52,9 @@
   },
   "scripts": {
     "cs-check": "phpcs src --colors",
+    "cs-check:php73": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.3",
+    "cs-check:php74": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 7.4",
+    "cs-check:php8": "phpcs -p ./src --standard=vendor/phpcompatibility/php-compatibility/PHPCompatibility --runtime-set testVersion 8.0",
     "cs-fix": "phpcbf src --colors"
   },
   "config": {

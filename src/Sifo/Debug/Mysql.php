@@ -21,12 +21,10 @@
 namespace Sifo;
 use PDO,PDOStatement;
 
-include_once ROOT_PATH . '/vendor/sifophp/sifo/src/Sifo/Mysql.php';
-
 /**
  * DbDebugStatement class that is extended for debugging purposes.
  */
-class DebugMysqlStatement extends MysqlStatement
+abstract class PDOBadAbstractionDebugMysqlStatement extends MysqlStatement
 {
 	/**
 	 * Binded parameters ( not binded values ).
@@ -83,8 +81,11 @@ class DebugMysqlStatement extends MysqlStatement
 		$query_string = $this->_replacePreparedParameters( $query_string, $parameters );
 
 		preg_match('/\/\* (.*?) \*\/\n(.*)/s', $query_string, $matches);
-		$context      = $matches[1];
-		$query_string = $matches[2];
+        $context = 'unknow';
+        if (false === empty($matches)) {
+            $context      = $matches[1];
+            $query_string = $matches[2];
+        }
 
 		DebugMysql::setDebug( $query_string, $query_time, $context, $this, $this->db_params );
 
@@ -152,32 +153,64 @@ class DebugMysqlStatement extends MysqlStatement
 
 		return parent::fetch( $fetch_style, $cursor_orientation, $cursor_offset );
 	}
+}
 
-	/**
-	 * Returns an array containing all of the result set rows.
-	 *
-	 * @param integer $fetch_style Controls the contents of the returned array as documented in PDOStatement::fetch().
-	 * @param mixed $fetch_argument This argument have a different meaning depending on the value of the fetch_style parameter.
-	 * @param array $ctor_args Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
-	 * @return array
-	 */
-	public function fetchAll( $fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, $ctor_args = array() )
-	{
-        if ($this->result !== null)
+if (version_compare(PHP_VERSION, '8.0.0') >= 0) {
+    class DebugMysqlStatement extends PDOBadAbstractionDebugMysqlStatement
+    {
+        /**
+         * Returns an array containing all of the result set rows.
+         *
+         * @param integer $fetch_style Controls the contents of the returned array as documented in PDOStatement::fetch().
+         * @param mixed $fetch_argument This argument have a different meaning depending on the value of the fetch_style parameter.
+         * @param array $ctor_args Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
+         * @return array
+         */
+        public function fetchAll(int $fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, mixed ...$ctor_args): array
         {
-            $results      = $this->result;
-            $this->result = null;
+            if ($this->result !== null) {
+                $results = $this->result;
+                $this->result = null;
 
-            return $results;
+                return $results;
+            }
+
+            if ($fetch_argument === null) {
+                return $this->result = parent::fetchAll($fetch_style);
+            }
+
+            return $this->result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
         }
+    }
+}
 
-		if ( $fetch_argument === null )
-		{
-			return $this->result = parent::fetchAll( $fetch_style );
-		}
+if (version_compare(PHP_VERSION, '8.0.0') < 0) {
+    class DebugMysqlStatement extends PDOBadAbstractionDebugMysqlStatement
+    {
+        /**
+         * Returns an array containing all of the result set rows.
+         *
+         * @param integer $fetch_style Controls the contents of the returned array as documented in PDOStatement::fetch().
+         * @param mixed $fetch_argument This argument have a different meaning depending on the value of the fetch_style parameter.
+         * @param array $ctor_args Arguments of custom class constructor when the fetch_style parameter is PDO::FETCH_CLASS.
+         * @return array
+         */
+        public function fetchAll($fetch_style = PDO::FETCH_ASSOC, $fetch_argument = null, $ctor_args = []): array
+        {
+            if ($this->result !== null) {
+                $results = $this->result;
+                $this->result = null;
 
-		return $this->result = parent::fetchAll( $fetch_style, $fetch_argument, $ctor_args );
-	}
+                return $results;
+            }
+
+            if ($fetch_argument === null) {
+                return $this->result = parent::fetchAll($fetch_style);
+            }
+
+            return $this->result = parent::fetchAll($fetch_style, $fetch_argument, $ctor_args);
+        }
+    }
 }
 
 /**
@@ -302,20 +335,30 @@ class DebugMysql extends Mysql
 		}
 
 		$sql         = '/* ' . $context . ' */' . PHP_EOL . $statement;
-		$debug_query = array(
+        if (isset($db_params['db_dsn'])) {
+            $database = [
+                'dsn' => $db_params['db_dsn']
+            ];
+
+        } else {
+            $database = [
+                'host' => $db_params['db_host'],
+                'database' => $db_params['db_name'],
+                'user' => $db_params['db_user'],
+            ];
+        }
+
+		$debug_query = array_merge([
 			"tag" => $context,
 			"sql" => $sql,
 			"type" => ( ( 0 === stripos( $statement, 'SELECT' ) ) ? 'read' : 'write' ),
-			"host" => $db_params['db_host'],
-			"database" => $db_params['db_name'],
-			"user" => $db_params['db_user'],
             // phpcs:ignore
 			"trace" => DebugMysql::generateTrace( debug_backtrace( false ) ),
 			// Show a table with the method name and number (functions: Affected_Rows, Last_InsertID
 			"resultset" => $resultset_array,
 			"time" => $query_time,
 			"error" => ( isset( $error[2] ) !== false ) ? $error[2] : false
-		);
+		], $database);
 
 		$debug_query['rows_num'] = $rows_num;
 

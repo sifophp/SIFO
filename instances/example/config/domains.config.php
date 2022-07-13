@@ -20,12 +20,8 @@ $config['sifo.local'] = array(
 	'static_host' => 'http://static.sifo.local',
 	'media_host' => 'http://static.sifo.local', // Alternative static content (media). Comment to disable.
 	'database' => array(
-		'db_driver' => 'mysql', // To use transactions you must use mysqli driver.
-		'db_host' => '127.0.0.1',
-		'db_user' => 'root',
-		'db_password' => 'root',
-		'db_name' => 'yourdatabase',
-		'db_init_commands' => array( 'SET NAMES utf8' ) // Commands launched before the queries.
+		'db_driver' => 'sqlite', // To use transactions you must use mysqli driver.
+		'db_dsn' => sprintf('sqlite:/%s/test.sqlite3', __DIR__),
 	),
 	'php_ini_sets' => array( // Empty array if you don't want any php.ini overriden.
 		'log_errors' => 'On',
