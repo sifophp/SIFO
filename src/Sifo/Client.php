@@ -133,9 +133,9 @@ class Client
 		}
 		else
 		{
-			require_once ROOT_PATH . '/vendor/sifophp/sifo/src/Browscap/Browscap.php';
-			$bc      = new \phpbrowscap\Browscap( ROOT_PATH . '/vendor/sifophp/sifo/src/Browscap/' );
-			$browser = $bc->getBrowser( $useragent, $return_array );
+			require_once __DIR__  .'/../Browscap/Browscap.php';
+            $bc      = new \phpbrowscap\Browscap( __DIR__  .'/../Browscap' );
+            $browser = $bc->getBrowser( $useragent, $return_array );
 			Registry::set( 'Client_Browser', $browser );
 		}
 
