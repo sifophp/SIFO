@@ -20,6 +20,9 @@
 
 namespace Sifo;
 
+use function trigger_error;
+use const E_USER_WARNING;
+
 /**
  * Templating engine. Compiles some smarty stuff for an easier management.
  */
@@ -98,18 +101,23 @@ class View
 
     public static function customErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        $error_has_been_silented = (0 === error_reporting());
-        if ($error_has_been_silented)
-        {
-            return false;
-        }
-
         $error_friendly = Debug::friendlyErrorType($errno);
         $error_string   = "[{$error_friendly}] {$errstr} in {$errfile}:{$errline}";
 
         if (Domains::getInstance()->getDebugMode())
         {
             Debug::subSet('smarty_errors', $errfile, '<pre>' . $error_string . '</pre>', true);
+            $error_message = $error_string;
+            if (!empty(Urls::$actual_url)) {
+                $error_message .= ' in URL: ' . Urls::$actual_url;
+            }
+            trigger_error($error_message, E_USER_WARNING);
+        }
+
+        $error_has_been_silented = (0 === error_reporting());
+        if ($error_has_been_silented)
+        {
+            return false;
         }
 
         // Smarty only write PHP USER errors to log:
