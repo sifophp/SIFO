@@ -94,7 +94,7 @@ class Config
 	 * @param string $instance_name Instance Name, needed to determine correct paths.
 	 * @return Config
 	 */
-	public static function getInstance( $instance_name = null )
+	public static function getInstance( $instance_name = null, $force = false )
 	{
 		// Load instance from bootsrap
 		if ( !isset( $instance_name ) )
@@ -102,7 +102,7 @@ class Config
 			$instance_name = Bootstrap::$instance;
 		}
 
-		if ( !isset ( self::$instance[$instance_name] ) )
+		if ( !isset ( self::$instance[$instance_name] ) || $force === true )
 		{
 			self::$instance[$instance_name] = new self( $instance_name );
 		}

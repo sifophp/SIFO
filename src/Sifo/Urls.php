@@ -276,6 +276,16 @@ class Urls
 		return $this->url_instance_config;
 	}
 
+    public function reloadUrlConfig($instance_name = null)
+    {
+        if ( null === $instance_name )
+        {
+            $instance_name = Bootstrap::$instance;
+        }
+
+        self::$instance[$instance_name] = new Urls( $instance_name );
+    }
+
 	/**
 	 * Returns information that helps to determine how urls must be processed.
 	 *
