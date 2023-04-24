@@ -120,7 +120,7 @@ class Urls
 		return self::$instance[$instance_name];
 	}
 
-	private function __construct( $instance_name )
+	private function __construct( $instance_name , $force = false)
 	{
 		$domains = Domains::getInstance( $instance_name );
 		$filter_server = FilterServer::getInstance();
@@ -187,7 +187,7 @@ class Urls
 		self::$path_parts = explode( self::$url_definition['context_separator'], self::$path );
 
 		// Default url.config for all languages.
-		self::$url_config = $this->url_instance_config = Config::getInstance( $instance_name )->getConfig( 'url' );
+		self::$url_config = $this->url_instance_config = Config::getInstance( $instance_name, $force )->getConfig( 'url' );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class Urls
             $instance_name = Bootstrap::$instance;
         }
 
-        self::$instance[$instance_name] = new Urls( $instance_name );
+        self::$instance[$instance_name] = new Urls( $instance_name, true );
     }
 
 	/**
